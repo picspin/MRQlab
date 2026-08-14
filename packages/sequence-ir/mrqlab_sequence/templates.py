@@ -16,11 +16,27 @@ def build_sequence(template: str, params: dict | None = None) -> SequenceIR:
             center = te * (n + 1); rf.append((center - te / 2, 180)); adc += [(center, 1), (center + .002, 0)]
     else: raise ValueError(f"unknown template {template!r}")
     gx = [item for t, v in adc if v == 1 for item in [(max(0., t - .003), -1), (t, 1), (t + .002, 0)]]
+    rf_phases = [0.0] + ([90.0] * (len(rf) - 1) if kind in {"SE", "TSE"} else [0.0] * (len(rf) - 1))
+    metadata = {"template": kind, "te": te, "tr": tr, "echoes": echoes,
+                "preferred_engine": "epg" if kind == "TSE" else "bloch"}
+    if kind == "TSE":
+        metadata["epg_dk_events"] = [
+            {"time": center - 0.75 * te, "dk": [1, 0, 0]}
+            for n in range(echoes)
+            for center in (te * (n + 1),)
+        ] + [
+            {"time": center - 0.25 * te, "dk": [1, 0, 0]}
+            for n in range(echoes)
+            for center in (te * (n + 1),)
+        ]
+        metadata["epg_dk_events"].sort(key=lambda event: event["time"])
+        for event in metadata["epg_dk_events"]:
+            event["time"] = round(event["time"], 12)
     return SequenceIR(name=kind, duration=tr, channels=[
-        _ch("rf_amp", rf), _ch("rf_phase", [(t, 0) for t, _ in rf]),
+        _ch("rf_amp", rf), _ch("rf_phase", list(zip((t for t, _ in rf), rf_phases))),
         _ch("gx", gx), _ch("gy", []), _ch("gz", [(0, 1), (.001, 0)]),
-        _ch("adc_gate", adc), _ch("nco_freq", [(0, 0)]), _ch("nco_phase", [(0, 0)])],
-        metadata={"template": kind, "te": te, "tr": tr, "echoes": echoes})
+        _ch("adc_gate", adc), _ch("nco_freq", [(0, 0)]), _ch("nco_phase", [(0, 0)]),
+    ], metadata=metadata)
 
 def fid(duration: float = .1) -> SequenceIR:
     """Small demo/test helper; templates are the product path."""
