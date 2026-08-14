@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from mrqlab_sequence import build_sequence
+from mrqlab_sequence.models import Channel, Event, SequenceIR
 from mrqlab_physics import EngineOptions
 from mrqlab_physics.kernel.runner import run_backend
 from mrqlab_physics.kernel.scheduler import schedule
@@ -11,11 +12,13 @@ from mrqlab_physics.ops.types import AdcSample, GradInterval, Relax, RfOp, Shift
 class RecordingBackend:
     def __init__(self):
         self.applied = []
+        self.observed = []
 
     def apply(self, op):
         self.applied.append(op)
 
     def observe(self, op):
+        self.observed.append((op, len(self.applied)))
         return 1.0 + 0.0j
 
     def snapshot(self):
@@ -44,3 +47,71 @@ def test_runner_samples_after_prior_intervals_and_tracks_k():
     assert trace.signal.tolist() == [1.0 + 0.0j, 1.0 + 0.0j]
     assert trace.k_trajectory.shape == (2, 3)
     assert trace.snapshots.shape[0] == len(operators)
+
+
+def test_scheduler_rejects_fractional_metadata_shift_components():
+    sequence = SequenceIR(name="fractional-shift", duration=0.01, channels=[])
+    sequence.metadata["epg_dk_events"] = [{"time": 0.005, "dk": [1.5, 0, 0]}]
+
+    with pytest.raises(ValueError, match="three integer dk values"):
+        schedule(sequence, EngineOptions())
+
+
+def test_scheduler_places_gradient_fallback_after_rf_at_shared_timestamp():
+    sequence = SequenceIR(
+        name="gradient-ordering",
+        duration=0.002,
+        channels=[
+            Channel(name="rf_amp", events=[Event(time=0.001, value=90)]),
+            Channel(name="rf_phase", events=[Event(time=0.001, value=0)]),
+            Channel(name="gx", events=[Event(time=0, value=1), Event(time=0.001, value=0)]),
+        ],
+    )
+
+    operators = schedule(sequence, EngineOptions(epg_dk_scale=0.001))
+
+    shared_time = [op for op in operators if op.t == 0.001]
+    assert [type(op) for op in shared_time] == [RfOp, Shift, Relax, GradInterval]
+    assert shared_time[1] == Shift(0.001, (1, 0, 0), "gradient_area")
+
+
+def test_scheduler_converts_rf_and_nco_phases_and_samples_before_new_interval():
+    sequence = SequenceIR(
+        name="phase-and-adc-ordering",
+        duration=0.002,
+        channels=[
+            Channel(name="rf_amp", events=[Event(time=0.001, value=90)]),
+            Channel(name="rf_phase", events=[Event(time=0.001, value=90)]),
+            Channel(name="gx", events=[Event(time=0, value=1), Event(time=0.001, value=0)]),
+            Channel(name="adc_gate", events=[Event(time=0.001, value=1), Event(time=0.002, value=0)]),
+            Channel(name="nco_freq", events=[Event(time=0, value=123)]),
+            Channel(name="nco_phase", events=[Event(time=0, value=180)]),
+        ],
+    )
+
+    operators = schedule(sequence, EngineOptions(dwell_time=0.001, epg_dk_scale=0.001))
+    shared_time = [op for op in operators if op.t == 0.001]
+    rf, shift, adc, relax, gradient = shared_time
+    backend = RecordingBackend()
+    run_backend(backend, operators, return_snapshots=False)
+
+    assert [type(op) for op in shared_time] == [RfOp, Shift, AdcSample, Relax, GradInterval]
+    assert rf.phase_rad == pytest.approx(np.pi / 2)
+    assert adc.nco_frequency_hz == 123
+    assert adc.nco_phase_rad == pytest.approx(np.pi)
+    assert backend.observed == [(adc, backend.applied.index(adc) + 1)]
+    assert backend.applied[backend.applied.index(adc) + 1] == relax
+    assert gradient.t == adc.t
+
+
+def test_scheduler_metadata_shifts_suppress_gradient_area_fallback():
+    sequence = SequenceIR(
+        name="metadata-precedence",
+        duration=0.002,
+        channels=[Channel(name="gx", events=[Event(time=0, value=1), Event(time=0.001, value=0)])],
+        metadata={"epg_dk_events": [{"time": 0.001, "dk": [3, 0, 0]}]},
+    )
+
+    shifts = [op for op in schedule(sequence, EngineOptions(epg_dk_scale=0.001)) if isinstance(op, Shift)]
+
+    assert shifts == [Shift(0.001, (3, 0, 0), "metadata")]
