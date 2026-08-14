@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from ..backends.protocol import StateBackend
+from ..ops.sample import demodulate
 from ..ops.types import AdcSample, GradInterval, Operator
 
 
@@ -23,12 +24,20 @@ def run_backend(
     snapshots: list[np.ndarray] = []
     k = np.zeros(3, dtype=float)
     for op in operators:
-        backend.apply(op)
+        if isinstance(op, AdcSample):
+            signal.append(
+                demodulate(
+                    backend.observe(),
+                    op.t,
+                    op.nco_frequency_hz,
+                    op.nco_phase_rad,
+                )
+            )
+            trajectory.append(k.copy())
+        else:
+            backend.apply(op)
         if isinstance(op, GradInterval):
             k = k + np.asarray(op.gradient) * op.dt
-        if isinstance(op, AdcSample):
-            signal.append(backend.observe(op))
-            trajectory.append(k.copy())
         if return_snapshots:
             snapshots.append(backend.snapshot())
     snapshot_array = np.stack(snapshots) if snapshots else None

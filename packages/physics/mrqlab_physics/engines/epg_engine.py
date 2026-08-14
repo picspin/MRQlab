@@ -1,12 +1,32 @@
-import time
-
 from ..backends.epg import EPGBackend
-from ..base import SimulationEngine
-from ..kernel.caps import enforce_work_limit
-from ..kernel.conventions import SIGNAL_CONVENTION
-from ..kernel.runner import run_backend
-from ..kernel.scheduler import schedule
-from ..models import EngineOptions, Phantom, ScannerModel, SimResult
+from ..base import EnginePlugin, SimulationEngine
+
+
+def _state_width(phantom, scanner, options) -> int:
+    return 3 * (2 * options.epg_kmax + 1)
+
+
+def _backend(phantom, scanner, options):
+    return EPGBackend(phantom, options.epg_kmax)
+
+
+def _metadata(phantom, scanner, options):
+    return {
+        "available": True,
+        "kmax": options.epg_kmax,
+        "n_orders": 2 * options.epg_kmax + 1,
+        "assumptions": ["classic single-pool EPG", "metadata-first integer dk"],
+    }
+
+
+EPG_PLUGIN = EnginePlugin(
+    name="epg",
+    description="Classic bounded-order extended phase graph",
+    state_width=_state_width,
+    backend_factory=_backend,
+    metadata_factory=_metadata,
+    snapshot_field="configurations",
+)
 
 
 class EPGEngine(SimulationEngine):
@@ -14,27 +34,5 @@ class EPGEngine(SimulationEngine):
     description = "Classic bounded-order extended phase graph"
     available = True
 
-    def simulate(
-        self, sequence, phantom: Phantom, scanner: ScannerModel, options: EngineOptions
-    ) -> SimResult:
-        started = time.perf_counter()
-        operators = schedule(sequence, options)
-        work = enforce_work_limit(self.name, len(operators), 1, options, 1)
-        trace = run_backend(EPGBackend(phantom, options.epg_kmax), operators, options.return_configurations)
-        return SimResult(
-            signal=trace.signal,
-            k_trajectory=trace.k_trajectory * scanner.gradient_scale,
-            configurations=trace.snapshots,
-            meta={
-                "engine": self.name,
-                "signal_convention": SIGNAL_CONVENTION,
-                "available": True,
-                "samples": int(trace.signal.size),
-                "n_ops": len(operators),
-                "estimated_work": work,
-                "kmax": options.epg_kmax,
-                "n_orders": 2 * options.epg_kmax + 1,
-                "assumptions": ["classic single-pool EPG", "metadata-first integer dk"],
-            },
-            timing={"simulation_seconds": time.perf_counter() - started},
-        )
+    def __init__(self):
+        super().__init__(EPG_PLUGIN)

@@ -43,3 +43,25 @@ def test_se_and_gre_remain_primary_bloch_templates():
             Phantom(), ScannerModel(), EngineOptions(),
         )
         assert result.signal.size == 2
+
+
+def test_gradient_scale_controls_spatial_phase_and_k_trajectory():
+    sequence = SequenceIR(name="gradient-golden", duration=0.251, channels=[
+        _channel("rf_amp", [(0.0, 90.0)]),
+        _channel("rf_phase", [(0.0, 90.0)]),
+        _channel("gx", [(0.0, 2.0), (0.25, 0.0)]),
+        _channel("adc_gate", [(0.25, 1.0), (0.251, 0.0)]),
+    ])
+    phantom = Phantom(isochromats=(
+        Isochromat(t1=1e9, t2=1e9, position_m=(0.5, 0.0, 0.0)),
+    ))
+
+    result = BlochEngine().simulate(
+        sequence,
+        phantom,
+        ScannerModel(gradient_scale=3.0),
+        EngineOptions(dwell_time=0.001),
+    )
+
+    assert result.signal[0] == pytest.approx(-1j, abs=1e-9)
+    np.testing.assert_allclose(result.k_trajectory, [[1.5, 0.0, 0.0]], atol=1e-12)

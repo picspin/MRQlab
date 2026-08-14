@@ -1,12 +1,37 @@
-import time
+from ..backends.spectral import SpectralBackend, spectral_state_width
+from ..base import EnginePlugin, SimulationEngine
 
-from ..backends.spectral import SpectralBackend
-from ..base import SimulationEngine
-from ..kernel.caps import enforce_work_limit
-from ..kernel.conventions import SIGNAL_CONVENTION
-from ..kernel.runner import run_backend
-from ..kernel.scheduler import schedule
-from ..models import EngineOptions, Phantom, ScannerModel, SimResult
+
+def _state_width(phantom, scanner, options) -> int:
+    return spectral_state_width(phantom)
+
+
+def _backend(phantom, scanner, options):
+    return SpectralBackend(phantom, scanner)
+
+
+def _metadata(phantom, scanner, options):
+    return {
+        "available": True,
+        "model": "independent chemical-shift pools",
+        "pools": [pool.name for pool in phantom.pools],
+        "n_isochromats": spectral_state_width(phantom),
+        "assumptions": [
+            "no exchange",
+            "instantaneous RF",
+            "Lorentzian relaxation only",
+        ],
+    }
+
+
+SPECTRAL_PLUGIN = EnginePlugin(
+    name="spectral",
+    description="Independent fat/water chemical-shift pools",
+    state_width=_state_width,
+    backend_factory=_backend,
+    metadata_factory=_metadata,
+    snapshot_field="magnetization",
+)
 
 
 class SpectralEngine(SimulationEngine):
@@ -14,36 +39,5 @@ class SpectralEngine(SimulationEngine):
     description = "Independent fat/water chemical-shift pools"
     available = True
 
-    def simulate(
-        self, sequence, phantom: Phantom, scanner: ScannerModel, options: EngineOptions
-    ) -> SimResult:
-        started = time.perf_counter()
-        operators = schedule(sequence, options)
-        base_spins = phantom.resolved_isochromats()
-        work = enforce_work_limit(
-            self.name, len(operators), len(base_spins), options, len(phantom.pools)
-        )
-        trace = run_backend(
-            SpectralBackend(phantom, scanner), operators, options.return_magnetization
-        )
-        return SimResult(
-            signal=trace.signal,
-            k_trajectory=trace.k_trajectory * scanner.gradient_scale,
-            magnetization=trace.snapshots,
-            meta={
-                "engine": self.name,
-                "signal_convention": SIGNAL_CONVENTION,
-                "available": True,
-                "model": "independent chemical-shift pools",
-                "pools": [pool.name for pool in phantom.pools],
-                "n_isochromats": len(base_spins) * len(phantom.pools),
-                "n_ops": len(operators),
-                "estimated_work": work,
-                "assumptions": [
-                    "no exchange",
-                    "instantaneous RF",
-                    "Lorentzian relaxation only",
-                ],
-            },
-            timing={"simulation_seconds": time.perf_counter() - started},
-        )
+    def __init__(self):
+        super().__init__(SPECTRAL_PLUGIN)

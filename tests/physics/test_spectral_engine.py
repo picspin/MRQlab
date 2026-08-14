@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 from mrqlab_sequence import Channel, Event, SequenceIR
@@ -39,3 +40,24 @@ def test_spectral_requires_at_least_one_pool():
             SequenceIR(name="empty", duration=0.01, channels=[]),
             Phantom(), ScannerModel(), EngineOptions(),
         )
+
+
+def test_equal_fat_water_pools_have_expected_quarter_beat_complex_phase():
+    scanner = ScannerModel(b0_t=1.5)
+    delta_hz = 3.5e-6 * GAMMA_HZ_PER_T * scanner.b0_t
+    sample_time = 0.25 / delta_hz
+    sequence = SequenceIR(name="quarter-beat", duration=sample_time + 1e-5, channels=[
+        _channel("rf_amp", [(0.0, 90.0)]),
+        _channel("rf_phase", [(0.0, 0.0)]),
+        _channel("adc_gate", [(sample_time, 1.0), (sample_time + 1e-5, 0.0)]),
+    ])
+    phantom = Phantom(pools=(
+        SpectralPool("water", 0.5, 0.0, 1e9, 1e9),
+        SpectralPool("fat", 0.5, -3.5, 1e9, 1e9),
+    ))
+
+    result = SpectralEngine().simulate(
+        sequence, phantom, scanner, EngineOptions(dwell_time=1e-5)
+    )
+
+    assert result.signal[0] == pytest.approx(-0.5 - 0.5j, abs=1e-9)

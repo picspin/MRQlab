@@ -3,8 +3,7 @@ import numpy as np
 from ..models import Phantom
 from ..ops.relax import relaxation_factors
 from ..ops.rf import epg_rf_matrix
-from ..ops.sample import demodulate
-from ..ops.types import AdcSample, GradInterval, Operator, Relax, RfOp, Shift
+from ..ops.types import GradInterval, Operator, Relax, RfOp, Shift
 
 
 def _translate(values: np.ndarray, delta: int) -> np.ndarray:
@@ -42,11 +41,11 @@ class EPGBackend:
             dk = op.dk[0]
             self.omega[0] = _translate(self.omega[0], dk)
             self.omega[1] = _translate(self.omega[1], -dk)
-        elif isinstance(op, (GradInterval, AdcSample)):
+        elif isinstance(op, GradInterval):
             return
 
-    def observe(self, op: AdcSample) -> complex:
-        return demodulate(self.omega[0, self.zero], op.t, op.nco_frequency_hz, op.nco_phase_rad)
+    def observe(self) -> complex:
+        return complex(self.omega[0, self.zero])
 
     def snapshot(self) -> np.ndarray:
         return self.omega.copy()

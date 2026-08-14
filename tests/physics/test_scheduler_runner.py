@@ -3,7 +3,11 @@ import pytest
 
 from mrqlab_sequence import build_sequence
 from mrqlab_sequence.models import Channel, Event, SequenceIR
-from mrqlab_physics import EngineOptions
+from mrqlab_physics import EngineOptions, Phantom, ScannerModel
+from mrqlab_physics.engines import BlochEngine
+import mrqlab_physics.base as base_module
+import mrqlab_physics.engines.bloch_engine as bloch_engine_module
+import mrqlab_physics.kernel.scheduler as scheduler_module
 from mrqlab_physics.kernel.runner import run_backend
 from mrqlab_physics.kernel.scheduler import schedule
 from mrqlab_physics.ops.types import AdcSample, GradInterval, Relax, RfOp, Shift
@@ -17,8 +21,8 @@ class RecordingBackend:
     def apply(self, op):
         self.applied.append(op)
 
-    def observe(self, op):
-        self.observed.append((op, len(self.applied)))
+    def observe(self):
+        self.observed.append(len(self.applied))
         return 1.0 + 0.0j
 
     def snapshot(self):
@@ -99,8 +103,9 @@ def test_scheduler_converts_rf_and_nco_phases_and_samples_before_new_interval():
     assert rf.phase_rad == pytest.approx(np.pi / 2)
     assert adc.nco_frequency_hz == 123
     assert adc.nco_phase_rad == pytest.approx(np.pi)
-    assert backend.observed == [(adc, backend.applied.index(adc) + 1)]
-    assert backend.applied[backend.applied.index(adc) + 1] == relax
+    assert adc not in backend.applied
+    assert backend.observed == [backend.applied.index(shift) + 1]
+    assert backend.applied[backend.observed[0]] == relax
     assert gradient.t == adc.t
 
 
@@ -115,3 +120,87 @@ def test_scheduler_metadata_shifts_suppress_gradient_area_fallback():
     shifts = [op for op in schedule(sequence, EngineOptions(epg_dk_scale=0.001)) if isinstance(op, Shift)]
 
     assert shifts == [Shift(0.001, (3, 0, 0), "metadata")]
+
+
+def test_arithmetic_preflight_rejects_work_before_scheduler_materialization(monkeypatch):
+    sequence = SequenceIR(
+        name="preflight",
+        duration=0.101,
+        channels=[
+            Channel(
+                name="adc_gate",
+                events=[Event(time=0.001, value=1), Event(time=0.101, value=0)],
+            )
+        ],
+    )
+
+    def fail_if_materialized(*args, **kwargs):
+        raise AssertionError("scheduler materialized before arithmetic work preflight")
+
+    monkeypatch.setattr(scheduler_module, "schedule", fail_if_materialized)
+    monkeypatch.setattr(base_module, "schedule", fail_if_materialized)
+    monkeypatch.setattr(bloch_engine_module, "schedule", fail_if_materialized, raising=False)
+
+    with pytest.raises(ValueError, match="estimated work"):
+        BlochEngine().simulate(
+            sequence,
+            Phantom(),
+            ScannerModel(),
+            EngineOptions(dwell_time=0.001, max_work=1),
+        )
+
+
+def test_scheduler_enforces_explicit_event_limit(monkeypatch):
+    sequence = SequenceIR(
+        name="event-limit",
+        duration=0.01,
+        channels=[
+            Channel(
+                name="gx",
+                events=[Event(time=0.0, value=0.0), Event(time=0.01, value=0.0)],
+            )
+        ],
+    )
+    monkeypatch.setattr(scheduler_module, "MAX_SEQUENCE_EVENTS", 1, raising=False)
+
+    with pytest.raises(ValueError, match="event limit"):
+        schedule(sequence, EngineOptions())
+
+
+def test_scheduler_enforces_explicit_adc_sample_limit(monkeypatch):
+    sequence = SequenceIR(
+        name="sample-limit",
+        duration=0.003,
+        channels=[
+            Channel(
+                name="adc_gate",
+                events=[Event(time=0.0, value=1.0), Event(time=0.003, value=0.0)],
+            )
+        ],
+    )
+    monkeypatch.setattr(scheduler_module, "MAX_ADC_SAMPLES", 2, raising=False)
+
+    with pytest.raises(ValueError, match="ADC sample limit"):
+        schedule(sequence, EngineOptions(dwell_time=0.001))
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        {},
+        {"time": 0.005},
+        {"dk": [1, 0, 0]},
+        None,
+        {"time": 0.005, "dk": "bad"},
+    ],
+)
+def test_scheduler_rejects_malformed_metadata_shifts_as_validation_errors(raw):
+    sequence = SequenceIR(
+        name="malformed-shift",
+        duration=0.01,
+        channels=[],
+        metadata={"epg_dk_events": [raw]},
+    )
+
+    with pytest.raises(ValueError, match="epg_dk_event"):
+        schedule(sequence, EngineOptions())

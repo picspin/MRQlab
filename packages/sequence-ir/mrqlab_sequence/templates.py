@@ -1,12 +1,39 @@
+import math
+from numbers import Integral, Real
+
 from .models import Channel, Event, SequenceIR
 
 def _ch(name, pairs): return Channel(name=name, events=[Event(time=t, value=v) for t, v in pairs])
 
+
+def _finite_parameter(params: dict, name: str, default: float) -> float:
+    value = params.get(name, default)
+    if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value):
+        raise ValueError(f"{name} must be a finite number")
+    return float(value)
+
+
+def _echo_count(params: dict, default: int) -> int:
+    value = params.get("echoes", default)
+    if isinstance(value, bool) or not isinstance(value, Integral) or value <= 0:
+        raise ValueError("echoes must be a strict positive integer")
+    return int(value)
+
 def build_sequence(template: str, params: dict | None = None) -> SequenceIR:
-    p = params or {}; kind = template.upper(); te = float(p.get("te", .03)); tr = float(p.get("tr", .5))
+    p = params or {}; kind = template.upper()
+    if kind not in {"GRE", "SE", "TSE"}:
+        raise ValueError(f"unknown template {template!r}")
+    te = _finite_parameter(p, "te", .03); tr = _finite_parameter(p, "tr", .5)
     if not 0 < te < tr: raise ValueError("require 0 < te < tr")
-    flip = float(p.get("flip_angle", 30 if kind == "GRE" else 90))
-    echoes = int(p.get("echoes", 4 if kind == "TSE" else 1))
+    flip = _finite_parameter(p, "flip_angle", 30 if kind == "GRE" else 90)
+    echoes = _echo_count(p, 4 if kind == "TSE" else 1)
+    train_overflows = (
+        te + .002 > tr
+        if kind == "GRE"
+        else tr <= .002 or echoes > (tr - .002) / te
+    )
+    if train_overflows:
+        raise ValueError("echo train and ADC gate must fit within tr")
     rf = [(0., flip)]
     adc = []
     if kind == "GRE":
@@ -14,7 +41,6 @@ def build_sequence(template: str, params: dict | None = None) -> SequenceIR:
     elif kind in {"SE", "TSE"}:
         for n in range(echoes):
             center = te * (n + 1); rf.append((center - te / 2, 180)); adc += [(center, 1), (center + .002, 0)]
-    else: raise ValueError(f"unknown template {template!r}")
     gx = [item for t, v in adc if v == 1 for item in [(max(0., t - .003), -1), (t, 1), (t + .002, 0)]]
     rf_phases = [0.0] + ([90.0] * (len(rf) - 1) if kind in {"SE", "TSE"} else [0.0] * (len(rf) - 1))
     metadata = {"template": kind, "te": te, "tr": tr, "echoes": echoes,

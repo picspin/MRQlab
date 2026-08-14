@@ -8,10 +8,10 @@ The dependency direction is `sequence-ir → physics → recon → API → web`.
 
 ## Physics microkernel
 
-`SequenceIR → scheduler → operators → state backend → SimResult` is the physics path. The kernel owns scheduling, radians/seconds/teaching-gradient units, work caps, ADC/NCO collection, k-trajectory, and the `mrqlab.physics_engines` registry. Bloch, classic EPG, and spectral plugins own state and operator application. Recon, API, and web never branch on a backend class.
+`SequenceIR → arithmetic preflight → scheduler → operators → state backend → SimResult` is the physics path. The kernel owns scheduling, radians/seconds/teaching-gradient units, work caps, ADC/NCO collection, k-trajectory, common result assembly, and the `mrqlab.physics_engines` registry. Built-ins and external `EnginePlugin` descriptors own state allocation and non-ADC operator application. Recon, API, and web never branch on a backend class.
 
 Built-in routing is SE/GRE → Bloch and TSE → EPG through `preferred_engine` metadata; an API request may override it. Spectral simulation is explicitly selected with pool data. PDG is an optional provider seam, while exchange and MT remain explicit EPG-X boundaries.
 
 ## MVP versus fidelity
 
-MVP Bloch simulation demonstrates rotations, T1/T2 relaxation, off-resonance, ADC sampling, and simple k evolution. SE and GRE produce signals; TSE uses simplified repeated refocusing. It is educational and deliberately not a validated scanner or safety simulator. Classic EPG is the shipped model for bounded-order multi-echo trains. Cartesian FFT is implemented; non-Cartesian trajectories will use the NUFFT adapter seam later.
+Physics v1 ships multi-isochromat Bloch rotations, T1/T2 relaxation, off-resonance and spatial phase for SE/GRE; classic bounded-order EPG for TSE/CPMG echo trains; and independent chemical-shift pools for fat/water teaching examples. It is educational and deliberately not a validated scanner or safety simulator. Cartesian FFT is implemented; non-Cartesian trajectories will use the NUFFT adapter seam later.

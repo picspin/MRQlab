@@ -5,11 +5,16 @@ from .bloch import BlochBackend
 GAMMA_HZ_PER_T = 42_577_478.518
 
 
-def spectral_isochromats(phantom: Phantom, scanner: ScannerModel) -> tuple[Isochromat, ...]:
+def spectral_state_width(phantom: Phantom) -> int:
     if not phantom.pools:
         raise ValueError("spectral engine requires at least one spectral pool")
     if sum(pool.fraction for pool in phantom.pools) <= 0:
         raise ValueError("spectral pool fractions must sum to a positive value")
+    return len(phantom.resolved_isochromats()) * len(phantom.pools)
+
+
+def spectral_isochromats(phantom: Phantom, scanner: ScannerModel) -> tuple[Isochromat, ...]:
+    spectral_state_width(phantom)
 
     expanded: list[Isochromat] = []
     for base in phantom.resolved_isochromats():

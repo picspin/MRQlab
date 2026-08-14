@@ -10,7 +10,7 @@ MRQLab is a teaching MRI simulator, not a clinical scanner, safety simulator, or
 | `EPGEngine` | Signed classic `(F+, F-, Z)` configuration orders | TSE/CPMG echo trains | Single pool, bounded integer orders, metadata-first `dk` |
 | `SpectralEngine` | Independent chemical-shift Bloch pools | Fat/water phase and beating | No exchange, MT, CEST saturation, or fitted MRS lineshapes |
 
-All implement `simulate(SequenceIR, Phantom, ScannerModel, EngineOptions) -> SimResult`. Recon, API, and web consume `SimResult`; they do not import engine classes.
+All are returned as a kernel-owned `SimulationEngine` implementing `simulate(SequenceIR, Phantom, ScannerModel, EngineOptions) -> SimResult`. Recon, API, and web consume `SimResult`; they do not import engine classes.
 
 ## Units and signal convention
 
@@ -26,18 +26,29 @@ For RF flip `α` and phase `φ`, `RfOp` applies the Weigel classic EPG matrix to
 
 ## Work safety
 
-Before backend allocation, the kernel estimates work as operator count times backend state width: isochromat count for Bloch, `3 × (2*kmax + 1)` for EPG, and isochromat count times pool count for spectral. The API clamps request `max_work` to `SIM_MAX_WORK=2000000` by default. `SIM_MAX_MATRIX=64` remains the reconstruction/UI dimension cap. Sequence duration is not treated as wall-clock runtime.
+Before schedule or backend-state materialization, an arithmetic preflight counts ADC samples and planned operators, then the kernel estimates work as operator count times backend state width: isochromat count for Bloch, `3 × (2*kmax + 1)` for EPG, and isochromat count times pool count for spectral. A sequence is additionally limited to 100,000 channel events and 250,000 ADC samples. The API clamps request `max_work` to `SIM_MAX_WORK=2000000` by default and disables magnetization/configuration snapshots because its response does not return them. `SIM_MAX_MATRIX=64` remains the reconstruction/UI dimension cap. Sequence duration is not treated as wall-clock runtime.
 
 ## Plugins
 
-External distributions publish a `SimulationEngine` instance or subclass:
+External distributions publish an `EnginePlugin` backend descriptor. Its state-width function must not allocate backend state; its factory returns an object that applies scheduled non-ADC operators, exposes the raw transverse signal through `observe()`, and optionally snapshots its state.
+
+```python
+from mrqlab_physics import EnginePlugin
+
+plugin = EnginePlugin(
+    name="my_engine",
+    description="Example state backend",
+    state_width=state_width,
+    backend_factory=make_backend,
+)
+```
 
 ```toml
 [project.entry-points."mrqlab.physics_engines"]
-my_engine = "my_package.engine:MyEngine"
+my_engine = "my_package.engine:plugin"
 ```
 
-Names must match the entry-point name and may not shadow `bloch`, `epg`, or `spectral`. PDG uses `PDGAdapter` with a caller-supplied provider; torch, MRzero, and pulseq-zero are not default dependencies.
+Names must match the entry-point name and may not shadow `bloch`, `epg`, or `spectral`. Full `SimulationEngine` entry points are rejected with a migration error because they could bypass kernel scheduling and caps. The kernel wraps every descriptor in the same four-argument façade and owns scheduling, cap enforcement, ADC/NCO demodulation, k-trajectory, and `SimResult` assembly. PDG remains a standalone `PDGAdapter` seam with a caller-supplied provider; torch, MRzero, and pulseq-zero are not default dependencies.
 
 ## Extension seams
 

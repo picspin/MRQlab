@@ -3,8 +3,7 @@ import numpy as np
 from ..models import Isochromat, ScannerModel
 from ..ops.relax import relaxation_factors
 from ..ops.rf import rotate_cartesian
-from ..ops.sample import demodulate
-from ..ops.types import AdcSample, GradInterval, Operator, Relax, RfOp, Shift
+from ..ops.types import GradInterval, Operator, Relax, RfOp, Shift
 
 
 class BlochBackend:
@@ -34,14 +33,13 @@ class BlochBackend:
             transverse = (self.state[:, 0] + 1j * self.state[:, 1]) * np.exp(1j * phase)
             self.state[:, 0] = transverse.real
             self.state[:, 1] = transverse.imag
-        elif isinstance(op, (Shift, AdcSample)):
+        elif isinstance(op, Shift):
             return
 
-    def observe(self, op: AdcSample) -> complex:
+    def observe(self) -> complex:
         transverse = self.state[:, 0] + 1j * self.state[:, 1]
         total_weight = self.weights.sum()
-        value = 0j if total_weight == 0 else np.sum(self.weights * transverse) / total_weight
-        return demodulate(value, op.t, op.nco_frequency_hz, op.nco_phase_rad)
+        return 0j if total_weight == 0 else complex(np.sum(self.weights * transverse) / total_weight)
 
     def snapshot(self) -> np.ndarray:
         return self.state.copy()

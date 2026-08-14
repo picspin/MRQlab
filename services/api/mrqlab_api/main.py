@@ -25,9 +25,9 @@ class SimulateRequest(BaseModel):
     template: TemplateRequest | None = None
     engine: str | None = None
     phantom: dict[str, Any] = Field(default_factory=dict)
-    scanner: dict[str, float] = Field(default_factory=dict)
+    scanner: dict[str, Any] = Field(default_factory=dict)
     options: dict[str, Any] = Field(default_factory=dict)
-    matrix: int = Field(default=32, ge=1)
+    matrix: int = Field(default=32, ge=1, strict=True)
     @model_validator(mode="after")
     def one_source(self):
         if (self.sequence is None) == (self.template is None):
@@ -63,7 +63,12 @@ def simulate(request: SimulateRequest):
     try:
         sequence = request.sequence or build_sequence(request.template.template, request.template.params)
         requested_options = EngineOptions(**request.options)
-        options = replace(requested_options, max_work=min(requested_options.max_work, MAX_WORK))
+        options = replace(
+            requested_options,
+            max_work=min(requested_options.max_work, MAX_WORK),
+            return_magnetization=False,
+            return_configurations=False,
+        )
         engine_name = request.engine or str(sequence.metadata.get("preferred_engine", "bloch"))
         result = get_engine(engine_name).simulate(
             sequence, _phantom_from_payload(request.phantom), ScannerModel(**request.scanner), options,

@@ -1,6 +1,6 @@
 from importlib.metadata import entry_points
 
-from .base import SimulationEngine
+from .base import EnginePlugin, SimulationEngine
 from .engines import BlochEngine, EPGEngine, SpectralEngine
 
 
@@ -8,17 +8,31 @@ _BUILTIN_TYPES = (BlochEngine, EPGEngine, SpectralEngine)
 _engines: dict[str, tuple[SimulationEngine, str]] | None = None
 
 
+def _legacy_engine_error(entry_name: str) -> TypeError:
+    return TypeError(
+        f"physics entry point {entry_name!r} must publish an EnginePlugin backend "
+        "descriptor; full SimulationEngine entry points are not accepted"
+    )
+
+
 def _coerce_engine(candidate, entry_name: str) -> SimulationEngine:
-    engine = candidate() if isinstance(candidate, type) else candidate
-    if not isinstance(engine, SimulationEngine):
+    if isinstance(candidate, SimulationEngine) or (
+        isinstance(candidate, type) and issubclass(candidate, SimulationEngine)
+    ):
+        raise _legacy_engine_error(entry_name)
+    plugin = candidate() if isinstance(candidate, type) else candidate
+    if isinstance(plugin, SimulationEngine):
+        raise _legacy_engine_error(entry_name)
+    if not isinstance(plugin, EnginePlugin):
         raise TypeError(
-            f"physics entry point {entry_name!r} did not load a SimulationEngine"
+            f"physics entry point {entry_name!r} did not load an EnginePlugin "
+            "backend descriptor"
         )
-    if engine.name.lower() != entry_name.lower():
+    if plugin.name.lower() != entry_name.lower():
         raise ValueError(
-            f"physics entry point {entry_name!r} loaded engine named {engine.name!r}"
+            f"physics entry point {entry_name!r} loaded plugin named {plugin.name!r}"
         )
-    return engine
+    return SimulationEngine(plugin)
 
 
 def _load_engines() -> dict[str, tuple[SimulationEngine, str]]:
