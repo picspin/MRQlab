@@ -14,4 +14,4 @@ Built-in routing is SE/GRE → Bloch and TSE → EPG through `preferred_engine` 
 
 ## MVP versus fidelity
 
-MVP Bloch simulation demonstrates rotations, T1/T2 relaxation, off-resonance, ADC sampling, and simple k evolution. SE and GRE produce signals; TSE uses simplified repeated refocusing. It is educational and deliberately not a validated scanner or safety simulator. EPG is the planned model for efficient multi-echo trains. Cartesian FFT is implemented; non-Cartesian trajectories will use the NUFFT adapter seam later.
+MVP Bloch simulation demonstrates rotations, T1/T2 relaxation, off-resonance, ADC sampling, and simple k evolution. SE and GRE produce signals; TSE uses simplified repeated refocusing. It is educational and deliberately not a validated scanner or safety simulator. Classic EPG is the shipped model for bounded-order multi-echo trains. Cartesian FFT is implemented; non-Cartesian trajectories will use the NUFFT adapter seam later.
