@@ -1,6 +1,11 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
+node_modules/
+.next/
+*.tsbuildinfo
+.env.local
+.env.*.local
 *$py.class
 
 # C extensions

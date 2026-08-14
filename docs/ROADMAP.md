@@ -1,0 +1,20 @@
+# Roadmap
+
+## MVP — now
+
+- SE, simplified TSE, and GRE compile to a validated event graph.
+- Pluggable Bloch simulation returns signal, magnetization, k-trajectory, metadata, and timing.
+- Cartesian FFT reconstruction and FastAPI endpoints.
+- Skeuomorphic learning bench with timeline, tissue/scanner controls, linked-view placeholders, modes, and Reality Slider.
+
+## Next
+
+- EPG for echo trains, then DPG-inspired differentiable teaching experiments.
+- Multi-isochromat phantoms, receive encoding, 2D acquisition, and NUFFT.
+- Bloch–McConnell exchange, diffusion, ASL, CEST, and MRS modules.
+- Progressive Beginner, Clinical, Physics, and Hardware *concept* curricula. “Hardware” remains a learning mode, never an acquisition connection.
+- Fidelity layers driven by the Reality Slider, with explicit assumptions and error budgets.
+
+## Delivery
+
+After the local learning loop is stable, the static/web surface may deploy to Vercel or Cloudflare and the API to a separately bounded Python host. Codex Cloud is a development agent only; it is not runtime infrastructure, a simulator backend, or a deployment target. Real scanner hardware, MaRCoS, Red Pitaya, and acquisition services remain out of scope.
