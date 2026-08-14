@@ -50,3 +50,17 @@ def test_server_work_cap_cannot_be_raised_by_request(monkeypatch):
     })
     assert response.status_code == 422
     assert "estimated work" in response.json()["detail"]
+
+
+def test_simulate_spectral_parses_nested_pool_and_isochromat_payloads():
+    response = client.post("/simulate", json={
+        "template": {"template": "GRE", "params": {"te": 0.02, "tr": 0.1}},
+        "engine": "spectral",
+        "phantom": {
+            "isochromats": [{"t1": 1.0, "t2": 0.1, "proton_density": 1.0}],
+            "pools": [{"name": "water", "fraction": 1.0, "chemical_shift_ppm": 0.0, "t1": 1.0, "t2": 0.1}],
+        },
+    })
+
+    assert response.status_code == 200
+    assert response.json()["meta"]["engine"] == "spectral"

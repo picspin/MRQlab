@@ -6,7 +6,15 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, model_validator
 from mrqlab_sequence import SequenceIR, TemplateRequest, build_sequence
-from mrqlab_physics import EngineOptions, Phantom, ScannerModel, get_engine, list_engines
+from mrqlab_physics import (
+    EngineOptions,
+    Isochromat,
+    Phantom,
+    ScannerModel,
+    SpectralPool,
+    get_engine,
+    list_engines,
+)
 from mrqlab_recon import fft_reconstruct
 
 MAX_MATRIX = int(os.getenv("SIM_MAX_MATRIX", "64"))
@@ -30,6 +38,13 @@ app = FastAPI(title="MRQLab Simulation API", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
                    allow_methods=["*"], allow_headers=["*"])
 
+
+def _phantom_from_payload(payload: dict[str, Any]) -> Phantom:
+    values = dict(payload)
+    values["isochromats"] = tuple(Isochromat(**item) for item in values.get("isochromats", ()))
+    values["pools"] = tuple(SpectralPool(**item) for item in values.get("pools", ()))
+    return Phantom(**values)
+
 @app.get("/health")
 def health(): return {"status": "ok", "service": "mrqlab-api"}
 
@@ -51,7 +66,7 @@ def simulate(request: SimulateRequest):
         options = replace(requested_options, max_work=min(requested_options.max_work, MAX_WORK))
         engine_name = request.engine or str(sequence.metadata.get("preferred_engine", "bloch"))
         result = get_engine(engine_name).simulate(
-            sequence, Phantom(**request.phantom), ScannerModel(**request.scanner), options,
+            sequence, _phantom_from_payload(request.phantom), ScannerModel(**request.scanner), options,
         )
     except (ValueError, TypeError, NotImplementedError) as exc:
         raise HTTPException(422, str(exc)) from exc
