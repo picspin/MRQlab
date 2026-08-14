@@ -9,14 +9,9 @@ dependencies = ["fastapi>=0.110", "uvicorn>=0.27", "pydantic>=2", "numpy>=1.26"]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["mrqlab_sequence", "mrqlab_physics", "mrqlab_recon", "mrqlab_api"]
-
-[tool.setuptools.package-dir]
-mrqlab_sequence = "packages/sequence-ir/mrqlab_sequence"
-mrqlab_physics = "packages/physics/mrqlab_physics"
-mrqlab_recon = "packages/recon/mrqlab_recon"
-mrqlab_api = "services/api/mrqlab_api"
+[tool.setuptools.packages.find]
+where = ["packages/sequence-ir", "packages/physics", "packages/recon", "services/api"]
+include = ["mrqlab_sequence*", "mrqlab_physics*", "mrqlab_recon*", "mrqlab_api*"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "httpx>=0.27"]
