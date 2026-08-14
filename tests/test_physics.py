@@ -11,5 +11,6 @@ def test_bloch_template_returns_signal(template):
 
 def test_registry_stubs_are_explicit():
     assert {e["name"] for e in list_engines()} == {"bloch", "epg", "spectral"}
+    assert get_engine("bloch").available is True
     with pytest.raises(NotImplementedError, match="future"):
         get_engine("epg").simulate(None, None, None, None)
