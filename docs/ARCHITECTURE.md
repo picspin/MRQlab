@@ -4,13 +4,13 @@
 
 The MR Event Graph is MRQLab's source of truth. `SequenceIR` contains timestamped values on `rf_amp`, `rf_phase`, `gx`, `gy`, `gz`, `adc_gate`, `nco_freq`, and `nco_phase`. SE, TSE, and GRE are teaching-friendly compilers into that representation; they are not alternate simulation paths. FID exists only as a demo/test helper.
 
-The dependency direction is `sequence-ir → physics → recon → API → web`. The web may display an IR but does not own its semantics. Pydantic validates the wire model. The API caps matrix size and computational work through `SIM_MAX_MATRIX` (64) and `SIM_MAX_RUNTIME` (30 seconds) defaults.
+The dependency direction is `sequence-ir → physics → recon → API → web`. The web may display an IR but does not own its semantics. Pydantic validates the wire model. The API caps matrix size and computational work through `SIM_MAX_MATRIX` (64) and `SIM_MAX_WORK` (2000000) defaults.
 
-## Engine plugin map
+## Physics microkernel
 
-`SimulationEngine.simulate(SequenceIR, Phantom, ScannerModel, EngineOptions) → SimResult` is the stable seam. `SimResult` carries complex signal, optional M(t), k-trajectory, engine metadata, and timing. The registry defaults to the minimal single-isochromat `BlochEngine`. EPG and spectral engines are deliberately registered stubs with actionable errors, proving that selection does not require API/UI rewrites.
+`SequenceIR → scheduler → operators → state backend → SimResult` is the physics path. The kernel owns scheduling, radians/seconds/teaching-gradient units, work caps, ADC/NCO collection, k-trajectory, and the `mrqlab.physics_engines` registry. Bloch, classic EPG, and spectral plugins own state and operator application. Recon, API, and web never branch on a backend class.
 
-Future DPG, Bloch–McConnell, diffusion, ASL, CEST, and MRS engines plug into the same interface. The pulseq-zero PDG approach is useful inspiration, but MRQLab does not require pulseq-zero, torch, MRzero, SigPy, or PyPulseq in its MVP.
+Built-in routing is SE/GRE → Bloch and TSE → EPG through `preferred_engine` metadata; an API request may override it. Spectral simulation is explicitly selected with pool data. PDG is an optional provider seam, while exchange and MT remain explicit EPG-X boundaries.
 
 ## MVP versus fidelity
 

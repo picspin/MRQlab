@@ -9,9 +9,8 @@
 
 ## Next
 
-- EPG for echo trains, then DPG-inspired differentiable teaching experiments.
-- Multi-isochromat phantoms, receive encoding, 2D acquisition, and NUFFT.
-- Bloch–McConnell exchange, diffusion, ASL, CEST, and MRS modules.
+- Physics v1: multi-isochromat Bloch, classic bounded-order EPG, and independent fat/water spectral pools behind one microkernel.
+- Next fidelity: physical gradient units and diffusion wiring, then Bloch–McConnell/MT, CEST saturation, richer MRS, and an optional PDG provider distribution.
 - Progressive Beginner, Clinical, Physics, and Hardware *concept* curricula. “Hardware” remains a learning mode, never an acquisition connection.
 - Fidelity layers driven by the Reality Slider, with explicit assumptions and error budgets.
 

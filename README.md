@@ -13,6 +13,16 @@
 | `packages/recon` | Cartesian FFT adapter and NUFFT seam |
 | `docs` | Architecture and roadmap decisions |
 
+## Physics engines
+
+| Name | Selection | Best fit |
+|---|---|---|
+| `bloch` | Default for SE/GRE | Multi-isochromat rotations, relaxation, off-resonance, and spatial phase |
+| `epg` | Default for TSE | Classic configuration-state echo trains |
+| `spectral` | Explicit request with pools | Independent fat/water chemical shift |
+
+The HTTP request may set `"engine": "bloch" | "epg" | "spectral"`; if omitted, template metadata chooses. See [Physics v1](docs/PHYSICS.md) for units, assumptions, plugins, and limitations.
+
 ## Quickstart
 
 Python 3.11+ and Node 20+ are recommended.
