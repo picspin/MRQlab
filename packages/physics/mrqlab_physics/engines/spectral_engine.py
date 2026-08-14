@@ -3,6 +3,7 @@ import time
 from ..backends.spectral import SpectralBackend
 from ..base import SimulationEngine
 from ..kernel.caps import enforce_work_limit
+from ..kernel.conventions import SIGNAL_CONVENTION
 from ..kernel.runner import run_backend
 from ..kernel.scheduler import schedule
 from ..models import EngineOptions, Phantom, ScannerModel, SimResult
@@ -31,6 +32,7 @@ class SpectralEngine(SimulationEngine):
             magnetization=trace.snapshots,
             meta={
                 "engine": self.name,
+                "signal_convention": SIGNAL_CONVENTION,
                 "available": True,
                 "model": "independent chemical-shift pools",
                 "pools": [pool.name for pool in phantom.pools],

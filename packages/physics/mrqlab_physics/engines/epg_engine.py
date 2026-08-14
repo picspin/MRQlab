@@ -3,6 +3,7 @@ import time
 from ..backends.epg import EPGBackend
 from ..base import SimulationEngine
 from ..kernel.caps import enforce_work_limit
+from ..kernel.conventions import SIGNAL_CONVENTION
 from ..kernel.runner import run_backend
 from ..kernel.scheduler import schedule
 from ..models import EngineOptions, Phantom, ScannerModel, SimResult
@@ -26,6 +27,7 @@ class EPGEngine(SimulationEngine):
             configurations=trace.snapshots,
             meta={
                 "engine": self.name,
+                "signal_convention": SIGNAL_CONVENTION,
                 "available": True,
                 "samples": int(trace.signal.size),
                 "n_ops": len(operators),
