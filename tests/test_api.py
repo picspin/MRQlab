@@ -182,3 +182,21 @@ def test_api_does_not_collect_snapshots_that_it_does_not_return(monkeypatch):
     )
 
     assert response.status_code == 200
+
+
+def test_experiment_run_is_canonical_and_simulate_remains_compatible():
+    graph = client.get("/presets").json()["presets"][0]["experiment"]
+    canonical = client.post("/experiments/run", json=graph)
+    compat = client.post("/simulate", json={"template": {"template": "SE"}})
+    assert canonical.status_code == 200
+    assert compat.status_code == 200
+    assert canonical.json()["meta"]["engine"] == compat.json()["meta"]["engine"] == "bloch"
+
+
+def test_experiment_validate_rejects_reserved_nodes():
+    graph = client.get("/presets").json()["presets"][0]["experiment"]
+    graph["nodes"].append({"id": "future", "kind": "INJECTION", "label": "Injection"})
+    response = client.post("/experiments/validate", json=graph)
+    assert response.status_code == 200
+    assert response.json()["valid"] is False
+    assert response.json()["errors"][0]["code"] == "unsupported_node"
