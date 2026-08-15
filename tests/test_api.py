@@ -190,7 +190,27 @@ def test_experiment_run_is_canonical_and_simulate_remains_compatible():
     compat = client.post("/simulate", json={"template": {"template": "SE"}})
     assert canonical.status_code == 200
     assert compat.status_code == 200
-    assert canonical.json()["meta"]["engine"] == compat.json()["meta"]["engine"] == "bloch"
+    assert canonical.json()["schema_version"] == "1.0"
+    assert {item["kind"] for item in canonical.json()["observations"]} >= {
+        "signal",
+        "k_trajectory",
+        "image",
+    }
+    assert compat.json()["meta"]["engine"] == "bloch"
+    assert "reconstruction_magnitude" in compat.json()
+
+
+def test_canonical_run_returns_result_graph_while_simulate_keeps_legacy_shape():
+    graph = client.get("/presets").json()["presets"][1]["experiment"]
+    canonical = client.post("/experiments/run", json=graph).json()
+    compat = client.post("/simulate", json={"template": {"template": "GRE"}}).json()
+    assert canonical["schema_version"] == "1.0"
+    assert {item["kind"] for item in canonical["observations"]} >= {
+        "signal",
+        "k_trajectory",
+        "image",
+    }
+    assert "reconstruction_magnitude" in compat
 
 
 def test_experiment_validate_rejects_reserved_nodes():

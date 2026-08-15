@@ -2,6 +2,7 @@ from .capabilities import CapabilityMismatch, StateRepresentation, select_repres
 from .compiler import compile_sequence
 from .kernel import KernelRun, ValidationReport, run_experiment, validate_experiment
 from .models import ExperimentGraph
+from .observations import Observation, ResultGraph, build_result_graph
 from .physics_ir import PhysicsIR, compile_physics_ir
 from .presets import build_preset
 
@@ -9,10 +10,13 @@ __all__ = [
     "CapabilityMismatch",
     "ExperimentGraph",
     "KernelRun",
+    "Observation",
     "PhysicsIR",
+    "ResultGraph",
     "StateRepresentation",
     "ValidationReport",
     "build_preset",
+    "build_result_graph",
     "compile_physics_ir",
     "compile_sequence",
     "run_experiment",
