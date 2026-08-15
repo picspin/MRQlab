@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, model_validator
 from mrqlab_experiment import (
     ExperimentGraph,
     build_preset,
+    build_result_graph,
     run_experiment,
     validate_experiment,
 )
@@ -134,7 +135,7 @@ def experiments_run(graph: ExperimentGraph):
     graph.constraints.max_work = min(graph.constraints.max_work, MAX_WORK)
     try:
         graph.engine.options = _api_engine_options(graph.engine.options)
-        return _legacy_response(run_experiment(graph).sim_result)
+        return build_result_graph(run_experiment(graph))
     except (ValueError, TypeError, NotImplementedError) as exc:
         raise HTTPException(422, str(exc)) from exc
 
