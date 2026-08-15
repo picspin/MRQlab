@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field
 
 from mrqlab_recon import fft_reconstruct
 
+from .objectives import evaluate_objective
+
 ObservationKind = Literal[
     "signal",
     "k_trajectory",
@@ -99,8 +101,25 @@ def build_result_graph(run) -> ResultGraph:
         derived_from=(signal.id,),
         provenance=provenance,
     )
+    observations: list[Observation] = [signal, trajectory, image]
+    edges: list[ResultEdge] = [ResultEdge(source=signal.id, target=image.id, kind="recon")]
+    if run.experiment.objective is not None:
+        score = evaluate_objective(
+            run.experiment.objective,
+            {"signal": run.sim_result.signal},
+        )
+        score_obs = Observation(
+            id="objective_score",
+            kind="objective_score",
+            data=score,
+            units={"value": "score"},
+            derived_from=(signal.id,),
+            provenance=provenance,
+        )
+        observations.append(score_obs)
+        edges.append(ResultEdge(source=signal.id, target=score_obs.id, kind="derived_from"))
     return ResultGraph(
         experiment_id=run.experiment.id,
-        observations=(signal, trajectory, image),
-        edges=(ResultEdge(source=signal.id, target=image.id, kind="recon"),),
+        observations=tuple(observations),
+        edges=tuple(edges),
     )
