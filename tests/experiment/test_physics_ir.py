@@ -14,9 +14,7 @@ def test_existing_scheduler_compiles_to_versioned_physics_ir():
         "EPG_SHIFT",
         "READOUT",
     }
-    assert ir.compiler_spans == (
-        CompilerSpan(kind="EPG", start=0, stop=len(ir.operators)),
-    )
+    assert ir.compiler_spans == (CompilerSpan(kind="EPG", start=0, stop=len(ir.operators)),)
 
 
 def test_ssepg_is_a_distinct_span_name_not_epg_flag():
