@@ -9,7 +9,9 @@ def test_bloch_template_returns_signal(template):
     assert result.signal.size > 0
     assert result.meta["engine"] == "bloch"
 
-def test_registry_stubs_are_explicit():
-    assert {e["name"] for e in list_engines()} == {"bloch", "epg", "spectral"}
-    with pytest.raises(NotImplementedError, match="future"):
-        get_engine("epg").simulate(None, None, None, None)
+def test_builtin_engine_descriptors_are_available_and_identified():
+    descriptors = {item["name"]: item for item in list_engines()}
+    assert set(descriptors) == {"bloch", "epg", "spectral"}
+    for name in descriptors:
+        assert descriptors[name]["available"] is True
+        assert descriptors[name]["source"] == "built-in"
