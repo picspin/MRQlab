@@ -13,6 +13,7 @@ from mrqlab_physics import (
 )
 from mrqlab_sequence import SequenceIR
 
+from .capabilities import CapabilityMismatch, select_representation
 from .compiler import compile_sequence
 from .models import ExperimentGraph
 
@@ -48,6 +49,13 @@ def validate_experiment(graph: ExperimentGraph) -> ValidationReport:
     except ValueError as exc:
         code = "unsupported_node" if "reserved node kind" in str(exc) else "invalid_graph"
         return ValidationReport(valid=False, errors=(ValidationIssue(code=code, message=str(exc)),))
+    try:
+        select_representation(graph.engine.required_capabilities, graph.engine.preferred)
+    except CapabilityMismatch as exc:
+        return ValidationReport(
+            valid=False,
+            errors=(ValidationIssue(code="capability_mismatch", message=str(exc)),),
+        )
     return ValidationReport(valid=True)
 
 

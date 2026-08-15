@@ -26,6 +26,8 @@ EPG_PLUGIN = EnginePlugin(
     backend_factory=_backend,
     metadata_factory=_metadata,
     snapshot_field="configurations",
+    representation="epg",
+    supports=frozenset({"hard_rf", "configuration_states", "steady_state"}),
 )
 
 

@@ -31,6 +31,10 @@ SPECTRAL_PLUGIN = EnginePlugin(
     backend_factory=_backend,
     metadata_factory=_metadata,
     snapshot_field="magnetization",
+    representation="spectral",
+    supports=frozenset(
+        {"hard_rf", "off_resonance", "multi_pool", "magnetization_states"}
+    ),
 )
 
 

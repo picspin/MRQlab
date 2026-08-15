@@ -24,6 +24,10 @@ BLOCH_PLUGIN = EnginePlugin(
     backend_factory=_backend,
     metadata_factory=_metadata,
     snapshot_field="magnetization",
+    representation="bloch",
+    supports=frozenset(
+        {"hard_rf", "off_resonance", "spatial_encoding", "magnetization_states"}
+    ),
 )
 
 
