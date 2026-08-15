@@ -69,13 +69,15 @@ def get_engine(name: str = "bloch") -> SimulationEngine:
         raise ValueError(f"unknown engine {name!r}; choose from {choices}") from None
 
 
-def list_engines() -> list[dict[str, str | bool]]:
+def list_engines() -> list[dict[str, object]]:
     return [
         {
             "name": name,
             "available": engine.available,
             "description": engine.description,
             "source": source,
+            "representation": engine.plugin.representation,
+            "supports": sorted(engine.plugin.supports),
         }
         for name, (engine, source) in sorted(_registry().items())
     ]

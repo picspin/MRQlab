@@ -42,6 +42,8 @@ class EnginePlugin:
     metadata_factory: MetadataFactory = _empty_metadata
     snapshot_field: SnapshotField | None = None
     available: bool = True
+    representation: str = "bloch"
+    supports: frozenset[str] = frozenset()
 
     def __post_init__(self) -> None:
         if not isinstance(self.name, str) or not self.name:
@@ -57,6 +59,12 @@ class EnginePlugin:
             raise ValueError("engine plugin snapshot_field is invalid")
         if not isinstance(self.available, bool):
             raise TypeError("engine plugin available must be a strict boolean")
+        if not isinstance(self.representation, str) or not self.representation:
+            raise ValueError("engine plugin representation must be a non-empty string")
+        if not isinstance(self.supports, frozenset) or any(
+            not isinstance(item, str) for item in self.supports
+        ):
+            raise TypeError("engine plugin supports must be a frozenset of strings")
 
 
 class SimulationEngine:

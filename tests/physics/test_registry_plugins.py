@@ -72,6 +72,8 @@ def test_entry_point_descriptor_is_wrapped_by_kernel_engine(monkeypatch):
         "available": True,
         "description": "test plugin",
         "source": "entry-point",
+        "representation": "bloch",
+        "supports": [],
     }
 
 
