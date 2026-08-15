@@ -15,6 +15,7 @@ from mrqlab_sequence import SequenceIR
 
 from .capabilities import CapabilityMismatch, select_representation
 from .compiler import compile_sequence
+from .disturbances import disturbance_requirements
 from .models import ExperimentGraph
 
 
@@ -49,9 +50,21 @@ def validate_experiment(graph: ExperimentGraph) -> ValidationReport:
     except ValueError as exc:
         code = "unsupported_node" if "reserved node kind" in str(exc) else "invalid_graph"
         return ValidationReport(valid=False, errors=(ValidationIssue(code=code, message=str(exc)),))
+    extra, explanations = disturbance_requirements(graph.disturbances)
+    required = frozenset(graph.engine.required_capabilities | extra)
     try:
-        select_representation(graph.engine.required_capabilities, graph.engine.preferred)
+        select_representation(required, graph.engine.preferred)
     except CapabilityMismatch as exc:
+        if explanations:
+            return ValidationReport(
+                valid=False,
+                errors=(
+                    ValidationIssue(
+                        code="unavailable_representation",
+                        message="; ".join(explanations),
+                    ),
+                ),
+            )
         return ValidationReport(
             valid=False,
             errors=(ValidationIssue(code="capability_mismatch", message=str(exc)),),

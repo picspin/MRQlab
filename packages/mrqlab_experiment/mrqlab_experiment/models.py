@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from mrqlab_sequence import SequenceIR
 
+from .disturbances import DisturbanceStack
 from .objectives import ObjectiveFunction
 
 ActiveNodeKind = Literal["RF", "GRADIENT", "DELAY", "ADC", "READOUT", "LOOP"]
@@ -49,10 +50,6 @@ class EngineRef(BaseModel):
     preferred: str | None = None
     required_capabilities: frozenset[str] = frozenset()
     options: dict[str, Any] = Field(default_factory=dict)
-
-
-class DisturbanceStack(BaseModel):
-    items: tuple[dict[str, Any], ...] = ()
 
 
 class ReadoutSpec(BaseModel):
