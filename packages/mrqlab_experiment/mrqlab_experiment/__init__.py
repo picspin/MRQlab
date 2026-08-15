@@ -1,5 +1,6 @@
 from .capabilities import CapabilityMismatch, StateRepresentation, select_representation
 from .compiler import compile_sequence
+from .disturbances import Disturbance, DisturbanceStack, stack_from_reality
 from .kernel import KernelRun, ValidationReport, run_experiment, validate_experiment
 from .models import ExperimentGraph
 from .objectives import ObjectiveConstraint, ObjectiveFunction, ObjectiveTerm, evaluate_objective
@@ -9,6 +10,8 @@ from .presets import build_preset
 
 __all__ = [
     "CapabilityMismatch",
+    "Disturbance",
+    "DisturbanceStack",
     "ExperimentGraph",
     "KernelRun",
     "ObjectiveConstraint",
@@ -26,5 +29,6 @@ __all__ = [
     "evaluate_objective",
     "run_experiment",
     "select_representation",
+    "stack_from_reality",
     "validate_experiment",
 ]
