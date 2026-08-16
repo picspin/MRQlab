@@ -14,7 +14,7 @@ from mrqlab_physics import (
 )
 from mrqlab_sequence import SequenceIR
 
-from .capabilities import CapabilityMismatch, select_representation
+from .capabilities import CapabilityMismatch, REPRESENTATIONS, select_representation
 from .compiler import compile_sequence
 from .disturbances import disturbance_requirements
 from .models import ExperimentGraph
@@ -69,6 +69,8 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     else:
         preferred = None
         source = "capability"
+    if preferred is not None and preferred not in REPRESENTATIONS:
+        get_engine(preferred)
     selected = select_representation(required, preferred)
     requested = EngineOptions(**graph.engine.options)
     options = replace(requested, max_work=min(requested.max_work, graph.constraints.max_work))

@@ -220,3 +220,29 @@ def test_experiment_validate_rejects_reserved_nodes():
     assert response.status_code == 200
     assert response.json()["valid"] is False
     assert response.json()["errors"][0]["code"] == "unsupported_node"
+
+
+def test_experiments_run_does_not_mutate_caller_graph():
+    from mrqlab_experiment import build_preset
+    from mrqlab_api.main import experiments_run
+
+    graph = build_preset("spin-echo", {"te": 0.02, "tr": 0.1})
+    original_max = graph.constraints.max_work
+    original_options = dict(graph.engine.options)
+    result = experiments_run(graph)
+    assert result.schema_version == "1.0"
+    assert graph.constraints.max_work == original_max
+    assert graph.engine.options == original_options
+
+
+def test_simulate_adapter_builds_a_new_graph_without_mutating_preset_factory():
+    from mrqlab_experiment import build_preset
+    from mrqlab_api.main import SimulateRequest, _graph_from_simulate
+
+    before = build_preset("spin-echo")
+    request = SimulateRequest(template={"template": "SE", "params": {"te": 0.02, "tr": 0.1}}, engine="bloch")
+    built = _graph_from_simulate(request)
+    after = build_preset("spin-echo")
+    assert built.engine.preferred == "bloch"
+    assert after.engine.preferred == before.engine.preferred
+    assert after.sequence == before.sequence
