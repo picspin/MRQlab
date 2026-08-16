@@ -1122,6 +1122,10 @@ git add packages/mrqlab_experiment tests/experiment/test_disturbances.py
 git commit -m "feat(experiment): add disturbance stack schema"
 ```
 
+### Task 7.5: Harden the workbench physics backend (before Wave F)
+
+Backend-only insert after Task 7 / PR E. `plan_experiment()` returns an `ExecutionPlan`; `validate_experiment` and `run_experiment` consume it so TSE without `EngineRef.preferred` executes EPG via capability selection. HTTP `/experiments/run` and `/simulate` resolve on a deep copy and never mutate the caller graph. `build_result_graph` emits exactly `ReadoutSpec.products`. Does not implement Wave F, snapshot collection, or a frozen-Pydantic sweep. Lock: `.hermes/plans/2026-08-16_170021-experiment-kernel-7.5-lock.md`.
+
 ### Task 8 (PR F): Establish the Workspace Shell, Shared Experiment State, and Cursors
 
 **Files:**
