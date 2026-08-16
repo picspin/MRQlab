@@ -1,4 +1,6 @@
 from mrqlab_experiment import build_preset, plan_experiment, run_experiment, validate_experiment
+from mrqlab_experiment.models import ReadoutSpec
+from mrqlab_experiment.observations import build_result_graph
 
 
 def test_tse_plan_selects_epg_from_template_metadata_not_preferred_field():
@@ -27,3 +29,12 @@ def test_capability_mismatch_fails_closed_before_simulate():
     report = validate_experiment(graph)
     assert report.valid is False
     assert report.errors[0].code in {"capability_mismatch", "unavailable_representation"}
+
+
+def test_run_experiment_does_not_alias_caller_graph():
+    graph = build_preset("spin-echo", {"te": 0.02, "tr": 0.1})
+    run = run_experiment(graph)
+    assert run.experiment is not graph
+    graph.readout = ReadoutSpec(products=())
+    result = build_result_graph(run)
+    assert [item.kind for item in result.observations] == ["signal", "k_trajectory", "image"]

@@ -122,4 +122,4 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
         ScannerModel(**graph.scanner.model_dump()),
         EngineOptions(**plan.options),
     )
-    return KernelRun(graph, sequence, result, plan)
+    return KernelRun(graph.model_copy(deep=True), sequence, result, plan)
