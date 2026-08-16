@@ -1,6 +1,6 @@
 import hashlib
 import json
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -19,6 +19,10 @@ ObservationKind = Literal[
     "sar",
     "objective_score",
 ]
+
+_ALLOWED_PRODUCTS = frozenset(get_args(ObservationKind))
+_SNAPSHOT_PRODUCTS = frozenset({"magnetization", "configurations"})
+_UNIMPLEMENTED_PRODUCTS = frozenset({"echo_train", "sar"})
 
 
 class ObservationProvenance(BaseModel):
@@ -59,65 +63,93 @@ def _complex(values: np.ndarray) -> list[dict[str, float]]:
     return [{"real": float(v.real), "imag": float(v.imag)} for v in values]
 
 
+def _derived_from(product: str, emitted: frozenset[str]) -> tuple[str, ...]:
+    if product == "image" and "signal" in emitted:
+        return ("signal",)
+    if product == "objective_score" and "signal" in emitted:
+        return ("signal",)
+    return ()
+
+
 def build_result_graph(run) -> ResultGraph:
     raw = run.experiment.model_dump(mode="json")
     digest = hashlib.sha256(
         json.dumps(raw, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
     meta = run.sim_result.meta
+    plan = getattr(run, "plan", None)
+    representation = plan.representation if plan is not None else str(meta["engine"])
     provenance = ObservationProvenance(
         experiment_hash=digest,
         engine=str(meta["engine"]),
-        representation=str(meta["engine"]),
+        representation=representation,
         assumptions=tuple(meta.get("assumptions", ())),
         seed=run.experiment.provenance.seed,
         n_ops=int(meta.get("n_ops", 0)),
         estimated_work=int(meta.get("estimated_work", 0)),
     )
-    signal = Observation(
-        id="signal",
-        kind="signal",
-        data=_complex(run.sim_result.signal),
-        units={"value": "a.u."},
-        provenance=provenance,
-    )
-    trajectory = Observation(
-        id="k_trajectory",
-        kind="k_trajectory",
-        data=run.sim_result.k_trajectory.tolist(),
-        units={"k": "teaching-gradient·s"},
-        provenance=provenance,
-    )
-    image_data = (
-        np.abs(fft_reconstruct(run.sim_result.signal)).tolist()
-        if run.sim_result.signal.size
-        else []
-    )
-    image = Observation(
-        id="image",
-        kind="image",
-        data=image_data,
-        units={"value": "a.u."},
-        derived_from=(signal.id,),
-        provenance=provenance,
-    )
-    observations: list[Observation] = [signal, trajectory, image]
-    edges: list[ResultEdge] = [ResultEdge(source=signal.id, target=image.id, kind="recon")]
-    if run.experiment.objective is not None:
-        score = evaluate_objective(
-            run.experiment.objective,
-            {"signal": run.sim_result.signal},
-        )
-        score_obs = Observation(
+    products = run.experiment.readout.products
+    for product in products:
+        if product not in _ALLOWED_PRODUCTS:
+            raise ValueError(f"unknown_product: {product!r}")
+        if product in _SNAPSHOT_PRODUCTS:
+            raise ValueError(
+                f"snapshot product {product!r} is unavailable while snapshot collection is disabled"
+            )
+        if product in _UNIMPLEMENTED_PRODUCTS:
+            raise ValueError(f"unknown_product: {product!r}")
+        if product == "objective_score" and run.experiment.objective is None:
+            raise ValueError("objective_score requested without an objective")
+
+    builders = {
+        "signal": lambda emitted: Observation(
+            id="signal",
+            kind="signal",
+            data=_complex(run.sim_result.signal),
+            units={"value": "a.u."},
+            provenance=provenance,
+        ),
+        "k_trajectory": lambda emitted: Observation(
+            id="k_trajectory",
+            kind="k_trajectory",
+            data=run.sim_result.k_trajectory.tolist(),
+            units={"k": "teaching-gradient·s"},
+            provenance=provenance,
+        ),
+        "image": lambda emitted: Observation(
+            id="image",
+            kind="image",
+            data=(
+                np.abs(fft_reconstruct(run.sim_result.signal)).tolist()
+                if run.sim_result.signal.size
+                else []
+            ),
+            units={"value": "a.u."},
+            derived_from=_derived_from("image", emitted),
+            provenance=provenance,
+        ),
+        "objective_score": lambda emitted: Observation(
             id="objective_score",
             kind="objective_score",
-            data=score,
+            data=evaluate_objective(
+                run.experiment.objective,
+                {"signal": run.sim_result.signal},
+            ),
             units={"value": "score"},
-            derived_from=(signal.id,),
+            derived_from=_derived_from("objective_score", emitted),
             provenance=provenance,
-        )
-        observations.append(score_obs)
-        edges.append(ResultEdge(source=signal.id, target=score_obs.id, kind="derived_from"))
+        ),
+    }
+    observations: list[Observation] = []
+    edges: list[ResultEdge] = []
+    emitted: set[str] = set()
+    for product in products:
+        observation = builders[product](frozenset(emitted))
+        observations.append(observation)
+        emitted.add(observation.id)
+        for source in observation.derived_from:
+            edge_kind = "recon" if product == "image" and source == "signal" else "derived_from"
+            edges.append(ResultEdge(source=source, target=observation.id, kind=edge_kind))
     return ResultGraph(
         experiment_id=run.experiment.id,
         observations=tuple(observations),
