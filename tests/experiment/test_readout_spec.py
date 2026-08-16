@@ -84,3 +84,16 @@ def test_objective_score_with_objective_omits_signal_edge_when_signal_is_not_req
     assert [item.kind for item in result.observations] == ["objective_score"]
     assert result.observations[0].derived_from == ()
     assert result.edges == ()
+
+
+def test_echo_train_objective_term_fails_closed_instead_of_keyerror():
+    from mrqlab_experiment.objectives import ObjectiveTerm
+
+    graph = build_preset("spin-echo", {"te": 0.02, "tr": 0.1})
+    graph.objective = ObjectiveFunction(
+        kind="contrast_target",
+        terms=(ObjectiveTerm(observation="echo_train", metric="peak_magnitude", target=1.0),),
+    )
+    graph.readout = ReadoutSpec(products=("objective_score",))
+    with pytest.raises(ValueError, match="echo_train"):
+        build_result_graph(run_experiment(graph))

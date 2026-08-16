@@ -246,3 +246,21 @@ def test_simulate_adapter_builds_a_new_graph_without_mutating_preset_factory():
     assert built.engine.preferred == "bloch"
     assert after.engine.preferred == before.engine.preferred
     assert after.sequence == before.sequence
+
+
+def test_experiments_run_rejects_echo_train_objective_as_validation_error():
+    from mrqlab_experiment import build_preset
+    from mrqlab_experiment.models import ReadoutSpec
+    from mrqlab_experiment.objectives import ObjectiveFunction, ObjectiveTerm
+
+    graph = build_preset("spin-echo", {"te": 0.02, "tr": 0.1})
+    graph.objective = ObjectiveFunction(
+        kind="contrast_target",
+        terms=(ObjectiveTerm(observation="echo_train", metric="peak_magnitude", target=1.0),),
+    )
+    graph.readout = ReadoutSpec(products=("objective_score",))
+    payload = graph.model_dump(mode="json")
+    payload["engine"]["required_capabilities"] = list(payload["engine"]["required_capabilities"])
+    response = client.post("/experiments/run", json=payload)
+    assert response.status_code == 422
+    assert "echo_train" in response.json()["detail"]

@@ -100,6 +100,18 @@ def build_result_graph(run) -> ResultGraph:
             raise ValueError(f"product {product!r} is reserved for a later wave")
         if product == "objective_score" and run.experiment.objective is None:
             raise ValueError("objective_score requested without an objective")
+        if product == "objective_score" and run.experiment.objective is not None:
+            unsupported = sorted(
+                {
+                    term.observation
+                    for term in run.experiment.objective.terms
+                    if term.observation != "signal"
+                }
+            )
+            if unsupported:
+                raise ValueError(
+                    f"objective observation {unsupported[0]!r} is reserved for a later wave"
+                )
 
     builders = {
         "signal": lambda emitted: Observation(
