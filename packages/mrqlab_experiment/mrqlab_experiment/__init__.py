@@ -1,7 +1,14 @@
 from .capabilities import CapabilityMismatch, StateRepresentation, select_representation
 from .compiler import compile_sequence
 from .disturbances import Disturbance, DisturbanceStack, stack_from_reality
-from .kernel import KernelRun, ValidationReport, run_experiment, validate_experiment
+from .kernel import (
+    ExecutionPlan,
+    KernelRun,
+    ValidationReport,
+    plan_experiment,
+    run_experiment,
+    validate_experiment,
+)
 from .models import ExperimentGraph
 from .objectives import ObjectiveConstraint, ObjectiveFunction, ObjectiveTerm, evaluate_objective
 from .observations import Observation, ResultGraph, build_result_graph
@@ -12,6 +19,7 @@ __all__ = [
     "CapabilityMismatch",
     "Disturbance",
     "DisturbanceStack",
+    "ExecutionPlan",
     "ExperimentGraph",
     "KernelRun",
     "ObjectiveConstraint",
@@ -27,6 +35,7 @@ __all__ = [
     "compile_physics_ir",
     "compile_sequence",
     "evaluate_objective",
+    "plan_experiment",
     "run_experiment",
     "select_representation",
     "stack_from_reality",
