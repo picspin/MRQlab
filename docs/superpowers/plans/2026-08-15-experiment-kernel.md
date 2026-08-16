@@ -134,6 +134,7 @@ The names and fields above are immutable across the A–H waves. Tasks add behav
 | C | Task 5 | Versioned ResultGraph and provenance replace ad-hoc response assembly |
 | D | Task 6 | Objective v0 produces forward scores only |
 | E | Task 7 | Disturbance stack validates and explains representation changes |
+| 7.5 | Task 7.5 | ExecutionPlan drives engine selection, request graphs stay unmodified, and ResultGraph honors requested products |
 | F | Tasks 8–9 | Clinical Explore and Editor Linked Lens share workspace state |
 | G | Task 10 | TSE refocusing FA drives state → echo → k-space → contrast → SAR |
 | H | Task 11 | JSON schemas only for tools over `ExperimentGraph` |
@@ -1121,6 +1122,10 @@ Expected: PASS; no disturbance numerical operator is added to the physics backen
 git add packages/mrqlab_experiment tests/experiment/test_disturbances.py
 git commit -m "feat(experiment): add disturbance stack schema"
 ```
+
+### Task 7.5: Harden the workbench physics backend (before Wave F)
+
+Backend-only insert after Task 7 / PR E. `plan_experiment()` returns an `ExecutionPlan`; `validate_experiment` and `run_experiment` consume it so TSE without `EngineRef.preferred` executes EPG via capability selection. HTTP `/experiments/run` and `/simulate` resolve on a deep copy and never mutate the caller graph. `build_result_graph` emits exactly `ReadoutSpec.products`. Does not implement Wave F, snapshot collection, or a frozen-Pydantic sweep. Lock: `.hermes/plans/2026-08-16_170021-experiment-kernel-7.5-lock.md`.
 
 ### Task 8 (PR F): Establish the Workspace Shell, Shared Experiment State, and Cursors
 

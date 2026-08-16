@@ -82,16 +82,23 @@ def _graph_from_simulate(request: SimulateRequest) -> ExperimentGraph:
     assert sequence is not None
     template_name = str(sequence.metadata.get("template", "SE")).upper()
     preset_name = _TEMPLATE_PRESET.get(template_name, "spin-echo")
-    graph = build_preset(preset_name)
-    # Mutate validated graph fields in place (Pydantic models are mutable by default).
-    graph.sequence = sequence
-    graph.engine.preferred = request.engine
-    graph.engine.options = _api_engine_options(request.options)
-    graph.sample = graph.sample.model_validate(request.phantom or {})
-    graph.scanner = graph.scanner.model_validate(request.scanner or {})
-    graph.constraints.matrix = request.matrix
-    graph.constraints.max_work = MAX_WORK
-    return graph
+    base = build_preset(preset_name)
+    return base.model_copy(
+        update={
+            "sequence": sequence,
+            "engine": base.engine.model_copy(
+                update={
+                    "preferred": request.engine,
+                    "options": _api_engine_options(request.options),
+                }
+            ),
+            "sample": base.sample.model_validate(request.phantom or {}),
+            "scanner": base.scanner.model_validate(request.scanner or {}),
+            "constraints": base.constraints.model_copy(
+                update={"matrix": request.matrix, "max_work": MAX_WORK}
+            ),
+        }
+    )
 
 
 @app.get("/health")
@@ -132,10 +139,11 @@ def experiments_validate(graph: ExperimentGraph):
 def experiments_run(graph: ExperimentGraph):
     if graph.constraints.matrix > MAX_MATRIX:
         raise HTTPException(422, f"matrix exceeds SIM_MAX_MATRIX ({MAX_MATRIX})")
-    graph.constraints.max_work = min(graph.constraints.max_work, MAX_WORK)
+    resolved = graph.model_copy(deep=True)
+    resolved.constraints.max_work = min(resolved.constraints.max_work, MAX_WORK)
     try:
-        graph.engine.options = _api_engine_options(graph.engine.options)
-        return build_result_graph(run_experiment(graph))
+        resolved.engine.options = _api_engine_options(resolved.engine.options)
+        return build_result_graph(run_experiment(resolved))
     except (ValueError, TypeError, NotImplementedError) as exc:
         raise HTTPException(422, str(exc)) from exc
 
