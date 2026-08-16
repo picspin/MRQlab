@@ -97,7 +97,7 @@ def build_result_graph(run) -> ResultGraph:
                 f"snapshot product {product!r} is unavailable while snapshot collection is disabled"
             )
         if product in _UNIMPLEMENTED_PRODUCTS:
-            raise ValueError(f"unknown_product: {product!r}")
+            raise ValueError(f"product {product!r} is reserved for a later wave")
         if product == "objective_score" and run.experiment.objective is None:
             raise ValueError("objective_score requested without an objective")
 

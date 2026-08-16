@@ -1,7 +1,10 @@
+from typing import get_args
+
 import pytest
 from mrqlab_experiment import build_preset, run_experiment
 from mrqlab_experiment.models import ReadoutSpec
-from mrqlab_experiment.observations import build_result_graph
+from mrqlab_experiment.objectives import ObjectiveFunction
+from mrqlab_experiment.observations import ObservationKind, build_result_graph
 
 
 def test_result_graph_emits_only_requested_products_in_order():
@@ -53,3 +56,31 @@ def test_provenance_representation_comes_from_plan_not_sim_meta():
     result = build_result_graph(run)
     assert result.observations[0].provenance.representation == "spectral"
     assert result.observations[0].provenance.engine == "bloch"
+
+
+@pytest.mark.parametrize("kind", get_args(ObservationKind))
+def test_every_declared_observation_kind_is_emitted_or_fails_closed(kind):
+    graph = build_preset("spin-echo", {"te": 0.02, "tr": 0.1})
+    if kind == "objective_score":
+        graph.objective = ObjectiveFunction()
+    graph.readout = ReadoutSpec(products=(kind,))
+    if kind in {"magnetization", "configurations"}:
+        with pytest.raises(ValueError, match="snapshot"):
+            build_result_graph(run_experiment(graph))
+        return
+    if kind in {"echo_train", "sar"}:
+        with pytest.raises(ValueError, match="reserved"):
+            build_result_graph(run_experiment(graph))
+        return
+    result = build_result_graph(run_experiment(graph))
+    assert [item.kind for item in result.observations] == [kind]
+
+
+def test_objective_score_with_objective_omits_signal_edge_when_signal_is_not_requested():
+    graph = build_preset("spin-echo", {"te": 0.02, "tr": 0.1})
+    graph.objective = ObjectiveFunction()
+    graph.readout = ReadoutSpec(products=("objective_score",))
+    result = build_result_graph(run_experiment(graph))
+    assert [item.kind for item in result.observations] == ["objective_score"]
+    assert result.observations[0].derived_from == ()
+    assert result.edges == ()

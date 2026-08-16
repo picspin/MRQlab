@@ -99,7 +99,7 @@ This poisons A/B compare, undo, provenance, later optimization.
 **Lock:**
 
 1. Emit **exactly** the products listed in `run.experiment.readout.products`, in that order.
-2. Unknown product name → fail closed (`ValueError` / validate error `unknown_product`). Allowed v0 kinds = `ObservationKind`.
+2. Unknown product name → fail closed (`ValueError` / validate error `unknown_product`). v0 emit-able kinds are `signal`, `k_trajectory`, `image`, and `objective_score`. Snapshot kinds (`magnetization`, `configurations`) fail closed while API snapshot flags stay off. Reserved Wave G kinds (`echo_train`, `sar`) fail closed rather than emitting empty or invented observations.
 3. Internal precursors may be computed (image still FFTs signal) but **not** added to `ResultGraph.observations` unless requested.
 4. `derived_from` only references ids that are actually emitted. If `image` is requested without `signal`, `image.derived_from == ()`.
 5. `objective_score` is emitted only when it is in `products` **and** `graph.objective is not None`. If requested without an objective → fail closed.
@@ -119,6 +119,7 @@ Provenance.representation must be the **selected representation** (`plan.represe
 | Graph executable-ization / pulse inspector | Later |
 | Frozen Pydantic on all experiment models | Would rewrite Task 7 tests; not required for immutable *resolution* |
 | Snapshot observations (magnetization / configurations) via API | API still forces snapshot flags off |
+| `echo_train` / `sar` observations | Wave G TSE vertical slice; fail closed in 7.5 |
 | New engines (ssEPG, PDG, EPG-X, hybrid) | Seams only, already in capability table |
 | Changing `select_representation` fail-closed / no-failover rule | Behavior lock |
 
