@@ -134,6 +134,7 @@ The names and fields above are immutable across the A–H waves. Tasks add behav
 | C | Task 5 | Versioned ResultGraph and provenance replace ad-hoc response assembly |
 | D | Task 6 | Objective v0 produces forward scores only |
 | E | Task 7 | Disturbance stack validates and explains representation changes |
+| 7.5 | Task 7.5 | ExecutionPlan drives engine selection, request graphs stay unmodified, and ResultGraph honors requested products |
 | F | Tasks 8–9 | Clinical Explore and Editor Linked Lens share workspace state |
 | G | Task 10 | TSE refocusing FA drives state → echo → k-space → contrast → SAR |
 | H | Task 11 | JSON schemas only for tools over `ExperimentGraph` |
