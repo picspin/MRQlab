@@ -26,6 +26,9 @@ def build_sequence(template: str, params: dict | None = None) -> SequenceIR:
     te = _finite_parameter(p, "te", .03); tr = _finite_parameter(p, "tr", .5)
     if not 0 < te < tr: raise ValueError("require 0 < te < tr")
     flip = _finite_parameter(p, "flip_angle", 30 if kind == "GRE" else 90)
+    refocusing_flip = _finite_parameter(p, "refocusing_flip_angle", 180.0)
+    if not 0 < refocusing_flip <= 180:
+        raise ValueError("refocusing_flip_angle must satisfy 0 < angle <= 180")
     echoes = _echo_count(p, 4 if kind == "TSE" else 1)
     train_overflows = (
         te + .002 > tr
@@ -40,10 +43,11 @@ def build_sequence(template: str, params: dict | None = None) -> SequenceIR:
         adc = [(te, 1), (te + .002, 0)]
     elif kind in {"SE", "TSE"}:
         for n in range(echoes):
-            center = te * (n + 1); rf.append((center - te / 2, 180)); adc += [(center, 1), (center + .002, 0)]
+            center = te * (n + 1); rf.append((center - te / 2, refocusing_flip)); adc += [(center, 1), (center + .002, 0)]
     gx = [item for t, v in adc if v == 1 for item in [(max(0., t - .003), -1), (t, 1), (t + .002, 0)]]
     rf_phases = [0.0] + ([90.0] * (len(rf) - 1) if kind in {"SE", "TSE"} else [0.0] * (len(rf) - 1))
     metadata = {"template": kind, "te": te, "tr": tr, "echoes": echoes,
+                "refocusing_flip_angle": refocusing_flip,
                 "preferred_engine": "epg" if kind == "TSE" else "bloch"}
     if kind == "TSE":
         metadata["epg_dk_events"] = [

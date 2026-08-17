@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mrqlab.local/schemas/experiment-tools.schema.json",
+  "$defs": {
+    "experimentGraph": {
+      "type": "object",
+      "required": ["schema_version", "id", "name", "nodes", "edges", "sequence", "sample", "scanner", "engine", "readout", "constraints", "disturbances", "provenance"],
+      "properties": { "schema_version": { "const": "1.0" }, "id": { "type": "string" }, "name": { "type": "string" } },
+      "additionalProperties": true
+    },
+    "tool": {
+      "type": "object",
+      "required": ["name", "input", "side_effect"],
+      "properties": {
+        "name": { "type": "string" },
+        "input": { "type": "object" },
+        "side_effect": { "enum": ["read", "compute"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    { "allOf": [{ "$ref": "#/$defs/tool" }, { "properties": { "name": { "const": "inspect_experiment" }, "side_effect": { "const": "read" } } }] },
+    { "allOf": [{ "$ref": "#/$defs/tool" }, { "properties": { "name": { "const": "inspect_signal" }, "side_effect": { "const": "read" } } }] },
+    { "allOf": [{ "$ref": "#/$defs/tool" }, { "properties": { "name": { "const": "compare_tissues" }, "side_effect": { "const": "compute" } } }] },
+    { "allOf": [{ "$ref": "#/$defs/tool" }, { "properties": { "name": { "const": "run_simulation" }, "side_effect": { "const": "compute" } } }] },
+    { "allOf": [{ "$ref": "#/$defs/tool" }, { "properties": { "name": { "const": "run_optimization" }, "side_effect": { "const": "compute" } } }] },
+    { "allOf": [{ "$ref": "#/$defs/tool" }, { "properties": { "name": { "const": "explain_epg_pathway" }, "side_effect": { "const": "read" } } }] },
+    { "allOf": [{ "$ref": "#/$defs/tool" }, { "properties": { "name": { "const": "suggest_parameters" }, "side_effect": { "const": "read" } } }] },
+    { "allOf": [{ "$ref": "#/$defs/tool" }, { "properties": { "name": { "const": "find_failure_mode" }, "side_effect": { "const": "read" } } }] }
+  ]
+}

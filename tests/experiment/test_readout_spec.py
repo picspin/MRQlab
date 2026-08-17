@@ -41,6 +41,7 @@ def test_objective_score_without_objective_fails_closed():
 
 def test_snapshot_products_fail_closed_while_collection_is_disabled():
     graph = build_preset("spin-echo", {"te": 0.02, "tr": 0.1})
+    graph.engine.options = {"return_magnetization": False}
     graph.readout = ReadoutSpec(products=("magnetization",))
     with pytest.raises(ValueError, match="snapshot"):
         build_result_graph(run_experiment(graph))
@@ -64,14 +65,15 @@ def test_every_declared_observation_kind_is_emitted_or_fails_closed(kind):
     if kind == "objective_score":
         graph.objective = ObjectiveFunction()
     graph.readout = ReadoutSpec(products=(kind,))
-    if kind in {"magnetization", "configurations"}:
+    if kind == "configurations":
         with pytest.raises(ValueError, match="snapshot"):
             build_result_graph(run_experiment(graph))
         return
-    if kind in {"echo_train", "sar"}:
-        with pytest.raises(ValueError, match="reserved"):
+    if kind == "magnetization":
+        graph.engine.options = {"return_magnetization": False}
+        with pytest.raises(ValueError, match="snapshot"):
             build_result_graph(run_experiment(graph))
-        return
+        graph.engine.options = {"return_magnetization": True}
     result = build_result_graph(run_experiment(graph))
     assert [item.kind for item in result.observations] == [kind]
 
