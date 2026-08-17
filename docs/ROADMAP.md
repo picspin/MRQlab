@@ -1,18 +1,35 @@
 # Roadmap
 
-## MVP — now
+## v0.1 — now
 
-- SE, simplified TSE, and GRE compile to a validated event graph.
-- Physics v1 is delivered: multi-isochromat Bloch, classic bounded-order EPG, and independent fat/water spectral pools behind one microkernel.
-- Kernel-controlled backend descriptors support third-party state implementations without delegating scheduling, caps, ADC/NCO, or result assembly.
-- Cartesian FFT reconstruction and FastAPI endpoints.
-- Skeuomorphic learning bench with timeline, tissue/scanner controls, linked-view placeholders, modes, and Reality Slider.
+- v0.1: SE timeline ↔ Bloch ↔ signal ↔ image.
+- v0.1: GRE gradient ↔ k-space ↔ contrast.
+- v0.1 thesis: TSE refocusing FA ↔ EPG ↔ echo train ↔ k-space weighting ↔ contrast + relative SAR.
+- Clinical Explore, Editor Linked Lens, and Signal Lab share one experiment workspace.
+- Canonical `/experiments/validate` and `/experiments/run`; `/simulate` remains compatible.
+- Agent tool JSON schemas only; no runtime agent.
+- Do not implement Floquet/CEST/MRS/DCE in v0.1.
+
+Waves A–H follow the plan; AI Lab runtime is last.
+
+| Wave | Scope |
+|---|---|
+| A | `ExperimentGraph`, presets, compiler façade, canonical APIs |
+| B | `PhysicsOperator`, `StateRepresentation`, capability negotiation, Physics IR |
+| C | `Observation`, `ResultGraph`, provenance |
+| D | `ObjectiveFunction` v0 forward scores |
+| E | `DisturbanceStack` schema and reselection explanations |
+| 7.5 | Backend hardening (immutable resolution, exact products, fail-closed reserved kinds) |
+| F | Workspace shell, clinical Explore, Editor Linked Lens |
+| G | TSE Signal Lab teaching chain |
+| H | Agent tool schemas only |
 
 ## Next
 
 - Next fidelity: physical gradient units and diffusion wiring, then Bloch–McConnell/MT, CEST saturation, richer MRS, and an optional PDG provider distribution.
 - Progressive Beginner, Clinical, Physics, and Hardware *concept* curricula. “Hardware” remains a learning mode, never an acquisition connection.
-- Fidelity layers driven by the Reality Slider, with explicit assumptions and error budgets.
+- Optimizer plugins consuming `ObjectiveFunction` (grid / Bayesian / CMA-ES). Differentiable EPG is later.
+- Fidelity layers driven by the Reality Slider over a typed `DisturbanceStack`, with explicit assumptions and error budgets.
 
 ## Delivery
 
