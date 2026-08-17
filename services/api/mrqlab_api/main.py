@@ -64,7 +64,7 @@ def _legacy_response(result) -> dict[str, Any]:
 
 
 def _api_engine_options(raw: dict[str, Any]) -> dict[str, Any]:
-    """Validate client options first, then force API snapshot flags off."""
+    """Validate client options first, then force legacy /simulate snapshots off."""
     from dataclasses import asdict, replace
 
     from mrqlab_physics import EngineOptions
@@ -72,6 +72,23 @@ def _api_engine_options(raw: dict[str, Any]) -> dict[str, Any]:
     validated = EngineOptions(**raw)
     forced = replace(validated, return_magnetization=False, return_configurations=False)
     return asdict(forced)
+
+
+def _experiment_engine_options(graph: ExperimentGraph) -> dict[str, Any]:
+    """Honor snapshot flags only when the matching product was requested."""
+    from dataclasses import asdict, replace
+
+    from mrqlab_physics import EngineOptions
+
+    requested = set(graph.readout.products)
+    validated = EngineOptions(**graph.engine.options)
+    return asdict(
+        replace(
+            validated,
+            return_magnetization=validated.return_magnetization and "magnetization" in requested,
+            return_configurations=validated.return_configurations and "configurations" in requested,
+        )
+    )
 
 
 def _graph_from_simulate(request: SimulateRequest) -> ExperimentGraph:
@@ -142,7 +159,7 @@ def experiments_run(graph: ExperimentGraph):
     resolved = graph.model_copy(deep=True)
     resolved.constraints.max_work = min(resolved.constraints.max_work, MAX_WORK)
     try:
-        resolved.engine.options = _api_engine_options(resolved.engine.options)
+        resolved.engine.options = _experiment_engine_options(resolved)
         return build_result_graph(run_experiment(resolved))
     except (ValueError, TypeError, NotImplementedError) as exc:
         raise HTTPException(422, str(exc)) from exc

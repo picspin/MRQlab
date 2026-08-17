@@ -21,8 +21,6 @@ ObservationKind = Literal[
 ]
 
 _ALLOWED_PRODUCTS = frozenset(get_args(ObservationKind))
-_SNAPSHOT_PRODUCTS = frozenset({"magnetization", "configurations"})
-_UNIMPLEMENTED_PRODUCTS = frozenset({"echo_train", "sar"})
 
 
 class ObservationProvenance(BaseModel):
@@ -64,9 +62,7 @@ def _complex(values: np.ndarray) -> list[dict[str, float]]:
 
 
 def _derived_from(product: str, emitted: frozenset[str]) -> tuple[str, ...]:
-    if product == "image" and "signal" in emitted:
-        return ("signal",)
-    if product == "objective_score" and "signal" in emitted:
+    if product in {"image", "objective_score", "configurations", "echo_train"} and "signal" in emitted:
         return ("signal",)
     return ()
 
@@ -92,12 +88,14 @@ def build_result_graph(run) -> ResultGraph:
     for product in products:
         if product not in _ALLOWED_PRODUCTS:
             raise ValueError(f"unknown_product: {product!r}")
-        if product in _SNAPSHOT_PRODUCTS:
+        if product == "magnetization" and run.sim_result.magnetization is None:
             raise ValueError(
                 f"snapshot product {product!r} is unavailable while snapshot collection is disabled"
             )
-        if product in _UNIMPLEMENTED_PRODUCTS:
-            raise ValueError(f"product {product!r} is reserved for a later wave")
+        if product == "configurations" and run.sim_result.configurations is None:
+            raise ValueError(
+                f"snapshot product {product!r} is unavailable while snapshot collection is disabled"
+            )
         if product == "objective_score" and run.experiment.objective is None:
             raise ValueError("objective_score requested without an objective")
         if product == "objective_score" and run.experiment.objective is not None:
@@ -149,6 +147,38 @@ def build_result_graph(run) -> ResultGraph:
             ),
             units={"value": "score"},
             derived_from=_derived_from("objective_score", emitted),
+            provenance=provenance,
+        ),
+        "magnetization": lambda emitted: Observation(
+            id="magnetization",
+            kind="magnetization",
+            data=np.asarray(run.sim_result.magnetization).tolist(),
+            derived_from=_derived_from("magnetization", emitted),
+            provenance=provenance,
+        ),
+        "configurations": lambda emitted: Observation(
+            id="configurations",
+            kind="configurations",
+            data=np.abs(run.sim_result.configurations).tolist(),
+            derived_from=_derived_from("configurations", emitted),
+            provenance=provenance,
+        ),
+        "echo_train": lambda emitted: Observation(
+            id="echo_train",
+            kind="echo_train",
+            data=np.abs(run.sim_result.signal).tolist(),
+            axes={"echo": list(range(1, int(run.sim_result.signal.size) + 1))},
+            derived_from=_derived_from("echo_train", emitted),
+            provenance=provenance,
+        ),
+        "sar": lambda emitted: Observation(
+            id="sar",
+            kind="sar",
+            data=(
+                int(run.sequence.metadata.get("echoes", 1))
+                * (float(run.sequence.metadata.get("refocusing_flip_angle", 180.0)) / 180.0) ** 2
+            ),
+            units={"value": "relative"},
             provenance=provenance,
         ),
     }
