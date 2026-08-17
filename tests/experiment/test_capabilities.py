@@ -22,3 +22,23 @@ def test_missing_shaped_rf_fails_closed_with_ssepg_explanation():
 def test_no_base_simulator_skill_tree_exists():
     with pytest.raises(CapabilityMismatch):
         select_representation(frozenset({"exchange"}), "epg")
+
+
+def test_all_contract_names_exported_from_top_level():
+    import mrqlab_experiment
+
+    for name in (
+        "ExperimentGraph",
+        "PhysicsOperator",
+        "StateRepresentation",
+        "ObjectiveFunction",
+        "Observation",
+        "PhysicsIR",
+        "ExecutionPlan",
+        "KernelRun",
+        "ResultGraph",
+        "ResultEdge",
+    ):
+        assert hasattr(mrqlab_experiment, name)
+        assert name in mrqlab_experiment.__all__
+

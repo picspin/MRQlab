@@ -19,3 +19,15 @@ def test_existing_scheduler_compiles_to_versioned_physics_ir():
 
 def test_ssepg_is_a_distinct_span_name_not_epg_flag():
     assert "ssEPG" in {"Bloch", "EPG", "PDG", "ssEPG"}
+
+
+def test_run_experiment_invokes_physics_ir_compiler_and_attaches_to_kernel_run():
+    from mrqlab_experiment import run_experiment
+
+    graph = build_preset("dark-blood-tse", {"te": 0.02, "tr": 0.1, "echoes": 2})
+    run = run_experiment(graph)
+    assert run.physics_ir is not None
+    assert run.physics_ir.schema_version == "1.0"
+    assert run.physics_ir.representation == "epg"
+    assert len(run.physics_ir.operators) > 0
+

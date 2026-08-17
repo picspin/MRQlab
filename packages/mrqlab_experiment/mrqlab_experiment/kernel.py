@@ -18,6 +18,7 @@ from .capabilities import CapabilityMismatch, REPRESENTATIONS, select_representa
 from .compiler import compile_sequence
 from .disturbances import disturbance_requirements
 from .models import ExperimentGraph
+from .physics_ir import PhysicsIR, compile_physics_ir
 
 
 class ValidationIssue(BaseModel):
@@ -47,6 +48,7 @@ class KernelRun:
     sequence: SequenceIR
     sim_result: SimResult
     plan: ExecutionPlan
+    physics_ir: PhysicsIR | None = None
 
 
 def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
@@ -116,10 +118,12 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
         raise ValueError(report.errors[0].message)
     plan = plan_experiment(graph)
     sequence = compile_sequence(graph)
+    options = EngineOptions(**plan.options)
+    physics_ir = compile_physics_ir(sequence, plan.representation, options)
     result = get_engine(plan.engine).simulate(
         sequence,
         _phantom_from_sample(graph),
         ScannerModel(**graph.scanner.model_dump()),
-        EngineOptions(**plan.options),
+        options,
     )
-    return KernelRun(graph.model_copy(deep=True), sequence, result, plan)
+    return KernelRun(graph.model_copy(deep=True), sequence, result, plan, physics_ir)

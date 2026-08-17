@@ -72,6 +72,7 @@ def _record(op) -> PhysicsOperatorRecord:
 
 _SPAN_BY_REPRESENTATION: dict[str, SpanKind] = {
     "bloch": "Bloch",
+    "spectral": "Bloch",
     "epg": "EPG",
     "pdg": "PDG",
     "ssepg": "ssEPG",
