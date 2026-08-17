@@ -75,9 +75,10 @@ def build_result_graph(run) -> ResultGraph:
     meta = run.sim_result.meta
     plan = getattr(run, "plan", None)
     representation = plan.representation if plan is not None else str(meta["engine"])
+    engine_name = str(plan.engine if plan is not None else meta["engine"])
     provenance = ObservationProvenance(
         experiment_hash=digest,
-        engine=str(meta["engine"]),
+        engine=engine_name,
         representation=representation,
         assumptions=tuple(meta.get("assumptions", ())),
         seed=run.experiment.provenance.seed,
@@ -189,6 +190,8 @@ def build_result_graph(run) -> ResultGraph:
         observation = builders[product](frozenset(emitted))
         observations.append(observation)
         emitted.add(observation.id)
+        if product in {"signal", "magnetization", "configurations", "k_trajectory"}:
+            edges.append(ResultEdge(source=engine_name, target=observation.id, kind="engine"))
         for source in observation.derived_from:
             edge_kind = "recon" if product == "image" and source == "signal" else "derived_from"
             edges.append(ResultEdge(source=source, target=observation.id, kind=edge_kind))

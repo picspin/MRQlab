@@ -11,12 +11,13 @@ from .kernel import (
 )
 from .models import ExperimentGraph
 from .objectives import ObjectiveConstraint, ObjectiveFunction, ObjectiveTerm, evaluate_objective
-from .observations import Observation, ResultGraph, build_result_graph
-from .physics_ir import PhysicsIR, compile_physics_ir
+from .observations import Observation, ResultEdge, ResultGraph, build_result_graph
+from .physics_ir import CompilerSpan, PhysicsIR, PhysicsOperator, compile_physics_ir
 from .presets import build_preset
 
 __all__ = [
     "CapabilityMismatch",
+    "CompilerSpan",
     "Disturbance",
     "DisturbanceStack",
     "ExecutionPlan",
@@ -27,6 +28,8 @@ __all__ = [
     "ObjectiveTerm",
     "Observation",
     "PhysicsIR",
+    "PhysicsOperator",
+    "ResultEdge",
     "ResultGraph",
     "StateRepresentation",
     "ValidationReport",

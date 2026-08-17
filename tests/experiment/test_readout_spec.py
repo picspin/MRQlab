@@ -32,6 +32,20 @@ def test_empty_products_emit_no_observations():
     assert result.edges == ()
 
 
+def test_result_graph_emits_engine_edges_for_direct_simulation_products():
+    graph = build_preset("spin-echo", {"te": 0.02, "tr": 0.1})
+    graph.engine.options = {"return_magnetization": True}
+    graph.readout = ReadoutSpec(products=("signal", "k_trajectory", "magnetization", "image"))
+    result = build_result_graph(run_experiment(graph))
+    engine_edges = [edge for edge in result.edges if edge.kind == "engine"]
+    assert len(engine_edges) == 3
+    assert {edge.source for edge in engine_edges} == {"bloch"}
+    assert {edge.target for edge in engine_edges} == {"signal", "k_trajectory", "magnetization"}
+    recon_edges = [edge for edge in result.edges if edge.kind == "recon"]
+    assert len(recon_edges) == 1
+    assert recon_edges[0].source == "signal" and recon_edges[0].target == "image"
+
+
 def test_objective_score_without_objective_fails_closed():
     graph = build_preset("spin-echo", {"te": 0.02, "tr": 0.1})
     graph.readout = ReadoutSpec(products=("objective_score",))
