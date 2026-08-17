@@ -1,16 +1,44 @@
-# Physics v1
+# Physics
 
-MRQLab is a teaching MRI simulator, not a clinical scanner, safety simulator, or hardware controller. `SequenceIR` is the only event source. The physics microkernel converts its RF, gradient, ADC-gate, and NCO channels into `RfOp`, `Relax`, `Shift`, `GradInterval`, and `AdcSample`; plugins apply those operators to their own state.
+MRQLab is a teaching MRI simulator, not a clinical scanner, safety simulator, or hardware controller. The experiment kernel selects a `StateRepresentation` and applies typed `PhysicsOperator` records. `SequenceIR` remains the only scanner-level event source. The physics microkernel converts its RF, gradient, ADC-gate, and NCO channels into `RfOp`, `Relax`, `Shift`, `GradInterval`, and `AdcSample`; plugins apply those operators to their own state.
 
-## Engines
+## Forward models versus inverse search
 
-| Engine | State | Primary teaching use | Physics v1 boundary |
+EPG, EPG-X, and ssEPG are forward models. Optimizer plugins own inverse search over an `ObjectiveFunction`:
+
+```text
+theta* = argmin_theta ObjectiveFunction(Observation(forward(theta)))
+```
+
+v0 evaluates scalar scores only. No search algorithm ships. Grid, Bayesian, and CMA-ES are planned non-differentiable plugins. Differentiable EPG with Adam/LBFGS is later work. See [ADR-0003](adr/ADR-0003-epg-is-forward-not-inverse.md).
+
+## Representation versus operator
+
+Bloch, EPG, PDG, and density matrix are representations. RF, relaxation, gradient/shift, exchange, diffusion, flow, off-resonance, and chemical shift are operators. There is no `BaseSimulator` inheritance tree.
+
+- EPG-X means an EPG state plus exchange operators.
+- ssEPG uses dedicated compiler spans; it is never `epg.enable_slice_profile=True`.
+- PDG bridges phase pathways and spatial image formation.
+- The MRS base is density matrix + Liouville–von Neumann propagation.
+- Floquet is only a future `PeriodicSequenceAccelerator` / `SteadyStateSolver`.
+
+## Capability matrix
+
+Selection is set inclusion. Missing capabilities fail closed.
+
+| Representation | Available | Supports | Teaching use / boundary |
 |---|---|---|---|
-| `BlochEngine` | Cartesian `Mxyz` per weighted isochromat | SE, GRE, off-resonance and spatial dephasing | Instantaneous RF and dimensionless teaching gradients |
-| `EPGEngine` | Signed classic `(F+, F-, Z)` configuration orders | TSE/CPMG echo trains | Single pool, bounded integer orders, metadata-first `dk` |
-| `SpectralEngine` | Independent chemical-shift Bloch pools | Fat/water phase and beating | No exchange, MT, CEST saturation, or fitted MRS lineshapes |
+| Bloch | yes | hard_rf, off_resonance, spatial_encoding, magnetization_states | SE, GRE, off-resonance and spatial dephasing. Instantaneous RF and dimensionless teaching gradients. |
+| EPG | yes | hard_rf, configuration_states, steady_state | TSE/CPMG echo trains. Single pool, bounded integer orders, metadata-first `dk`. |
+| Spectral | yes | hard_rf, off_resonance, multi_pool, magnetization_states | Fat/water phase and beating. No exchange, MT, CEST saturation, or fitted MRS lineshapes. |
+| ssEPG | no | hard_rf, shaped_rf, configuration_states, spatial_encoding | Dedicated future compiler path for slice-selective RF. |
+| EPG-X | no | hard_rf, configuration_states, exchange, multi_pool | EPG plus exchange. Explicit unavailable seam. |
+| PDG | no | hard_rf, configuration_states, spatial_encoding, off_resonance | Optional provider seam bridging pathways and image formation. |
+| Density matrix | no | (future) | MRS base via Liouville–von Neumann. Vocabulary only in v0.1. |
 
-All are returned as a kernel-owned `SimulationEngine` implementing `simulate(SequenceIR, Phantom, ScannerModel, EngineOptions) -> SimResult`. Recon, API, and web consume `SimResult`; they do not import engine classes.
+Built-in routing is SE/GRE → Bloch and TSE → EPG through `preferred_engine` metadata; an explicit engine preference still wins if capabilities allow.
+
+All shipped engines are returned as a kernel-owned `SimulationEngine` implementing `simulate(SequenceIR, Phantom, ScannerModel, EngineOptions) -> SimResult`. The façade classes remain `BlochEngine`, `EPGEngine`, and `SpectralEngine`. Recon, API, and web consume `SimResult`; they do not import engine classes.
 
 ## Units and signal convention
 
@@ -26,7 +54,7 @@ For RF flip `α` and phase `φ`, `RfOp` applies the Weigel classic EPG matrix to
 
 ## Work safety
 
-Before schedule or backend-state materialization, an arithmetic preflight counts ADC samples and planned operators, then the kernel estimates work as operator count times backend state width: isochromat count for Bloch, `3 × (2*kmax + 1)` for EPG, and isochromat count times pool count for spectral. A sequence is additionally limited to 100,000 channel events and 250,000 ADC samples. The API clamps request `max_work` to `SIM_MAX_WORK=2000000` by default and disables magnetization/configuration snapshots because its response does not return them. `SIM_MAX_MATRIX=64` remains the reconstruction/UI dimension cap. Sequence duration is not treated as wall-clock runtime.
+Before schedule or backend-state materialization, an arithmetic preflight counts ADC samples and planned operators, then the kernel estimates work as operator count times backend state width: isochromat count for Bloch, `3 × (2*kmax + 1)` for EPG, and isochromat count times pool count for spectral. A sequence is additionally limited to 100,000 channel events and 250,000 ADC samples. The API clamps request `max_work` to `SIM_MAX_WORK=2000000` by default. Legacy `/simulate` still disables magnetization/configuration snapshots because its response does not return them. Canonical `/experiments/run` honors snapshot flags only when the matching product is requested. `SIM_MAX_MATRIX=64` remains the reconstruction/UI dimension cap. Sequence duration is not treated as wall-clock runtime.
 
 ## Plugins
 
@@ -53,6 +81,8 @@ Names must match the entry-point name and may not shadow `bloch`, `epg`, or `spe
 ## Extension seams
 
 `diffusion_attenuation` provides the diagonal configuration-space free-diffusion propagator but is not applied to teaching-unit gradients. `EpgXLayout` fixes Bloch–McConnell and magnetization-transfer state rows; their evolution functions raise explicit physics-v1 boundary errors. This prevents partially correct exchange or MT behavior from appearing as supported simulation.
+
+Floquet, CEST, MRS, and DCE are documented seams only. They have no implementation modules in `packages/mrqlab_experiment`.
 
 ## Algorithm references
 
