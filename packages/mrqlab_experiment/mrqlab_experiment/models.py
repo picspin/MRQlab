@@ -41,9 +41,43 @@ class SampleSpec(BaseModel):
     pools: tuple[dict[str, Any], ...] = ()
 
 
+class TissueModel(BaseModel):
+    t1: float = Field(default=1.0, gt=0)
+    t2: float = Field(default=0.1, gt=0)
+    t2_star: float | None = Field(default=None, gt=0)
+    proton_density: float = Field(default=1.0, ge=0)
+    flow_velocity_mps: float = Field(default=0.0)
+    exchange_rate_hz: float = Field(default=0.0, ge=0)
+    pool_fraction: float = Field(default=1.0, ge=0, le=1.0)
+    diffusion_adc_mm2_s: float | None = Field(default=None, ge=0)
+
+
+class PhysiologyModel(BaseModel):
+    cardiac_phase: float = Field(default=0.0, ge=0.0, le=1.0)
+    rr_interval_s: float = Field(default=1.0, gt=0)
+    respiratory_phase: float = Field(default=0.0, ge=0.0, le=1.0)
+    flow_waveform: tuple[float, ...] = ()
+    contrast_agent_concentration: float = Field(default=0.0, ge=0)
+
+
 class ScannerSpec(BaseModel):
     b0_t: float = Field(default=1.5, gt=0)
     gradient_scale: float = Field(default=1.0, ge=0)
+
+
+class ScannerModel(BaseModel):
+    b0_t: float = Field(default=1.5, gt=0)
+    gradient_scale: float = Field(default=1.0, ge=0)
+    max_gradient_mt_m: float = Field(default=40.0, gt=0)
+    max_slew_rate_t_m_s: float = Field(default=150.0, gt=0)
+    adc_bandwidth_hz: float = Field(default=50000.0, gt=0)
+
+
+class DisturbanceModel(BaseModel):
+    kind: str
+    enabled: bool = True
+    parameters: dict[str, Any] = Field(default_factory=dict)
+
 
 
 class EngineRef(BaseModel):

@@ -1,7 +1,9 @@
 from dataclasses import asdict, dataclass, replace
+import hashlib
+import json
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from mrqlab_physics import (
     EngineOptions,
@@ -14,7 +16,7 @@ from mrqlab_physics import (
 )
 from mrqlab_sequence import SequenceIR
 
-from .capabilities import CapabilityMismatch, REPRESENTATIONS, select_representation
+from .capabilities import CapabilityMismatch, EngineValidity, REPRESENTATIONS, select_representation
 from .compiler import compile_sequence
 from .disturbances import disturbance_requirements
 from .models import ExperimentGraph
@@ -34,12 +36,19 @@ class ValidationReport(BaseModel):
 
 class ExecutionPlan(BaseModel):
     experiment_id: str
+    fingerprint: str = ""
     representation: str
     engine: str
+    validity: EngineValidity = Field(default_factory=EngineValidity)
     required_capabilities: tuple[str, ...]
     preferred: str | None
+    requested_observations: tuple[str, ...] = ()
+    approximations: tuple[str, ...] = ()
+    differentiable: bool = False
+    stale_dependencies: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     options: dict[str, Any]
     reasons: tuple[str, ...]
+
 
 
 @dataclass(slots=True)
@@ -76,12 +85,36 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     selected = select_representation(required, preferred)
     requested = EngineOptions(**graph.engine.options)
     options = replace(requested, max_work=min(requested.max_work, graph.constraints.max_work))
+    
+    raw = graph.model_dump(mode="json")
+    fingerprint = hashlib.sha256(
+        json.dumps(raw, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+    approximations = ()
+    if selected.name == "epg":
+        approximations = ("hard_rf_isochromat_average", "discrete_echo_train")
+    elif selected.name == "bloch":
+        approximations = ("isochromat_sampling_grid",)
+
+    stale_deps = {
+        "sample": ("signal", "image", "magnetization", "configurations", "echo_train", "objective_score"),
+        "scanner": ("signal", "image", "k_trajectory"),
+        "sequence": ("signal", "image", "k_trajectory", "magnetization", "configurations", "echo_train", "sar", "objective_score"),
+    }
+
     return ExecutionPlan(
         experiment_id=graph.id,
+        fingerprint=fingerprint,
         representation=selected.name,
         engine=selected.name,
+        validity=selected.validity,
         required_capabilities=tuple(sorted(required)),
         preferred=preferred,
+        requested_observations=graph.readout.products,
+        approximations=approximations,
+        differentiable=selected.validity.differentiable,
+        stale_dependencies=stale_deps,
         options=asdict(options),
         reasons=(*explanations, source),
     )
