@@ -115,4 +115,23 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     fireEvent.click(screen.getByRole("button", { name: /Close Inspector/i }));
     expect(screen.queryByTestId("pulse-inspector")).toBeNull();
   });
+
+  it("supports Compare Lens for A/B parameter sweeps (Echo train, ΔContrast, SAR load, CNR proxy)", () => {
+    render(
+      <WorkspaceProvider>
+        <WorkbenchCockpit />
+      </WorkspaceProvider>
+    );
+
+    // Switch to Compare lens
+    const compareTab = screen.getByTestId("lens-tab-compare");
+    fireEvent.click(compareTab);
+
+    // Verify compare screen renders both protocols and metrics
+    expect(screen.getByTestId("compare-lens")).toBeVisible();
+    expect(screen.getByText(/PROTOCOL A: Standard TSE/i)).toBeVisible();
+    expect(screen.getByText(/PROTOCOL B: Low SAR Candidate/i)).toBeVisible();
+    expect(screen.getByText(/ECHO TRAIN DECAY DYNAMICS/i)).toBeVisible();
+    expect(screen.getByText(/Relative SAR Load/i)).toBeVisible();
+  });
 });
