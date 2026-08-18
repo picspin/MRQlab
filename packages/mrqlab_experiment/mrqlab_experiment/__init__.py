@@ -18,7 +18,14 @@ from .models import (
     ScannerModel,
     TissueModel,
 )
-from .objectives import ObjectiveConstraint, ObjectiveFunction, ObjectiveTerm, evaluate_objective
+from .objectives import (
+    ClinicalCNRTerm,
+    ObjectiveConstraint,
+    ObjectiveFunction,
+    ObjectiveTerm,
+    evaluate_multi_tissue_contrast,
+    evaluate_objective,
+)
 from .observations import Observation, ResultEdge, ResultGraph, build_result_graph
 from .physics_ir import CompilerSpan, PhysicsIR, PhysicsOperator, compile_physics_ir
 from .pulse import (
@@ -67,6 +74,8 @@ __all__ = [
     "TissueModel",
     "ValidationReport",
     "ClinicalRecipeSpec",
+    "ClinicalCNRTerm",
+    "evaluate_multi_tissue_contrast",
     "build_clinical_recipe",
     "build_preset",
     "list_clinical_recipes",
