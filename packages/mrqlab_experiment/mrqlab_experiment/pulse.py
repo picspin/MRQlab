@@ -4,7 +4,7 @@ import math
 import numpy as np
 from pydantic import BaseModel, Field
 
-from mrqlab_physics.ops.rf import rotate_cartesian
+from mrqlab_physics.ops.rf import rotate_cartesian, epg_rf_matrix
 
 
 PulseKind = Literal["hard", "shaped_sinc", "gaussian", "rect", "custom"]
@@ -19,6 +19,18 @@ class PulseDefinition(BaseModel):
     time_bandwidth: float = Field(default=4.0, gt=0)
     slice_thickness_m: float = Field(default=0.005, gt=0)
     samples: tuple[complex, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class PulseResponse:
+    flip_angle_deg: float
+    phase_deg: float
+    duration_s: float
+    slice_thickness_m: float
+    frequency_response: np.ndarray | None = None
+    slice_profile: np.ndarray | None = None
+    b0_sensitivity: float = 1.0
+    b1_sensitivity: float = 1.0
 
 
 class PulsePropagator(Protocol):
@@ -47,10 +59,7 @@ class SmallTipPropagator:
         freqs = np.asarray(freqs_hz, dtype=np.float64)
         t_dur = self.pulse.duration_s
         alpha_rad = math.radians(self.pulse.flip_angle_deg)
-        # Sinc Fourier transform excitation profile approximation: rect frequency box with sinc roll-off
-        # Profile Mxy(f) approx -i * gamma * B1(f)
         bw = self.pulse.time_bandwidth / t_dur
-        # FT of windowed sinc is approx rect frequency profile
         response = np.sinc(freqs / bw) * math.sin(alpha_rad)
         return response.astype(np.complex128)
 
@@ -73,14 +82,13 @@ class SpatialBlochPropagator:
     ) -> np.ndarray:
         z = np.asarray(z_positions_m, dtype=np.float64)
         gamma = 42.577e6  # Hz/T
-        # Off-resonance due to slice selection gradient: delta_f = gamma * G * z
+        # Calculate actual excitation bandwidth from slice thickness and gradient
+        # delta_f = gamma * G * z
         delta_f = gamma * gradient_g_m * z
-        t_dur = self.pulse.duration_s
-        bw = self.pulse.time_bandwidth / t_dur
+        bw = gamma * gradient_g_m * self.pulse.slice_thickness_m
         alpha_rad = math.radians(self.pulse.flip_angle_deg)
         
-        # Sinc-shaped spatial profile
-        excitation = np.sinc(delta_f / bw) * math.sin(alpha_rad)
+        excitation = np.sinc(delta_f / max(1e-6, bw)) * math.sin(alpha_rad)
         excitation = np.clip(excitation, -1.0, 1.0)
         
         m_out = np.zeros((len(z), 3), dtype=np.float64)
@@ -97,7 +105,47 @@ class SpatialBlochPropagator:
         return HardPulsePropagator(alpha_rad, phi_rad).propagate(m_initial)
 
 
+@dataclass(frozen=True, slots=True)
+class EpgTransitionPropagator:
+    alpha_rad: float
+    phi_rad: float
+
+    def transition_matrix(self) -> np.ndarray:
+        return epg_rf_matrix(self.alpha_rad, self.phi_rad)
+
+    def propagate(self, m_initial: np.ndarray) -> np.ndarray:
+        # Standard EPG state transformation on (F+, F-, Z)
+        state = np.asarray(m_initial, dtype=np.complex128)
+        mat = self.transition_matrix()
+        if state.ndim == 1 and len(state) == 3:
+            return mat @ state
+        return state
+
+
 class PulseCompiler:
+    @staticmethod
+    def analyze(pulse: PulseDefinition) -> PulseResponse:
+        alpha_rad = math.radians(pulse.flip_angle_deg)
+        t_dur = pulse.duration_s
+        bw = pulse.time_bandwidth / t_dur
+        freqs = np.linspace(-bw * 1.5, bw * 1.5, 51)
+        freq_resp = np.sinc(freqs / bw) * math.sin(alpha_rad)
+        
+        z = np.linspace(-pulse.slice_thickness_m * 2, pulse.slice_thickness_m * 2, 51)
+        spatial_prop = SpatialBlochPropagator(pulse=pulse)
+        slice_prof = spatial_prop.slice_profile(z, gradient_g_m=0.02)
+
+        return PulseResponse(
+            flip_angle_deg=pulse.flip_angle_deg,
+            phase_deg=pulse.phase_deg,
+            duration_s=pulse.duration_s,
+            slice_thickness_m=pulse.slice_thickness_m,
+            frequency_response=freq_resp,
+            slice_profile=slice_prof,
+            b0_sensitivity=1.0,
+            b1_sensitivity=1.0,
+        )
+
     @staticmethod
     def compile(
         pulse: PulseDefinition,
@@ -111,6 +159,10 @@ class PulseCompiler:
             return SmallTipPropagator(pulse=pulse)
         elif method == "spatial_bloch":
             return SpatialBlochPropagator(pulse=pulse)
+        elif method == "epg_transition":
+            alpha_rad = math.radians(pulse.flip_angle_deg)
+            phi_rad = math.radians(pulse.phase_deg)
+            return EpgTransitionPropagator(alpha_rad=alpha_rad, phi_rad=phi_rad)
         else:
             raise ValueError(f"Unsupported pulse propagation method: {method}")
 

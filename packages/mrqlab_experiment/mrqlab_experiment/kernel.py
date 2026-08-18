@@ -46,6 +46,7 @@ class ExecutionPlan(BaseModel):
     approximations: tuple[str, ...] = ()
     differentiable: bool = False
     cost_estimate: float = 0.0
+    physics_status: dict[str, str] = Field(default_factory=dict)
     stale_dependencies: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     options: dict[str, Any]
     reasons: tuple[str, ...]
@@ -124,20 +125,28 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     elif selected.name == "bloch":
         approximations = ("isochromat_sampling_grid",)
 
-    # Check tissue and physiology requirements
+    physics_status = {}
     if graph.tissue is not None:
         tissues = graph.tissue if isinstance(graph.tissue, tuple) else (graph.tissue,)
         for t in tissues:
-            if t.exchange_rate_hz > 0 and selected.validity.exchange == "unsupported":
-                raise CapabilityMismatch(f"Engine '{selected.name}' does not support exchange (validity.exchange = 'unsupported')")
-            if abs(t.flow_velocity_mps) > 0 and selected.validity.flow == "unsupported":
-                raise CapabilityMismatch(f"Engine '{selected.name}' does not support flow dynamics (validity.flow = 'unsupported')")
-            if t.diffusion_adc_mm2_s is not None and t.diffusion_adc_mm2_s > 0 and selected.validity.diffusion == "unsupported":
-                raise CapabilityMismatch(f"Engine '{selected.name}' does not support diffusion (validity.diffusion = 'unsupported')")
+            if t.exchange_rate_hz > 0:
+                if selected.validity.exchange == "unsupported":
+                    raise CapabilityMismatch(f"Engine '{selected.name}' does not support exchange (validity.exchange = 'unsupported')")
+                physics_status["exchange"] = f"declared_{selected.validity.exchange}_in_{selected.name}"
+            if abs(t.flow_velocity_mps) > 0:
+                if selected.validity.flow == "unsupported":
+                    raise CapabilityMismatch(f"Engine '{selected.name}' does not support flow dynamics (validity.flow = 'unsupported')")
+                physics_status["flow"] = f"declared_{selected.validity.flow}_in_{selected.name}"
+            if t.diffusion_adc_mm2_s is not None and t.diffusion_adc_mm2_s > 0:
+                if selected.validity.diffusion == "unsupported":
+                    raise CapabilityMismatch(f"Engine '{selected.name}' does not support diffusion (validity.diffusion = 'unsupported')")
+                physics_status["diffusion"] = f"declared_{selected.validity.diffusion}_in_{selected.name}"
 
     if graph.physiology is not None:
-        if len(graph.physiology.flow_waveform) > 0 and selected.validity.flow == "unsupported":
-            raise CapabilityMismatch(f"Engine '{selected.name}' does not support flow waveforms (validity.flow = 'unsupported')")
+        if len(graph.physiology.flow_waveform) > 0:
+            if selected.validity.flow == "unsupported":
+                raise CapabilityMismatch(f"Engine '{selected.name}' does not support flow waveforms (validity.flow = 'unsupported')")
+            physics_status["flow_waveform"] = f"declared_{selected.validity.flow}_in_{selected.name}"
 
     total_events = sum(len(ch.events) for ch in sequence.channels)
     cost_estimate = float(total_events * max(1, len(graph.readout.products)))
@@ -160,6 +169,7 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
         approximations=approximations,
         differentiable=selected.validity.differentiable,
         cost_estimate=cost_estimate,
+        physics_status=physics_status,
         stale_dependencies=stale_deps,
         options=asdict(options),
         reasons=(*explanations, source),
@@ -199,10 +209,11 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
     sequence = compile_sequence(graph)
     options = EngineOptions(**plan.options)
     physics_ir = compile_physics_ir(sequence, plan.representation, options)
+    scanner_model = graph.effective_scanner
     result = get_engine(plan.engine).simulate(
         sequence,
         _phantom_from_sample(graph),
-        ScannerModel(**graph.scanner.model_dump()),
+        scanner_model,
         options,
     )
     return KernelRun(graph.model_copy(deep=True), sequence, result, plan, physics_ir)

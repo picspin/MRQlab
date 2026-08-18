@@ -29,10 +29,12 @@ from .objectives import (
 from .observations import Observation, ResultEdge, ResultGraph, build_result_graph
 from .physics_ir import CompilerSpan, PhysicsIR, PhysicsOperator, compile_physics_ir
 from .pulse import (
+    EpgTransitionPropagator,
     HardPulsePropagator,
     PulseCompiler,
     PulseDefinition,
     PulsePropagator,
+    PulseResponse,
     SmallTipPropagator,
     SpatialBlochPropagator,
     compile_pulse,
@@ -63,9 +65,11 @@ __all__ = [
     "PulseCompiler",
     "PulseDefinition",
     "PulsePropagator",
+    "PulseResponse",
     "HardPulsePropagator",
     "SmallTipPropagator",
     "SpatialBlochPropagator",
+    "EpgTransitionPropagator",
     "compile_pulse",
     "ResultEdge",
     "ResultGraph",
