@@ -8,8 +8,10 @@ from pydantic import BaseModel, Field, model_validator
 
 from mrqlab_experiment import (
     ExperimentGraph,
+    build_clinical_recipe,
     build_preset,
     build_result_graph,
+    list_clinical_recipes,
     run_experiment,
     validate_experiment,
 )
@@ -135,6 +137,17 @@ def presets():
         "presets": [
             {"name": name, "experiment": build_preset(name).model_dump(mode="json")}
             for name in names
+        ]
+    }
+
+
+@app.get("/clinical-recipes")
+def clinical_recipes():
+    recipes = list_clinical_recipes()
+    return {
+        "recipes": [
+            {"id": name, "experiment": build_clinical_recipe(name).model_dump(mode="json")}
+            for name in recipes
         ]
     }
 
