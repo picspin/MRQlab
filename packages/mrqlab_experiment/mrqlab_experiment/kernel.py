@@ -45,6 +45,7 @@ class ExecutionPlan(BaseModel):
     requested_observations: tuple[str, ...] = ()
     approximations: tuple[str, ...] = ()
     differentiable: bool = False
+    cost_estimate: float = 0.0
     stale_dependencies: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     options: dict[str, Any]
     reasons: tuple[str, ...]
@@ -61,6 +62,32 @@ class KernelRun:
 
 
 def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
+    if graph.tissue is not None:
+        tissues = graph.tissue if isinstance(graph.tissue, tuple) else (graph.tissue,)
+        if len(tissues) == 1:
+            t = tissues[0]
+            return Phantom(
+                t1=t.t1,
+                t2=t.t2,
+                proton_density=t.proton_density,
+                off_resonance_hz=graph.sample.off_resonance_hz,
+            )
+        else:
+            isochromats = tuple(
+                Isochromat(
+                    t1=t.t1,
+                    t2=t.t2,
+                    proton_density=t.proton_density,
+                    off_resonance_hz=graph.sample.off_resonance_hz,
+                )
+                for t in tissues
+            )
+            return Phantom(
+                t1=tissues[0].t1,
+                t2=tissues[0].t2,
+                proton_density=sum(t.proton_density for t in tissues) / len(tissues),
+                isochromats=isochromats,
+            )
     sample = graph.sample.model_dump()
     isochromats = tuple(Isochromat(**item) for item in sample.pop("isochromats", ()))
     pools = tuple(SpectralPool(**item) for item in sample.pop("pools", ()))
@@ -97,6 +124,24 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     elif selected.name == "bloch":
         approximations = ("isochromat_sampling_grid",)
 
+    # Check tissue and physiology requirements
+    if graph.tissue is not None:
+        tissues = graph.tissue if isinstance(graph.tissue, tuple) else (graph.tissue,)
+        for t in tissues:
+            if t.exchange_rate_hz > 0 and selected.validity.exchange == "unsupported":
+                raise CapabilityMismatch(f"Engine '{selected.name}' does not support exchange (validity.exchange = 'unsupported')")
+            if abs(t.flow_velocity_mps) > 0 and selected.validity.flow == "unsupported":
+                raise CapabilityMismatch(f"Engine '{selected.name}' does not support flow dynamics (validity.flow = 'unsupported')")
+            if t.diffusion_adc_mm2_s is not None and t.diffusion_adc_mm2_s > 0 and selected.validity.diffusion == "unsupported":
+                raise CapabilityMismatch(f"Engine '{selected.name}' does not support diffusion (validity.diffusion = 'unsupported')")
+
+    if graph.physiology is not None:
+        if len(graph.physiology.flow_waveform) > 0 and selected.validity.flow == "unsupported":
+            raise CapabilityMismatch(f"Engine '{selected.name}' does not support flow waveforms (validity.flow = 'unsupported')")
+
+    total_events = sum(len(ch.events) for ch in sequence.channels)
+    cost_estimate = float(total_events * max(1, len(graph.readout.products)))
+
     stale_deps = {
         "sample": ("signal", "image", "magnetization", "configurations", "echo_train", "objective_score"),
         "scanner": ("signal", "image", "k_trajectory"),
@@ -114,6 +159,7 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
         requested_observations=graph.readout.products,
         approximations=approximations,
         differentiable=selected.validity.differentiable,
+        cost_estimate=cost_estimate,
         stale_dependencies=stale_deps,
         options=asdict(options),
         reasons=(*explanations, source),
