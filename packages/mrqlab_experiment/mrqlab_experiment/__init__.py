@@ -30,7 +30,12 @@ from .pulse import (
     SpatialBlochPropagator,
     compile_pulse,
 )
-from .presets import build_preset
+from .presets import (
+    ClinicalRecipeSpec,
+    build_clinical_recipe,
+    build_preset,
+    list_clinical_recipes,
+)
 
 __all__ = [
     "CapabilityMismatch",
@@ -61,7 +66,10 @@ __all__ = [
     "StateRepresentation",
     "TissueModel",
     "ValidationReport",
+    "ClinicalRecipeSpec",
+    "build_clinical_recipe",
     "build_preset",
+    "list_clinical_recipes",
     "build_result_graph",
     "compile_physics_ir",
     "compile_sequence",
