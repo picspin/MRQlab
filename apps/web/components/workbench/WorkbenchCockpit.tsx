@@ -4,6 +4,8 @@ import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { WorkbenchLens } from "../../lib/workbench-types";
 import { PulseInspector } from "./PulseInspector";
 import { generateSincPulseResponse } from "../../lib/pulse-inspector-data";
+import { CompareLensView } from "./CompareLensView";
+import { computeCompareProtocol } from "../../lib/compare-engine";
 
 export function WorkbenchCockpit() {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState } =
@@ -12,10 +14,23 @@ export function WorkbenchCockpit() {
   const [te, setTe] = useState(100);
   const [showPulseInspector, setShowPulseInspector] = useState(false);
 
+  // Compare Protocol B parameters
+  const [faB, setFaB] = useState(120);
+  const [teB, setTeB] = useState(80);
+
   // Generate real pulse response data linked to FA
   const pulseData = useMemo(() => {
     return generateSincPulseResponse(fa, 90, 2.5, 5.0, 4.0);
   }, [fa]);
+
+  // Generate Compare Protocols A & B
+  const protoA = useMemo(() => {
+    return computeCompareProtocol("proto_a", "Standard TSE", fa, te, 3.0);
+  }, [fa, te]);
+
+  const protoB = useMemo(() => {
+    return computeCompareProtocol("proto_b", "Low SAR Candidate", faB, teB, 3.0);
+  }, [faB, teB]);
 
   // Handle echo selection for cross-lens cursor
   const handleSelectEcho = (echoNum: number, timeMs: number) => {
@@ -41,6 +56,7 @@ export function WorkbenchCockpit() {
                 key={lens}
                 className={activeLens === lens ? "lens-btn active" : "lens-btn"}
                 onClick={() => setActiveLens(lens)}
+                data-testid={`lens-tab-${lens}`}
               >
                 {lens.toUpperCase()}
               </button>
@@ -167,9 +183,7 @@ export function WorkbenchCockpit() {
                   </div>
                 )}
                 {activeLens === "compare" && (
-                  <div className="canvas-view compare-view">
-                    <div className="compare-mock">A/B Dual Parameter Trace (FA 120° vs 160°)</div>
-                  </div>
+                  <CompareLensView protoA={protoA} protoB={protoB} />
                 )}
               </>
             )}
@@ -206,7 +220,7 @@ export function WorkbenchCockpit() {
           <span className="sub-mode">Interactive T2 Engine</span>
         </div>
         <div className="control-group">
-          <label>Refocusing Flip Angle (FA)</label>
+          <label>Refocusing Flip Angle (FA) - Protocol A</label>
           <div className="slider-row">
             <input
               type="range"
@@ -223,7 +237,7 @@ export function WorkbenchCockpit() {
         </div>
 
         <div className="control-group">
-          <label>Effective TE (TE_eff)</label>
+          <label>Effective TE (TE_eff) - Protocol A</label>
           <div className="slider-row">
             <input
               type="range"
@@ -238,6 +252,41 @@ export function WorkbenchCockpit() {
           </div>
         </div>
 
+        {activeLens === "compare" && (
+          <>
+            <div className="control-group compare-branch">
+              <label>Protocol B Refocusing FA</label>
+              <div className="slider-row">
+                <input
+                  type="range"
+                  min="60"
+                  max="180"
+                  step="5"
+                  value={faB}
+                  onChange={(e) => setFaB(Number(e.target.value))}
+                  aria-label="Protocol B FA"
+                />
+                <span className="value-badge" style={{ color: "#ffc45b" }}>{faB}°</span>
+              </div>
+            </div>
+            <div className="control-group compare-branch">
+              <label>Protocol B Effective TE</label>
+              <div className="slider-row">
+                <input
+                  type="range"
+                  min="30"
+                  max="200"
+                  step="10"
+                  value={teB}
+                  onChange={(e) => setTeB(Number(e.target.value))}
+                  aria-label="Protocol B TE"
+                />
+                <span className="value-badge" style={{ color: "#ffc45b" }}>{teB} ms</span>
+              </div>
+            </div>
+          </>
+        )}
+
         <div className="action-row">
           <button className="execute-btn" data-cost="realtime">
             RUN RECONSTRUCTION
@@ -251,7 +300,7 @@ export function WorkbenchCockpit() {
           STATUS: {executionState}
         </div>
         <div className="cost-tier">COMPUTE: &lt;50ms (REALTIME INTERACTION)</div>
-        <div className="system-info">MRQLab v0.2 · Physics Engine Ready</div>
+        <div className="system-info">MRQLab v0.3 · Physics &amp; Compare Engine Ready</div>
       </section>
     </div>
   );
