@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 from mrqlab_recon import fft_reconstruct
 
-from .objectives import evaluate_objective
+from .objectives import evaluate_multi_tissue_contrast, evaluate_objective
 
 ObservationKind = Literal[
     "signal",
@@ -17,6 +17,7 @@ ObservationKind = Literal[
     "configurations",
     "echo_train",
     "sar",
+    "tissue_contrast",
     "objective_score",
 ]
 
@@ -62,7 +63,7 @@ def _complex(values: np.ndarray) -> list[dict[str, float]]:
 
 
 def _derived_from(product: str, emitted: frozenset[str]) -> tuple[str, ...]:
-    if product in {"image", "objective_score", "configurations", "echo_train"} and "signal" in emitted:
+    if product in {"image", "objective_score", "configurations", "echo_train", "tissue_contrast"} and "signal" in emitted:
         return ("signal",)
     return ()
 
@@ -170,6 +171,14 @@ def build_result_graph(run) -> ResultGraph:
             data=np.abs(run.sim_result.signal).tolist(),
             axes={"echo": list(range(1, int(run.sim_result.signal.size) + 1))},
             derived_from=_derived_from("echo_train", emitted),
+            provenance=provenance,
+        ),
+        "tissue_contrast": lambda emitted: Observation(
+            id="tissue_contrast",
+            kind="tissue_contrast",
+            data=evaluate_multi_tissue_contrast(run.experiment),
+            units={"value": "contrast_metrics"},
+            derived_from=_derived_from("tissue_contrast", emitted),
             provenance=provenance,
         ),
         "sar": lambda emitted: Observation(
