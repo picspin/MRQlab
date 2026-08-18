@@ -21,6 +21,15 @@ from .models import (
 from .objectives import ObjectiveConstraint, ObjectiveFunction, ObjectiveTerm, evaluate_objective
 from .observations import Observation, ResultEdge, ResultGraph, build_result_graph
 from .physics_ir import CompilerSpan, PhysicsIR, PhysicsOperator, compile_physics_ir
+from .pulse import (
+    HardPulsePropagator,
+    PulseCompiler,
+    PulseDefinition,
+    PulsePropagator,
+    SmallTipPropagator,
+    SpatialBlochPropagator,
+    compile_pulse,
+)
 from .presets import build_preset
 
 __all__ = [
@@ -39,6 +48,13 @@ __all__ = [
     "PhysicsIR",
     "PhysicsOperator",
     "PhysiologyModel",
+    "PulseCompiler",
+    "PulseDefinition",
+    "PulsePropagator",
+    "HardPulsePropagator",
+    "SmallTipPropagator",
+    "SpatialBlochPropagator",
+    "compile_pulse",
     "ResultEdge",
     "ResultGraph",
     "ScannerModel",
