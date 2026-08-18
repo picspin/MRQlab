@@ -109,7 +109,10 @@ class ExperimentGraph(BaseModel):
     edges: tuple[ExperimentEdge, ...]
     sequence: SequenceIR | TemplateRef
     sample: SampleSpec = Field(default_factory=SampleSpec)
+    tissue: TissueModel | tuple[TissueModel, ...] | None = None
+    physiology: PhysiologyModel | None = None
     scanner: ScannerSpec = Field(default_factory=ScannerSpec)
+    scanner_model: ScannerModel | None = None
     engine: EngineRef = Field(default_factory=EngineRef)
     objective: ObjectiveFunction | None = None
     readout: ReadoutSpec = Field(default_factory=ReadoutSpec)

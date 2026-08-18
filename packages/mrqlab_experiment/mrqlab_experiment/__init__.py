@@ -9,7 +9,15 @@ from .kernel import (
     run_experiment,
     validate_experiment,
 )
-from .models import ExperimentGraph
+from .models import (
+    DisturbanceModel,
+    ExperimentEdge,
+    ExperimentGraph,
+    ExperimentNode,
+    PhysiologyModel,
+    ScannerModel,
+    TissueModel,
+)
 from .objectives import ObjectiveConstraint, ObjectiveFunction, ObjectiveTerm, evaluate_objective
 from .observations import Observation, ResultEdge, ResultGraph, build_result_graph
 from .physics_ir import CompilerSpan, PhysicsIR, PhysicsOperator, compile_physics_ir
@@ -20,6 +28,7 @@ __all__ = [
     "CompilerSpan",
     "Disturbance",
     "DisturbanceStack",
+    "DisturbanceModel",
     "ExecutionPlan",
     "ExperimentGraph",
     "KernelRun",
@@ -29,9 +38,12 @@ __all__ = [
     "Observation",
     "PhysicsIR",
     "PhysicsOperator",
+    "PhysiologyModel",
     "ResultEdge",
     "ResultGraph",
+    "ScannerModel",
     "StateRepresentation",
+    "TissueModel",
     "ValidationReport",
     "build_preset",
     "build_result_graph",
