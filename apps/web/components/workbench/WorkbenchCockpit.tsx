@@ -1,13 +1,30 @@
 "use client";
-import { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { WorkbenchLens } from "../../lib/workbench-types";
+import { PulseInspector } from "./PulseInspector";
+import { generateSincPulseResponse } from "../../lib/pulse-inspector-data";
 
 export function WorkbenchCockpit() {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState } =
     useWorkspace();
   const [fa, setFa] = useState(150);
   const [te, setTe] = useState(100);
+  const [showPulseInspector, setShowPulseInspector] = useState(false);
+
+  // Generate real pulse response data linked to FA
+  const pulseData = useMemo(() => {
+    return generateSincPulseResponse(fa, 90, 2.5, 5.0, 4.0);
+  }, [fa]);
+
+  // Handle echo selection for cross-lens cursor
+  const handleSelectEcho = (echoNum: number, timeMs: number) => {
+    setCursors({
+      selectedEcho: echoNum,
+      cursorTime: timeMs,
+      selectedEvent: `Echo #${echoNum}`,
+    });
+  };
 
   return (
     <div className="retromorphic-cockpit">
@@ -68,7 +85,13 @@ export function WorkbenchCockpit() {
                 </div>
                 <div>
                   <label>Refocusing Propagator</label>
-                  <span>Hard/Sinc matrix</span>
+                  <button
+                    className="drilldown-btn"
+                    data-testid="open-pulse-inspector-btn"
+                    onClick={() => setShowPulseInspector(true)}
+                  >
+                    🔍 Inspect Sinc Pulse
+                  </button>
                 </div>
                 <div>
                   <label>SAR Relative</label>
@@ -86,76 +109,149 @@ export function WorkbenchCockpit() {
           <header className="display-header">
             <span>ACTIVE LENS: {activeLens.toUpperCase()}</span>
             <div className="cursor-readout">
-              <span>t = {cursors.cursorTime.toFixed(1)} ms</span>
-              {cursors.selectedEcho && <span>Echo #{cursors.selectedEcho}</span>}
+              <span data-testid="time-readout">t = {cursors.cursorTime.toFixed(1)} ms</span>
+              {cursors.selectedEcho != null && (
+                <span data-testid="echo-readout">Echo #{cursors.selectedEcho}</span>
+              )}
             </div>
           </header>
           <div className="display-screen">
-            {activeLens === "sequence" && (
-              <div className="canvas-view sequence-view">
-                <svg viewBox="0 0 600 200" className="waveform-svg">
-                  <path d="M 0 100 L 40 100 L 45 20 L 50 100 L 150 100 L 155 40 L 160 100 L 600 100" stroke="#59e0e6" fill="none" strokeWidth="2" />
-                  <line x1="155" y1="0" x2="155" y2="200" stroke="#ffc45b" strokeDasharray="4" />
-                </svg>
-                <div className="screen-caption">Multi-echo refocusing chain (TSE ETL=16)</div>
-              </div>
+            {showPulseInspector ? (
+              <PulseInspector
+                pulse={pulseData}
+                onClose={() => setShowPulseInspector(false)}
+              />
+            ) : (
+              <>
+                {activeLens === "sequence" && (
+                  <div className="canvas-view sequence-view">
+                    <svg viewBox="0 0 600 200" className="waveform-svg">
+                      <path
+                        d="M 0 100 L 40 100 L 45 20 L 50 100 L 150 100 L 155 40 L 160 100 L 250 100 L 255 40 L 260 100 L 600 100"
+                        stroke="#59e0e6"
+                        fill="none"
+                        strokeWidth="2"
+                      />
+                      {/* Dynamic cursor line based on cursorTime */}
+                      <line
+                        x1={Math.min(590, Math.max(10, cursors.cursorTime * 2))}
+                        y1="0"
+                        x2={Math.min(590, Math.max(10, cursors.cursorTime * 2))}
+                        y2="200"
+                        stroke="#ffc45b"
+                        strokeDasharray="4"
+                      />
+                    </svg>
+                    <div className="screen-caption">
+                      Multi-echo refocusing chain (TSE ETL=16) · Cross-Lens cursor active
+                    </div>
+                  </div>
+                )}
+                {activeLens === "state" && (
+                  <div className="canvas-view epg-view">
+                    <div className="epg-chart-mock">
+                      EPG Coherence Transition Grid (F+/F-/Z) · Selected: Echo #{cursors.selectedEcho ?? 1}
+                    </div>
+                  </div>
+                )}
+                {activeLens === "acquisition" && (
+                  <div className="canvas-view acq-view">
+                    <div className="kspace-mock">
+                      k-space Trajectory (Cartesian Spin Warp · ky line #{cursors.selectedEcho ?? 1})
+                    </div>
+                  </div>
+                )}
+                {activeLens === "image" && (
+                  <div className="canvas-view image-view">
+                    <div className="reconstruction-mock">Reconstructed T2 Magnitude Map</div>
+                  </div>
+                )}
+                {activeLens === "compare" && (
+                  <div className="canvas-view compare-view">
+                    <div className="compare-mock">A/B Dual Parameter Trace (FA 120° vs 160°)</div>
+                  </div>
+                )}
+              </>
             )}
-            {activeLens === "state" && (
-              <div className="canvas-view epg-view">
-                <div className="epg-chart-mock">EPG Coherence Transition Grid (F+/F-/Z)</div>
-              </div>
-            )}
-            {activeLens === "acquisition" && (
-              <div className="canvas-view acq-view">
-                <div className="kspace-mock">k-space Trajectory (Cartesian Spin Warp)</div>
-              </div>
-            )}
-            {activeLens === "image" && (
-              <div className="canvas-view image-view">
-                <div className="reconstruction-mock">Reconstructed T2 Magnitude Map</div>
-              </div>
-            )}
-            {activeLens === "compare" && (
-              <div className="canvas-view compare-view">
-                <div className="compare-mock">A/B Dual Parameter Trace (FA 120° vs 160°)</div>
-              </div>
-            )}
+          </div>
+        </div>
+
+        {/* Linked Scope / Echo Train with Cross-Lens Selection */}
+        <div className="linked-scope-rail">
+          <label>INTERACTIVE ECHO TRAIN (CROSS-LENS LINKED)</label>
+          <div className="echo-chips-row">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((echo) => {
+              const echoTime = echo * 12.5;
+              const isSelected = cursors.selectedEcho === echo;
+              return (
+                <button
+                  key={echo}
+                  className={isSelected ? "echo-chip active" : "echo-chip"}
+                  onClick={() => handleSelectEcho(echo, echoTime)}
+                  data-testid={`echo-chip-${echo}`}
+                >
+                  e{echo}
+                  <small>{echoTime.toFixed(0)}ms</small>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* 3. Control Bank */}
+      {/* 3. Control Bank: Physical Dial Sliders */}
       <section className="control-bank" data-testid="control-bank">
-        <h4>CONTROL BANK</h4>
-        <div className="control-dial">
-          <label>Refocusing FA: {fa}°</label>
-          <input
-            type="range"
-            min="60"
-            max="180"
-            value={fa}
-            onChange={(e) => setFa(+e.target.value)}
-          />
+        <div className="bank-header">
+          <h3>CONTROL BANK</h3>
+          <span className="sub-mode">Interactive T2 Engine</span>
         </div>
-        <div className="control-dial">
-          <label>Effective TE: {te} ms</label>
-          <input
-            type="range"
-            min="20"
-            max="200"
-            value={te}
-            onChange={(e) => setTe(+e.target.value)}
-          />
+        <div className="control-group">
+          <label>Refocusing Flip Angle (FA)</label>
+          <div className="slider-row">
+            <input
+              type="range"
+              min="60"
+              max="180"
+              step="5"
+              value={fa}
+              onChange={(e) => setFa(Number(e.target.value))}
+              aria-label="Refocusing Flip Angle"
+            />
+            <span className="value-badge">{fa}°</span>
+          </div>
+          <small className="bound-warn">Hardware Limit: 180° (SAR Critical above 160°)</small>
         </div>
-        <div className="interactive-trigger">
-          <button className="run-button">EXECUTE (0-Token)</button>
+
+        <div className="control-group">
+          <label>Effective TE (TE_eff)</label>
+          <div className="slider-row">
+            <input
+              type="range"
+              min="30"
+              max="200"
+              step="10"
+              value={te}
+              onChange={(e) => setTe(Number(e.target.value))}
+              aria-label="Effective TE"
+            />
+            <span className="value-badge">{te} ms</span>
+          </div>
+        </div>
+
+        <div className="action-row">
+          <button className="execute-btn" data-cost="realtime">
+            RUN RECONSTRUCTION
+          </button>
         </div>
       </section>
 
-      {/* 4. Status Rail */}
+      {/* 4. Status Rail: Execution State & Compute Cost */}
       <section className="status-rail" data-testid="status-rail">
-        <span>STATUS: {executionState}</span>
-        <span className="cost-tag">Cost: &lt;50ms (Realtime)</span>
+        <div className="state-badge" data-state={executionState}>
+          STATUS: {executionState}
+        </div>
+        <div className="cost-tier">COMPUTE: &lt;50ms (REALTIME INTERACTION)</div>
+        <div className="system-info">MRQLab v0.2 · Physics Engine Ready</div>
       </section>
     </div>
   );

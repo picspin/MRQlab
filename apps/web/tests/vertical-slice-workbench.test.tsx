@@ -1,10 +1,14 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { cleanup, render, screen, fireEvent } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 import { WorkspaceShell } from "../components/workspace/WorkspaceShell";
 import { WorkspaceProvider, useWorkspace } from "../components/workspace/WorkspaceProvider";
 import { WorkbenchCockpit } from "../components/workbench/WorkbenchCockpit";
 
 describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Retromorphism", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   it("renders top-level taxonomy (EXPLORE, WORKBENCH, LABS, AI LAB)", () => {
     render(
       <WorkspaceProvider>
@@ -59,5 +63,56 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     expect(screen.getByText(/Target/i)).toBeVisible();
     expect(screen.getByText("CLINICAL CONTRAST")).toBeVisible();
     expect(screen.getByText(/CNR Proxy/i)).toBeVisible();
+  });
+
+  it("supports Cross-Lens Cursor linking when clicking echo chips", () => {
+    render(
+      <WorkspaceProvider>
+        <WorkbenchCockpit />
+      </WorkspaceProvider>
+    );
+
+    const echo6Btn = screen.getByTestId("echo-chip-6");
+    fireEvent.click(echo6Btn);
+
+    expect(screen.getByTestId("echo-readout").textContent).toBe("Echo #6");
+    expect(screen.getByTestId("time-readout").textContent).toBe("t = 75.0 ms");
+  });
+
+  it("supports Physics Mode drilldown into Pulse Inspector (Waveform, Freq, Slice Profile, EPG Matrix)", () => {
+    function PhysicsWorkbench() {
+      const { setProfile } = useWorkspace();
+      return (
+        <div>
+          <button onClick={() => setProfile("physics")}>Set Physics</button>
+          <WorkbenchCockpit />
+        </div>
+      );
+    }
+
+    render(
+      <WorkspaceProvider>
+        <PhysicsWorkbench />
+      </WorkspaceProvider>
+    );
+
+    // Switch to physics
+    fireEvent.click(screen.getByRole("button", { name: /Set Physics/i }));
+
+    // Click inspect pulse button
+    const inspectBtn = screen.getByTestId("open-pulse-inspector-btn");
+    expect(inspectBtn).toBeVisible();
+    fireEvent.click(inspectBtn);
+
+    // Pulse inspector should be displayed
+    expect(screen.getByTestId("pulse-inspector")).toBeVisible();
+    expect(screen.getByText(/PULSE INSPECTOR/i)).toBeVisible();
+    expect(screen.getByText(/Frequency Response/i)).toBeVisible();
+    expect(screen.getByText(/Slice Profile/i)).toBeVisible();
+    expect(screen.getByText(/EPG Coherence Transfer/i)).toBeVisible();
+
+    // Close pulse inspector
+    fireEvent.click(screen.getByRole("button", { name: /Close Inspector/i }));
+    expect(screen.queryByTestId("pulse-inspector")).toBeNull();
   });
 });
