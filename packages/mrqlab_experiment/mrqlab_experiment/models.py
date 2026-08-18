@@ -42,6 +42,9 @@ class SampleSpec(BaseModel):
 
 
 class TissueModel(BaseModel):
+    id: str = "tissue"
+    label: str = "Tissue"
+    role: Literal["target", "reference", "background", "lumen", "contrast"] = "target"
     t1: float = Field(default=1.0, gt=0)
     t2: float = Field(default=0.1, gt=0)
     t2_star: float | None = Field(default=None, gt=0)
@@ -111,7 +114,7 @@ class ExperimentGraph(BaseModel):
     sample: SampleSpec = Field(default_factory=SampleSpec)
     tissue: TissueModel | tuple[TissueModel, ...] | None = None
     physiology: PhysiologyModel | None = None
-    scanner: ScannerSpec = Field(default_factory=ScannerSpec)
+    scanner: ScannerModel | ScannerSpec = Field(default_factory=ScannerModel)
     scanner_model: ScannerModel | None = None
     engine: EngineRef = Field(default_factory=EngineRef)
     objective: ObjectiveFunction | None = None
@@ -119,6 +122,14 @@ class ExperimentGraph(BaseModel):
     constraints: ConstraintSet = Field(default_factory=ConstraintSet)
     disturbances: DisturbanceStack = Field(default_factory=DisturbanceStack)
     provenance: ProvenanceHints = Field(default_factory=ProvenanceHints)
+
+    @property
+    def effective_scanner(self) -> ScannerModel:
+        if self.scanner_model is not None:
+            return self.scanner_model
+        if isinstance(self.scanner, ScannerModel):
+            return self.scanner
+        return ScannerModel(**self.scanner.model_dump())
 
     @model_validator(mode="after")
     def edges_reference_nodes(self):
