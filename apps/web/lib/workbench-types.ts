@@ -2,7 +2,7 @@ export type WorkspaceProfile = "clinical" | "physics" | "technical";
 
 export type TopLevelRoute = "explore" | "workbench" | "labs" | "ai_lab";
 
-export type WorkbenchLens = "sequence" | "state" | "acquisition" | "image" | "compare";
+export type WorkbenchLens = "sequence" | "state" | "acquisition" | "image" | "compare" | "optimize";
 
 export type ExecutionState = "CLEAN" | "DIRTY" | "READY" | "RUNNING" | "RESULT" | "STALE";
 

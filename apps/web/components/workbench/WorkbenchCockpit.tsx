@@ -6,6 +6,7 @@ import { PulseInspector } from "./PulseInspector";
 import { generateSincPulseResponse } from "../../lib/pulse-inspector-data";
 import { CompareLensView } from "./CompareLensView";
 import { computeCompareProtocol } from "../../lib/compare-engine";
+import { OptimizeLensView } from "./OptimizeLensView";
 
 export function WorkbenchCockpit() {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState } =
@@ -50,7 +51,7 @@ export function WorkbenchCockpit() {
           <span className="recipe-tag">Brain T2 TSE</span>
         </div>
         <div className="lens-selector">
-          {(["sequence", "state", "acquisition", "image", "compare"] as WorkbenchLens[]).map(
+          {(["sequence", "state", "acquisition", "image", "compare", "optimize"] as WorkbenchLens[]).map(
             (lens) => (
               <button
                 key={lens}
@@ -185,6 +186,16 @@ export function WorkbenchCockpit() {
                 {activeLens === "compare" && (
                   <CompareLensView protoA={protoA} protoB={protoB} />
                 )}
+                {activeLens === "optimize" && (
+                  <OptimizeLensView
+                    currentFa={fa}
+                    currentTe={te}
+                    onApplyOptimal={(newFa, newTe) => {
+                      setFa(newFa);
+                      setTe(newTe);
+                    }}
+                  />
+                )}
               </>
             )}
           </div>
@@ -300,7 +311,7 @@ export function WorkbenchCockpit() {
           STATUS: {executionState}
         </div>
         <div className="cost-tier">COMPUTE: &lt;50ms (REALTIME INTERACTION)</div>
-        <div className="system-info">MRQLab v0.3 · Physics &amp; Compare Engine Ready</div>
+        <div className="system-info">MRQLab v0.4 · Physics, Compare &amp; Optimize Engine Ready</div>
       </section>
     </div>
   );

@@ -134,4 +134,35 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     expect(screen.getByText(/ECHO TRAIN DECAY DYNAMICS/i)).toBeVisible();
     expect(screen.getByText(/Relative SAR Load/i)).toBeVisible();
   });
+
+  it("supports Optimize Lens: Pareto frontier, sensitivity gradients & apply optimal to protocol", () => {
+    render(
+      <WorkspaceProvider>
+        <WorkbenchCockpit />
+      </WorkspaceProvider>
+    );
+
+    // Switch to Optimize lens
+    const optTab = screen.getByTestId("lens-tab-optimize");
+    fireEvent.click(optTab);
+
+    // Verify Optimize view elements
+    expect(screen.getByTestId("optimize-lens-view")).toBeVisible();
+    expect(screen.getByText(/Pareto Frontier/i)).toBeVisible();
+    expect(screen.getByText(/Sensitivity Gradients/i)).toBeVisible();
+    expect(screen.getByText(/Recommended Protocol Parameters/i)).toBeVisible();
+
+    // Toggle goal mode
+    const minSarBtn = screen.getByTestId("goal-min-sar");
+    fireEvent.click(minSarBtn);
+    expect(screen.getByText(/Minimum SAR \/ Thermal Safety First/i)).toBeVisible();
+
+    // Apply optimal parameters
+    const applyBtn = screen.getByTestId("apply-optimal-button");
+    fireEvent.click(applyBtn);
+
+    // Flip Angle input should be updated
+    const faSlider = screen.getByLabelText(/Refocusing Flip Angle/i) as HTMLInputElement;
+    expect(Number(faSlider.value)).toBeGreaterThanOrEqual(100);
+  });
 });
