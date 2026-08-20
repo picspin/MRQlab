@@ -16,6 +16,7 @@ from .models import (
     ExperimentNode,
     PhysiologyModel,
     ScannerModel,
+    TemplateRef,
     TissueModel,
 )
 from .objectives import (

@@ -4,13 +4,25 @@ import React, { useState, useEffect } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
 import { ExperimentGraph, ResultGraph } from "../../lib/workbench-types";
-import { runExperiment } from "../../lib/api";
+import { fetchTissueSignal, runExperiment, saveCustomRecipe } from "../../lib/api";
 
 export function WorkbenchCockpit() {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState, setExecutionState } = useWorkspace();
   
   const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>("ms_brain");
   const currentScenario: ScenarioSpec = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
+
+  // v0.43: Edit Mode toggle
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [customScenarioName, setCustomScenarioName] = useState<string>("");
+  const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
+
+  // v0.43: Sequence timeline interactive drag handles
+  const [readoutWidthFactor, setReadoutWidthFactor] = useState<number>(1.0);
+  const [skippedPeLines, setSkippedPeLines] = useState<number>(0);
+  const [partialFourierFrac, setPartialFourierFrac] = useState<number>(1.0);
+  const [accelerationFactor, setAccelerationFactor] = useState<number>(1);
+  const [matrixSize, setMatrixSize] = useState<number>(256);
 
   // Acquisition and Physics Parameters
   const [fa, setFa] = useState<number>(currentScenario.defaultParams.fa);
@@ -30,6 +42,9 @@ export function WorkbenchCockpit() {
   // ResultGraph from Unified Backend / Model Seam
   const [resultGraph, setResultGraph] = useState<ResultGraph | null>(null);
   const [isComputing, setIsComputing] = useState<boolean>(false);
+
+  // v0.43: Backend calculated tissue signals
+  const [backendTissueSignals, setBackendTissueSignals] = useState<Record<string, number> | null>(null);
 
   // Physics sub-lens selection inside Physics mode
   const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom">("timeline");
@@ -131,15 +146,17 @@ export function WorkbenchCockpit() {
     });
   };
 
+  // Compute multi-tissue signals for rendering via Backend values or offline Bloch/EPG
   const isGRE = currentScenario.seqType === "GRE";
   const faDeg = isGRE ? (currentScenario.defaultParams.flipAngleGRE || 20) : fa;
   const faRad = (faDeg * Math.PI) / 180;
   const refocusEff = isGRE ? Math.sin(faRad) : (Math.sin(faRad / 2) ** 2);
 
-  // Compute multi-tissue signals for rendering
   const tissueIntensities = currentScenario.tissues.map((t) => {
     let sig;
-    if (isGRE) {
+    if (backendTissueSignals && backendTissueSignals[t.id] !== undefined) {
+      sig = backendTissueSignals[t.id];
+    } else if (isGRE) {
       const E1 = Math.exp(-tr / t.t1);
       const E2s = Math.exp(-te / (t.t2s || t.t2));
       sig = t.pd * ((1 - E1) * Math.sin(faRad) / (1 - E1 * Math.cos(faRad))) * E2s;
@@ -152,6 +169,11 @@ export function WorkbenchCockpit() {
   const deltaSignal = Math.abs(tissueIntensities[0].intensity - (tissueIntensities[1]?.intensity || 0.2));
   const cnrProxy = deltaSignal * 20.0;
   const relativeSar = isGRE ? (1 * ((faDeg / 90) ** 2) * 0.4) : (16 * ((faDeg / 180) ** 2) * 3.2);
+
+  // Voxel dimensions (mm)
+  const voxelX = (fov / matrixSize).toFixed(2);
+  const voxelY = (fov / matrixSize).toFixed(2);
+  const voxelZ = sliceThick.toFixed(2);
 
   return (
     <div className="retromorphic-cockpit" data-testid="workbench-cockpit">
@@ -197,6 +219,27 @@ export function WorkbenchCockpit() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <h4 style={{ margin: 0 }}>CLINICAL CONTRAST</h4>
               <span style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 700 }}>{currentScenario.weightingName}</span>
+            </div>
+
+            {/* v0.43: Custom Scenario Button */}
+            <div style={{ display: "flex", gap: "6px", marginBottom: "8px" }}>
+              <button
+                onClick={() => setShowCustomModal(true)}
+                style={{
+                  flex: 1,
+                  padding: "4px 8px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  backgroundColor: "#1f2930",
+                  color: "var(--cyan)",
+                  border: "1px dashed var(--cyan)",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+                data-testid="custom-scenario-btn"
+              >
+                ➕ Custom Scenario
+              </button>
             </div>
 
             <div style={{ background: "#0c1114", border: "1px solid #28373e", padding: "8px", borderRadius: "4px", fontSize: "11px", marginBottom: "12px", color: "#b2c5cc", lineHeight: 1.4 }}>
@@ -263,7 +306,25 @@ export function WorkbenchCockpit() {
           <div className="physics-details-panel" data-testid="physics-details-panel">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <h4>PHYSICS ENGINE SPEC</h4>
-              <span style={{ fontSize: "10px", color: "var(--cyan)", fontWeight: 700, fontFamily: "monospace" }}>SEAM: {currentScenario.seqType}</span>
+              <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                <button
+                  onClick={() => setIsEditMode(!isEditMode)}
+                  style={{
+                    padding: "3px 8px",
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    backgroundColor: isEditMode ? "var(--amber)" : "#182226",
+                    color: isEditMode ? "#081114" : "var(--cyan)",
+                    border: `1px solid ${isEditMode ? "var(--amber)" : "#33434a"}`,
+                    borderRadius: "3px",
+                    cursor: "pointer",
+                  }}
+                  data-testid="edit-mode-toggle"
+                >
+                  {isEditMode ? "🔓 EDITING" : "✏️ EDIT"}
+                </button>
+                <span style={{ fontSize: "10px", color: "var(--cyan)", fontWeight: 700, fontFamily: "monospace" }}>SEAM: {currentScenario.seqType}</span>
+              </div>
             </div>
 
             {/* Physics Sub-lens switcher */}
@@ -445,7 +506,36 @@ export function WorkbenchCockpit() {
               /* PHYSICS VIEWPORTS */
               <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
                 {physicsTab === "timeline" && (
-                  <div style={{ width: "100%", height: "100%" }}>
+                  <div style={{ width: "100%", height: "100%", position: "relative" }}>
+                    {isEditMode && (
+                      <div style={{ display: "flex", gap: "10px", padding: "6px", background: "rgba(255,184,52,0.1)", borderBottom: "1px solid var(--amber)", fontSize: "11px", color: "var(--amber)", alignItems: "center" }}>
+                        <b>✏️ SEQUENCE EDIT ACTIVE:</b>
+                        <span>Readout Width:</span>
+                        <input
+                          type="range"
+                          min="0.5"
+                          max="2.0"
+                          step="0.1"
+                          value={readoutWidthFactor}
+                          onChange={(e) => setReadoutWidthFactor(Number(e.target.value))}
+                          style={{ width: "80px" }}
+                          data-testid="readout-width-slider"
+                        />
+                        <span>{readoutWidthFactor.toFixed(1)}x</span>
+
+                        <span style={{ marginLeft: "10px" }}>Partial Fourier:</span>
+                        <select
+                          value={partialFourierFrac}
+                          onChange={(e) => setPartialFourierFrac(Number(e.target.value))}
+                          style={{ background: "#111", color: "var(--amber)", border: "1px solid var(--amber)", fontSize: "10px" }}
+                          data-testid="partial-fourier-select"
+                        >
+                          <option value={1.0}>OFF (100%)</option>
+                          <option value={0.75}>6/8 (75%)</option>
+                          <option value={0.625}>5/8 (62.5%)</option>
+                        </select>
+                      </div>
+                    )}
                     <svg viewBox="0 0 600 200" style={{ width: "100%", height: "240px" }}>
                       {/* RF Channel */}
                       <line x1="0" y1="40" x2="600" y2="40" stroke="#25373f" />
@@ -460,9 +550,21 @@ export function WorkbenchCockpit() {
                       ))}
                       {/* Gx Readout */}
                       <line x1="0" y1="140" x2="600" y2="140" stroke="#25373f" />
-                      {Array.from({ length: 16 }).map((_, i) => (
-                        <rect key={i} x={65 + i * 32} y="130" width="16" height="10" fill="rgba(59, 244, 141, 0.3)" stroke="#3bf48d" />
-                      ))}
+                      {Array.from({ length: 16 }).map((_, i) => {
+                        const isPartialOmitted = partialFourierFrac < 1.0 && i > 16 * partialFourierFrac;
+                        return (
+                          <rect
+                            key={i}
+                            x={65 + i * 32}
+                            y="130"
+                            width={16 * readoutWidthFactor}
+                            height="10"
+                            fill={isPartialOmitted ? "rgba(100, 116, 139, 0.2)" : "rgba(59, 244, 141, 0.3)"}
+                            stroke={isPartialOmitted ? "#475569" : "#3bf48d"}
+                            strokeDasharray={isPartialOmitted ? "2 2" : "none"}
+                          />
+                        );
+                      })}
                       {/* Time Cursor */}
                       <line x1={70 + ((cursors.selectedEcho ?? 8) - 1) * 32} y1="10" x2={70 + ((cursors.selectedEcho ?? 8) - 1) * 32} y2="180" stroke="var(--cyan)" strokeDasharray="3 3" strokeWidth="1.5" />
                     </svg>
@@ -533,6 +635,32 @@ export function WorkbenchCockpit() {
         {profile === "clinical" ? (
           /* Clinical Controls: Slice thickness, gap, count, FOV, TR/TE */
           <>
+            <div className="control-group">
+              <label>Matrix &amp; Voxel Size</label>
+              <div className="slider-row">
+                <select
+                  value={matrixSize}
+                  onChange={(e) => setMatrixSize(Number(e.target.value))}
+                  style={{ background: "#111", color: "var(--cyan)", border: "1px solid #33434a", padding: "4px 8px", borderRadius: "3px", fontSize: "11px", fontWeight: 700 }}
+                  data-testid="matrix-size-select"
+                >
+                  <option value={128}>128 x 128</option>
+                  <option value={256}>256 x 256</option>
+                  <option value={384}>384 x 384</option>
+                  <option value={512}>512 x 512</option>
+                </select>
+                <span className="value-badge">{voxelX}x{voxelY}x{voxelZ}mm³</span>
+              </div>
+            </div>
+
+            <div className="control-group">
+              <label>Parallel Acceleration (R)</label>
+              <div className="slider-row">
+                <input type="range" min="1" max="4" step="1" value={accelerationFactor} onChange={(e) => setAccelerationFactor(Number(e.target.value))} />
+                <span className="value-badge">R = {accelerationFactor}x</span>
+              </div>
+            </div>
+
             <div className="control-group">
               <label>Slice Thickness</label>
               <div className="slider-row">
