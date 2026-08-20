@@ -19,6 +19,7 @@ from mrqlab_experiment import (
 from mrqlab_experiment.objectives import evaluate_multi_tissue_contrast
 from mrqlab_physics import list_engines
 from mrqlab_recon import fft_reconstruct
+from mrqlab_recon.trajectories import TrajectorySpec, generate_trajectory, undersampled_recon_demo
 from mrqlab_sequence import SequenceIR, TemplateRequest, build_sequence
 
 from mrqlab_experiment.gradient import (
@@ -256,6 +257,18 @@ def api_validate_gradient(grad: GradientPulseSpec, hw: GradientHardwareConstrain
 def api_diffusion_waveform(spec: DiffusionSpec):
     """v0.44: Calculate Stejskal-Tanner b-value and generate gradient wave."""
     return generate_diffusion_waveform(spec)
+
+
+@app.post("/trajectories/generate")
+def api_generate_trajectory(spec: TrajectorySpec):
+    """v0.45: Generate Cartesian / radial / spiral / stack-of-stars k-space coordinates."""
+    return generate_trajectory(spec)
+
+
+@app.post("/recon/demo")
+def api_recon_demo(spec: TrajectorySpec):
+    """v0.45: Backend-owned undersampled recon demo (phantom + aliasing/streak artifacts)."""
+    return undersampled_recon_demo(spec)
 
 
 @app.post("/simulate")

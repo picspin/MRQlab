@@ -5,6 +5,7 @@ import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
 import { ExperimentGraph, ResultGraph } from "../../lib/workbench-types";
 import { fetchTissueSignal, runExperiment, saveCustomRecipe } from "../../lib/api";
+import { KSpaceReconLens } from "./KSpaceReconLens";
 
 export function WorkbenchCockpit() {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState, setExecutionState } = useWorkspace();
@@ -328,7 +329,7 @@ export function WorkbenchCockpit() {
             </div>
 
             {/* Physics Sub-lens switcher */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", marginBottom: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", marginBottom: "12px" }} data-testid="physics-sublens-switcher">
               <button
                 onClick={() => setPhysicsTab("timeline")}
                 style={{
@@ -392,6 +393,24 @@ export function WorkbenchCockpit() {
                 }}
               >
                 🎯 4. TEST PHANTOM
+              </button>
+              <button
+                onClick={() => setPhysicsTab("kspace")}
+                data-testid="kspace-tab-btn"
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  gridColumn: "1 / span 2",
+                  backgroundColor: physicsTab === "kspace" ? "var(--cyan)" : "#182226",
+                  color: physicsTab === "kspace" ? "#081114" : "#8ea1a8",
+                  border: "1px solid #33434a",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              >
+                5. K-SPACE / RECON
               </button>
             </div>
 
@@ -588,6 +607,7 @@ export function WorkbenchCockpit() {
                     <div style={{ width: "60px", height: "2px", backgroundColor: "var(--amber)", transformOrigin: "left center", transform: `rotate(${faDeg}deg)` }} />
                   </div>
                 )}
+                {physicsTab === "kspace" && <KSpaceReconLens />}
                 {physicsTab === "phantom" && (
                   /* SINGLE DEDICATED CALIBRATION PHANTOM */
                   <div style={{ width: "180px", height: "180px", borderRadius: "50%", backgroundColor: "#0c1317", border: "2px solid #38e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", padding: "20px" }}>

@@ -47,6 +47,12 @@ export async function saveCustomRecipe(id: string, experiment: ExperimentGraph):
   return response.json();
 }
 
+export async function getCustomRecipe(id: string): Promise<{ id: string; experiment: ExperimentGraph }> {
+  const response = await fetch(`${BASE}/recipes/custom/${id}`);
+  if (!response.ok) throw new Error(`get custom recipe failed: ${response.status}`);
+  return response.json();
+}
+
 export interface GradientValidationResult {
   is_valid: boolean;
   violations: string[];
@@ -80,6 +86,56 @@ export async function fetchDiffusionWaveform(params: {
     body: JSON.stringify(params),
   });
   if (!response.ok) throw new Error(`diffusion waveform failed: ${await response.text()}`);
+  return response.json();
+}
+
+export type TrajectoryType = "cartesian" | "radial" | "spiral" | "stack_of_stars";
+
+export interface TrajectorySpec {
+  trajectory_type: TrajectoryType;
+  matrix_size?: number;
+  num_spokes_or_interleaves?: number;
+  points_per_arm?: number;
+  num_slices?: number;
+  acceleration_factor?: number;
+}
+
+export interface TrajectoryPayload {
+  trajectory_type: TrajectoryType;
+  total_points: number;
+  kx: number[];
+  ky: number[];
+  kz: number[];
+  density_compensation_available: boolean;
+}
+
+export interface ReconDemoPayload {
+  matrix: number;
+  trajectory_type: TrajectoryType;
+  acceleration_factor: number;
+  nrmse: number;
+  phantom: number[][];
+  recon: number[][];
+  preview: { kx: number[]; ky: number[]; total_points: number; preview_stride: number };
+}
+
+export async function generateTrajectory(spec: TrajectorySpec): Promise<TrajectoryPayload> {
+  const response = await fetch(`${BASE}/trajectories/generate`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(spec),
+  });
+  if (!response.ok) throw new Error(`trajectory generate failed: ${await response.text()}`);
+  return response.json();
+}
+
+export async function fetchReconDemo(spec: TrajectorySpec): Promise<ReconDemoPayload> {
+  const response = await fetch(`${BASE}/recon/demo`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(spec),
+  });
+  if (!response.ok) throw new Error(`recon demo failed: ${await response.text()}`);
   return response.json();
 }
 

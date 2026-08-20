@@ -122,6 +122,11 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     fireEvent.click(editBtn);
     expect(editBtn.textContent).toContain("EDITING");
     expect(screen.getByTestId("readout-width-slider")).toBeVisible();
+
+    // v0.45: K-space / recon lens is a renderer only
+    fireEvent.click(screen.getByTestId("kspace-tab-btn"));
+    expect(screen.getByTestId("kspace-recon-lens")).toBeVisible();
+    expect(screen.getByTestId("trajectory-type-select")).toBeVisible();
   });
 
   it("executes experiment with real ResultGraph backend dispatch on RUN", () => {
