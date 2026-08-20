@@ -139,4 +139,47 @@ export async function fetchReconDemo(spec: TrajectorySpec): Promise<ReconDemoPay
   return response.json();
 }
 
+export type OptimizeMode = "max_contrast" | "balanced_sar" | "min_sar";
+
+export interface OptimizeGoal {
+  mode: OptimizeMode;
+  max_sar_budget: number;
+  min_cnr_proxy: number;
+  target_t2_ms?: number;
+  reference_t2_ms?: number;
+  echo_train_length?: number;
+  current_fa_deg?: number;
+  current_te_ms?: number;
+}
+
+export interface ParetoPoint {
+  flip_angle: number;
+  te_eff: number;
+  contrast: number;
+  cnr_proxy: number;
+  relative_sar: number;
+  score: number;
+  is_feasible: boolean;
+  is_dominated?: boolean;
+  label?: string | null;
+}
+
+export interface OptimizeAnalysis {
+  pareto_frontier: ParetoPoint[];
+  candidates: ParetoPoint[];
+  optimal_candidate: ParetoPoint;
+  sensitivities: Array<{ parameter: string; d_cnr: number; d_sar: number }>;
+  grid_size: number;
+}
+
+export async function fetchPareto(goal: OptimizeGoal): Promise<OptimizeAnalysis> {
+  const response = await fetch(`${BASE}/optimize/pareto`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(goal),
+  });
+  if (!response.ok) throw new Error(`optimize pareto failed: ${await response.text()}`);
+  return response.json();
+}
+
 

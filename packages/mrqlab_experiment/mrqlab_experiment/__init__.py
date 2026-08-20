@@ -36,6 +36,13 @@ from .objectives import (
     evaluate_multi_tissue_contrast,
     evaluate_objective,
 )
+from .optimizer import (
+    OptimizeAnalysis,
+    OptimizeGoal,
+    ParetoPoint,
+    compute_pareto,
+    compute_pareto_dict,
+)
 from .observations import Observation, ResultEdge, ResultGraph, build_result_graph
 from .physics_ir import CompilerSpan, PhysicsIR, PhysicsOperator, compile_physics_ir
 from .pulse import (
@@ -89,6 +96,11 @@ __all__ = [
     "ValidationReport",
     "ClinicalRecipeSpec",
     "ClinicalCNRTerm",
+    "OptimizeAnalysis",
+    "OptimizeGoal",
+    "ParetoPoint",
+    "compute_pareto",
+    "compute_pareto_dict",
     "evaluate_multi_tissue_contrast",
     "build_clinical_recipe",
     "build_preset",

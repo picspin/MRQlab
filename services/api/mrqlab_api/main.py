@@ -17,6 +17,7 @@ from mrqlab_experiment import (
     validate_experiment,
 )
 from mrqlab_experiment.objectives import evaluate_multi_tissue_contrast
+from mrqlab_experiment.optimizer import OptimizeGoal, compute_pareto_dict
 from mrqlab_physics import list_engines
 from mrqlab_recon import fft_reconstruct
 from mrqlab_recon.trajectories import TrajectorySpec, generate_trajectory, undersampled_recon_demo
@@ -269,6 +270,12 @@ def api_generate_trajectory(spec: TrajectorySpec):
 def api_recon_demo(spec: TrajectorySpec):
     """v0.45: Backend-owned undersampled recon demo (phantom + aliasing/streak artifacts)."""
     return undersampled_recon_demo(spec)
+
+
+@app.post("/optimize/pareto")
+def api_optimize_pareto(goal: OptimizeGoal):
+    """v0.46: Pareto frontier (CNR vs SAR) — backend is the only optimizer."""
+    return compute_pareto_dict(goal)
 
 
 @app.post("/simulate")
