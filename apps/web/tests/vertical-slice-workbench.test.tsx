@@ -141,6 +141,17 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     expect(screen.getByTestId("compare-fa-b")).toBeVisible();
   });
 
+  it("renders cockpit signal metrics as a backend payload slot (no local physics)", () => {
+    render(
+      <WorkspaceProvider>
+        <WorkbenchCockpit />
+      </WorkspaceProvider>
+    );
+    expect(screen.getByTestId("cockpit-signal-metrics")).toBeVisible();
+    expect(screen.getByTestId("cockpit-delta-signal")).toBeVisible();
+    expect(screen.getByTestId("cockpit-cnr-proxy")).toBeVisible();
+  });
+
   it("executes experiment with real ResultGraph backend dispatch on RUN", () => {
     render(
       <WorkspaceProvider>

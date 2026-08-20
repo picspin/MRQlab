@@ -227,4 +227,44 @@ export async function fetchCompare(req: {
   return response.json();
 }
 
+export interface CockpitTissue {
+  id: string;
+  name?: string;
+  t1: number;
+  t2: number;
+  t2s?: number;
+  pd: number;
+}
+
+export interface CockpitSignalAnalysis {
+  seq_type: "TSE" | "GRE" | "SE";
+  fa_deg: number;
+  te_ms: number;
+  tr_ms: number;
+  is_gre: boolean;
+  refocus_eff: number;
+  relative_sar: number;
+  delta_signal: number;
+  cnr_proxy: number;
+  tissues: Array<{ id: string; name: string; intensity: number }>;
+  signals: Record<string, number>;
+}
+
+export async function fetchCockpitSignals(req: {
+  seq_type: "TSE" | "GRE" | "SE";
+  fa_deg: number;
+  te_ms: number;
+  tr_ms: number;
+  echo_train_length?: number;
+  tissues: CockpitTissue[];
+}): Promise<CockpitSignalAnalysis> {
+  const response = await fetch(`${BASE}/cockpit/signals`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  if (!response.ok) throw new Error(`cockpit signals failed: ${await response.text()}`);
+  return response.json();
+}
+
 
