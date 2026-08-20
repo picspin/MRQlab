@@ -47,9 +47,40 @@ export async function saveCustomRecipe(id: string, experiment: ExperimentGraph):
   return response.json();
 }
 
-export async function getCustomRecipe(id: string): Promise<{ id: string; experiment: ExperimentGraph }> {
-  const response = await fetch(`${BASE}/recipes/custom/${id}`);
-  if (!response.ok) throw new Error(`get custom recipe failed: ${response.status}`);
+export interface GradientValidationResult {
+  is_valid: boolean;
+  violations: string[];
+  actual_slew_rate: number;
+  actual_amplitude: number;
+}
+
+export async function validateGradient(params: {
+  amplitude_mt_m: number;
+  duration_ms: number;
+  ramp_time_ms: number;
+  channel?: "Gx" | "Gy" | "Gz";
+}): Promise<GradientValidationResult> {
+  const response = await fetch(`${BASE}/gradients/validate`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) throw new Error(`gradient validation failed: ${await response.text()}`);
   return response.json();
 }
+
+export async function fetchDiffusionWaveform(params: {
+  g_max_mt_m: number;
+  delta_small_ms: number;
+  delta_big_ms: number;
+}): Promise<{ time_ms: number[]; gradient_mt_m: number[]; b_value_s_mm2: number }> {
+  const response = await fetch(`${BASE}/diffusion/waveform`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) throw new Error(`diffusion waveform failed: ${await response.text()}`);
+  return response.json();
+}
+
 

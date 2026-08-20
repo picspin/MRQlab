@@ -21,6 +21,15 @@ from mrqlab_physics import list_engines
 from mrqlab_recon import fft_reconstruct
 from mrqlab_sequence import SequenceIR, TemplateRequest, build_sequence
 
+from mrqlab_experiment.gradient import (
+    DiffusionSpec,
+    GradientHardwareConstraints,
+    GradientPulseSpec,
+    GradientValidationResult,
+    calculate_diffusion_b_value,
+    generate_diffusion_waveform,
+    validate_gradient,
+)
 from .v043_endpoints import (
     CustomRecipeRequest,
     TissueSignalRequest,
@@ -234,6 +243,19 @@ def get_custom_recipe(recipe_id: str):
     if recipe_id not in _CUSTOM_RECIPES:
         raise HTTPException(404, f"custom recipe {recipe_id} not found")
     return {"id": recipe_id, "experiment": _CUSTOM_RECIPES[recipe_id].model_dump(mode="json")}
+
+
+@app.post("/gradients/validate")
+def api_validate_gradient(grad: GradientPulseSpec, hw: GradientHardwareConstraints | None = None):
+    """v0.44: Validate gradient against scanner hardware limits (Gmax, SlewRateMax)."""
+    hardware = hw or GradientHardwareConstraints()
+    return validate_gradient(grad, hardware)
+
+
+@app.post("/diffusion/waveform")
+def api_diffusion_waveform(spec: DiffusionSpec):
+    """v0.44: Calculate Stejskal-Tanner b-value and generate gradient wave."""
+    return generate_diffusion_waveform(spec)
 
 
 @app.post("/simulate")
