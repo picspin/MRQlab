@@ -1,6 +1,15 @@
 from .capabilities import CapabilityMismatch, StateRepresentation, select_representation
 from .compiler import compile_sequence
 from .disturbances import Disturbance, DisturbanceStack, stack_from_reality
+from .gradient import (
+    DiffusionSpec,
+    GradientHardwareConstraints,
+    GradientPulseSpec,
+    GradientValidationResult,
+    calculate_diffusion_b_value,
+    generate_diffusion_waveform,
+    validate_gradient,
+)
 from .kernel import (
     ExecutionPlan,
     KernelRun,
