@@ -93,13 +93,79 @@ _CLINICAL_RECIPES: dict[str, ClinicalRecipeSpec] = {
             TissueModel(t1=0.9, t2=0.08, proton_density=0.75),  # White matter
             TissueModel(t1=1.3, t2=0.10, proton_density=0.85),  # Gray matter
             TissueModel(t1=4.0, t2=2.00, proton_density=1.00),  # CSF
+            TissueModel(t1=1.4, t2=0.12, proton_density=0.95),  # MS Plaque
         ),
         physiology=PhysiologyModel(),
         scanner_model=ScannerModel(
             b0_t=3.0,
             max_gradient_mt_m=80.0,
             max_slew_rate_t_m_s=200.0,
-            adc_bandwidth_hz=50000.0,
+            adc_bandwidth_hz=62500.0,
+        ),
+    ),
+    "msk_knee_tse": ClinicalRecipeSpec(
+        id="msk_knee_tse",
+        name="Knee Meniscal & Cartilage TSE",
+        anatomy="msk",
+        target="meniscus_cartilage",
+        task="fissure_detection",
+        template="TSE",
+        params={"echo_count": 16, "te": 0.045, "tr": 2.5, "refocusing_flip_angle": 140.0},
+        tissues=(
+            TissueModel(t1=1.2, t2=0.04, proton_density=0.80),  # Hyaline Cartilage
+            TissueModel(t1=0.9, t2=0.015, proton_density=0.50),  # Fibrocartilage Meniscus
+            TissueModel(t1=1.5, t2=0.09, proton_density=0.95),  # Meniscal Tear / Joint Fluid
+            TissueModel(t1=0.3, t2=0.06, proton_density=0.85),  # Bone Marrow Fat
+        ),
+        physiology=PhysiologyModel(),
+        scanner_model=ScannerModel(
+            b0_t=3.0,
+            max_gradient_mt_m=80.0,
+            max_slew_rate_t_m_s=200.0,
+            adc_bandwidth_hz=62500.0,
+        ),
+    ),
+    "abdomen_dixon_gre": ClinicalRecipeSpec(
+        id="abdomen_dixon_gre",
+        name="Abdominal Dixon Fat-Water GRE",
+        anatomy="body",
+        target="hepatic_steatosis",
+        task="fat_fraction_quantification",
+        template="GRE",
+        params={"te": 0.0023, "tr": 0.15, "flip_angle": 12.0},
+        tissues=(
+            TissueModel(t1=0.8, t2=0.045, proton_density=0.70),  # Liver Parenchyma
+            TissueModel(t1=0.45, t2=0.065, proton_density=0.85), # Focal Fatty Steatosis
+            TissueModel(t1=1.1, t2=0.080, proton_density=0.85),  # Spleen
+            TissueModel(t1=0.26, t2=0.070, proton_density=0.90), # Retroperitoneal Fat
+        ),
+        physiology=PhysiologyModel(respiratory_phase=0.0),
+        scanner_model=ScannerModel(
+            b0_t=3.0,
+            max_gradient_mt_m=45.0,
+            max_slew_rate_t_m_s=150.0,
+            adc_bandwidth_hz=100000.0,
+        ),
+    ),
+    "angio_tof_gre": ClinicalRecipeSpec(
+        id="angio_tof_gre",
+        name="Intracranial 3D TOF MRA",
+        anatomy="vascular",
+        target="circle_of_willis_aneurysm",
+        task="vascular_inflow_stenosis",
+        template="GRE",
+        params={"te": 0.0035, "tr": 0.025, "flip_angle": 20.0},
+        tissues=(
+            TissueModel(t1=1.6, t2=0.18, proton_density=1.00),  # Inflow Arterial Blood
+            TissueModel(t1=1.0, t2=0.08, proton_density=0.70),  # Saturated Brain Background
+            TissueModel(t1=0.25, t2=0.06, proton_density=0.80), # Skull Base Fat
+        ),
+        physiology=PhysiologyModel(),
+        scanner_model=ScannerModel(
+            b0_t=3.0,
+            max_gradient_mt_m=80.0,
+            max_slew_rate_t_m_s=200.0,
+            adc_bandwidth_hz=125000.0,
         ),
     ),
 }

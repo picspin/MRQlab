@@ -1,4 +1,4 @@
-import { ExperimentGraph, ResultGraph } from "./experiment";
+import { ExperimentGraph, ResultGraph } from "./workbench-types";
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 
 export async function listPresets(): Promise<Array<{ name: string; experiment: ExperimentGraph }>> {

@@ -24,18 +24,57 @@ export const DEFAULT_CURSORS: LensCursors = {
   selectedTissueId: null,
 };
 
-export interface TissueItem {
+export interface Observation {
   id: string;
-  label: string;
-  role: "target" | "reference" | "background" | "lumen" | "contrast";
-  t1: number;
-  t2: number;
-  proton_density: number;
+  kind: string;
+  data: any;
+  derived_from?: string[];
 }
 
-export interface ClinicalContrastProxy {
-  contrast_difference: number;
-  signal_ratio: number;
-  normalized_cnr_proxy: number;
-  tissues: Array<{ id: string; label: string; role: string }>;
+export interface ExperimentGraph {
+  schema_version: "1.0";
+  id: string;
+  name: string;
+  intent?: "teaching" | "clinical_contrast" | "physics" | "custom";
+  nodes?: Array<{ id: string; kind: string; label: string; parameters: Record<string, unknown> }>;
+  edges?: Array<{ source: string; target: string; kind: string }>;
+  sequence: {
+    template: {
+      ref: string;
+      parameters: Record<string, any>;
+    };
+  };
+  sample: {
+    tissues: Array<{
+      id: string;
+      t1: number;
+      t2: number;
+      proton_density: number;
+    }>;
+  };
+  scanner: {
+    b0_t: number;
+  };
+  engine: {
+    target_representation?: string;
+  };
+  objective?: Record<string, unknown> | null;
+  readout: {
+    products: string[];
+  };
+  constraints: Record<string, any>;
+  disturbances: any;
+  provenance: Record<string, any>;
+}
+
+export interface ResultGraph {
+  schema_version: "1.0";
+  experiment_id: string;
+  execution_plan?: {
+    fingerprint?: string;
+    selected_engine?: string;
+    cost_estimate_ms?: number;
+  };
+  observations: Observation[];
+  provenance?: Record<string, any>;
 }

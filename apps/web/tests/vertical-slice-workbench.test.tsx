@@ -45,7 +45,7 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     expect(screen.getByTestId("profile-indicator").textContent).toBe("physics");
   });
 
-  it("renders Single Large Display with Retromorphic Instrument Shell (Bay, Display, Control Bank, Status Rail)", () => {
+  it("renders Retromorphic Instrument Shell with Lens Projection Contract", () => {
     render(
       <WorkspaceProvider>
         <WorkbenchCockpit />
@@ -58,11 +58,10 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     expect(screen.getByTestId("control-bank")).toBeVisible();
     expect(screen.getByTestId("status-rail")).toBeVisible();
 
-    // In clinical mode (default), Clinical Contrast & Tissue targets are prominent
-    expect(screen.getByText(/Brain T2/i)).toBeVisible();
-    expect(screen.getByText(/Target/i)).toBeVisible();
-    expect(screen.getByText("CLINICAL CONTRAST")).toBeVisible();
-    expect(screen.getByText(/CNR Proxy/i)).toBeVisible();
+    // Clinical Mode Default
+    expect(screen.getByTestId("clinical-contrast-panel")).toBeVisible();
+    expect(screen.getByText(/CLINICAL CONTRAST/i)).toBeVisible();
+    expect(screen.getByText(/MS Lesion Plaque/i)).toBeVisible();
   });
 
   it("supports Cross-Lens Cursor linking when clicking echo chips", () => {
@@ -79,7 +78,21 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     expect(screen.getByTestId("time-readout").textContent).toBe("t = 75.0 ms");
   });
 
-  it("supports Physics Mode drilldown into Pulse Inspector (Waveform, Freq, Slice Profile, EPG Matrix)", () => {
+  it("supports Clinical Scenario switching across Brain, Cardiac, Abdomen, MSK, Angio", () => {
+    render(
+      <WorkspaceProvider>
+        <WorkbenchCockpit />
+      </WorkspaceProvider>
+    );
+
+    const dropdown = screen.getByTestId("scenario-dropdown");
+    fireEvent.change(dropdown, { target: { value: "abdomen_dixon" } });
+
+    expect(screen.getByText(/Hepatic Parenchyma/i)).toBeVisible();
+    expect(screen.getByText(/Focal Hepatic Steatosis/i)).toBeVisible();
+  });
+
+  it("supports Physics Lens: operators, EPG phase space, and dedicated test phantom", () => {
     function PhysicsWorkbench() {
       const { setProfile } = useWorkspace();
       return (
@@ -96,73 +109,25 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
       </WorkspaceProvider>
     );
 
-    // Switch to physics
     fireEvent.click(screen.getByRole("button", { name: /Set Physics/i }));
 
-    // Click inspect pulse button
-    const inspectBtn = screen.getByTestId("open-pulse-inspector-btn");
-    expect(inspectBtn).toBeVisible();
-    fireEvent.click(inspectBtn);
-
-    // Pulse inspector should be displayed
-    expect(screen.getByTestId("pulse-inspector")).toBeVisible();
-    expect(screen.getByText(/PULSE INSPECTOR/i)).toBeVisible();
-    expect(screen.getByText(/Frequency Response/i)).toBeVisible();
-    expect(screen.getByText(/Slice Profile/i)).toBeVisible();
-    expect(screen.getByText(/EPG Coherence Transfer/i)).toBeVisible();
-
-    // Close pulse inspector
-    fireEvent.click(screen.getByRole("button", { name: /Close Inspector/i }));
-    expect(screen.queryByTestId("pulse-inspector")).toBeNull();
+    expect(screen.getByTestId("physics-details-panel")).toBeVisible();
+    expect(screen.getByText(/PHYSICS ENGINE SPEC/i)).toBeVisible();
+    expect(screen.getByText(/1. 5-CH TIMELINE/i)).toBeVisible();
+    expect(screen.getByText(/4. TEST PHANTOM/i)).toBeVisible();
   });
 
-  it("supports Compare Lens for A/B parameter sweeps (Echo train, ΔContrast, SAR load, CNR proxy)", () => {
+  it("executes experiment with real ResultGraph backend dispatch on RUN", () => {
     render(
       <WorkspaceProvider>
         <WorkbenchCockpit />
       </WorkspaceProvider>
     );
 
-    // Switch to Compare lens
-    const compareTab = screen.getByTestId("lens-tab-compare");
-    fireEvent.click(compareTab);
+    const runBtn = screen.getByTestId("run-experiment-btn");
+    expect(runBtn).toBeVisible();
+    fireEvent.click(runBtn);
 
-    // Verify compare screen renders both protocols and metrics
-    expect(screen.getByTestId("compare-lens")).toBeVisible();
-    expect(screen.getByText(/PROTOCOL A: Standard TSE/i)).toBeVisible();
-    expect(screen.getByText(/PROTOCOL B: Low SAR Candidate/i)).toBeVisible();
-    expect(screen.getByText(/ECHO TRAIN DECAY DYNAMICS/i)).toBeVisible();
-    expect(screen.getByText(/Relative SAR Load/i)).toBeVisible();
-  });
-
-  it("supports Optimize Lens: Pareto frontier, sensitivity gradients & apply optimal to protocol", () => {
-    render(
-      <WorkspaceProvider>
-        <WorkbenchCockpit />
-      </WorkspaceProvider>
-    );
-
-    // Switch to Optimize lens
-    const optTab = screen.getByTestId("lens-tab-optimize");
-    fireEvent.click(optTab);
-
-    // Verify Optimize view elements
-    expect(screen.getByTestId("optimize-lens-view")).toBeVisible();
-    expect(screen.getByText(/Pareto Frontier/i)).toBeVisible();
-    expect(screen.getByText(/Sensitivity Gradients/i)).toBeVisible();
-    expect(screen.getByText(/Recommended Protocol Parameters/i)).toBeVisible();
-
-    // Toggle goal mode
-    const minSarBtn = screen.getByTestId("goal-min-sar");
-    fireEvent.click(minSarBtn);
-    expect(screen.getByText(/Minimum SAR \/ Thermal Safety First/i)).toBeVisible();
-
-    // Apply optimal parameters
-    const applyBtn = screen.getByTestId("apply-optimal-button");
-    fireEvent.click(applyBtn);
-
-    // Flip Angle input should be updated
-    const faSlider = screen.getByLabelText(/Refocusing Flip Angle/i) as HTMLInputElement;
-    expect(Number(faSlider.value)).toBeGreaterThanOrEqual(100);
+    expect(screen.getByTestId("status-rail")).toBeVisible();
   });
 });

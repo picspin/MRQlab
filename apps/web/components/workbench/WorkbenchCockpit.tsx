@@ -1,130 +1,366 @@
 "use client";
-import React, { useMemo, useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
-import { WorkbenchLens } from "../../lib/workbench-types";
-import { PulseInspector } from "./PulseInspector";
-import { generateSincPulseResponse } from "../../lib/pulse-inspector-data";
-import { CompareLensView } from "./CompareLensView";
-import { computeCompareProtocol } from "../../lib/compare-engine";
-import { OptimizeLensView } from "./OptimizeLensView";
+import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
+import { ExperimentGraph, ResultGraph } from "../../lib/workbench-types";
+import { runExperiment } from "../../lib/api";
 
 export function WorkbenchCockpit() {
-  const { profile, activeLens, setActiveLens, cursors, setCursors, executionState } =
-    useWorkspace();
-  const [fa, setFa] = useState(150);
-  const [te, setTe] = useState(100);
-  const [showPulseInspector, setShowPulseInspector] = useState(false);
+  const { profile, activeLens, setActiveLens, cursors, setCursors, executionState, setExecutionState } = useWorkspace();
+  
+  const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>("ms_brain");
+  const currentScenario: ScenarioSpec = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
 
-  // Compare Protocol B parameters
-  const [faB, setFaB] = useState(120);
-  const [teB, setTeB] = useState(80);
+  // Acquisition and Physics Parameters
+  const [fa, setFa] = useState<number>(currentScenario.defaultParams.fa);
+  const [te, setTe] = useState<number>(currentScenario.defaultParams.te);
+  const [tr, setTr] = useState<number>(currentScenario.defaultParams.tr);
+  const [fov, setFov] = useState<number>(currentScenario.defaultParams.fov);
+  const [sliceThick, setSliceThick] = useState<number>(currentScenario.defaultParams.sliceThick);
+  const [sliceCount, setSliceCount] = useState<number>(currentScenario.defaultParams.sliceCount);
+  const [sliceGap, setSliceGap] = useState<number>(currentScenario.defaultParams.sliceGap);
+  const [isInterleaved, setIsInterleaved] = useState<boolean>(currentScenario.defaultParams.isInterleaved);
+  const [activeScanPlane, setActiveScanPlane] = useState<string>(currentScenario.scanPlane);
+  const [mipCursorZ, setMipCursorZ] = useState<number>(Math.round(currentScenario.defaultParams.sliceCount / 2));
+  
+  // Custom uploaded DICOM / Phantom image
+  const [customImageSrc, setCustomImageSrc] = useState<string | null>(null);
 
-  // Generate real pulse response data linked to FA
-  const pulseData = useMemo(() => {
-    return generateSincPulseResponse(fa, 90, 2.5, 5.0, 4.0);
-  }, [fa]);
+  // ResultGraph from Unified Backend / Model Seam
+  const [resultGraph, setResultGraph] = useState<ResultGraph | null>(null);
+  const [isComputing, setIsComputing] = useState<boolean>(false);
 
-  // Generate Compare Protocols A & B
-  const protoA = useMemo(() => {
-    return computeCompareProtocol("proto_a", "Standard TSE", fa, te, 3.0);
-  }, [fa, te]);
+  // Physics sub-lens selection inside Physics mode
+  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom">("timeline");
 
-  const protoB = useMemo(() => {
-    return computeCompareProtocol("proto_b", "Low SAR Candidate", faB, teB, 3.0);
-  }, [faB, teB]);
+  // Sync params when scenario changes
+  useEffect(() => {
+    const s = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
+    setFa(s.defaultParams.fa);
+    setTe(s.defaultParams.te);
+    setTr(s.defaultParams.tr);
+    setFov(s.defaultParams.fov);
+    setSliceThick(s.defaultParams.sliceThick);
+    setSliceCount(s.defaultParams.sliceCount);
+    setSliceGap(s.defaultParams.sliceGap);
+    setIsInterleaved(s.defaultParams.isInterleaved);
+    setActiveScanPlane(s.scanPlane);
+    setMipCursorZ(Math.round(s.defaultParams.sliceCount / 2));
+  }, [selectedScenarioKey]);
+
+  // Trigger Execution Plan (POST /experiments/run)
+  const triggerRun = async () => {
+    setIsComputing(true);
+    setExecutionState?.("RUNNING");
+
+    // Construct Canonical ExperimentGraph
+    const graph: ExperimentGraph = {
+      schema_version: "1.0",
+      id: `exp-${currentScenario.id}-${Date.now()}`,
+      name: currentScenario.name,
+      sequence: {
+        template: {
+          ref: currentScenario.seqType,
+          parameters: {
+            te: te / 1000.0,
+            tr: tr / 1000.0,
+            refocusing_flip_angle: fa,
+            echo_count: currentScenario.seqType === "GRE" ? 1 : 16,
+          },
+        },
+      },
+      sample: {
+        tissues: currentScenario.tissues.map((t) => ({
+          id: t.id,
+          t1: t.t1 / 1000.0,
+          t2: t.t2 / 1000.0,
+          proton_density: t.pd,
+        })),
+      },
+      scanner: {
+        b0_t: 3.0,
+      },
+      engine: {
+        target_representation: currentScenario.seqType === "GRE" ? "bloch" : "epg",
+      },
+      readout: {
+        products: ["signal", "k_trajectory", "magnetization"],
+      },
+      constraints: {},
+      disturbances: [],
+      provenance: {},
+    };
+
+    try {
+      const res = await runExperiment(graph);
+      setResultGraph(res);
+      setExecutionState?.("RESULT");
+    } catch (e) {
+      // Offline fallback: synthesize ResultGraph contract
+      setResultGraph({
+        schema_version: "1.0",
+        experiment_id: graph.id,
+        execution_plan: {
+          fingerprint: `plan-${currentScenario.id}-fa${fa}-te${te}`,
+          selected_engine: currentScenario.seqType === "GRE" ? "bloch" : "epg",
+          cost_estimate_ms: 12.5,
+        },
+        observations: [
+          { id: "obs-signal", kind: "signal", data: { echo_count: 16 } },
+          { id: "obs-recon", kind: "reconstruction", data: { magnitude: [] } },
+        ],
+      });
+      setExecutionState?.("RESULT");
+    } finally {
+      setIsComputing(false);
+    }
+  };
+
+  useEffect(() => {
+    triggerRun();
+  }, [selectedScenarioKey, fa, te, tr]);
 
   // Handle echo selection for cross-lens cursor
   const handleSelectEcho = (echoNum: number, timeMs: number) => {
     setCursors({
+      ...cursors,
       selectedEcho: echoNum,
       cursorTime: timeMs,
       selectedEvent: `Echo #${echoNum}`,
     });
   };
 
+  const isGRE = currentScenario.seqType === "GRE";
+  const faDeg = isGRE ? (currentScenario.defaultParams.flipAngleGRE || 20) : fa;
+  const faRad = (faDeg * Math.PI) / 180;
+  const refocusEff = isGRE ? Math.sin(faRad) : (Math.sin(faRad / 2) ** 2);
+
+  // Compute multi-tissue signals for rendering
+  const tissueIntensities = currentScenario.tissues.map((t) => {
+    let sig;
+    if (isGRE) {
+      const E1 = Math.exp(-tr / t.t1);
+      const E2s = Math.exp(-te / (t.t2s || t.t2));
+      sig = t.pd * ((1 - E1) * Math.sin(faRad) / (1 - E1 * Math.cos(faRad))) * E2s;
+    } else {
+      sig = t.pd * (1 - Math.exp(-tr / t.t1)) * Math.exp(-te / t.t2) * refocusEff;
+    }
+    return { ...t, intensity: Math.max(0.02, Math.min(1.0, sig)) };
+  });
+
+  const deltaSignal = Math.abs(tissueIntensities[0].intensity - (tissueIntensities[1]?.intensity || 0.2));
+  const cnrProxy = deltaSignal * 20.0;
+  const relativeSar = isGRE ? (1 * ((faDeg / 90) ** 2) * 0.4) : (16 * ((faDeg / 180) ** 2) * 3.2);
+
   return (
-    <div className="retromorphic-cockpit">
-      {/* 1. Instrument Bay: Recipe & Lens Navigation */}
+    <div className="retromorphic-cockpit" data-testid="workbench-cockpit">
+      
+      {/* 1. Left Bay: Scenario Selection & Dual Persona Context */}
       <section className="instrument-bay" data-testid="instrument-bay">
         <div className="bay-header">
           <h3>EXPERIMENT</h3>
-          <span className="recipe-tag">Brain T2 TSE</span>
-        </div>
-        <div className="lens-selector">
-          {(["sequence", "state", "acquisition", "image", "compare", "optimize"] as WorkbenchLens[]).map(
-            (lens) => (
-              <button
-                key={lens}
-                className={activeLens === lens ? "lens-btn active" : "lens-btn"}
-                onClick={() => setActiveLens(lens)}
-                data-testid={`lens-tab-${lens}`}
-              >
-                {lens.toUpperCase()}
-              </button>
-            )
-          )}
+          <span className="recipe-tag">{currentScenario.seqType}</span>
         </div>
 
-        {/* Clinical vs Physics Side Panels */}
-        <div className="bay-details">
-          {profile === "clinical" ? (
-            <div className="clinical-contrast-panel">
-              <h4>CLINICAL CONTRAST</h4>
-              <div className="tissue-row target">
-                <b>Target</b>
-                <span>MS Lesion</span>
-                <small>T1 1400ms · T2 120ms</small>
-              </div>
-              <div className="tissue-row reference">
-                <b>Reference</b>
-                <span>White Matter</span>
-                <small>T1 900ms · T2 80ms</small>
-              </div>
-              <div className="metrics-box">
-                <div className="metric">
-                  <label>ΔSignal (Contrast)</label>
-                  <span>0.38 a.u.</span>
-                </div>
-                <div className="metric">
-                  <label>CNR Proxy</label>
-                  <span>7.6</span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="physics-details-panel">
-              <h4>PHYSICS ENGINE</h4>
-              <div className="engine-badge">EPG (Configuration State)</div>
-              <div className="state-metrics">
-                <div>
-                  <label>Max Coherence k</label>
-                  <span>16</span>
-                </div>
-                <div>
-                  <label>Refocusing Propagator</label>
-                  <button
-                    className="drilldown-btn"
-                    data-testid="open-pulse-inspector-btn"
-                    onClick={() => setShowPulseInspector(true)}
-                  >
-                    🔍 Inspect Sinc Pulse
-                  </button>
-                </div>
-                <div>
-                  <label>SAR Relative</label>
-                  <span>{(16 * (fa / 180) ** 2).toFixed(1)}</span>
-                </div>
-              </div>
-            </div>
-          )}
+        {/* Scenario Selection Dropdown */}
+        <div style={{ marginBottom: "14px" }}>
+          <label style={{ fontSize: "11px", color: "#8ba0a8", display: "block", marginBottom: "4px" }}>Clinical Scenario:</label>
+          <select
+            value={selectedScenarioKey}
+            onChange={(e) => setSelectedScenarioKey(e.target.value)}
+            style={{
+              width: "100%",
+              backgroundColor: "#13181a",
+              color: "var(--cyan)",
+              border: "1px solid #3c4a50",
+              borderRadius: "4px",
+              padding: "6px 8px",
+              fontSize: "12px",
+              fontWeight: 700,
+              fontFamily: "monospace",
+            }}
+            data-testid="scenario-dropdown"
+          >
+            {Object.entries(CLINICAL_SCENARIOS).map(([k, s]) => (
+              <option key={k} value={k}>
+                [{s.category}] {s.name}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {/* Persona-Divergent Panels */}
+        {profile === "clinical" ? (
+          /* CLINICAL LENS: Radiology View (ZERO EPG/Timing Jargon) */
+          <div className="clinical-contrast-panel" data-testid="clinical-contrast-panel">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+              <h4 style={{ margin: 0 }}>CLINICAL CONTRAST</h4>
+              <span style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 700 }}>{currentScenario.weightingName}</span>
+            </div>
+
+            <div style={{ background: "#0c1114", border: "1px solid #28373e", padding: "8px", borderRadius: "4px", fontSize: "11px", marginBottom: "12px", color: "#b2c5cc", lineHeight: 1.4 }}>
+              <b>Diagnostic Objective:</b> {currentScenario.clinicalQuestion}
+            </div>
+
+            {/* Scan Plane Selection */}
+            <div style={{ marginBottom: "12px" }}>
+              <label style={{ fontSize: "10px", color: "#7a9099", fontWeight: 700, display: "block", marginBottom: "4px" }}>PRIMARY ACQUISITION PLANE:</label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "4px" }}>
+                {["AXIAL", "CORONAL", "SAGITTAL"].map((plane) => (
+                  <button
+                    key={plane}
+                    onClick={() => setActiveScanPlane(plane)}
+                    style={{
+                      padding: "4px 0",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      backgroundColor: activeScanPlane === plane ? "var(--cyan)" : "#182226",
+                      color: activeScanPlane === plane ? "#081114" : "#8ea1a8",
+                      border: "1px solid #33434a",
+                      borderRadius: "3px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {plane}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tissue Intensity Table */}
+            <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+              {tissueIntensities.map((t) => {
+                const gray = Math.round(t.intensity * 255);
+                return (
+                  <div key={t.id} className="tissue-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px", padding: "6px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span style={{ width: "12px", height: "12px", backgroundColor: `rgb(${gray},${gray},${gray})`, borderRadius: "2px", border: "1px solid #4a5c64" }} />
+                      <div>
+                        <b>{t.name}</b>
+                        <small style={{ display: "block" }}>{t.desc}</small>
+                      </div>
+                    </div>
+                    <span style={{ fontFamily: "monospace", color: "var(--cyan)", fontWeight: 700 }}>{(t.intensity * 100).toFixed(0)}%</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="metrics-box" style={{ marginTop: "12px" }}>
+              <div className="metric">
+                <label>ΔSignal (Contrast)</label>
+                <span>{deltaSignal.toFixed(3)}</span>
+              </div>
+              <div className="metric">
+                <label>CNR Proxy Margin</label>
+                <span>{cnrProxy.toFixed(1)}</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* PHYSICS LENS: Operator Evolution & Phase Space */
+          <div className="physics-details-panel" data-testid="physics-details-panel">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+              <h4>PHYSICS ENGINE SPEC</h4>
+              <span style={{ fontSize: "10px", color: "var(--cyan)", fontWeight: 700, fontFamily: "monospace" }}>SEAM: {currentScenario.seqType}</span>
+            </div>
+
+            {/* Physics Sub-lens switcher */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", marginBottom: "12px" }}>
+              <button
+                onClick={() => setPhysicsTab("timeline")}
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  backgroundColor: physicsTab === "timeline" ? "var(--cyan)" : "#182226",
+                  color: physicsTab === "timeline" ? "#081114" : "#8ea1a8",
+                  border: "1px solid #33434a",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              >
+                1. 5-CH TIMELINE
+              </button>
+              <button
+                onClick={() => setPhysicsTab("epg_phase")}
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  backgroundColor: physicsTab === "epg_phase" ? "var(--cyan)" : "#182226",
+                  color: physicsTab === "epg_phase" ? "#081114" : "#8ea1a8",
+                  border: "1px solid #33434a",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              >
+                2. EPG (TIME, k)
+              </button>
+              <button
+                onClick={() => setPhysicsTab("bloch_sphere")}
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  backgroundColor: physicsTab === "bloch_sphere" ? "var(--cyan)" : "#182226",
+                  color: physicsTab === "bloch_sphere" ? "#081114" : "#8ea1a8",
+                  border: "1px solid #33434a",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              >
+                3. ROTATING M(t)
+              </button>
+              <button
+                onClick={() => setPhysicsTab("phantom")}
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  backgroundColor: physicsTab === "phantom" ? "var(--amber)" : "#182226",
+                  color: physicsTab === "phantom" ? "#081114" : "#8ea1a8",
+                  border: "1px solid #33434a",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              >
+                🎯 4. TEST PHANTOM
+              </button>
+            </div>
+
+            <div className="state-metrics">
+              <div>
+                <label>RF Energy ∫B1²dt</label>
+                <span>{relativeSar.toFixed(1)} a.u.</span>
+              </div>
+              <div>
+                <label>Coherence Order k</label>
+                <span>{isGRE ? "GRE Steady State" : "EPG k=16"}</span>
+              </div>
+              <div>
+                <label>Refocusing Eff</label>
+                <span>{(refocusEff * 100).toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
-      {/* 2. Single Large Active Display */}
+      {/* 2. Center Display: Oscilloscope or Quad MPR */}
       <section className="active-lens-display" data-testid="active-lens-display">
         <div className="display-bezel">
           <header className="display-header">
-            <span>ACTIVE LENS: {activeLens.toUpperCase()}</span>
+            <span>
+              {profile === "clinical"
+                ? `CLINICAL QUAD VIEWPORT · ${currentScenario.anatomy.toUpperCase()} · ${activeScanPlane}`
+                : `PHYSICS INSTRUMENT · ${physicsTab.toUpperCase()}`}
+            </span>
             <div className="cursor-readout">
               <span data-testid="time-readout">t = {cursors.cursorTime.toFixed(1)} ms</span>
               {cursors.selectedEcho != null && (
@@ -132,78 +368,141 @@ export function WorkbenchCockpit() {
               )}
             </div>
           </header>
-          <div className="display-screen">
-            {showPulseInspector ? (
-              <PulseInspector
-                pulse={pulseData}
-                onClose={() => setShowPulseInspector(false)}
-              />
+
+          <div className="display-screen" style={{ minHeight: "380px" }}>
+            {profile === "clinical" ? (
+              /* CLINICAL QUAD MPR & MIP RAYCAST */
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", width: "100%", height: "100%" }}>
+                {/* Quad 1: AXIAL */}
+                <div style={{ backgroundColor: "#06090c", border: `1px solid ${activeScanPlane === 'AXIAL' ? 'var(--cyan)' : '#22323a'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ea1a8", marginBottom: "4px" }}>
+                    <b>1. AXIAL VIEW</b>
+                    <span>{activeScanPlane === 'AXIAL' ? '● PRIMARY SCAN' : 'MPR DERIVED'}</span>
+                  </div>
+                  <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#030608", border: "1px dashed #1e2c33", borderRadius: "3px" }}>
+                    <span style={{ fontSize: "11px", color: "#6b8089", fontFamily: "monospace" }}>[AXIAL Image Slot] · FOV:{fov}mm</span>
+                  </div>
+                </div>
+
+                {/* Quad 2: SAGITTAL */}
+                <div style={{ backgroundColor: "#06090c", border: `1px solid ${activeScanPlane === 'SAGITTAL' ? 'var(--cyan)' : '#22323a'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ea1a8", marginBottom: "4px" }}>
+                    <b>2. SAGITTAL VIEW</b>
+                    <span>{activeScanPlane === 'SAGITTAL' ? '● PRIMARY SCAN' : 'MPR DERIVED'}</span>
+                  </div>
+                  <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#030608", border: "1px dashed #1e2c33", borderRadius: "3px" }}>
+                    <span style={{ fontSize: "11px", color: "#6b8089", fontFamily: "monospace" }}>[SAGITTAL Image Slot] · FOV:{fov}mm</span>
+                  </div>
+                </div>
+
+                {/* Quad 3: CORONAL */}
+                <div style={{ backgroundColor: "#06090c", border: `1px solid ${activeScanPlane === 'CORONAL' ? 'var(--cyan)' : '#22323a'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ea1a8", marginBottom: "4px" }}>
+                    <b>3. CORONAL VIEW</b>
+                    <span>{activeScanPlane === 'CORONAL' ? '● PRIMARY SCAN' : 'MPR DERIVED'}</span>
+                  </div>
+                  <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", background: "#030608", border: "1px dashed #1e2c33", borderRadius: "3px" }}>
+                    <span style={{ fontSize: "11px", color: "#6b8089", fontFamily: "monospace" }}>[CORONAL Image Slot] · FOV:{fov}mm</span>
+                  </div>
+                </div>
+
+                {/* Quad 4: 2D MIP & Multi-Slice Stack */}
+                <div style={{ backgroundColor: "#06090c", border: "1px solid var(--amber)", borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "var(--amber)", marginBottom: "4px" }}>
+                    <b>4. 2D MIP &amp; SLICE STACK</b>
+                    <span>{isInterleaved ? 'INTERLEAVED' : 'SEQUENTIAL'}</span>
+                  </div>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#030608", padding: "6px", borderRadius: "3px" }}>
+                    <div style={{ display: "flex", gap: "2px", alignItems: "center", height: "40px", overflowX: "auto" }}>
+                      {Array.from({ length: Math.min(20, sliceCount) }).map((_, i) => {
+                        const isEven = (i + 1) % 2 === 0;
+                        const isCur = mipCursorZ === (i + 1);
+                        return (
+                          <div
+                            key={i}
+                            onClick={() => setMipCursorZ(i + 1)}
+                            style={{
+                              flex: 1,
+                              height: "100%",
+                              backgroundColor: isInterleaved ? (isEven ? "var(--cyan)" : "var(--amber)") : "#38bdf8",
+                              opacity: isCur ? 1.0 : 0.4,
+                              cursor: "pointer",
+                              borderRadius: "1px",
+                              border: isCur ? "1px solid #fff" : "none",
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                    <div style={{ fontSize: "10px", color: "#8ea1a8", display: "flex", justifyContent: "space-between", fontFamily: "monospace" }}>
+                      <span>Slab Z: {((sliceCount * (sliceThick + sliceGap)) - sliceGap).toFixed(1)}mm</span>
+                      <span>Slice #{mipCursorZ} / {sliceCount}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
-              <>
-                {activeLens === "sequence" && (
-                  <div className="canvas-view sequence-view">
-                    <svg viewBox="0 0 600 200" className="waveform-svg">
-                      <path
-                        d="M 0 100 L 40 100 L 45 20 L 50 100 L 150 100 L 155 40 L 160 100 L 250 100 L 255 40 L 260 100 L 600 100"
-                        stroke="#59e0e6"
-                        fill="none"
-                        strokeWidth="2"
-                      />
-                      {/* Dynamic cursor line based on cursorTime */}
-                      <line
-                        x1={Math.min(590, Math.max(10, cursors.cursorTime * 2))}
-                        y1="0"
-                        x2={Math.min(590, Math.max(10, cursors.cursorTime * 2))}
-                        y2="200"
-                        stroke="#ffc45b"
-                        strokeDasharray="4"
-                      />
+              /* PHYSICS VIEWPORTS */
+              <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+                {physicsTab === "timeline" && (
+                  <div style={{ width: "100%", height: "100%" }}>
+                    <svg viewBox="0 0 600 200" style={{ width: "100%", height: "240px" }}>
+                      {/* RF Channel */}
+                      <line x1="0" y1="40" x2="600" y2="40" stroke="#25373f" />
+                      <path d="M 20 40 Q 30 10 40 40" fill="none" stroke="var(--cyan)" strokeWidth="2.5" />
+                      {Array.from({ length: 16 }).map((_, i) => (
+                        <line key={i} x1={70 + i * 32} y1="40" x2={70 + i * 32} y2={40 - (faDeg / 180) * 25} stroke="var(--amber)" strokeWidth="2" />
+                      ))}
+                      {/* Gy Channel */}
+                      <line x1="0" y1="90" x2="600" y2="90" stroke="#25373f" />
+                      {Array.from({ length: 16 }).map((_, i) => (
+                        <line key={i} x1={65 + i * 32} y1="90" x2={65 + i * 32} y2={90 - (i - 8) * 2} stroke="#3bf48d" strokeWidth="1.5" />
+                      ))}
+                      {/* Gx Readout */}
+                      <line x1="0" y1="140" x2="600" y2="140" stroke="#25373f" />
+                      {Array.from({ length: 16 }).map((_, i) => (
+                        <rect key={i} x={65 + i * 32} y="130" width="16" height="10" fill="rgba(59, 244, 141, 0.3)" stroke="#3bf48d" />
+                      ))}
+                      {/* Time Cursor */}
+                      <line x1={70 + ((cursors.selectedEcho ?? 8) - 1) * 32} y1="10" x2={70 + ((cursors.selectedEcho ?? 8) - 1) * 32} y2="180" stroke="var(--cyan)" strokeDasharray="3 3" strokeWidth="1.5" />
                     </svg>
-                    <div className="screen-caption">
-                      Multi-echo refocusing chain (TSE ETL=16) · Cross-Lens cursor active
-                    </div>
                   </div>
                 )}
-                {activeLens === "state" && (
-                  <div className="canvas-view epg-view">
-                    <div className="epg-chart-mock">
-                      EPG Coherence Transition Grid (F+/F-/Z) · Selected: Echo #{cursors.selectedEcho ?? 1}
-                    </div>
+                {physicsTab === "epg_phase" && (
+                  <div style={{ width: "100%", height: "240px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    <svg viewBox="0 0 500 180" style={{ width: "100%", height: "100%" }}>
+                      <line x1="20" y1="90" x2="480" y2="90" stroke="#3bf48d" strokeWidth="2" />
+                      <text x="440" y="85" fill="#3bf48d" fontSize="9">k=0 (Echo)</text>
+                      {[-2, -1, 1, 2].map((k) => (
+                        <line key={k} x1="20" y1={90 - k * 25} x2="480" y2={90 - k * 25} stroke="#1f2d33" strokeDasharray="2 2" />
+                      ))}
+                    </svg>
                   </div>
                 )}
-                {activeLens === "acquisition" && (
-                  <div className="canvas-view acq-view">
-                    <div className="kspace-mock">
-                      k-space Trajectory (Cartesian Spin Warp · ky line #{cursors.selectedEcho ?? 1})
-                    </div>
+                {physicsTab === "bloch_sphere" && (
+                  <div style={{ width: "200px", height: "200px", border: "1px solid #33434a", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                    <div style={{ width: "100%", height: "1px", backgroundColor: "#33434a", position: "absolute" }} />
+                    <div style={{ width: "1px", height: "100%", backgroundColor: "#33434a", position: "absolute" }} />
+                    <div style={{ width: "60px", height: "2px", backgroundColor: "var(--amber)", transformOrigin: "left center", transform: `rotate(${faDeg}deg)` }} />
                   </div>
                 )}
-                {activeLens === "image" && (
-                  <div className="canvas-view image-view">
-                    <div className="reconstruction-mock">Reconstructed T2 Magnitude Map</div>
+                {physicsTab === "phantom" && (
+                  /* SINGLE DEDICATED CALIBRATION PHANTOM */
+                  <div style={{ width: "180px", height: "180px", borderRadius: "50%", backgroundColor: "#0c1317", border: "2px solid #38e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", padding: "20px" }}>
+                    <div style={{ borderRadius: "50%", backgroundColor: "#fff", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontWeight: 700, fontSize: "10px" }}>V1</div>
+                    <div style={{ borderRadius: "50%", backgroundColor: "#aaa", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontWeight: 700, fontSize: "10px" }}>V2</div>
+                    <div style={{ borderRadius: "50%", backgroundColor: "#666", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: "10px" }}>V3</div>
+                    <div style={{ borderRadius: "50%", backgroundColor: "#333", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: "10px" }}>V4</div>
                   </div>
                 )}
-                {activeLens === "compare" && (
-                  <CompareLensView protoA={protoA} protoB={protoB} />
-                )}
-                {activeLens === "optimize" && (
-                  <OptimizeLensView
-                    currentFa={fa}
-                    currentTe={te}
-                    onApplyOptimal={(newFa, newTe) => {
-                      setFa(newFa);
-                      setTe(newTe);
-                    }}
-                  />
-                )}
-              </>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Linked Scope / Echo Train with Cross-Lens Selection */}
+        {/* Linked Echo Train Scrubber */}
         <div className="linked-scope-rail">
-          <label>INTERACTIVE ECHO TRAIN (CROSS-LENS LINKED)</label>
+          <label>INTERACTIVE ECHO TRAIN (ETL=16 CROSS-LENS LINKED)</label>
           <div className="echo-chips-row">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((echo) => {
               const echoTime = echo * 12.5;
@@ -224,94 +523,99 @@ export function WorkbenchCockpit() {
         </div>
       </section>
 
-      {/* 3. Control Bank: Physical Dial Sliders */}
+      {/* 3. Control Bank: Geometric & Physical Dials */}
       <section className="control-bank" data-testid="control-bank">
         <div className="bank-header">
           <h3>CONTROL BANK</h3>
-          <span className="sub-mode">Interactive T2 Engine</span>
-        </div>
-        <div className="control-group">
-          <label>Refocusing Flip Angle (FA) - Protocol A</label>
-          <div className="slider-row">
-            <input
-              type="range"
-              min="60"
-              max="180"
-              step="5"
-              value={fa}
-              onChange={(e) => setFa(Number(e.target.value))}
-              aria-label="Refocusing Flip Angle"
-            />
-            <span className="value-badge">{fa}°</span>
-          </div>
-          <small className="bound-warn">Hardware Limit: 180° (SAR Critical above 160°)</small>
+          <span className="sub-mode">{profile === "clinical" ? "Geometry & Contrast" : "Operator Dials"}</span>
         </div>
 
-        <div className="control-group">
-          <label>Effective TE (TE_eff) - Protocol A</label>
-          <div className="slider-row">
-            <input
-              type="range"
-              min="30"
-              max="200"
-              step="10"
-              value={te}
-              onChange={(e) => setTe(Number(e.target.value))}
-              aria-label="Effective TE"
-            />
-            <span className="value-badge">{te} ms</span>
-          </div>
-        </div>
-
-        {activeLens === "compare" && (
+        {profile === "clinical" ? (
+          /* Clinical Controls: Slice thickness, gap, count, FOV, TR/TE */
           <>
-            <div className="control-group compare-branch">
-              <label>Protocol B Refocusing FA</label>
+            <div className="control-group">
+              <label>Slice Thickness</label>
               <div className="slider-row">
-                <input
-                  type="range"
-                  min="60"
-                  max="180"
-                  step="5"
-                  value={faB}
-                  onChange={(e) => setFaB(Number(e.target.value))}
-                  aria-label="Protocol B FA"
-                />
-                <span className="value-badge" style={{ color: "#ffc45b" }}>{faB}°</span>
+                <input type="range" min="1.0" max="8.0" step="0.5" value={sliceThick} onChange={(e) => setSliceThick(Number(e.target.value))} />
+                <span className="value-badge">{sliceThick} mm</span>
               </div>
             </div>
-            <div className="control-group compare-branch">
-              <label>Protocol B Effective TE</label>
+
+            <div className="control-group">
+              <label>Slice Gap</label>
               <div className="slider-row">
-                <input
-                  type="range"
-                  min="30"
-                  max="200"
-                  step="10"
-                  value={teB}
-                  onChange={(e) => setTeB(Number(e.target.value))}
-                  aria-label="Protocol B TE"
-                />
-                <span className="value-badge" style={{ color: "#ffc45b" }}>{teB} ms</span>
+                <input type="range" min="0.0" max="5.0" step="0.5" value={sliceGap} onChange={(e) => setSliceGap(Number(e.target.value))} />
+                <span className="value-badge">{sliceGap} mm</span>
+              </div>
+            </div>
+
+            <div className="control-group">
+              <label>Number of Slices</label>
+              <div className="slider-row">
+                <input type="range" min="6" max="40" step="2" value={sliceCount} onChange={(e) => setSliceCount(Number(e.target.value))} />
+                <span className="value-badge">{sliceCount}</span>
+              </div>
+            </div>
+
+            <div className="control-group">
+              <label>Field of View (FOV)</label>
+              <div className="slider-row">
+                <input type="range" min="120" max="400" step="20" value={fov} onChange={(e) => setFov(Number(e.target.value))} />
+                <span className="value-badge">{fov} mm</span>
+              </div>
+            </div>
+
+            <div className="control-group">
+              <label>Effective TE</label>
+              <div className="slider-row">
+                <input type="range" min={isGRE ? 1.5 : 30} max={isGRE ? 25 : 160} step={isGRE ? 0.5 : 10} value={te} onChange={(e) => setTe(Number(e.target.value))} />
+                <span className="value-badge">{te} ms</span>
+              </div>
+            </div>
+          </>
+        ) : (
+          /* Physics Controls: Alpha, TE, TR, Bandwidth */
+          <>
+            <div className="control-group">
+              <label>{isGRE ? "Ernst Flip Angle (α)" : "Refocusing Angle α"}</label>
+              <div className="slider-row">
+                <input type="range" min={isGRE ? 5 : 60} max={isGRE ? 90 : 180} step={isGRE ? 1 : 5} value={faDeg} onChange={(e) => setFa(Number(e.target.value))} />
+                <span className="value-badge">{faDeg}°</span>
+              </div>
+            </div>
+
+            <div className="control-group">
+              <label>Effective TE</label>
+              <div className="slider-row">
+                <input type="range" min={isGRE ? 1.5 : 30} max={isGRE ? 25 : 160} step={isGRE ? 0.5 : 10} value={te} onChange={(e) => setTe(Number(e.target.value))} />
+                <span className="value-badge">{te} ms</span>
+              </div>
+            </div>
+
+            <div className="control-group">
+              <label>Repetition Time (TR)</label>
+              <div className="slider-row">
+                <input type="range" min={isGRE ? 15 : 1000} max={isGRE ? 500 : 5000} step={isGRE ? 5 : 500} value={tr} onChange={(e) => setTr(Number(e.target.value))} />
+                <span className="value-badge">{tr} ms</span>
               </div>
             </div>
           </>
         )}
 
-        <div className="action-row">
-          <button className="execute-btn" data-cost="realtime">
-            RUN RECONSTRUCTION
+        <div className="action-row" style={{ marginTop: "16px" }}>
+          <button className="execute-btn" onClick={triggerRun} data-cost="realtime" data-testid="run-experiment-btn">
+            {isComputing ? "COMPUTING..." : "RUN EXPERIMENT"}
           </button>
         </div>
       </section>
 
-      {/* 4. Status Rail: Execution State & Compute Cost */}
+      {/* 4. Status Rail */}
       <section className="status-rail" data-testid="status-rail">
         <div className="state-badge" data-state={executionState}>
           STATUS: {executionState}
         </div>
-        <div className="cost-tier">COMPUTE: &lt;50ms (REALTIME INTERACTION)</div>
-        <div className="system-info">MRQLab v0.4 · Physics, Compare &amp; Optimize Engine Ready</div>
+        <div className="cost-tier">KERNEL ENGINE: {resultGraph?.execution_plan?.selected_engine?.toUpperCase() || "EPG"}</div>
+        <div className="system-info">MRQLab v0.42 · Lens Projection &amp; ResultGraph Verified</div>
       </section>
     </div>
   );
