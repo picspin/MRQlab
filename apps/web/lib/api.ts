@@ -267,4 +267,41 @@ export async function fetchCockpitSignals(req: {
   return response.json();
 }
 
+export interface PulseInspectAnalysis {
+  id: string;
+  name: string;
+  kind: "hard" | "shaped_sinc" | "gaussian" | "custom";
+  flip_angle_deg: number;
+  phase_deg: number;
+  duration_ms: number;
+  time_bandwidth: number;
+  slice_thickness_mm: number;
+  waveform_time: number[];
+  waveform_b1: number[];
+  freq_axis_khz: number[];
+  freq_response_mag: number[];
+  spatial_axis_mm: number[];
+  slice_profile_mz: number[];
+  slice_profile_mxy: number[];
+  epg_transition_matrix: number[][];
+  peak_b1: number;
+  bw_khz: number;
+}
+
+export async function fetchPulseInspect(req: {
+  flip_angle_deg?: number;
+  phase_deg?: number;
+  duration_ms?: number;
+  slice_thickness_mm?: number;
+  time_bandwidth?: number;
+}): Promise<PulseInspectAnalysis> {
+  const response = await fetch(`${BASE}/pulse/inspect`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  if (!response.ok) throw new Error(`pulse inspect failed: ${await response.text()}`);
+  return response.json();
+}
+
 

@@ -139,6 +139,12 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     expect(screen.getByTestId("compare-lens")).toBeVisible();
     expect(screen.getByTestId("compare-svg")).toBeVisible();
     expect(screen.getByTestId("compare-fa-b")).toBeVisible();
+
+    // v0.49: Pulse inspector is a renderer of backend sinc / slice / EPG payload
+    fireEvent.click(screen.getByTestId("pulse-tab-btn"));
+    expect(screen.getByTestId("pulse-inspector")).toBeVisible();
+    expect(screen.getByTestId("pulse-b1-svg")).toBeVisible();
+    expect(screen.getByTestId("pulse-epg-matrix")).toBeVisible();
   });
 
   it("renders cockpit signal metrics as a backend payload slot (no local physics)", () => {

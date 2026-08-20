@@ -8,6 +8,7 @@ import { CockpitSignalAnalysis, fetchCockpitSignals, runExperiment, saveCustomRe
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
+import { PulseInspector } from "./PulseInspector";
 
 export function WorkbenchCockpit() {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState, setExecutionState } = useWorkspace();
@@ -50,7 +51,7 @@ export function WorkbenchCockpit() {
   const [cockpitSignals, setCockpitSignals] = useState<CockpitSignalAnalysis | null>(null);
 
   // Physics sub-lens selection inside Physics mode
-  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare">("timeline");
+  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare" | "pulse">("timeline");
 
   // Sync params when scenario changes
   useEffect(() => {
@@ -464,6 +465,24 @@ export function WorkbenchCockpit() {
               >
                 7. COMPARE A/B
               </button>
+              <button
+                onClick={() => setPhysicsTab("pulse")}
+                data-testid="pulse-tab-btn"
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  gridColumn: "1 / span 2",
+                  backgroundColor: physicsTab === "pulse" ? "var(--cyan)" : "#182226",
+                  color: physicsTab === "pulse" ? "#081114" : "#8ea1a8",
+                  border: "1px solid #33434a",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              >
+                8. PULSE INSPECTOR
+              </button>
             </div>
 
             <div className="state-metrics">
@@ -671,6 +690,9 @@ export function WorkbenchCockpit() {
                   />
                 )}
                 {physicsTab === "compare" && <CompareLensView currentFa={fa} currentTe={te} />}
+                {physicsTab === "pulse" && (
+                  <PulseInspector flipAngleDeg={faDeg} sliceThicknessMm={sliceThick} />
+                )}
                 {physicsTab === "phantom" && (
                   /* SINGLE DEDICATED CALIBRATION PHANTOM */
                   <div style={{ width: "180px", height: "180px", borderRadius: "50%", backgroundColor: "#0c1317", border: "2px solid #38e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", padding: "20px" }}>

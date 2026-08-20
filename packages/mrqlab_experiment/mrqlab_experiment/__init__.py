@@ -56,6 +56,12 @@ from .cockpit_signals import (
     compute_cockpit_signals,
     compute_cockpit_signals_dict,
 )
+from .pulse_inspector import (
+    PulseInspectAnalysis,
+    PulseInspectRequest,
+    inspect_pulse,
+    inspect_pulse_dict,
+)
 from .observations import Observation, ResultEdge, ResultGraph, build_result_graph
 from .physics_ir import CompilerSpan, PhysicsIR, PhysicsOperator, compile_physics_ir
 from .pulse import (
@@ -123,6 +129,10 @@ __all__ = [
     "CockpitSignalRequest",
     "compute_cockpit_signals",
     "compute_cockpit_signals_dict",
+    "PulseInspectAnalysis",
+    "PulseInspectRequest",
+    "inspect_pulse",
+    "inspect_pulse_dict",
     "evaluate_multi_tissue_contrast",
     "build_clinical_recipe",
     "build_preset",
