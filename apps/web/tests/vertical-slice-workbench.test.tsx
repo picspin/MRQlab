@@ -122,6 +122,23 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     fireEvent.click(editBtn);
     expect(editBtn.textContent).toContain("EDITING");
     expect(screen.getByTestId("readout-width-slider")).toBeVisible();
+
+    // v0.45: K-space / recon lens is a renderer only
+    fireEvent.click(screen.getByTestId("kspace-tab-btn"));
+    expect(screen.getByTestId("kspace-recon-lens")).toBeVisible();
+    expect(screen.getByTestId("trajectory-type-select")).toBeVisible();
+
+    // v0.46: Optimize lens is a renderer of backend Pareto payload
+    fireEvent.click(screen.getByTestId("optimize-tab-btn"));
+    expect(screen.getByTestId("optimize-lens-view")).toBeVisible();
+    expect(screen.getByTestId("goal-balanced-sar")).toBeVisible();
+    expect(screen.getByTestId("pareto-svg")).toBeVisible();
+
+    // v0.47: Compare lens is a renderer of backend A/B payload
+    fireEvent.click(screen.getByTestId("compare-tab-btn"));
+    expect(screen.getByTestId("compare-lens")).toBeVisible();
+    expect(screen.getByTestId("compare-svg")).toBeVisible();
+    expect(screen.getByTestId("compare-fa-b")).toBeVisible();
   });
 
   it("executes experiment with real ResultGraph backend dispatch on RUN", () => {

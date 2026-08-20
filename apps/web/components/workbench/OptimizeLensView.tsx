@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  computeOptimization,
-} from "../../lib/optimize-engine";
+import React, { useEffect, useState } from "react";
+import { fetchPareto, OptimizeAnalysis, OptimizeMode, ParetoPoint } from "../../lib/api";
 
 interface OptimizeLensViewProps {
   currentFa: number;
@@ -16,19 +14,44 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
   currentTe,
   onApplyOptimal,
 }) => {
-  const [goalMode, setGoalMode] = useState<
-    "max_contrast" | "balanced_sar" | "min_sar"
-  >("balanced_sar");
+  const [goalMode, setGoalMode] = useState<OptimizeMode>("balanced_sar");
   const [maxSar, setMaxSar] = useState<number>(35.0);
   const [minCnr, setMinCnr] = useState<number>(2.5);
+  const [analysis, setAnalysis] = useState<OptimizeAnalysis | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const analysis = computeOptimization({
-    mode: goalMode,
-    maxSarBudget: maxSar,
-    minCnrProxy: minCnr,
-  });
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    fetchPareto({
+      mode: goalMode,
+      max_sar_budget: maxSar,
+      min_cnr_proxy: minCnr,
+      current_fa_deg: currentFa,
+      current_te_ms: currentTe,
+    })
+      .then((payload) => {
+        if (!cancelled) setAnalysis(payload);
+      })
+      .catch((err: Error) => {
+        if (!cancelled) {
+          setAnalysis(null);
+          setError(err.message);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [goalMode, maxSar, minCnr, currentFa, currentTe]);
 
-  const { optimalCandidate, paretoFrontier, sensitivities } = analysis;
+  const optimalCandidate: ParetoPoint | undefined = analysis?.optimal_candidate;
+  const paretoFrontier: ParetoPoint[] = analysis?.pareto_frontier ?? [];
+  const sensitivities = analysis?.sensitivities ?? [];
 
   return (
     <div
@@ -43,7 +66,6 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
         width: "100%",
       }}
     >
-      {/* Objective Control Bar */}
       <div
         style={{
           display: "flex",
@@ -90,7 +112,6 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
               color: goalMode === "max_contrast" ? "#061012" : "#92a6af",
               border: "1px solid #3d4c53",
               cursor: "pointer",
-              boxShadow: goalMode === "max_contrast" ? "0 0 10px var(--cyan-glow)" : "none",
             }}
           >
             Max Contrast
@@ -107,7 +128,6 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
               color: goalMode === "balanced_sar" ? "#061012" : "#92a6af",
               border: "1px solid #3d4c53",
               cursor: "pointer",
-              boxShadow: goalMode === "balanced_sar" ? "0 0 10px var(--cyan-glow)" : "none",
             }}
           >
             Balanced SAR
@@ -124,7 +144,6 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
               color: goalMode === "min_sar" ? "#061012" : "#92a6af",
               border: "1px solid #3d4c53",
               cursor: "pointer",
-              boxShadow: goalMode === "min_sar" ? "0 0 10px var(--cyan-glow)" : "none",
             }}
           >
             Min SAR (Cool)
@@ -132,7 +151,6 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
         </div>
       </div>
 
-      {/* Constraints Bar */}
       <div
         style={{
           display: "grid",
@@ -150,6 +168,7 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
             <span style={{ color: "var(--orange-neon)", fontWeight: 800, fontFamily: "monospace" }}>{maxSar.toFixed(1)}x</span>
           </div>
           <input
+            data-testid="max-sar-slider"
             type="range"
             min="15"
             max="50"
@@ -165,6 +184,7 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
             <span style={{ color: "var(--green-neon)", fontWeight: 800, fontFamily: "monospace" }}>{minCnr.toFixed(1)}</span>
           </div>
           <input
+            data-testid="min-cnr-slider"
             type="range"
             min="1.0"
             max="4.0"
@@ -176,7 +196,17 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
         </div>
       </div>
 
-      {/* Pareto Frontier Canvas / Visual Map */}
+      {error && (
+        <div data-testid="optimize-backend-wait" style={{ fontSize: "11px", color: "#f59e0b", fontFamily: "monospace" }}>
+          awaiting backend pareto payload · {error}
+        </div>
+      )}
+      {loading && (
+        <div data-testid="optimize-loading" style={{ fontSize: "11px", color: "var(--cyan)", fontFamily: "monospace" }}>
+          solving Pareto grid…
+        </div>
+      )}
+
       <div
         style={{
           display: "flex",
@@ -192,13 +222,7 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
           backgroundSize: "20px 20px",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span
             style={{
               fontSize: "0.75rem",
@@ -211,33 +235,22 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
             PARETO FRONTIER (CONTRAST VS SAR TRADE-OFF)
           </span>
           <span style={{ fontSize: "0.75rem", color: "var(--cyan)", fontFamily: "monospace" }}>
-            ● Recommended Optimum &nbsp; ○ Feasible Candidates
+            ● Recommended Optimum &nbsp; ○ Feasible Frontier
           </span>
         </div>
 
-        {/* SVG Scatter & Curve */}
         <div style={{ height: "180px", width: "100%", position: "relative" }}>
-          <svg width="100%" height="100%" viewBox="0 0 500 180" preserveAspectRatio="none">
-            {/* Grid Axes */}
+          <svg width="100%" height="100%" viewBox="0 0 500 180" preserveAspectRatio="none" data-testid="pareto-svg">
             <line x1="40" y1="20" x2="480" y2="20" stroke="#253238" strokeDasharray="3 3" />
             <line x1="40" y1="90" x2="480" y2="90" stroke="#253238" strokeDasharray="3 3" />
             <line x1="40" y1="150" x2="480" y2="150" stroke="#3b4d55" strokeWidth="2" />
             <line x1="40" y1="10" x2="40" y2="150" stroke="#3b4d55" strokeWidth="2" />
 
-            {/* SAR Budget Limit Line */}
             {(() => {
               const sarX = 40 + ((maxSar - 15) / 35) * 440;
               return (
                 <g>
-                  <line
-                    x1={sarX}
-                    y1="10"
-                    x2={sarX}
-                    y2="150"
-                    stroke="#ef4444"
-                    strokeDasharray="4 2"
-                    strokeWidth="2"
-                  />
+                  <line x1={sarX} y1="10" x2={sarX} y2="150" stroke="#ef4444" strokeDasharray="4 2" strokeWidth="2" />
                   <text x={sarX + 6} y="28" fill="#ef4444" fontSize="10" fontWeight="bold">
                     SAR Limit
                   </text>
@@ -245,13 +258,13 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
               );
             })()}
 
-            {/* Pareto Points */}
             {paretoFrontier.map((p, idx) => {
-              const x = 40 + ((p.relativeSar - 15) / 35) * 440;
-              const y = 150 - (p.cnrProxy / 5.0) * 130;
+              const x = 40 + ((p.relative_sar - 15) / 35) * 440;
+              const y = 150 - (p.cnr_proxy / 5.0) * 130;
               const isOpt =
-                p.flipAngle === optimalCandidate.flipAngle &&
-                p.teEff === optimalCandidate.teEff;
+                !!optimalCandidate &&
+                p.flip_angle === optimalCandidate.flip_angle &&
+                p.te_eff === optimalCandidate.te_eff;
 
               return (
                 <g key={idx}>
@@ -259,16 +272,9 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
                     cx={x}
                     cy={y}
                     r={isOpt ? 7 : 4}
-                    fill={isOpt ? "var(--cyan)" : p.isFeasible ? "var(--green-neon)" : "#4a5960"}
+                    fill={isOpt ? "var(--cyan)" : p.is_feasible ? "var(--green-neon)" : "#4a5960"}
                     stroke={isOpt ? "#ffffff" : "none"}
                     strokeWidth={isOpt ? 2 : 0}
-                    style={{
-                      filter: isOpt
-                        ? "drop-shadow(0 0 8px var(--cyan-glow))"
-                        : p.isFeasible
-                        ? "drop-shadow(0 0 4px var(--green-glow))"
-                        : "none",
-                    }}
                   />
                   {isOpt && (
                     <text
@@ -279,7 +285,7 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
                       fontWeight="bold"
                       fontFamily="monospace"
                     >
-                      Optimal (FA {p.flipAngle}°, TE {p.teEff}ms)
+                      Optimal (FA {p.flip_angle}°, TE {p.te_eff}ms)
                     </text>
                   )}
                 </g>
@@ -303,90 +309,75 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
         </div>
       </div>
 
-      {/* Optimal Candidate Card & Apply Action */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr",
-          gap: "1rem",
-          backgroundColor: "#101618",
-          padding: "1rem 1.25rem",
-          borderRadius: "8px",
-          border: "2px solid #2e3b40",
-          alignItems: "center",
-          boxShadow: "inset 0 1px 0 #46575f",
-        }}
-      >
-        <div>
-          <div
-            style={{
-              fontSize: "0.75rem",
-              color: "var(--amber)",
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              fontWeight: 800,
-            }}
-          >
-            RECOMMENDED PROTOCOL PARAMETERS
+      {optimalCandidate && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr",
+            gap: "1rem",
+            backgroundColor: "#101618",
+            padding: "1rem 1.25rem",
+            borderRadius: "8px",
+            border: "2px solid #2e3b40",
+            alignItems: "center",
+            boxShadow: "inset 0 1px 0 #46575f",
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontSize: "0.75rem",
+                color: "var(--amber)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                fontWeight: 800,
+              }}
+            >
+              RECOMMENDED PROTOCOL PARAMETERS
+            </div>
+            <div
+              style={{
+                fontSize: "1.2rem",
+                fontWeight: 900,
+                color: "#ffffff",
+                marginTop: "0.25rem",
+                fontFamily: "monospace",
+              }}
+              data-testid="optimal-params"
+            >
+              Flip Angle: {optimalCandidate.flip_angle}° &nbsp;·&nbsp; Effective TE: {optimalCandidate.te_eff} ms
+            </div>
+            <div style={{ fontSize: "0.8rem", color: "#8da1aa", marginTop: "0.35rem", fontFamily: "monospace" }}>
+              Predicted ΔSignal: <b style={{ color: "#fff" }}>{optimalCandidate.contrast}</b> · CNR Proxy:{" "}
+              <b style={{ color: "var(--green-neon)" }}>{optimalCandidate.cnr_proxy}</b> · Relative SAR:{" "}
+              <b style={{ color: "var(--amber)" }}>{optimalCandidate.relative_sar}x</b>
+            </div>
           </div>
-          <div
-            style={{
-              fontSize: "1.2rem",
-              fontWeight: 900,
-              color: "#ffffff",
-              marginTop: "0.25rem",
-              fontFamily: "monospace",
-            }}
-          >
-            Flip Angle: {optimalCandidate.flipAngle}° &nbsp;·&nbsp; Effective TE:{" "}
-            {optimalCandidate.teEff} ms
-          </div>
-          <div
-            style={{
-              fontSize: "0.8rem",
-              color: "#8da1aa",
-              marginTop: "0.35rem",
-              fontFamily: "monospace",
-            }}
-          >
-            Predicted ΔSignal: <b style={{ color: "#fff" }}>{optimalCandidate.contrast}</b> · CNR
-            Proxy: <b style={{ color: "var(--green-neon)" }}>{optimalCandidate.cnrProxy}</b> · Relative SAR:{" "}
-            <b style={{ color: "var(--amber)" }}>{optimalCandidate.relativeSar}x</b>
+
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              data-testid="apply-optimal-button"
+              onClick={() => onApplyOptimal(optimalCandidate.flip_angle, optimalCandidate.te_eff)}
+              style={{
+                backgroundColor: "var(--cyan)",
+                color: "#061012",
+                border: "none",
+                borderRadius: "6px",
+                padding: "0.75rem 1.25rem",
+                fontWeight: 900,
+                fontSize: "0.85rem",
+                cursor: "pointer",
+                boxShadow: "0 0 12px var(--cyan-glow)",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Apply to Protocol
+            </button>
           </div>
         </div>
+      )}
 
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button
-            data-testid="apply-optimal-button"
-            onClick={() =>
-              onApplyOptimal(optimalCandidate.flipAngle, optimalCandidate.teEff)
-            }
-            style={{
-              backgroundColor: "var(--cyan)",
-              color: "#061012",
-              border: "none",
-              borderRadius: "6px",
-              padding: "0.75rem 1.25rem",
-              fontWeight: 900,
-              fontSize: "0.85rem",
-              cursor: "pointer",
-              boxShadow: "0 0 12px var(--cyan-glow)",
-              letterSpacing: "0.5px",
-            }}
-          >
-            Apply to Protocol
-          </button>
-        </div>
-      </div>
-
-      {/* Parameter Sensitivity Gradients */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.5rem",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         <span
           style={{
             fontSize: "0.75rem",
@@ -398,13 +389,7 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
         >
           SENSITIVITY GRADIENTS (LOCAL DERIVATIVES ∂/∂θ)
         </span>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "0.875rem",
-          }}
-        >
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.875rem" }}>
           {sensitivities.map((s, idx) => (
             <div
               key={idx}
@@ -415,30 +400,14 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
                 border: "1px solid #283439",
               }}
             >
-              <div style={{ fontWeight: 800, color: "#ffffff", fontSize: "0.85rem" }}>
-                {s.parameter}
-              </div>
-              <div
-                style={{
-                  fontSize: "0.75rem",
-                  color: "#8da1aa",
-                  marginTop: "0.35rem",
-                  fontFamily: "monospace",
-                }}
-              >
+              <div style={{ fontWeight: 800, color: "#ffffff", fontSize: "0.85rem" }}>{s.parameter}</div>
+              <div style={{ fontSize: "0.75rem", color: "#8da1aa", marginTop: "0.35rem", fontFamily: "monospace" }}>
                 ∂CNR / ∂θ:{" "}
-                <span
-                  style={{
-                    color: s.dCnr >= 0 ? "var(--green-neon)" : "#ef4444",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {s.dCnr > 0 ? `+${s.dCnr}` : s.dCnr} / unit
+                <span style={{ color: s.d_cnr >= 0 ? "var(--green-neon)" : "#ef4444", fontWeight: "bold" }}>
+                  {s.d_cnr > 0 ? `+${s.d_cnr}` : s.d_cnr} / unit
                 </span>
                 &nbsp;|&nbsp; ∂SAR / ∂θ:{" "}
-                <span style={{ color: "var(--amber)", fontWeight: "bold" }}>
-                  +{s.dSar} / unit
-                </span>
+                <span style={{ color: "var(--amber)", fontWeight: "bold" }}>+{s.d_sar} / unit</span>
               </div>
             </div>
           ))}

@@ -5,6 +5,9 @@ import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
 import { ExperimentGraph, ResultGraph } from "../../lib/workbench-types";
 import { fetchTissueSignal, runExperiment, saveCustomRecipe } from "../../lib/api";
+import { KSpaceReconLens } from "./KSpaceReconLens";
+import { OptimizeLensView } from "./OptimizeLensView";
+import { CompareLensView } from "./CompareLensView";
 
 export function WorkbenchCockpit() {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState, setExecutionState } = useWorkspace();
@@ -47,7 +50,7 @@ export function WorkbenchCockpit() {
   const [backendTissueSignals, setBackendTissueSignals] = useState<Record<string, number> | null>(null);
 
   // Physics sub-lens selection inside Physics mode
-  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom">("timeline");
+  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare">("timeline");
 
   // Sync params when scenario changes
   useEffect(() => {
@@ -328,7 +331,7 @@ export function WorkbenchCockpit() {
             </div>
 
             {/* Physics Sub-lens switcher */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", marginBottom: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", marginBottom: "12px" }} data-testid="physics-sublens-switcher">
               <button
                 onClick={() => setPhysicsTab("timeline")}
                 style={{
@@ -392,6 +395,58 @@ export function WorkbenchCockpit() {
                 }}
               >
                 🎯 4. TEST PHANTOM
+              </button>
+              <button
+                onClick={() => setPhysicsTab("kspace")}
+                data-testid="kspace-tab-btn"
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  backgroundColor: physicsTab === "kspace" ? "var(--cyan)" : "#182226",
+                  color: physicsTab === "kspace" ? "#081114" : "#8ea1a8",
+                  border: "1px solid #33434a",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              >
+                5. K-SPACE / RECON
+              </button>
+              <button
+                onClick={() => setPhysicsTab("optimize")}
+                data-testid="optimize-tab-btn"
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  backgroundColor: physicsTab === "optimize" ? "var(--cyan)" : "#182226",
+                  color: physicsTab === "optimize" ? "#081114" : "#8ea1a8",
+                  border: "1px solid #33434a",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              >
+                6. OPTIMIZE / PARETO
+              </button>
+              <button
+                onClick={() => setPhysicsTab("compare")}
+                data-testid="compare-tab-btn"
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  gridColumn: "1 / span 2",
+                  backgroundColor: physicsTab === "compare" ? "var(--cyan)" : "#182226",
+                  color: physicsTab === "compare" ? "#081114" : "#8ea1a8",
+                  border: "1px solid #33434a",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              >
+                7. COMPARE A/B
               </button>
             </div>
 
@@ -588,6 +643,18 @@ export function WorkbenchCockpit() {
                     <div style={{ width: "60px", height: "2px", backgroundColor: "var(--amber)", transformOrigin: "left center", transform: `rotate(${faDeg}deg)` }} />
                   </div>
                 )}
+                {physicsTab === "kspace" && <KSpaceReconLens />}
+                {physicsTab === "optimize" && (
+                  <OptimizeLensView
+                    currentFa={fa}
+                    currentTe={te}
+                    onApplyOptimal={(nextFa, nextTe) => {
+                      setFa(nextFa);
+                      setTe(nextTe);
+                    }}
+                  />
+                )}
+                {physicsTab === "compare" && <CompareLensView currentFa={fa} currentTe={te} />}
                 {physicsTab === "phantom" && (
                   /* SINGLE DEDICATED CALIBRATION PHANTOM */
                   <div style={{ width: "180px", height: "180px", borderRadius: "50%", backgroundColor: "#0c1317", border: "2px solid #38e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", padding: "20px" }}>

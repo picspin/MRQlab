@@ -47,6 +47,12 @@ export async function saveCustomRecipe(id: string, experiment: ExperimentGraph):
   return response.json();
 }
 
+export async function getCustomRecipe(id: string): Promise<{ id: string; experiment: ExperimentGraph }> {
+  const response = await fetch(`${BASE}/recipes/custom/${id}`);
+  if (!response.ok) throw new Error(`get custom recipe failed: ${response.status}`);
+  return response.json();
+}
+
 export interface GradientValidationResult {
   is_valid: boolean;
   violations: string[];
@@ -80,6 +86,144 @@ export async function fetchDiffusionWaveform(params: {
     body: JSON.stringify(params),
   });
   if (!response.ok) throw new Error(`diffusion waveform failed: ${await response.text()}`);
+  return response.json();
+}
+
+export type TrajectoryType = "cartesian" | "radial" | "spiral" | "stack_of_stars";
+
+export interface TrajectorySpec {
+  trajectory_type: TrajectoryType;
+  matrix_size?: number;
+  num_spokes_or_interleaves?: number;
+  points_per_arm?: number;
+  num_slices?: number;
+  acceleration_factor?: number;
+}
+
+export interface TrajectoryPayload {
+  trajectory_type: TrajectoryType;
+  total_points: number;
+  kx: number[];
+  ky: number[];
+  kz: number[];
+  density_compensation_available: boolean;
+}
+
+export interface ReconDemoPayload {
+  matrix: number;
+  trajectory_type: TrajectoryType;
+  acceleration_factor: number;
+  nrmse: number;
+  phantom: number[][];
+  recon: number[][];
+  preview: { kx: number[]; ky: number[]; total_points: number; preview_stride: number };
+}
+
+export async function generateTrajectory(spec: TrajectorySpec): Promise<TrajectoryPayload> {
+  const response = await fetch(`${BASE}/trajectories/generate`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(spec),
+  });
+  if (!response.ok) throw new Error(`trajectory generate failed: ${await response.text()}`);
+  return response.json();
+}
+
+export async function fetchReconDemo(spec: TrajectorySpec): Promise<ReconDemoPayload> {
+  const response = await fetch(`${BASE}/recon/demo`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(spec),
+  });
+  if (!response.ok) throw new Error(`recon demo failed: ${await response.text()}`);
+  return response.json();
+}
+
+export type OptimizeMode = "max_contrast" | "balanced_sar" | "min_sar";
+
+export interface OptimizeGoal {
+  mode: OptimizeMode;
+  max_sar_budget: number;
+  min_cnr_proxy: number;
+  target_t2_ms?: number;
+  reference_t2_ms?: number;
+  echo_train_length?: number;
+  current_fa_deg?: number;
+  current_te_ms?: number;
+}
+
+export interface ParetoPoint {
+  flip_angle: number;
+  te_eff: number;
+  contrast: number;
+  cnr_proxy: number;
+  relative_sar: number;
+  score: number;
+  is_feasible: boolean;
+  is_dominated?: boolean;
+  label?: string | null;
+}
+
+export interface OptimizeAnalysis {
+  pareto_frontier: ParetoPoint[];
+  candidates: ParetoPoint[];
+  optimal_candidate: ParetoPoint;
+  sensitivities: Array<{ parameter: string; d_cnr: number; d_sar: number }>;
+  grid_size: number;
+}
+
+export async function fetchPareto(goal: OptimizeGoal): Promise<OptimizeAnalysis> {
+  const response = await fetch(`${BASE}/optimize/pareto`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(goal),
+  });
+  if (!response.ok) throw new Error(`optimize pareto failed: ${await response.text()}`);
+  return response.json();
+}
+
+export interface ProtocolSpec {
+  id: string;
+  name: string;
+  flip_angle_deg: number;
+  te_eff_ms: number;
+  b0_t?: number;
+  echo_train_length?: number;
+  echo_spacing_ms?: number;
+  target_t2_ms?: number;
+  reference_t2_ms?: number;
+}
+
+export interface CompareProtocol {
+  id: string;
+  name: string;
+  flip_angle_deg: number;
+  te_eff_ms: number;
+  b0_t: number;
+  echo_train: number[];
+  target_signal: number;
+  reference_signal: number;
+  contrast_diff: number;
+  cnr_proxy: number;
+  relative_sar: number;
+}
+
+export interface CompareAnalysis {
+  protocol_a: CompareProtocol;
+  protocol_b: CompareProtocol;
+  delta: { contrast_pct: number; cnr_delta: number; sar_delta: number };
+}
+
+export async function fetchCompare(req: {
+  protocol_a: ProtocolSpec;
+  protocol_b: ProtocolSpec;
+}): Promise<CompareAnalysis> {
+  const response = await fetch(`${BASE}/compare/protocols`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  if (!response.ok) throw new Error(`compare protocols failed: ${await response.text()}`);
   return response.json();
 }
 
