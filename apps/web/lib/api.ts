@@ -182,4 +182,49 @@ export async function fetchPareto(goal: OptimizeGoal): Promise<OptimizeAnalysis>
   return response.json();
 }
 
+export interface ProtocolSpec {
+  id: string;
+  name: string;
+  flip_angle_deg: number;
+  te_eff_ms: number;
+  b0_t?: number;
+  echo_train_length?: number;
+  echo_spacing_ms?: number;
+  target_t2_ms?: number;
+  reference_t2_ms?: number;
+}
+
+export interface CompareProtocol {
+  id: string;
+  name: string;
+  flip_angle_deg: number;
+  te_eff_ms: number;
+  b0_t: number;
+  echo_train: number[];
+  target_signal: number;
+  reference_signal: number;
+  contrast_diff: number;
+  cnr_proxy: number;
+  relative_sar: number;
+}
+
+export interface CompareAnalysis {
+  protocol_a: CompareProtocol;
+  protocol_b: CompareProtocol;
+  delta: { contrast_pct: number; cnr_delta: number; sar_delta: number };
+}
+
+export async function fetchCompare(req: {
+  protocol_a: ProtocolSpec;
+  protocol_b: ProtocolSpec;
+}): Promise<CompareAnalysis> {
+  const response = await fetch(`${BASE}/compare/protocols`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  if (!response.ok) throw new Error(`compare protocols failed: ${await response.text()}`);
+  return response.json();
+}
+
 

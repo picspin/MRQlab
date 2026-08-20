@@ -43,6 +43,13 @@ from .optimizer import (
     compute_pareto,
     compute_pareto_dict,
 )
+from .compare import (
+    CompareAnalysis,
+    CompareRequest,
+    ProtocolSpec,
+    compute_compare,
+    compute_compare_dict,
+)
 from .observations import Observation, ResultEdge, ResultGraph, build_result_graph
 from .physics_ir import CompilerSpan, PhysicsIR, PhysicsOperator, compile_physics_ir
 from .pulse import (
@@ -101,6 +108,11 @@ __all__ = [
     "ParetoPoint",
     "compute_pareto",
     "compute_pareto_dict",
+    "CompareAnalysis",
+    "CompareRequest",
+    "ProtocolSpec",
+    "compute_compare",
+    "compute_compare_dict",
     "evaluate_multi_tissue_contrast",
     "build_clinical_recipe",
     "build_preset",

@@ -133,6 +133,12 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     expect(screen.getByTestId("optimize-lens-view")).toBeVisible();
     expect(screen.getByTestId("goal-balanced-sar")).toBeVisible();
     expect(screen.getByTestId("pareto-svg")).toBeVisible();
+
+    // v0.47: Compare lens is a renderer of backend A/B payload
+    fireEvent.click(screen.getByTestId("compare-tab-btn"));
+    expect(screen.getByTestId("compare-lens")).toBeVisible();
+    expect(screen.getByTestId("compare-svg")).toBeVisible();
+    expect(screen.getByTestId("compare-fa-b")).toBeVisible();
   });
 
   it("executes experiment with real ResultGraph backend dispatch on RUN", () => {

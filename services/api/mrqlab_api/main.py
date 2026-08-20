@@ -18,6 +18,7 @@ from mrqlab_experiment import (
 )
 from mrqlab_experiment.objectives import evaluate_multi_tissue_contrast
 from mrqlab_experiment.optimizer import OptimizeGoal, compute_pareto_dict
+from mrqlab_experiment.compare import CompareRequest, compute_compare_dict
 from mrqlab_physics import list_engines
 from mrqlab_recon import fft_reconstruct
 from mrqlab_recon.trajectories import TrajectorySpec, generate_trajectory, undersampled_recon_demo
@@ -276,6 +277,12 @@ def api_recon_demo(spec: TrajectorySpec):
 def api_optimize_pareto(goal: OptimizeGoal):
     """v0.46: Pareto frontier (CNR vs SAR) — backend is the only optimizer."""
     return compute_pareto_dict(goal)
+
+
+@app.post("/compare/protocols")
+def api_compare_protocols(req: CompareRequest):
+    """v0.47: A/B protocol echo-train / CNR / SAR — backend is the only compare solver."""
+    return compute_compare_dict(req)
 
 
 @app.post("/simulate")
