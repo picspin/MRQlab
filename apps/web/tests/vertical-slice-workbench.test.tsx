@@ -115,6 +115,13 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     expect(screen.getByText(/PHYSICS ENGINE SPEC/i)).toBeVisible();
     expect(screen.getByText(/1. 5-CH TIMELINE/i)).toBeVisible();
     expect(screen.getByText(/4. TEST PHANTOM/i)).toBeVisible();
+
+    // v0.43: Toggle Edit mode
+    const editBtn = screen.getByTestId("edit-mode-toggle");
+    expect(editBtn.textContent).toContain("EDIT");
+    fireEvent.click(editBtn);
+    expect(editBtn.textContent).toContain("EDITING");
+    expect(screen.getByTestId("readout-width-slider")).toBeVisible();
   });
 
   it("executes experiment with real ResultGraph backend dispatch on RUN", () => {

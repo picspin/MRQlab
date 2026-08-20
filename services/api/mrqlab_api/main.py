@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from mrqlab_experiment import (
     ExperimentGraph,
+    TemplateRef,
     build_clinical_recipe,
     build_preset,
     build_result_graph,
@@ -15,9 +16,17 @@ from mrqlab_experiment import (
     run_experiment,
     validate_experiment,
 )
+from mrqlab_experiment.objectives import evaluate_multi_tissue_contrast
 from mrqlab_physics import list_engines
 from mrqlab_recon import fft_reconstruct
 from mrqlab_sequence import SequenceIR, TemplateRequest, build_sequence
+
+from .v043_endpoints import (
+    CustomRecipeRequest,
+    TissueSignalRequest,
+    _CUSTOM_RECIPES,
+    compute_tissue_signals,
+)
 
 MAX_MATRIX = int(os.getenv("SIM_MAX_MATRIX", "64"))
 MAX_WORK = int(os.getenv("SIM_MAX_WORK", "2000000"))
@@ -176,6 +185,55 @@ def experiments_run(graph: ExperimentGraph):
         return build_result_graph(run_experiment(resolved))
     except (ValueError, TypeError, NotImplementedError) as exc:
         raise HTTPException(422, str(exc)) from exc
+
+
+@app.post("/tissue-signal")
+def tissue_signal(req: TissueSignalRequest):
+    """v0.43: Compute exact tissue signals for given graph/recipe and modified parameters."""
+    if req.experiment is not None:
+        graph = req.experiment
+    elif req.recipe_id is not None:
+        if req.recipe_id in _CUSTOM_RECIPES:
+            graph = _CUSTOM_RECIPES[req.recipe_id]
+        else:
+            try:
+                graph = build_clinical_recipe(req.recipe_id)
+            except ValueError as exc:
+                raise HTTPException(404, f"recipe {req.recipe_id} not found") from exc
+    else:
+        raise HTTPException(422, "must provide either experiment or recipe_id")
+
+    # Apply parameter overrides if any
+    if req.params:
+        graph = graph.model_copy(deep=True)
+        if isinstance(graph.sequence, TemplateRef):
+            new_params = dict(graph.sequence.params)
+            for k, v in req.params.items():
+                new_params[k] = v
+            graph.sequence = graph.sequence.model_copy(update={"params": new_params})
+        elif hasattr(graph.sequence, "metadata"):
+            for k, v in req.params.items():
+                graph.sequence.metadata[k] = v
+
+    try:
+        return compute_tissue_signals(graph)
+    except Exception as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@app.post("/recipes/custom")
+def save_custom_recipe(req: CustomRecipeRequest):
+    """v0.43: Save a user-defined custom scenario/recipe."""
+    _CUSTOM_RECIPES[req.id] = req.experiment
+    return {"status": "ok", "id": req.id}
+
+
+@app.get("/recipes/custom/{recipe_id}")
+def get_custom_recipe(recipe_id: str):
+    """v0.43: Retrieve a user-defined custom scenario/recipe."""
+    if recipe_id not in _CUSTOM_RECIPES:
+        raise HTTPException(404, f"custom recipe {recipe_id} not found")
+    return {"id": recipe_id, "experiment": _CUSTOM_RECIPES[recipe_id].model_dump(mode="json")}
 
 
 @app.post("/simulate")
