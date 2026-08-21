@@ -4,10 +4,11 @@ import React, { useState, useEffect } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
 import { ExperimentGraph, ResultGraph } from "../../lib/workbench-types";
-import { fetchTissueSignal, runExperiment, saveCustomRecipe } from "../../lib/api";
+import { CockpitSignalAnalysis, fetchCockpitSignals, runExperiment, saveCustomRecipe } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
+import { PulseInspector } from "./PulseInspector";
 
 export function WorkbenchCockpit() {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState, setExecutionState } = useWorkspace();
@@ -46,11 +47,11 @@ export function WorkbenchCockpit() {
   const [resultGraph, setResultGraph] = useState<ResultGraph | null>(null);
   const [isComputing, setIsComputing] = useState<boolean>(false);
 
-  // v0.43: Backend calculated tissue signals
-  const [backendTissueSignals, setBackendTissueSignals] = useState<Record<string, number> | null>(null);
+  // v0.48: Backend-owned GRE Ernst / TSE intensities + SAR (no TS physics)
+  const [cockpitSignals, setCockpitSignals] = useState<CockpitSignalAnalysis | null>(null);
 
   // Physics sub-lens selection inside Physics mode
-  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare">("timeline");
+  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare" | "pulse">("timeline");
 
   // Sync params when scenario changes
   useEffect(() => {
@@ -139,6 +140,34 @@ export function WorkbenchCockpit() {
     triggerRun();
   }, [selectedScenarioKey, fa, te, tr]);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetchCockpitSignals({
+      seq_type: currentScenario.seqType,
+      fa_deg: fa,
+      te_ms: te,
+      tr_ms: tr,
+      echo_train_length: currentScenario.seqType === "GRE" ? 1 : 16,
+      tissues: currentScenario.tissues.map((t) => ({
+        id: t.id,
+        name: t.name,
+        t1: t.t1,
+        t2: t.t2,
+        t2s: t.t2s,
+        pd: t.pd,
+      })),
+    })
+      .then((payload) => {
+        if (!cancelled) setCockpitSignals(payload);
+      })
+      .catch(() => {
+        if (!cancelled) setCockpitSignals(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedScenarioKey, fa, te, tr, currentScenario]);
+
   // Handle echo selection for cross-lens cursor
   const handleSelectEcho = (echoNum: number, timeMs: number) => {
     setCursors({
@@ -149,29 +178,17 @@ export function WorkbenchCockpit() {
     });
   };
 
-  // Compute multi-tissue signals for rendering via Backend values or offline Bloch/EPG
+  // UI range helper only — physics lives on POST /cockpit/signals
   const isGRE = currentScenario.seqType === "GRE";
-  const faDeg = isGRE ? (currentScenario.defaultParams.flipAngleGRE || 20) : fa;
-  const faRad = (faDeg * Math.PI) / 180;
-  const refocusEff = isGRE ? Math.sin(faRad) : (Math.sin(faRad / 2) ** 2);
-
-  const tissueIntensities = currentScenario.tissues.map((t) => {
-    let sig;
-    if (backendTissueSignals && backendTissueSignals[t.id] !== undefined) {
-      sig = backendTissueSignals[t.id];
-    } else if (isGRE) {
-      const E1 = Math.exp(-tr / t.t1);
-      const E2s = Math.exp(-te / (t.t2s || t.t2));
-      sig = t.pd * ((1 - E1) * Math.sin(faRad) / (1 - E1 * Math.cos(faRad))) * E2s;
-    } else {
-      sig = t.pd * (1 - Math.exp(-tr / t.t1)) * Math.exp(-te / t.t2) * refocusEff;
-    }
-    return { ...t, intensity: Math.max(0.02, Math.min(1.0, sig)) };
-  });
-
-  const deltaSignal = Math.abs(tissueIntensities[0].intensity - (tissueIntensities[1]?.intensity || 0.2));
-  const cnrProxy = deltaSignal * 20.0;
-  const relativeSar = isGRE ? (1 * ((faDeg / 90) ** 2) * 0.4) : (16 * ((faDeg / 180) ** 2) * 3.2);
+  const faDeg = fa;
+  const tissueIntensities = currentScenario.tissues.map((t) => ({
+    ...t,
+    intensity: cockpitSignals?.signals[t.id] ?? 0,
+  }));
+  const deltaSignal = cockpitSignals?.delta_signal ?? 0;
+  const cnrProxy = cockpitSignals?.cnr_proxy ?? 0;
+  const relativeSar = cockpitSignals?.relative_sar ?? 0;
+  const refocusEff = cockpitSignals?.refocus_eff ?? 0;
 
   // Voxel dimensions (mm)
   const voxelX = (fov / matrixSize).toFixed(2);
@@ -293,14 +310,14 @@ export function WorkbenchCockpit() {
               })}
             </div>
 
-            <div className="metrics-box" style={{ marginTop: "12px" }}>
+            <div className="metrics-box" style={{ marginTop: "12px" }} data-testid="cockpit-signal-metrics">
               <div className="metric">
                 <label>ΔSignal (Contrast)</label>
-                <span>{deltaSignal.toFixed(3)}</span>
+                <span data-testid="cockpit-delta-signal">{deltaSignal.toFixed(3)}</span>
               </div>
               <div className="metric">
                 <label>CNR Proxy Margin</label>
-                <span>{cnrProxy.toFixed(1)}</span>
+                <span data-testid="cockpit-cnr-proxy">{cnrProxy.toFixed(1)}</span>
               </div>
             </div>
           </div>
@@ -447,6 +464,24 @@ export function WorkbenchCockpit() {
                 }}
               >
                 7. COMPARE A/B
+              </button>
+              <button
+                onClick={() => setPhysicsTab("pulse")}
+                data-testid="pulse-tab-btn"
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "monospace",
+                  gridColumn: "1 / span 2",
+                  backgroundColor: physicsTab === "pulse" ? "var(--cyan)" : "#182226",
+                  color: physicsTab === "pulse" ? "#081114" : "#8ea1a8",
+                  border: "1px solid #33434a",
+                  borderRadius: "3px",
+                  cursor: "pointer",
+                }}
+              >
+                8. PULSE INSPECTOR
               </button>
             </div>
 
@@ -655,6 +690,9 @@ export function WorkbenchCockpit() {
                   />
                 )}
                 {physicsTab === "compare" && <CompareLensView currentFa={fa} currentTe={te} />}
+                {physicsTab === "pulse" && (
+                  <PulseInspector flipAngleDeg={faDeg} sliceThicknessMm={sliceThick} />
+                )}
                 {physicsTab === "phantom" && (
                   /* SINGLE DEDICATED CALIBRATION PHANTOM */
                   <div style={{ width: "180px", height: "180px", borderRadius: "50%", backgroundColor: "#0c1317", border: "2px solid #38e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", padding: "20px" }}>

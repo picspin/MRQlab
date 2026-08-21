@@ -19,6 +19,8 @@ from mrqlab_experiment import (
 from mrqlab_experiment.objectives import evaluate_multi_tissue_contrast
 from mrqlab_experiment.optimizer import OptimizeGoal, compute_pareto_dict
 from mrqlab_experiment.compare import CompareRequest, compute_compare_dict
+from mrqlab_experiment.cockpit_signals import CockpitSignalRequest, compute_cockpit_signals_dict
+from mrqlab_experiment.pulse_inspector import PulseInspectRequest, inspect_pulse_dict
 from mrqlab_physics import list_engines
 from mrqlab_recon import fft_reconstruct
 from mrqlab_recon.trajectories import TrajectorySpec, generate_trajectory, undersampled_recon_demo
@@ -283,6 +285,18 @@ def api_optimize_pareto(goal: OptimizeGoal):
 def api_compare_protocols(req: CompareRequest):
     """v0.47: A/B protocol echo-train / CNR / SAR — backend is the only compare solver."""
     return compute_compare_dict(req)
+
+
+@app.post("/cockpit/signals")
+def api_cockpit_signals(req: CockpitSignalRequest):
+    """v0.48: GRE Ernst / TSE tissue intensities + relative SAR — backend is the only cockpit solver."""
+    return compute_cockpit_signals_dict(req)
+
+
+@app.post("/pulse/inspect")
+def api_pulse_inspect(req: PulseInspectRequest):
+    """v0.49: sinc B1 / freq response / slice profile / EPG 3x3 — backend is the only pulse inspector."""
+    return inspect_pulse_dict(req)
 
 
 @app.post("/simulate")
