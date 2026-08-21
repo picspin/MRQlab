@@ -15,6 +15,19 @@ export async function runExperiment(graph: ExperimentGraph): Promise<ResultGraph
   return response.json();
 }
 
+export async function runExperimentFromRecipe(
+  recipeId: string,
+  params: Record<string, number> = {},
+): Promise<ResultGraph> {
+  const response = await fetch(`${BASE}/experiments/run-from-recipe`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ recipe_id: recipeId, params }),
+  });
+  if (!response.ok) throw new Error(`experiment run failed: ${await response.text()}`);
+  return response.json();
+}
+
 export interface TissueSignalResponse {
   tissues: Array<{ id: string; label: string; role: string }>;
   signals: Record<string, number>;

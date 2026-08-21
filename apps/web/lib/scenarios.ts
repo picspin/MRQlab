@@ -1,7 +1,3 @@
-import { useState, useEffect } from "react";
-import { ExperimentGraph, ResultGraph } from "../lib/workbench-types";
-import { runExperiment } from "../lib/api";
-
 export interface ScenarioTissue {
   id: string;
   name: string;
@@ -14,6 +10,7 @@ export interface ScenarioTissue {
 
 export interface ScenarioSpec {
   id: string;
+  recipeId: string;
   name: string;
   category: "Neuro" | "Cardiac" | "Body" | "MSK" | "Vascular";
   seqType: "TSE" | "GRE" | "SE";
@@ -39,6 +36,7 @@ export interface ScenarioSpec {
 export const CLINICAL_SCENARIOS: Record<string, ScenarioSpec> = {
   ms_brain: {
     id: "ms_brain",
+    recipeId: "brain_t2_tse",
     name: "Brain & Neuro — MS Plaque Demarcation",
     category: "Neuro",
     seqType: "TSE",
@@ -57,6 +55,7 @@ export const CLINICAL_SCENARIOS: Record<string, ScenarioSpec> = {
   },
   cardiac_darkblood: {
     id: "cardiac_darkblood",
+    recipeId: "dark_blood_vessel_wall_tse",
     name: "Cardiovascular — Short-Axis Dark Blood Wall",
     category: "Cardiac",
     seqType: "TSE",
@@ -74,6 +73,7 @@ export const CLINICAL_SCENARIOS: Record<string, ScenarioSpec> = {
   },
   abdomen_dixon: {
     id: "abdomen_dixon",
+    recipeId: "abdomen_dixon_gre",
     name: "Abdominal — Liver Steatosis & Dixon Fat Sep",
     category: "Body",
     seqType: "GRE",
@@ -92,6 +92,7 @@ export const CLINICAL_SCENARIOS: Record<string, ScenarioSpec> = {
   },
   msk_knee: {
     id: "msk_knee",
+    recipeId: "msk_knee_tse",
     name: "MSK — Knee Meniscus & Cartilage Fissure",
     category: "MSK",
     seqType: "TSE",
@@ -110,6 +111,7 @@ export const CLINICAL_SCENARIOS: Record<string, ScenarioSpec> = {
   },
   angio_tof: {
     id: "angio_tof",
+    recipeId: "angio_tof_gre",
     name: "Angiography — 3D TOF Intracranial MRA",
     category: "Vascular",
     seqType: "GRE",

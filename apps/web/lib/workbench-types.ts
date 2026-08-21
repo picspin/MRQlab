@@ -4,7 +4,7 @@ export type TopLevelRoute = "explore" | "workbench" | "labs" | "ai_lab";
 
 export type WorkbenchLens = "sequence" | "state" | "acquisition" | "image" | "compare" | "optimize";
 
-export type ExecutionState = "CLEAN" | "DIRTY" | "READY" | "RUNNING" | "RESULT" | "STALE";
+export type ExecutionState = "CLEAN" | "DIRTY" | "READY" | "RUNNING" | "RESULT" | "STALE" | "ERROR";
 
 export interface LensCursors {
   cursorTime: number;
@@ -29,6 +29,11 @@ export interface Observation {
   kind: string;
   data: any;
   derived_from?: string[];
+  provenance?: {
+    experiment_hash?: string;
+    engine?: string;
+    representation?: string;
+  };
 }
 
 export interface ExperimentGraph {

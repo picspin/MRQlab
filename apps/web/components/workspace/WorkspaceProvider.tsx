@@ -35,7 +35,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [route, setRoute] = useState<TopLevelRoute>("workbench");
   const [profile, setProfile] = useState<WorkspaceProfile>("clinical");
   const [activeLens, setActiveLens] = useState<WorkbenchLens>("sequence");
-  const [executionState, setExecutionState] = useState<ExecutionState>("RESULT");
+  const [executionState, setExecutionState] = useState<ExecutionState>("READY");
   const [cursors, replaceCursors] = useState<LensCursors>(DEFAULT_CURSORS);
   const [experiment, setExperiment] = useState<any>(null);
   const [result, setResult] = useState<any>(null);
