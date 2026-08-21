@@ -68,10 +68,20 @@ class SimulateRequest(BaseModel):
         return self
 
 
+class RunFromRecipeRequest(BaseModel):
+    recipe_id: str
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
 app = FastAPI(title="MRQLab Simulation API", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://mrqlab-workbench.pages.dev",
+    ],
+    allow_origin_regex=r"https://([a-z0-9-]+\.)?mrqlab-workbench\.pages\.dev",
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -188,6 +198,32 @@ def experiments_validate(graph: ExperimentGraph):
     return validate_experiment(graph)
 
 
+def _overlay_sequence_params(graph: ExperimentGraph, params: dict[str, Any]) -> ExperimentGraph:
+    if not params:
+        return graph
+    graph = graph.model_copy(deep=True)
+    if isinstance(graph.sequence, TemplateRef):
+        new_params = dict(graph.sequence.params)
+        for key, value in params.items():
+            new_params[key] = value
+        graph.sequence = graph.sequence.model_copy(update={"params": new_params})
+    elif hasattr(graph.sequence, "metadata"):
+        for key, value in params.items():
+            graph.sequence.metadata[key] = value
+    return graph
+
+
+def _resolve_recipe_graph(recipe_id: str, params: dict[str, Any] | None = None) -> ExperimentGraph:
+    if recipe_id in _CUSTOM_RECIPES:
+        graph = _CUSTOM_RECIPES[recipe_id]
+    else:
+        try:
+            graph = build_clinical_recipe(recipe_id)
+        except ValueError as exc:
+            raise HTTPException(404, f"recipe {recipe_id} not found") from exc
+    return _overlay_sequence_params(graph, params or {})
+
+
 @app.post("/experiments/run")
 def experiments_run(graph: ExperimentGraph):
     if graph.constraints.matrix > MAX_MATRIX:
@@ -199,6 +235,12 @@ def experiments_run(graph: ExperimentGraph):
         return build_result_graph(run_experiment(resolved))
     except (ValueError, TypeError, NotImplementedError) as exc:
         raise HTTPException(422, str(exc)) from exc
+
+
+@app.post("/experiments/run-from-recipe")
+def experiments_run_from_recipe(req: RunFromRecipeRequest):
+    graph = _resolve_recipe_graph(req.recipe_id, req.params)
+    return experiments_run(graph)
 
 
 @app.post("/tissue-signal")

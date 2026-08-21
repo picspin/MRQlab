@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
-import { ExperimentGraph, ResultGraph } from "../../lib/workbench-types";
-import { CockpitSignalAnalysis, fetchCockpitSignals, runExperiment, saveCustomRecipe } from "../../lib/api";
+import { ResultGraph } from "../../lib/workbench-types";
+import { CockpitSignalAnalysis, fetchCockpitSignals, runExperimentFromRecipe, saveCustomRecipe } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
@@ -46,6 +46,7 @@ export function WorkbenchCockpit() {
   // ResultGraph from Unified Backend / Model Seam
   const [resultGraph, setResultGraph] = useState<ResultGraph | null>(null);
   const [isComputing, setIsComputing] = useState<boolean>(false);
+  const [runError, setRunError] = useState<string | null>(null);
 
   // v0.48: Backend-owned GRE Ernst / TSE intensities + SAR (no TS physics)
   const [cockpitSignals, setCockpitSignals] = useState<CockpitSignalAnalysis | null>(null);
@@ -68,77 +69,37 @@ export function WorkbenchCockpit() {
     setMipCursorZ(Math.round(s.defaultParams.sliceCount / 2));
   }, [selectedScenarioKey]);
 
-  // Trigger Execution Plan (POST /experiments/run)
+  // Trigger Execution Plan (POST /experiments/run-from-recipe). Fail closed: never mint RESULT.
   const triggerRun = async () => {
     setIsComputing(true);
+    setRunError(null);
+    setResultGraph(null);
     setExecutionState?.("RUNNING");
 
-    // Construct Canonical ExperimentGraph
-    const graph: ExperimentGraph = {
-      schema_version: "1.0",
-      id: `exp-${currentScenario.id}-${Date.now()}`,
-      name: currentScenario.name,
-      sequence: {
-        template: {
-          ref: currentScenario.seqType,
-          parameters: {
-            te: te / 1000.0,
-            tr: tr / 1000.0,
-            refocusing_flip_angle: fa,
-            echo_count: currentScenario.seqType === "GRE" ? 1 : 16,
-          },
-        },
-      },
-      sample: {
-        tissues: currentScenario.tissues.map((t) => ({
-          id: t.id,
-          t1: t.t1 / 1000.0,
-          t2: t.t2 / 1000.0,
-          proton_density: t.pd,
-        })),
-      },
-      scanner: {
-        b0_t: 3.0,
-      },
-      engine: {
-        target_representation: currentScenario.seqType === "GRE" ? "bloch" : "epg",
-      },
-      readout: {
-        products: ["signal", "k_trajectory", "magnetization"],
-      },
-      constraints: {},
-      disturbances: [],
-      provenance: {},
+    const params: Record<string, number> = {
+      te: te / 1000.0,
+      tr: tr / 1000.0,
     };
+    if (currentScenario.seqType === "GRE") {
+      params.flip_angle = fa;
+    } else {
+      params.refocusing_flip_angle = fa;
+      params.echo_count = 16;
+    }
 
     try {
-      const res = await runExperiment(graph);
+      const res = await runExperimentFromRecipe(currentScenario.recipeId, params);
       setResultGraph(res);
       setExecutionState?.("RESULT");
     } catch (e) {
-      // Offline fallback: synthesize ResultGraph contract
-      setResultGraph({
-        schema_version: "1.0",
-        experiment_id: graph.id,
-        execution_plan: {
-          fingerprint: `plan-${currentScenario.id}-fa${fa}-te${te}`,
-          selected_engine: currentScenario.seqType === "GRE" ? "bloch" : "epg",
-          cost_estimate_ms: 12.5,
-        },
-        observations: [
-          { id: "obs-signal", kind: "signal", data: { echo_count: 16 } },
-          { id: "obs-recon", kind: "reconstruction", data: { magnitude: [] } },
-        ],
-      });
-      setExecutionState?.("RESULT");
+      const message = e instanceof Error ? e.message : String(e);
+      setRunError(message);
+      setResultGraph(null);
+      setExecutionState?.("ERROR");
     } finally {
       setIsComputing(false);
     }
   };
-
-  useEffect(() => {
-    triggerRun();
-  }, [selectedScenarioKey, fa, te, tr]);
 
   useEffect(() => {
     let cancelled = false;
@@ -847,8 +808,14 @@ export function WorkbenchCockpit() {
         <div className="state-badge" data-state={executionState}>
           STATUS: {executionState}
         </div>
-        <div className="cost-tier">KERNEL ENGINE: {resultGraph?.execution_plan?.selected_engine?.toUpperCase() || "EPG"}</div>
-        <div className="system-info">MRQLab v0.42 · Lens Projection &amp; ResultGraph Verified</div>
+        <div className="cost-tier">KERNEL ENGINE: {resultGraph?.observations?.[0]?.provenance?.engine?.toUpperCase() || resultGraph?.execution_plan?.selected_engine?.toUpperCase() || (executionState === "ERROR" ? "—" : "IDLE")}</div>
+        {runError ? (
+          <div className="run-error" data-testid="run-error" title={runError}>
+            RUN FAILED
+          </div>
+        ) : (
+          <div className="system-info">MRQLab v0.50 · recipe RUN fail-closed</div>
+        )}
       </section>
     </div>
   );
