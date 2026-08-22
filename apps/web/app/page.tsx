@@ -2,86 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { exploreCasesByCategory } from "../lib/explore-catalog";
 
-interface ClinicalCase {
-  id: string;
-  title: string;
-  anatomy: string;
-  clinicalQuestion: string;
-  keyPhysics: string;
-  sequence: string;
-  parameters: { fa: number; te: number; tr: number };
-  difficulty: "Fundamental" | "Intermediate" | "Advanced";
-}
-
-const CASE_TAXONOMY: Record<string, ClinicalCase[]> = {
-  "Brain & Neuro": [
-    {
-      id: "ms-lesion-t2",
-      title: "Multiple Sclerosis (MS) Plaque Contrast",
-      anatomy: "Brain / White Matter",
-      clinicalQuestion: "Why do demyelinating MS plaques appear hyperintense on T2 TSE while minimizing CSF partial volume artifacts?",
-      keyPhysics: "T2 transverse relaxation differentiation + EPG stimulated echo preservation in TSE echo train",
-      sequence: "Brain T2 Turbo Spin Echo (TSE)",
-      parameters: { fa: 150, te: 100, tr: 3000 },
-      difficulty: "Fundamental",
-    },
-    {
-      id: "brain-flair",
-      title: "FLAIR Free-Water Attenuation",
-      anatomy: "Brain / Ventricles",
-      clinicalQuestion: "How does Inversion Recovery null CSF signal to reveal periventricular lesions?",
-      keyPhysics: "180° Inversion Recovery null-crossing timing $TI = T1 \\ln(2)$",
-      sequence: "T2 Fluid Attenuated Inversion Recovery",
-      parameters: { fa: 180, te: 120, tr: 8000 },
-      difficulty: "Intermediate",
-    },
-  ],
-  "Cardiovascular": [
-    {
-      id: "dark-blood-tse",
-      title: "Dark Blood Vessel Wall Separation",
-      anatomy: "Heart / Carotid Artery",
-      clinicalQuestion: "How to completely suppress flowing luminal blood signal while preserving high SNR for carotid plaque wall?",
-      keyPhysics: "Double Inversion Recovery (DIR) flow dephasing + slice selective re-inversion",
-      sequence: "Dark Blood Turbo Spin Echo (Uses: TSE)",
-      parameters: { fa: 140, te: 60, tr: 1200 },
-      difficulty: "Advanced",
-    },
-    {
-      id: "myocardial-t1-map",
-      title: "Myocardial Fibrosis MOLLI T1 Mapping",
-      anatomy: "Myocardium",
-      clinicalQuestion: "How to quantify diffuse interstitial fibrosis via pixel-wise T1 relaxation fitting?",
-      keyPhysics: "Look-Locker readout modification with modified EPG steady-state correction",
-      sequence: "Modified Look-Locker Inversion (MOLLI)",
-      parameters: { fa: 35, te: 1.5, tr: 3.0 },
-      difficulty: "Advanced",
-    },
-  ],
-  "Body & Musculoskeletal": [
-    {
-      id: "dixon-fat-water",
-      title: "Dixon Two-Point Water-Fat Separation",
-      anatomy: "Abdomen / Liver",
-      clinicalQuestion: "How does chemical shift phase cycling separate fat from water parenchymal signals?",
-      keyPhysics: "3.5 ppm chemical shift $\\Delta f$ phase modulation between in-phase and out-of-phase echoes",
-      sequence: "Dual-Echo Fast Gradient Echo (GRE)",
-      parameters: { fa: 12, te: 2.3, tr: 150 },
-      difficulty: "Intermediate",
-    },
-    {
-      id: "knee-cartilage-t2",
-      title: "Knee Articular Cartilage T2 Mapping",
-      anatomy: "Musculoskeletal / Knee",
-      clinicalQuestion: "How does collagen matrix degradation correlate with multi-echo T2 prolongation?",
-      keyPhysics: "Multi-echo Spin Echo CPMG decay curve exponential non-linear regression",
-      sequence: "Multi-Echo Spin Echo (MESE)",
-      parameters: { fa: 180, te: 80, tr: 2000 },
-      difficulty: "Fundamental",
-    },
-  ],
-};
+const CASE_TAXONOMY = exploreCasesByCategory();
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -283,23 +206,43 @@ export default function Home() {
               <div style={{ fontSize: "0.75rem", fontFamily: "monospace", color: "var(--amber)" }}>
                 ⚡ {item.sequence}
               </div>
-              <Link
-                href="/workbench"
-                style={{
-                  background: "linear-gradient(180deg, #323d42 0%, #1f272a 100%)",
-                  border: "1px solid #4f636b",
-                  color: "var(--cyan)",
-                  textDecoration: "none",
-                  fontSize: "0.8rem",
-                  fontWeight: 800,
-                  padding: "8px 16px",
-                  borderRadius: "4px",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-                  letterSpacing: "0.5px",
-                }}
-              >
-                Launch Cockpit ➔
-              </Link>
+              {item.executable && item.recipeId ? (
+                <Link
+                  href={`/workbench?recipe=${item.recipeId}`}
+                  data-testid={`launch-${item.id}`}
+                  style={{
+                    background: "linear-gradient(180deg, #323d42 0%, #1f272a 100%)",
+                    border: "1px solid #4f636b",
+                    color: "var(--cyan)",
+                    textDecoration: "none",
+                    fontSize: "0.8rem",
+                    fontWeight: 800,
+                    padding: "8px 16px",
+                    borderRadius: "4px",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Launch Cockpit ➔
+                </Link>
+              ) : (
+                <span
+                  data-testid={`badge-${item.id}`}
+                  title="No engine / recipe in v0.1 — not a fake Launch"
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 800,
+                    letterSpacing: "0.4px",
+                    color: "#8da1aa",
+                    border: "1px solid #3d4a50",
+                    padding: "8px 12px",
+                    borderRadius: "4px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  not in v0.1
+                </span>
+              )}
             </div>
           </article>
         ))}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
+import { scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
 import { CockpitSignalAnalysis, fetchCockpitSignals, runExperimentFromRecipe, saveCustomRecipe } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
@@ -10,10 +11,10 @@ import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
 import { PulseInspector } from "./PulseInspector";
 
-export function WorkbenchCockpit() {
+export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string } = {}) {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState, setExecutionState } = useWorkspace();
   
-  const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>("ms_brain");
+  const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>(() => scenarioKeyForRecipe(initialRecipeId));
   const currentScenario: ScenarioSpec = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
 
   // v0.43: Edit Mode toggle
@@ -814,7 +815,7 @@ export function WorkbenchCockpit() {
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.50 · recipe RUN fail-closed</div>
+          <div className="system-info">MRQLab v0.51 · explore recipe identity</div>
         )}
       </section>
     </div>
