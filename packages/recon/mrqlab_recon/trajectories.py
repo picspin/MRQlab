@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 
 TrajectoryType = Literal["cartesian", "radial", "spiral", "stack_of_stars"]
+FillOrder = Literal["sequential_ky", "centric_ky", "echo_train_centric", "epi"]
 
 
 class TrajectorySpec(BaseModel):
@@ -13,6 +14,7 @@ class TrajectorySpec(BaseModel):
     points_per_arm: int = Field(default=128, ge=16)
     num_slices: int = Field(default=1, ge=1)
     acceleration_factor: int = Field(default=1, ge=1)
+    fill_order: FillOrder = "sequential_ky"
 
 
 def generate_trajectory(spec: TrajectorySpec) -> dict[str, Any]:
@@ -22,13 +24,18 @@ def generate_trajectory(spec: TrajectorySpec) -> dict[str, Any]:
     kz_list = []
 
     if spec.trajectory_type == "cartesian":
-        # Cartesian grid lines
-        pe_step = spec.acceleration_factor
+        n = spec.matrix_size
+        pe_indices = list(range(0, n, spec.acceleration_factor))
+        center = n / 2.0
+        if spec.fill_order in {"centric_ky", "echo_train_centric"}:
+            pe_indices = sorted(pe_indices, key=lambda pe: (abs(pe - center), pe))
         for slice_idx in range(spec.num_slices):
             kz = (slice_idx - (spec.num_slices - 1) / 2.0) if spec.num_slices > 1 else 0.0
-            for pe in range(0, spec.matrix_size, pe_step):
-                ky = (pe - spec.matrix_size / 2.0) / (spec.matrix_size / 2.0)
-                kx_line = np.linspace(-1.0, 1.0, spec.matrix_size)
+            for line_i, pe in enumerate(pe_indices):
+                ky = (pe - center) / center
+                kx_line = np.linspace(-1.0, 1.0, n)
+                if spec.fill_order == "epi" and line_i % 2 == 1:
+                    kx_line = kx_line[::-1]
                 for kx in kx_line:
                     kx_list.append(float(kx))
                     ky_list.append(float(ky))
@@ -73,13 +80,21 @@ def generate_trajectory(spec: TrajectorySpec) -> dict[str, Any]:
                     ky_list.append(float(rad * np.sin(theta)))
                     kz_list.append(float(kz))
 
+    cartesian = spec.trajectory_type == "cartesian"
     return {
         "trajectory_type": spec.trajectory_type,
         "total_points": len(kx_list),
         "kx": kx_list,
         "ky": ky_list,
         "kz": kz_list,
-        "density_compensation_available": spec.trajectory_type != "cartesian",
+        "density_compensation_available": not cartesian,
+        "fill_order": spec.fill_order if cartesian else None,
+        "declared_approximate": not cartesian,
+        "honesty": (
+            f"cartesian {spec.fill_order}"
+            if cartesian
+            else "geometric demo — not commercial sampling"
+        ),
     }
 
 
@@ -142,6 +157,7 @@ def undersampled_recon_demo(spec: TrajectorySpec) -> dict[str, Any]:
                 trajectory_type="cartesian",
                 matrix_size=n,
                 acceleration_factor=spec.acceleration_factor,
+                fill_order=spec.fill_order,
             )
         )
     else:
@@ -178,4 +194,7 @@ def undersampled_recon_demo(spec: TrajectorySpec) -> dict[str, Any]:
             "total_points": traj["total_points"],
             "preview_stride": stride,
         },
+        "fill_order": traj.get("fill_order"),
+        "declared_approximate": traj.get("declared_approximate", False),
+        "honesty": traj.get("honesty", ""),
     }

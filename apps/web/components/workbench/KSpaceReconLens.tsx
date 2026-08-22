@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { fetchReconDemo, ReconDemoPayload, TrajectoryType } from "../../lib/api";
+import { fetchReconDemo, FillOrder, ReconDemoPayload, TrajectoryType } from "../../lib/api";
 
 function paintHeatmap(canvas: HTMLCanvasElement | null, grid: number[][] | undefined) {
   if (!canvas || !grid?.length) return;
@@ -28,6 +28,7 @@ function paintHeatmap(canvas: HTMLCanvasElement | null, grid: number[][] | undef
 
 export function KSpaceReconLens() {
   const [trajectoryType, setTrajectoryType] = useState<TrajectoryType>("cartesian");
+  const [fillOrder, setFillOrder] = useState<FillOrder>("sequential_ky");
   const [acceleration, setAcceleration] = useState(2);
   const [spokes, setSpokes] = useState(24);
   const [demo, setDemo] = useState<ReconDemoPayload | null>(null);
@@ -47,6 +48,7 @@ export function KSpaceReconLens() {
       num_spokes_or_interleaves: spokes,
       points_per_arm: 32,
       num_slices: trajectoryType === "stack_of_stars" ? 4 : 1,
+      fill_order: fillOrder,
     })
       .then((payload) => {
         if (!cancelled) setDemo(payload);
@@ -63,7 +65,7 @@ export function KSpaceReconLens() {
     return () => {
       cancelled = true;
     };
-  }, [trajectoryType, acceleration, spokes]);
+  }, [trajectoryType, acceleration, spokes, fillOrder]);
 
   useEffect(() => {
     paintHeatmap(phantomRef.current, demo?.phantom);
@@ -110,6 +112,17 @@ export function KSpaceReconLens() {
               style={{ width: "80px" }}
             />
             <span>{acceleration}×</span>
+            <select
+              data-testid="kspace-fill-order"
+              value={fillOrder}
+              onChange={(e) => setFillOrder(e.target.value as FillOrder)}
+              style={{ background: "#111", color: "var(--cyan)", border: "1px solid #33434a", fontSize: "11px" }}
+            >
+              <option value="sequential_ky">sequential ky</option>
+              <option value="centric_ky">centre → edge</option>
+              <option value="echo_train_centric">echo-train centric</option>
+              <option value="epi">EPI even/odd</option>
+            </select>
           </>
         ) : (
           <>
@@ -128,6 +141,11 @@ export function KSpaceReconLens() {
           </>
         )}
         {demo && <span data-testid="kspace-nrmse">NRMSE {demo.nrmse.toFixed(3)}</span>}
+        {demo?.honesty && (
+          <span data-testid="kspace-honesty" style={{ color: demo.declared_approximate ? "#f59e0b" : "#8ea1a8" }}>
+            {demo.honesty}
+          </span>
+        )}
         {loading && <span>loading…</span>}
       </div>
 
