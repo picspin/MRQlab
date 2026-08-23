@@ -23,12 +23,12 @@ def test_explicit_preferred_override_still_wins_when_capabilities_allow():
     assert run_experiment(graph).sim_result.meta["engine"] == "bloch"
 
 
-def test_capability_mismatch_fails_closed_before_simulate():
+def test_shaped_rf_configuration_plan_selects_hybrid():
     graph = build_preset("dark-blood-tse")
     graph.engine.required_capabilities = frozenset({"shaped_rf", "configuration_states"})
     report = validate_experiment(graph)
-    assert report.valid is False
-    assert report.errors[0].code in {"capability_mismatch", "unavailable_representation"}
+    assert report.valid is True
+    assert plan_experiment(graph).engine == "hybrid"
 
 
 def test_run_experiment_does_not_alias_caller_graph():

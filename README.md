@@ -42,8 +42,9 @@ The product center is an experiment (`ExperimentGraph`), compiled through three 
 | `bloch` | Default for SE/GRE | Multi-isochromat rotations, relaxation, off-resonance, and spatial phase |
 | `epg` | Default for TSE | Classic configuration-state echo trains |
 | `spectral` | Explicit request with pools | Independent fat/water chemical shift |
+| `hybrid` | `shaped_rf` + `configuration_states` | Teaching stitch: Bloch owns RF spans, EPG owns evolution; not ssEPG |
 
-The HTTP request may set `"engine": "bloch" | "epg" | "spectral"`; if omitted, template metadata chooses. See [Physics](docs/PHYSICS.md) for units, assumptions, plugins, and limitations.
+The HTTP request may set `"engine": "bloch" | "epg" | "spectral" | "hybrid"`; if omitted, template metadata chooses. See [Physics](docs/PHYSICS.md) for units, assumptions, plugins, and limitations.
 
 ## Quickstart
 

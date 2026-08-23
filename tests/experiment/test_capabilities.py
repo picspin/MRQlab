@@ -10,13 +10,14 @@ def test_capability_selection_is_set_inclusion_not_inheritance():
     assert selected.supports >= {"configuration_states", "hard_rf"}
 
 
-def test_missing_shaped_rf_fails_closed_with_ssepg_explanation():
+def test_shaped_rf_and_configuration_states_select_hybrid():
     graph = build_preset("dark-blood-tse")
     graph.engine.required_capabilities = frozenset({"configuration_states", "shaped_rf"})
     report = validate_experiment(graph)
-    assert report.valid is False
-    assert report.errors[0].code == "capability_mismatch"
-    assert "ssEPG" in report.errors[0].message
+    assert report.valid is True
+    assert select_representation(
+        frozenset({"configuration_states", "shaped_rf"}), None
+    ).name == "hybrid"
 
 
 def test_no_base_simulator_skill_tree_exists():
@@ -41,4 +42,3 @@ def test_all_contract_names_exported_from_top_level():
     ):
         assert hasattr(mrqlab_experiment, name)
         assert name in mrqlab_experiment.__all__
-

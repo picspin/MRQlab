@@ -11,7 +11,7 @@ def test_bloch_template_returns_signal(template):
 
 def test_builtin_engine_descriptors_are_available_and_identified():
     descriptors = {item["name"]: item for item in list_engines()}
-    assert set(descriptors) == {"bloch", "epg", "spectral"}
+    assert set(descriptors) == {"bloch", "epg", "hybrid", "spectral"}
     for name in descriptors:
         assert descriptors[name]["available"] is True
         assert descriptors[name]["source"] == "built-in"
