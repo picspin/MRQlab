@@ -91,4 +91,77 @@ describe("Wave C SequenceIR event editors", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
     expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.53");
   });
+
+  it("labels gradient duration/ramp as editor seeds, not SequenceIR", async () => {
+    await renderCockpit();
+    fireEvent.click(screen.getByTestId("event-gx-0"));
+    expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/editor seed/i);
+    expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/not SequenceIR/i);
+  });
+
+  it("labels pulse duration/TBW/phase as editor seeds", async () => {
+    await renderCockpit();
+    fireEvent.click(screen.getByTestId("event-rf_amp-0"));
+    expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/editor seed/i);
+    expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/not SequenceIR/i);
+  });
+
+  it("fail-closes the gradient editor on validate reject", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(sequence);
+      if (url.includes("/pulse/inspect")) return json(pulse);
+      if (url.includes("/gradients/validate")) return new Response("validate down", { status: 500 });
+      if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
+      return json({});
+    }));
+    await renderCockpit();
+    fireEvent.click(screen.getByTestId("event-gx-0"));
+    expect(await screen.findByTestId("gradient-validate-error")).toBeVisible();
+    expect(screen.queryByTestId("gradient-validation-result")).toBeNull();
+  });
+
+  it("fail-closes the pulse editor on inspect reject without a fake 90° badge", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(sequence);
+      if (url.includes("/pulse/inspect")) return new Response("inspect down", { status: 500 });
+      if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 20 });
+      if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
+      return json({});
+    }));
+    await renderCockpit();
+    fireEvent.click(screen.getByTestId("event-rf_amp-0"));
+    expect(await screen.findByTestId("pulse-inspect-error")).toBeVisible();
+    expect(screen.queryByText(/Phase:\s*90/)).toBeNull();
+  });
+
+  it("clears the last gradient payload while a new validate is in flight", async () => {
+    let release: (value: unknown) => void = () => {};
+    const deferred = new Promise((resolve) => { release = resolve; });
+    let validateCalls = 0;
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(sequence);
+      if (url.includes("/pulse/inspect")) return json(pulse);
+      if (url.includes("/gradients/validate")) {
+        validateCalls += 1;
+        if (validateCalls === 1) {
+          return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 20 });
+        }
+        await deferred;
+        return json({ is_valid: false, violations: ["late"], actual_slew_rate: 2, actual_amplitude: 99 });
+      }
+      if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
+      return json({});
+    }));
+    await renderCockpit();
+    fireEvent.click(screen.getByTestId("event-gx-0"));
+    expect(await screen.findByTestId("gradient-validation-result")).toHaveTextContent("VALID");
+    fireEvent.change(screen.getByTestId("grad-amp"), { target: { value: "99" } });
+    await waitFor(() => expect(screen.queryByTestId("gradient-validation-result")).toBeNull());
+    expect(screen.getByTestId("gradient-validate-pending")).toBeVisible();
+    release(undefined);
+    expect(await screen.findByText("late")).toBeVisible();
+  });
 });

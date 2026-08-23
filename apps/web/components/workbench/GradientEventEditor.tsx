@@ -9,15 +9,24 @@ export function GradientEventEditor({ channel, initialAmplitude }: { channel: "G
   const [ramp, setRamp] = useState(0.1);
   const [result, setResult] = useState<GradientValidationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setError(null);
+    setResult(null);
+    setPending(true);
     validateGradient({ amplitude_mt_m: amplitude, duration_ms: duration, ramp_time_ms: ramp, channel })
-      .then((payload) => { if (!cancelled) setResult(payload); })
+      .then((payload) => {
+        if (!cancelled) {
+          setResult(payload);
+          setPending(false);
+        }
+      })
       .catch((reason) => {
         if (!cancelled) {
           setResult(null);
+          setPending(false);
           setError(reason instanceof Error ? reason.message : String(reason));
         }
       });
@@ -32,6 +41,10 @@ export function GradientEventEditor({ channel, initialAmplitude }: { channel: "G
         <label>Duration (ms) <input data-testid="grad-duration" type="number" step="0.1" value={duration} onChange={(e) => setDuration(Number(e.target.value))} /></label>
         <label>Ramp (ms) <input data-testid="grad-ramp" type="number" step="0.1" value={ramp} onChange={(e) => setRamp(Number(e.target.value))} /></label>
       </div>
+      <div data-testid="editor-seed-note" style={{ color: "#8ea1a8", fontSize: "10px", marginTop: "6px" }}>
+        duration/ramp = editor seed · not SequenceIR · SequenceIR value treated as amplitude_mt_m
+      </div>
+      {pending && <div data-testid="gradient-validate-pending" style={{ color: "#8ea1a8", fontSize: "10px", marginTop: "4px" }}>validating…</div>}
       {error && <div role="alert" data-testid="gradient-validate-error" style={{ color: "#fb7185" }}>{error}</div>}
       {result && <div data-testid="gradient-validation-result">
         <b>{result.is_valid ? "VALID" : "INVALID"}</b> · actual slew: {result.actual_slew_rate}

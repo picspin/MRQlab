@@ -20,10 +20,13 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
   const [flipAngle, setFlipAngle] = useState(flipAngleDeg);
   const [phase, setPhase] = useState(phaseDeg);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setError(null);
+    setPulse(null);
+    setPending(true);
     fetchPulseInspect({
       flip_angle_deg: flipAngle,
       phase_deg: phase,
@@ -32,11 +35,15 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
       slice_thickness_mm: sliceThicknessMm,
     })
       .then((payload) => {
-        if (!cancelled) setPulse(payload);
+        if (!cancelled) {
+          setPulse(payload);
+          setPending(false);
+        }
       })
       .catch((reason) => {
         if (!cancelled) {
           setPulse(null);
+          setPending(false);
           setError(reason instanceof Error ? reason.message : String(reason));
         }
       });
@@ -92,11 +99,11 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
           <h3>{pulse?.name ?? "Awaiting backend pulse payload"}</h3>
         </div>
         <div className="pulse-params-badge">
-          <span>FA: {pulse?.flip_angle_deg ?? flipAngleDeg}°</span>
-          <span>Phase: {pulse?.phase_deg ?? 90}°</span>
-          <span>T_dur: {pulse?.duration_ms ?? 2.5} ms</span>
-          <span>TBW: {pulse?.time_bandwidth ?? 4}</span>
-          <span>Δz: {pulse?.slice_thickness_mm ?? sliceThicknessMm} mm</span>
+          <span>FA: {pulse ? `${pulse.flip_angle_deg}°` : "—"}</span>
+          <span>Phase: {pulse ? `${pulse.phase_deg}°` : "—"}</span>
+          <span>T_dur: {pulse ? `${pulse.duration_ms} ms` : "—"}</span>
+          <span>TBW: {pulse ? pulse.time_bandwidth : "—"}</span>
+          <span>Δz: {pulse ? `${pulse.slice_thickness_mm} mm` : "—"}</span>
         </div>
         {onClose && (
           <button className="close-btn" onClick={onClose} aria-label="Close Inspector">
@@ -111,6 +118,10 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
         <label>Flip angle (°) <input data-testid="pulse-fa" type="number" step="1" value={flipAngle} onChange={(e) => setFlipAngle(Number(e.target.value))} /></label>
         <label>Phase (°) <input data-testid="pulse-phase" type="number" step="1" value={phase} onChange={(e) => setPhase(Number(e.target.value))} /></label>
       </div>
+      <div data-testid="editor-seed-note" style={{ color: "#8ea1a8", fontSize: "10px", padding: "0 8px 6px" }}>
+        duration/TBW/phase = editor seed · not SequenceIR
+      </div>
+      {pending && <div data-testid="pulse-inspect-pending" style={{ color: "#8ea1a8", fontSize: "10px", padding: "0 8px" }}>inspecting…</div>}
       {error && <div role="alert" data-testid="pulse-inspect-error" style={{ color: "#fb7185", padding: "8px" }}>{error}</div>}
 
       <div className="inspector-grid">
