@@ -1,6 +1,17 @@
 import { ExperimentGraph, ResultGraph } from "./workbench-types";
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 
+export type SequenceBlockKind = "excite_sinc" | "refocus_sinc" | "trap_gx" | "trap_gy" | "trap_gz" | "adc_gate";
+export interface SequenceBlock { id: string; kind: SequenceBlockKind; t0_s: number; params: Record<string, number | string>; }
+
+export async function fetchComposeSequence(req: { name: string; blocks: SequenceBlock[]; duration_s?: number }) {
+  const response = await fetch(`${BASE}/sequences/compose`, {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req),
+  });
+  if (!response.ok) throw new Error(`sequence compose failed: ${await response.text()}`);
+  return response.json() as Promise<import("./sequence-ir").SequenceIR>;
+}
+
 export async function listPresets(): Promise<Array<{ name: string; experiment: ExperimentGraph }>> {
   const response = await fetch(`${BASE}/presets`);
   if (!response.ok) throw new Error(`presets failed: ${response.status}`);
@@ -351,4 +362,3 @@ export async function patchSequence(req: {
   if (!response.ok) throw new Error(`sequence patch failed: ${await response.text()}`);
   return response.json();
 }
-

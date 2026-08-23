@@ -5,7 +5,7 @@ import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
 import { scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
-import { CockpitSignalAnalysis, fetchCockpitSignals, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence } from "../../lib/api";
+import { CockpitSignalAnalysis, fetchCockpitSignals, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
@@ -14,6 +14,7 @@ import { SlabStackView } from "./SlabStackView";
 import { SequenceIRTimeline } from "./SequenceIRTimeline";
 import { SequenceIR } from "../../lib/sequence-ir";
 import { GradientEventEditor } from "./GradientEventEditor";
+import { SequenceLego } from "./SequenceLego";
 
 type TimelineSelection = { channel: string; time: number; value: number; index: number };
 
@@ -43,6 +44,32 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [tr, setTr] = useState<number>(currentScenario.defaultParams.tr);
   const [compiledSequence, setCompiledSequence] = useState<SequenceIR | null>(null);
   const [timelineSelection, setTimelineSelection] = useState<TimelineSelection | null>(null);
+  const [blocks, setBlocks] = useState<SequenceBlock[]>([]);
+  const [selectedBlockId, setSelectedBlockId] = useState<string>();
+
+  const compileBlocks = async (nextBlocks: SequenceBlock[]) => {
+    try {
+      const ir = await fetchComposeSequence({ name: "Lego sequence", blocks: nextBlocks });
+      setBlocks(nextBlocks);
+      setCompiledSequence(ir);
+      setExecutionState?.("READY");
+      setRunError(null);
+    } catch (reason) {
+      setExecutionState?.("ERROR");
+      setRunError(reason instanceof Error ? reason.message : String(reason));
+    }
+  };
+
+  const placeBlock = (kind: SequenceBlockKind) => {
+    const id = `${kind}-${blocks.length + 1}`;
+    const params: Record<string, number | string> = kind.endsWith("sinc")
+      ? { duration_s: 0.001, time_bandwidth: 4, flip_angle_deg: kind === "excite_sinc" ? 90 : 180, phase_deg: 0 }
+      : kind.startsWith("trap_")
+        ? { amplitude_mt_m: 20, duration_s: 0.001, ramp_time_s: 0.0002, unit: "mT_m" }
+        : { duration_s: 0.001 };
+    void compileBlocks([...blocks, { id, kind, t0_s: Math.round(blocks.length * 10) / 10000, params }]);
+    setSelectedBlockId(id);
+  };
   const [fov, setFov] = useState<number>(currentScenario.defaultParams.fov);
   const [sliceThick, setSliceThick] = useState<number>(currentScenario.defaultParams.sliceThick);
   const [sliceCount, setSliceCount] = useState<number>(currentScenario.defaultParams.sliceCount);
@@ -625,6 +652,10 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         </select>
                       </div>
                     )}
+                    <SequenceLego blocks={blocks} selectedId={selectedBlockId} onPlace={placeBlock} onSelect={setSelectedBlockId}
+                      onMove={(id, t0_s) => void compileBlocks(blocks.map((block) => block.id === id ? { ...block, t0_s } : block))}
+                      onDelete={(id) => { setSelectedBlockId(undefined); void compileBlocks(blocks.filter((block) => block.id !== id)); }} />
+                    {runError && <div role="alert" style={{ color: "#fb7185", padding: 6 }}>STATUS ERROR · {runError}</div>}
                     {compiledSequence ? (
                       <SequenceIRTimeline
                         sequence={compiledSequence}
@@ -641,7 +672,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                       />
                     ) : (
                       <div data-testid="sequence-ir-waiting" style={{ fontSize: "11px", color: "#8ea1a8", fontFamily: "monospace", padding: "16px" }}>
-                        awaiting SequenceIR from POST /sequences/build
+                        awaiting SequenceIR from POST /sequences/compose
                       </div>
                     )}
                     {timelineSelection?.channel === "rf_amp" && (
@@ -917,7 +948,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.54 · SequenceIR write-back</div>
+          <div className="system-info">MRQLab v0.55 · Lego constructor</div>
         )}
       </section>
     </div>
