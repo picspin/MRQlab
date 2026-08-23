@@ -338,4 +338,17 @@ export async function buildSequence(req: {
   return response.json();
 }
 
+export async function patchSequence(req: {
+  ir: import("./sequence-ir").SequenceIR;
+  event: { channel: "rf_amp" | "gx" | "gy" | "gz"; index: number };
+  patch: Record<string, number | string>;
+}): Promise<import("./sequence-ir").SequenceIR> {
+  const response = await fetch(`${BASE}/sequences/patch`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  if (!response.ok) throw new Error(`sequence patch failed: ${await response.text()}`);
+  return response.json();
+}
 
