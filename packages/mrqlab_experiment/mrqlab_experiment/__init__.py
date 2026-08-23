@@ -81,6 +81,8 @@ from .presets import (
     build_preset,
     list_clinical_recipes,
 )
+from .sequence_compose import Block, ComposeSequenceRequest, compose_sequence
+from .sequence_patch import SequencePatchRequest, patch_sequence
 
 __all__ = [
     "CapabilityMismatch",
@@ -146,4 +148,9 @@ __all__ = [
     "select_representation",
     "stack_from_reality",
     "validate_experiment",
+    "Block",
+    "ComposeSequenceRequest",
+    "compose_sequence",
+    "SequencePatchRequest",
+    "patch_sequence",
 ]
