@@ -70,6 +70,7 @@ export function SequenceIRTimeline({
                   <rect
                     key={`${name}-${i}`}
                     data-testid={`event-${eventKey}`}
+                    data-value={ev.value}
                     x={x - 2}
                     y={name === "adc_gate" ? y0 - 8 : y}
                     width={name === "adc_gate" ? 8 : 4}

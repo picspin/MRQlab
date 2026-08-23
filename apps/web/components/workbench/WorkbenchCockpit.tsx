@@ -5,7 +5,7 @@ import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
 import { scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
-import { CockpitSignalAnalysis, fetchCockpitSignals, runExperimentFromRecipe, saveCustomRecipe, buildSequence } from "../../lib/api";
+import { CockpitSignalAnalysis, fetchCockpitSignals, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
@@ -58,6 +58,24 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [resultGraph, setResultGraph] = useState<ResultGraph | null>(null);
   const [isComputing, setIsComputing] = useState<boolean>(false);
   const [runError, setRunError] = useState<string | null>(null);
+
+  const applyEventPatch = async (patch: Record<string, number | string>) => {
+    if (!compiledSequence || !timelineSelection || !["rf_amp", "gx", "gy", "gz"].includes(timelineSelection.channel)) return;
+    try {
+      const next = await patchSequence({
+        ir: compiledSequence,
+        event: { channel: timelineSelection.channel as "rf_amp" | "gx" | "gy" | "gz", index: timelineSelection.index },
+        patch,
+      });
+      setCompiledSequence(next);
+      setExecutionState?.("READY");
+      setRunError(null);
+    } catch (reason) {
+      setExecutionState?.("ERROR");
+      setRunError(reason instanceof Error ? reason.message : String(reason));
+      throw reason;
+    }
+  };
 
   // v0.48: Backend-owned GRE Ernst / TSE intensities + SAR (no TS physics)
   const [cockpitSignals, setCockpitSignals] = useState<CockpitSignalAnalysis | null>(null);
@@ -632,13 +650,15 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         flipAngleDeg={timelineSelection.value}
                         sliceThicknessMm={sliceThick}
                         eventEditor
+                        onApply={applyEventPatch}
                       />
                     )}
                     {timelineSelection && ["gx", "gy", "gz"].includes(timelineSelection.channel) && (
                       <GradientEventEditor
                         key={`${timelineSelection.channel}-${timelineSelection.index}`}
                         channel={timelineSelection.channel.toUpperCase().replace("X", "x").replace("Y", "y").replace("Z", "z") as "Gx" | "Gy" | "Gz"}
-                        initialAmplitude={timelineSelection.value}
+                        initialAmplitude={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.amplitude_mt_m ?? 20)}
+                        onApply={applyEventPatch}
                       />
                     )}
                     {timelineSelection?.channel === "adc_gate" && (
@@ -897,7 +917,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.53 · SequenceIR event editors</div>
+          <div className="system-info">MRQLab v0.54 · SequenceIR write-back</div>
         )}
       </section>
     </div>

@@ -11,9 +11,10 @@ interface PulseInspectorProps {
   phaseDeg?: number;
   eventEditor?: boolean;
   onClose?: () => void;
+  onApply?: (patch: { duration_s: number; time_bandwidth: number; flip_angle_deg: number; phase_deg: number }) => Promise<void>;
 }
 
-export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationMs = 2.5, timeBandwidth = 4, phaseDeg = 0, eventEditor = false, onClose }: PulseInspectorProps) {
+export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationMs = 2.5, timeBandwidth = 4, phaseDeg = 0, eventEditor = false, onClose, onApply }: PulseInspectorProps) {
   const [pulse, setPulse] = useState<PulseInspectAnalysis | null>(null);
   const [duration, setDuration] = useState(durationMs);
   const [tbw, setTbw] = useState(timeBandwidth);
@@ -21,6 +22,7 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
   const [phase, setPhase] = useState(phaseDeg);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [applying, setApplying] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -123,6 +125,22 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
       </div>
       {pending && <div data-testid="pulse-inspect-pending" style={{ color: "#8ea1a8", fontSize: "10px", padding: "0 8px" }}>inspecting…</div>}
       {error && <div role="alert" data-testid="pulse-inspect-error" style={{ color: "#fb7185", padding: "8px" }}>{error}</div>}
+      {eventEditor && <button
+        data-testid="event-apply"
+        disabled={!pulse || pending || applying || !onApply}
+        onClick={async () => {
+          if (!onApply) return;
+          setApplying(true);
+          setError(null);
+          try {
+            await onApply({ duration_s: duration / 1000, time_bandwidth: tbw, flip_angle_deg: flipAngle, phase_deg: phase });
+          } catch (reason) {
+            setError(reason instanceof Error ? reason.message : String(reason));
+          } finally {
+            setApplying(false);
+          }
+        }}
+      >{applying ? "APPLYING…" : "APPLY"}</button>}
 
       <div className="inspector-grid">
         <div className="chart-panel waveform-panel">

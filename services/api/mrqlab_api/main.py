@@ -21,6 +21,7 @@ from mrqlab_experiment.optimizer import OptimizeGoal, compute_pareto_dict
 from mrqlab_experiment.compare import CompareRequest, compute_compare_dict
 from mrqlab_experiment.cockpit_signals import CockpitSignalRequest, compute_cockpit_signals_dict
 from mrqlab_experiment.pulse_inspector import PulseInspectRequest, inspect_pulse_dict
+from mrqlab_experiment.sequence_patch import SequencePatchRequest, patch_sequence
 from mrqlab_physics import list_engines
 from mrqlab_recon import fft_reconstruct
 from mrqlab_recon.trajectories import TrajectorySpec, generate_trajectory, undersampled_recon_demo
@@ -190,6 +191,14 @@ def sequences_build(request: TemplateRequest):
     try:
         return build_sequence(request.template, request.params)
     except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@app.post("/sequences/patch", response_model=SequenceIR)
+def sequences_patch(request: SequencePatchRequest):
+    try:
+        return patch_sequence(request)
+    except (ValueError, TypeError) as exc:
         raise HTTPException(422, str(exc)) from exc
 
 
