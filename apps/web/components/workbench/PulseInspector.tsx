@@ -6,28 +6,44 @@ import { fetchPulseInspect, PulseInspectAnalysis } from "../../lib/api";
 interface PulseInspectorProps {
   flipAngleDeg: number;
   sliceThicknessMm?: number;
+  durationMs?: number;
+  timeBandwidth?: number;
+  phaseDeg?: number;
+  eventEditor?: boolean;
   onClose?: () => void;
 }
 
-export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, onClose }: PulseInspectorProps) {
+export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationMs = 2.5, timeBandwidth = 4, phaseDeg = 0, eventEditor = false, onClose }: PulseInspectorProps) {
   const [pulse, setPulse] = useState<PulseInspectAnalysis | null>(null);
+  const [duration, setDuration] = useState(durationMs);
+  const [tbw, setTbw] = useState(timeBandwidth);
+  const [flipAngle, setFlipAngle] = useState(flipAngleDeg);
+  const [phase, setPhase] = useState(phaseDeg);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setError(null);
     fetchPulseInspect({
-      flip_angle_deg: flipAngleDeg,
+      flip_angle_deg: flipAngle,
+      phase_deg: phase,
+      duration_ms: duration,
+      time_bandwidth: tbw,
       slice_thickness_mm: sliceThicknessMm,
     })
       .then((payload) => {
         if (!cancelled) setPulse(payload);
       })
-      .catch(() => {
-        if (!cancelled) setPulse(null);
+      .catch((reason) => {
+        if (!cancelled) {
+          setPulse(null);
+          setError(reason instanceof Error ? reason.message : String(reason));
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [flipAngleDeg, sliceThicknessMm]);
+  }, [duration, flipAngle, phase, sliceThicknessMm, tbw]);
 
   const w = 240;
   const h = 100;
@@ -69,7 +85,7 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, onClose }
     : "";
 
   return (
-    <div className="pulse-inspector" data-testid="pulse-inspector">
+    <div className="pulse-inspector" data-testid={eventEditor ? "pulse-event-editor" : "pulse-inspector"}>
       <header className="inspector-header">
         <div className="title-group">
           <span className="pulse-tag">PULSE INSPECTOR</span>
@@ -88,6 +104,14 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, onClose }
           </button>
         )}
       </header>
+
+      <div style={{ display: "flex", gap: "10px", padding: "8px", fontSize: "11px", flexWrap: "wrap" }}>
+        <label>Duration (ms) <input data-testid="pulse-duration" type="number" step="0.1" value={duration} onChange={(e) => setDuration(Number(e.target.value))} /></label>
+        <label>TBW <input data-testid="pulse-tbw" type="number" step="0.1" value={tbw} onChange={(e) => setTbw(Number(e.target.value))} /></label>
+        <label>Flip angle (°) <input data-testid="pulse-fa" type="number" step="1" value={flipAngle} onChange={(e) => setFlipAngle(Number(e.target.value))} /></label>
+        <label>Phase (°) <input data-testid="pulse-phase" type="number" step="1" value={phase} onChange={(e) => setPhase(Number(e.target.value))} /></label>
+      </div>
+      {error && <div role="alert" data-testid="pulse-inspect-error" style={{ color: "#fb7185", padding: "8px" }}>{error}</div>}
 
       <div className="inspector-grid">
         <div className="chart-panel waveform-panel">

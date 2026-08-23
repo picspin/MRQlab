@@ -25,11 +25,13 @@ const COLORS: Record<string, string> = {
 export function SequenceIRTimeline({
   sequence,
   cursorTimeMs,
+  selectedEventKey,
   onSelectEvent,
 }: {
   sequence: SequenceIR;
   cursorTimeMs?: number;
-  onSelectEvent?: (channel: string, time: number, value: number) => void;
+  selectedEventKey?: string;
+  onSelectEvent?: (channel: string, time: number, value: number, index: number) => void;
 }) {
   const durationMs = sequence.duration * 1000;
   const width = 600;
@@ -59,20 +61,25 @@ export function SequenceIRTimeline({
               </text>
               <line x1="48" y1={y0} x2={width - 8} y2={y0} stroke="#25373f" />
               {events.map((ev, i) => {
+                const eventKey = `${name}-${i}`;
+                const selected = selectedEventKey === eventKey;
                 const x = xOf(ev.time);
                 const h = (Math.abs(ev.value) / peak) * 14;
                 const y = ev.value >= 0 ? y0 - h : y0;
                 return (
                   <rect
                     key={`${name}-${i}`}
+                    data-testid={`event-${eventKey}`}
                     x={x - 2}
                     y={name === "adc_gate" ? y0 - 8 : y}
                     width={name === "adc_gate" ? 8 : 4}
                     height={name === "adc_gate" ? 16 : Math.max(2, h)}
                     fill={COLORS[name] ?? "var(--cyan)"}
-                    opacity={0.9}
+                    opacity={selected ? 1 : 0.9}
+                    stroke={selected ? "#fff" : "none"}
+                    strokeWidth={selected ? 2 : 0}
                     style={{ cursor: "pointer" }}
-                    onClick={() => onSelectEvent?.(name, ev.time, ev.value)}
+                    onClick={() => onSelectEvent?.(name, ev.time, ev.value, i)}
                   />
                 );
               })}

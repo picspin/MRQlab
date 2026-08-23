@@ -13,6 +13,9 @@ import { PulseInspector } from "./PulseInspector";
 import { SlabStackView } from "./SlabStackView";
 import { SequenceIRTimeline } from "./SequenceIRTimeline";
 import { SequenceIR } from "../../lib/sequence-ir";
+import { GradientEventEditor } from "./GradientEventEditor";
+
+type TimelineSelection = { channel: string; time: number; value: number; index: number };
 
 export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string } = {}) {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState, setExecutionState } = useWorkspace();
@@ -39,6 +42,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [te, setTe] = useState<number>(currentScenario.defaultParams.te);
   const [tr, setTr] = useState<number>(currentScenario.defaultParams.tr);
   const [compiledSequence, setCompiledSequence] = useState<SequenceIR | null>(null);
+  const [timelineSelection, setTimelineSelection] = useState<TimelineSelection | null>(null);
   const [fov, setFov] = useState<number>(currentScenario.defaultParams.fov);
   const [sliceThick, setSliceThick] = useState<number>(currentScenario.defaultParams.sliceThick);
   const [sliceCount, setSliceCount] = useState<number>(currentScenario.defaultParams.sliceCount);
@@ -607,17 +611,39 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                       <SequenceIRTimeline
                         sequence={compiledSequence}
                         cursorTimeMs={cursors.cursorTime}
-                        onSelectEvent={(channel, time) =>
+                        selectedEventKey={timelineSelection ? `${timelineSelection.channel}-${timelineSelection.index}` : undefined}
+                        onSelectEvent={(channel, time, value, index) => {
+                          setTimelineSelection({ channel, time, value, index });
                           setCursors({
                             ...cursors,
                             cursorTime: time * 1000,
                             selectedEvent: `${channel}@${(time * 1000).toFixed(1)}ms`,
-                          })
-                        }
+                          });
+                        }}
                       />
                     ) : (
                       <div data-testid="sequence-ir-waiting" style={{ fontSize: "11px", color: "#8ea1a8", fontFamily: "monospace", padding: "16px" }}>
                         awaiting SequenceIR from POST /sequences/build
+                      </div>
+                    )}
+                    {timelineSelection?.channel === "rf_amp" && (
+                      <PulseInspector
+                        key={`rf-${timelineSelection.index}`}
+                        flipAngleDeg={timelineSelection.value}
+                        sliceThicknessMm={sliceThick}
+                        eventEditor
+                      />
+                    )}
+                    {timelineSelection && ["gx", "gy", "gz"].includes(timelineSelection.channel) && (
+                      <GradientEventEditor
+                        key={`${timelineSelection.channel}-${timelineSelection.index}`}
+                        channel={timelineSelection.channel.toUpperCase().replace("X", "x").replace("Y", "y").replace("Z", "z") as "Gx" | "Gy" | "Gz"}
+                        initialAmplitude={timelineSelection.value}
+                      />
+                    )}
+                    {timelineSelection?.channel === "adc_gate" && (
+                      <div data-testid="adc-event-chip" style={{ margin: "8px", padding: "6px 10px", border: "1px solid #fb7185", fontFamily: "monospace" }}>
+                        ADC · {(timelineSelection.time * 1000).toFixed(1)} ms · value {timelineSelection.value}
                       </div>
                     )}
                   </div>
@@ -871,7 +897,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.52 · SequenceIR + slab + fill-order</div>
+          <div className="system-info">MRQLab v0.53 · SequenceIR event editors</div>
         )}
       </section>
     </div>
