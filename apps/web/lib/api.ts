@@ -82,7 +82,7 @@ export async function validateGradient(params: {
   const response = await fetch(`${BASE}/gradients/validate`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify(params),
+    body: JSON.stringify({ grad: params }),
   });
   if (!response.ok) throw new Error(`gradient validation failed: ${await response.text()}`);
   return response.json();

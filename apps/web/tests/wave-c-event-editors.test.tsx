@@ -74,9 +74,11 @@ describe("Wave C SequenceIR event editors", () => {
     expect(screen.getByTestId("grad-ramp")).toBeVisible();
     fireEvent.change(screen.getByTestId("grad-amp"), { target: { value: "99" } });
     expect(await screen.findByText("Amplitude 99.0 mT/m exceeds Gmax")).toBeVisible();
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url, init]) =>
-      String(url).includes("/gradients/validate") && JSON.parse(String(init?.body)).amplitude_mt_m === 99,
-    )).toBe(true);
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url, init]) => {
+      if (!String(url).includes("/gradients/validate")) return false;
+      const body = JSON.parse(String(init?.body));
+      return body.grad?.amplitude_mt_m === 99 && body.amplitude_mt_m === undefined;
+    })).toBe(true);
   });
 
   it("shows only a read-only ADC chip for an ADC event", async () => {
