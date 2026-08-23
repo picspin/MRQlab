@@ -103,6 +103,7 @@ export async function fetchDiffusionWaveform(params: {
 }
 
 export type TrajectoryType = "cartesian" | "radial" | "spiral" | "stack_of_stars";
+export type FillOrder = "sequential_ky" | "centric_ky" | "echo_train_centric" | "epi";
 
 export interface TrajectorySpec {
   trajectory_type: TrajectoryType;
@@ -111,6 +112,7 @@ export interface TrajectorySpec {
   points_per_arm?: number;
   num_slices?: number;
   acceleration_factor?: number;
+  fill_order?: FillOrder;
 }
 
 export interface TrajectoryPayload {
@@ -120,6 +122,9 @@ export interface TrajectoryPayload {
   ky: number[];
   kz: number[];
   density_compensation_available: boolean;
+  fill_order?: FillOrder | null;
+  declared_approximate?: boolean;
+  honesty?: string;
 }
 
 export interface ReconDemoPayload {
@@ -130,6 +135,9 @@ export interface ReconDemoPayload {
   phantom: number[][];
   recon: number[][];
   preview: { kx: number[]; ky: number[]; total_points: number; preview_stride: number };
+  fill_order?: FillOrder | null;
+  declared_approximate?: boolean;
+  honesty?: string;
 }
 
 export async function generateTrajectory(spec: TrajectorySpec): Promise<TrajectoryPayload> {
@@ -314,6 +322,19 @@ export async function fetchPulseInspect(req: {
     body: JSON.stringify(req),
   });
   if (!response.ok) throw new Error(`pulse inspect failed: ${await response.text()}`);
+  return response.json();
+}
+
+export async function buildSequence(req: {
+  template: "SE" | "TSE" | "GRE";
+  params?: Record<string, number>;
+}): Promise<import("./sequence-ir").SequenceIR> {
+  const response = await fetch(`${BASE}/sequences/build`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  if (!response.ok) throw new Error(`sequence build failed: ${await response.text()}`);
   return response.json();
 }
 

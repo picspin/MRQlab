@@ -3,17 +3,21 @@
 import React, { useState, useEffect } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
+import { scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
-import { CockpitSignalAnalysis, fetchCockpitSignals, runExperimentFromRecipe, saveCustomRecipe } from "../../lib/api";
+import { CockpitSignalAnalysis, fetchCockpitSignals, runExperimentFromRecipe, saveCustomRecipe, buildSequence } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
 import { PulseInspector } from "./PulseInspector";
+import { SlabStackView } from "./SlabStackView";
+import { SequenceIRTimeline } from "./SequenceIRTimeline";
+import { SequenceIR } from "../../lib/sequence-ir";
 
-export function WorkbenchCockpit() {
+export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string } = {}) {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState, setExecutionState } = useWorkspace();
   
-  const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>("ms_brain");
+  const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>(() => scenarioKeyForRecipe(initialRecipeId));
   const currentScenario: ScenarioSpec = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
 
   // v0.43: Edit Mode toggle
@@ -30,8 +34,11 @@ export function WorkbenchCockpit() {
 
   // Acquisition and Physics Parameters
   const [fa, setFa] = useState<number>(currentScenario.defaultParams.fa);
+  const [exciteFa, setExciteFa] = useState<number>(currentScenario.seqType === "GRE" ? currentScenario.defaultParams.fa : 90);
+  const [adcBwHz, setAdcBwHz] = useState<number>(62500);
   const [te, setTe] = useState<number>(currentScenario.defaultParams.te);
   const [tr, setTr] = useState<number>(currentScenario.defaultParams.tr);
+  const [compiledSequence, setCompiledSequence] = useState<SequenceIR | null>(null);
   const [fov, setFov] = useState<number>(currentScenario.defaultParams.fov);
   const [sliceThick, setSliceThick] = useState<number>(currentScenario.defaultParams.sliceThick);
   const [sliceCount, setSliceCount] = useState<number>(currentScenario.defaultParams.sliceCount);
@@ -58,6 +65,7 @@ export function WorkbenchCockpit() {
   useEffect(() => {
     const s = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
     setFa(s.defaultParams.fa);
+    setExciteFa(s.seqType === "GRE" ? s.defaultParams.fa : 90);
     setTe(s.defaultParams.te);
     setTr(s.defaultParams.tr);
     setFov(s.defaultParams.fov);
@@ -81,8 +89,9 @@ export function WorkbenchCockpit() {
       tr: tr / 1000.0,
     };
     if (currentScenario.seqType === "GRE") {
-      params.flip_angle = fa;
+      params.flip_angle = exciteFa;
     } else {
+      params.flip_angle = exciteFa;
       params.refocusing_flip_angle = fa;
       params.echo_count = 16;
     }
@@ -128,6 +137,30 @@ export function WorkbenchCockpit() {
       cancelled = true;
     };
   }, [selectedScenarioKey, fa, te, tr, currentScenario]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const template = currentScenario.seqType;
+    const params: Record<string, number> = {
+      te: te / 1000.0,
+      tr: tr / 1000.0,
+      flip_angle: exciteFa,
+    };
+    if (template !== "GRE") {
+      params.refocusing_flip_angle = fa;
+      params.echoes = 8;
+    }
+    buildSequence({ template, params })
+      .then((ir) => {
+        if (!cancelled) setCompiledSequence(ir);
+      })
+      .catch(() => {
+        if (!cancelled) setCompiledSequence(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentScenario.seqType, exciteFa, fa, te, tr]);
 
   // Handle echo selection for cross-lens cursor
   const handleSelectEcho = (echoNum: number, timeMs: number) => {
@@ -524,32 +557,15 @@ export function WorkbenchCockpit() {
                     <b>4. 2D MIP &amp; SLICE STACK</b>
                     <span>{isInterleaved ? 'INTERLEAVED' : 'SEQUENTIAL'}</span>
                   </div>
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#030608", padding: "6px", borderRadius: "3px" }}>
-                    <div style={{ display: "flex", gap: "2px", alignItems: "center", height: "40px", overflowX: "auto" }}>
-                      {Array.from({ length: Math.min(20, sliceCount) }).map((_, i) => {
-                        const isEven = (i + 1) % 2 === 0;
-                        const isCur = mipCursorZ === (i + 1);
-                        return (
-                          <div
-                            key={i}
-                            onClick={() => setMipCursorZ(i + 1)}
-                            style={{
-                              flex: 1,
-                              height: "100%",
-                              backgroundColor: isInterleaved ? (isEven ? "var(--cyan)" : "var(--amber)") : "#38bdf8",
-                              opacity: isCur ? 1.0 : 0.4,
-                              cursor: "pointer",
-                              borderRadius: "1px",
-                              border: isCur ? "1px solid #fff" : "none",
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
-                    <div style={{ fontSize: "10px", color: "#8ea1a8", display: "flex", justifyContent: "space-between", fontFamily: "monospace" }}>
-                      <span>Slab Z: {((sliceCount * (sliceThick + sliceGap)) - sliceGap).toFixed(1)}mm</span>
-                      <span>Slice #{mipCursorZ} / {sliceCount}</span>
-                    </div>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#030608", padding: "6px", borderRadius: "3px" }}>
+                    <SlabStackView
+                      sliceCount={sliceCount}
+                      sliceThickMm={sliceThick}
+                      sliceGapMm={sliceGap}
+                      isInterleaved={isInterleaved}
+                      cursorIndex={Math.max(0, mipCursorZ - 1)}
+                      onSelect={(i) => setMipCursorZ(i + 1)}
+                    />
                   </div>
                 </div>
               </div>
@@ -587,38 +603,23 @@ export function WorkbenchCockpit() {
                         </select>
                       </div>
                     )}
-                    <svg viewBox="0 0 600 200" style={{ width: "100%", height: "240px" }}>
-                      {/* RF Channel */}
-                      <line x1="0" y1="40" x2="600" y2="40" stroke="#25373f" />
-                      <path d="M 20 40 Q 30 10 40 40" fill="none" stroke="var(--cyan)" strokeWidth="2.5" />
-                      {Array.from({ length: 16 }).map((_, i) => (
-                        <line key={i} x1={70 + i * 32} y1="40" x2={70 + i * 32} y2={40 - (faDeg / 180) * 25} stroke="var(--amber)" strokeWidth="2" />
-                      ))}
-                      {/* Gy Channel */}
-                      <line x1="0" y1="90" x2="600" y2="90" stroke="#25373f" />
-                      {Array.from({ length: 16 }).map((_, i) => (
-                        <line key={i} x1={65 + i * 32} y1="90" x2={65 + i * 32} y2={90 - (i - 8) * 2} stroke="#3bf48d" strokeWidth="1.5" />
-                      ))}
-                      {/* Gx Readout */}
-                      <line x1="0" y1="140" x2="600" y2="140" stroke="#25373f" />
-                      {Array.from({ length: 16 }).map((_, i) => {
-                        const isPartialOmitted = partialFourierFrac < 1.0 && i > 16 * partialFourierFrac;
-                        return (
-                          <rect
-                            key={i}
-                            x={65 + i * 32}
-                            y="130"
-                            width={16 * readoutWidthFactor}
-                            height="10"
-                            fill={isPartialOmitted ? "rgba(100, 116, 139, 0.2)" : "rgba(59, 244, 141, 0.3)"}
-                            stroke={isPartialOmitted ? "#475569" : "#3bf48d"}
-                            strokeDasharray={isPartialOmitted ? "2 2" : "none"}
-                          />
-                        );
-                      })}
-                      {/* Time Cursor */}
-                      <line x1={70 + ((cursors.selectedEcho ?? 8) - 1) * 32} y1="10" x2={70 + ((cursors.selectedEcho ?? 8) - 1) * 32} y2="180" stroke="var(--cyan)" strokeDasharray="3 3" strokeWidth="1.5" />
-                    </svg>
+                    {compiledSequence ? (
+                      <SequenceIRTimeline
+                        sequence={compiledSequence}
+                        cursorTimeMs={cursors.cursorTime}
+                        onSelectEvent={(channel, time) =>
+                          setCursors({
+                            ...cursors,
+                            cursorTime: time * 1000,
+                            selectedEvent: `${channel}@${(time * 1000).toFixed(1)}ms`,
+                          })
+                        }
+                      />
+                    ) : (
+                      <div data-testid="sequence-ir-waiting" style={{ fontSize: "11px", color: "#8ea1a8", fontFamily: "monospace", padding: "16px" }}>
+                        awaiting SequenceIR from POST /sequences/build
+                      </div>
+                    )}
                   </div>
                 )}
                 {physicsTab === "epg_phase" && (
@@ -766,14 +767,54 @@ export function WorkbenchCockpit() {
                 <span className="value-badge">{te} ms</span>
               </div>
             </div>
+
+            <div className="control-group">
+              <label>Repetition Time (TR)</label>
+              <div className="slider-row">
+                <input
+                  type="range"
+                  min={isGRE ? 15 : 1000}
+                  max={isGRE ? 500 : 5000}
+                  step={isGRE ? 5 : 500}
+                  value={tr}
+                  onChange={(e) => setTr(Number(e.target.value))}
+                  data-testid="clinical-tr-slider"
+                />
+                <span className="value-badge">{tr} ms</span>
+              </div>
+            </div>
           </>
         ) : (
-          /* Physics Controls: Alpha, TE, TR, Bandwidth */
+          /* Physics Controls: excitation FA, refocus FA, TE, TR, ADC BW */
           <>
+            <div className="control-group">
+              <label>Excitation Flip Angle</label>
+              <div className="slider-row">
+                <input
+                  type="range"
+                  min={isGRE ? 5 : 10}
+                  max={isGRE ? 90 : 90}
+                  step={1}
+                  value={exciteFa}
+                  onChange={(e) => setExciteFa(Number(e.target.value))}
+                  data-testid="physics-excite-fa-slider"
+                />
+                <span className="value-badge">{exciteFa}°</span>
+              </div>
+            </div>
+
             <div className="control-group">
               <label>{isGRE ? "Ernst Flip Angle (α)" : "Refocusing Angle α"}</label>
               <div className="slider-row">
-                <input type="range" min={isGRE ? 5 : 60} max={isGRE ? 90 : 180} step={isGRE ? 1 : 5} value={faDeg} onChange={(e) => setFa(Number(e.target.value))} />
+                <input
+                  type="range"
+                  min={isGRE ? 5 : 60}
+                  max={isGRE ? 90 : 180}
+                  step={isGRE ? 1 : 5}
+                  value={faDeg}
+                  onChange={(e) => setFa(Number(e.target.value))}
+                  data-testid="physics-refocus-fa-slider"
+                />
                 <span className="value-badge">{faDeg}°</span>
               </div>
             </div>
@@ -791,6 +832,22 @@ export function WorkbenchCockpit() {
               <div className="slider-row">
                 <input type="range" min={isGRE ? 15 : 1000} max={isGRE ? 500 : 5000} step={isGRE ? 5 : 500} value={tr} onChange={(e) => setTr(Number(e.target.value))} />
                 <span className="value-badge">{tr} ms</span>
+              </div>
+            </div>
+
+            <div className="control-group">
+              <label>ADC Bandwidth</label>
+              <div className="slider-row">
+                <input
+                  type="range"
+                  min={20000}
+                  max={200000}
+                  step={5000}
+                  value={adcBwHz}
+                  onChange={(e) => setAdcBwHz(Number(e.target.value))}
+                  data-testid="physics-adc-bw-slider"
+                />
+                <span className="value-badge">{(adcBwHz / 1000).toFixed(0)} kHz</span>
               </div>
             </div>
           </>
@@ -814,7 +871,7 @@ export function WorkbenchCockpit() {
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.50 · recipe RUN fail-closed</div>
+          <div className="system-info">MRQLab v0.52 · SequenceIR + slab + fill-order</div>
         )}
       </section>
     </div>
