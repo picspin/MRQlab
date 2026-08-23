@@ -74,9 +74,26 @@ REPRESENTATIONS = {
             steady_state="supported",
         ),
     ),
+    "hybrid": StateRepresentation(
+        "hybrid",
+        frozenset({"hard_rf", "shaped_rf", "configuration_states", "spatial_encoding"}),
+        True,
+        "Hybrid composes Bloch RF spans with EPG evolution spans; it is not a new Experiment IR",
+        validity=EngineValidity(
+            spatial_encoding="limited",
+            shaped_rf="exact",
+            flow="unsupported",
+            exchange="unsupported",
+            diffusion="unsupported",
+            differentiable=False,
+            steady_state="supported",
+        ),
+    ),
     "ssepg": StateRepresentation(
         "ssepg",
-        frozenset({"hard_rf", "shaped_rf", "configuration_states", "spatial_encoding"}),
+        frozenset(
+            {"hard_rf", "shaped_rf", "configuration_states", "spatial_encoding", "slice_selective"}
+        ),
         False,
         "ssEPG is a dedicated future compiler path for slice-selective RF",
         validity=EngineValidity(
@@ -123,6 +140,13 @@ REPRESENTATIONS = {
 
 
 def select_representation(required: frozenset[str], preferred: str | None) -> StateRepresentation:
+    hybrid = REPRESENTATIONS["hybrid"]
+    if (
+        {"shaped_rf", "configuration_states"} <= required
+        and hybrid.available
+        and required <= hybrid.supports
+    ):
+        return hybrid
     candidates = (
         [REPRESENTATIONS[preferred]]
         if preferred in REPRESENTATIONS

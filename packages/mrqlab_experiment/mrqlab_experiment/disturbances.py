@@ -33,7 +33,10 @@ class DisturbanceStack(BaseModel):
 
 
 _REQUIREMENTS = {
-    "slice_profile": (frozenset({"shaped_rf", "configuration_states"}), "EPG → ssEPG"),
+    "slice_profile": (
+        frozenset({"shaped_rf", "configuration_states", "slice_selective"}),
+        "EPG → ssEPG",
+    ),
     "exchange": (frozenset({"exchange", "multi_pool"}), "EPG → EPG-X / hybrid"),
     "b0_map": (frozenset({"spatial_encoding", "off_resonance"}), "EPG → PDG for spatial B0"),
 }

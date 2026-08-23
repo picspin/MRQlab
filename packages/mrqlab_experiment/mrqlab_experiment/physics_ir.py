@@ -82,6 +82,19 @@ _SPAN_BY_REPRESENTATION: dict[str, SpanKind] = {
 def compile_physics_ir(sequence: SequenceIR, representation: str, options: EngineOptions) -> PhysicsIR:
     plan = preflight_schedule(sequence, options, max_operators=options.max_work)
     records = tuple(_record(op) for op in schedule(sequence, options, plan))
+    if representation == "hybrid":
+        spans: list[CompilerSpan] = []
+        for index, record in enumerate(records):
+            kind: SpanKind = "Bloch" if record.kind == "RF_ROTATION" else "EPG"
+            if spans and spans[-1].kind == kind:
+                spans[-1] = spans[-1].model_copy(update={"stop": index + 1})
+            else:
+                spans.append(CompilerSpan(kind=kind, start=index, stop=index + 1))
+        return PhysicsIR(
+            representation=representation,
+            operators=records,
+            compiler_spans=tuple(spans),
+        )
     span_name = _SPAN_BY_REPRESENTATION.get(representation)
     if span_name is None:
         raise ValueError(f"no compiler span for representation {representation!r}")

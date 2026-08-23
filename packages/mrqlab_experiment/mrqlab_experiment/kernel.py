@@ -210,10 +210,16 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
     options = EngineOptions(**plan.options)
     physics_ir = compile_physics_ir(sequence, plan.representation, options)
     scanner_model = graph.effective_scanner
-    result = get_engine(plan.engine).simulate(
-        sequence,
-        _phantom_from_sample(graph),
-        scanner_model,
-        options,
-    )
+    try:
+        engine = get_engine("hybrid" if plan.representation == "hybrid" else plan.engine)
+        result = engine.simulate(
+            sequence,
+            _phantom_from_sample(graph),
+            scanner_model,
+            options,
+        )
+    except (RuntimeError, NotImplementedError, ValueError) as exc:
+        if plan.representation != "hybrid":
+            raise
+        raise CapabilityMismatch(f"hybrid engine handoff unavailable: {exc}") from exc
     return KernelRun(graph.model_copy(deep=True), sequence, result, plan, physics_ir)
