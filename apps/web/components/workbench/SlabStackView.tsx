@@ -24,7 +24,7 @@ export function SlabStackView({
   const scale = 180 / Math.max(extentMm, 1e-6);
 
   return (
-    <div data-testid="slab-stack-view" style={{ display: "flex", flexDirection: "column", height: "100%", gap: "6px" }}>
+    <div data-testid="slab-stack-view" style={{ display: "flex", flexDirection: "column", height: "100%", maxHeight: "100%", minHeight: 0, overflow: "hidden", gap: "6px" }}>
       <div
         style={{
           flex: 1,
@@ -36,7 +36,8 @@ export function SlabStackView({
           border: "1px solid #1e2c33",
           borderRadius: "3px",
           padding: "8px 10px",
-          minHeight: "140px",
+          minHeight: 0,
+          overflow: "hidden",
         }}
       >
         {Array.from({ length: n }).map((_, i) => {

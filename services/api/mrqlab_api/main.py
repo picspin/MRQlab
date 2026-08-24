@@ -73,6 +73,8 @@ class SimulateRequest(BaseModel):
 class RunFromRecipeRequest(BaseModel):
     recipe_id: str
     params: dict[str, Any] = Field(default_factory=dict)
+    products: list[str] | None = None
+    engine_options: dict[str, Any] = Field(default_factory=dict)
 
 
 app = FastAPI(title="MRQLab Simulation API", version="0.1.0")
@@ -258,6 +260,11 @@ def experiments_run(graph: ExperimentGraph):
 @app.post("/experiments/run-from-recipe")
 def experiments_run_from_recipe(req: RunFromRecipeRequest):
     graph = _resolve_recipe_graph(req.recipe_id, req.params)
+    if req.products is not None or req.engine_options:
+        graph = graph.model_copy(deep=True)
+        if req.products is not None:
+            graph.readout.products = tuple(req.products)
+        graph.engine.options = {**graph.engine.options, **req.engine_options}
     return experiments_run(graph)
 
 

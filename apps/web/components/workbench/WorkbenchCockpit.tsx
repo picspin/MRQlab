@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
 import { scenarioKeyForRecipe } from "../../lib/explore-catalog";
@@ -46,15 +46,19 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [timelineSelection, setTimelineSelection] = useState<TimelineSelection | null>(null);
   const [blocks, setBlocks] = useState<SequenceBlock[]>([]);
   const [selectedBlockId, setSelectedBlockId] = useState<string>();
+  const composeRequestId = useRef(0);
 
   const compileBlocks = async (nextBlocks: SequenceBlock[]) => {
+    const requestId = ++composeRequestId.current;
     try {
       const ir = await fetchComposeSequence({ name: "Lego sequence", blocks: nextBlocks });
+      if (requestId !== composeRequestId.current) return;
       setBlocks(nextBlocks);
       setCompiledSequence(ir);
       setExecutionState?.("READY");
       setRunError(null);
     } catch (reason) {
+      if (requestId !== composeRequestId.current) return;
       setExecutionState?.("ERROR");
       setRunError(reason instanceof Error ? reason.message : String(reason));
     }
@@ -108,7 +112,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [cockpitSignals, setCockpitSignals] = useState<CockpitSignalAnalysis | null>(null);
 
   // Physics sub-lens selection inside Physics mode
-  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare" | "pulse">("timeline");
+  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare">("timeline");
 
   // Sync params when scenario changes
   useEffect(() => {
@@ -146,7 +150,10 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     }
 
     try {
-      const res = await runExperimentFromRecipe(currentScenario.recipeId, params);
+      const tseProducts = ["signal", "echo_train", "configurations"];
+      const res = await runExperimentFromRecipe(currentScenario.recipeId, params, currentScenario.seqType === "GRE"
+        ? { products: ["signal", "echo_train"] }
+        : { products: tseProducts, engineOptions: { return_configurations: true, epg_kmax: 8 } });
       setResultGraph(res);
       setExecutionState?.("RESULT");
     } catch (e) {
@@ -232,6 +239,19 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const cnrProxy = cockpitSignals?.cnr_proxy ?? 0;
   const relativeSar = cockpitSignals?.relative_sar ?? 0;
   const refocusEff = cockpitSignals?.refocus_eff ?? 0;
+  const configurations = resultGraph?.observations.find((observation) => observation.kind === "configurations");
+  const magnetization = resultGraph?.observations.filter((observation) => observation.kind === "magnetization").at(-1);
+
+  const lastVector = (value: unknown): number[] | null => {
+    if (!Array.isArray(value)) return null;
+    if (value.length >= 3 && value.slice(-3).every((item) => typeof item === "number")) return value.slice(-3) as number[];
+    for (let index = value.length - 1; index >= 0; index -= 1) {
+      const found = lastVector(value[index]);
+      if (found) return found;
+    }
+    return null;
+  };
+  const runVector = lastVector(magnetization?.data);
 
   // Voxel dimensions (mm)
   const voxelX = (fov / matrixSize).toFixed(2);
@@ -508,24 +528,6 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 7. COMPARE A/B
               </button>
-              <button
-                onClick={() => setPhysicsTab("pulse")}
-                data-testid="pulse-tab-btn"
-                style={{
-                  padding: "6px",
-                  fontSize: "10px",
-                  fontWeight: 700,
-                  fontFamily: "monospace",
-                  gridColumn: "1 / span 2",
-                  backgroundColor: physicsTab === "pulse" ? "var(--cyan)" : "#182226",
-                  color: physicsTab === "pulse" ? "#081114" : "#8ea1a8",
-                  border: "1px solid #33434a",
-                  borderRadius: "3px",
-                  cursor: "pointer",
-                }}
-              >
-                8. PULSE INSPECTOR
-              </button>
             </div>
 
             <div className="state-metrics">
@@ -555,6 +557,19 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 ? `CLINICAL QUAD VIEWPORT · ${currentScenario.anatomy.toUpperCase()} · ${activeScanPlane}`
                 : `PHYSICS INSTRUMENT · ${physicsTab.toUpperCase()}`}
             </span>
+            {profile === "physics" && <div style={{ display: "flex", gap: 6 }}>
+              <button data-testid="inspect-rf-btn" onClick={() => {
+                const rf = compiledSequence?.channels.find((channel) => channel.name === "rf_amp")?.events[0];
+                setPhysicsTab("timeline");
+                setTimelineSelection(rf ? { channel: "rf_amp", time: rf.time, value: rf.value, index: 0 } : { channel: "rf_amp", time: 0, value: exciteFa, index: 0 });
+              }}>Inspect RF</button>
+              <button data-testid="inspect-g-btn" onClick={() => {
+                const channel = compiledSequence?.channels.find((candidate) => ["gx", "gy", "gz"].includes(candidate.name) && candidate.events.length);
+                const event = channel?.events[0];
+                setPhysicsTab("timeline");
+                if (channel && event) setTimelineSelection({ channel: channel.name, time: event.time, value: event.value, index: 0 });
+              }}>Inspect G</button>
+            </div>}
             <div className="cursor-readout">
               <span data-testid="time-readout">t = {cursors.cursorTime.toFixed(1)} ms</span>
               {cursors.selectedEcho != null && (
@@ -563,12 +578,12 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             </div>
           </header>
 
-          <div className="display-screen" style={{ minHeight: "380px" }}>
+          <div className={`display-screen ${profile === "clinical" ? "clinical-screen" : ""}`} style={{ minHeight: "380px" }}>
             {profile === "clinical" ? (
               /* CLINICAL QUAD MPR & MIP RAYCAST */
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", width: "100%", height: "100%" }}>
+              <div data-testid="clinical-quad-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "10px", width: "100%", height: "100%", minHeight: 0, overflow: "hidden" }}>
                 {/* Quad 1: AXIAL */}
-                <div style={{ backgroundColor: "#06090c", border: `1px solid ${activeScanPlane === 'AXIAL' ? 'var(--cyan)' : '#22323a'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column" }}>
+                <div style={{ backgroundColor: "#06090c", border: `1px solid ${activeScanPlane === 'AXIAL' ? 'var(--cyan)' : '#22323a'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ea1a8", marginBottom: "4px" }}>
                     <b>1. AXIAL VIEW</b>
                     <span>{activeScanPlane === 'AXIAL' ? '● PRIMARY SCAN' : 'MPR DERIVED'}</span>
@@ -579,7 +594,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 </div>
 
                 {/* Quad 2: SAGITTAL */}
-                <div style={{ backgroundColor: "#06090c", border: `1px solid ${activeScanPlane === 'SAGITTAL' ? 'var(--cyan)' : '#22323a'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column" }}>
+                <div style={{ backgroundColor: "#06090c", border: `1px solid ${activeScanPlane === 'SAGITTAL' ? 'var(--cyan)' : '#22323a'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ea1a8", marginBottom: "4px" }}>
                     <b>2. SAGITTAL VIEW</b>
                     <span>{activeScanPlane === 'SAGITTAL' ? '● PRIMARY SCAN' : 'MPR DERIVED'}</span>
@@ -590,7 +605,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 </div>
 
                 {/* Quad 3: CORONAL */}
-                <div style={{ backgroundColor: "#06090c", border: `1px solid ${activeScanPlane === 'CORONAL' ? 'var(--cyan)' : '#22323a'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column" }}>
+                <div style={{ backgroundColor: "#06090c", border: `1px solid ${activeScanPlane === 'CORONAL' ? 'var(--cyan)' : '#22323a'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ea1a8", marginBottom: "4px" }}>
                     <b>3. CORONAL VIEW</b>
                     <span>{activeScanPlane === 'CORONAL' ? '● PRIMARY SCAN' : 'MPR DERIVED'}</span>
@@ -601,12 +616,12 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 </div>
 
                 {/* Quad 4: 2D MIP & Multi-Slice Stack */}
-                <div style={{ backgroundColor: "#06090c", border: "1px solid var(--amber)", borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column" }}>
+                <div style={{ backgroundColor: "#06090c", border: "1px solid var(--amber)", borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "var(--amber)", marginBottom: "4px" }}>
                     <b>4. 2D MIP &amp; SLICE STACK</b>
                     <span>{isInterleaved ? 'INTERLEAVED' : 'SEQUENTIAL'}</span>
                   </div>
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#030608", padding: "6px", borderRadius: "3px" }}>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#030608", padding: "6px", borderRadius: "3px", minHeight: 0, overflow: "hidden" }}>
                     <SlabStackView
                       sliceCount={sliceCount}
                       sliceThickMm={sliceThick}
@@ -700,21 +715,34 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   </div>
                 )}
                 {physicsTab === "epg_phase" && (
-                  <div style={{ width: "100%", height: "240px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                    <svg viewBox="0 0 500 180" style={{ width: "100%", height: "100%" }}>
-                      <line x1="20" y1="90" x2="480" y2="90" stroke="#3bf48d" strokeWidth="2" />
-                      <text x="440" y="85" fill="#3bf48d" fontSize="9">k=0 (Echo)</text>
-                      {[-2, -1, 1, 2].map((k) => (
-                        <line key={k} x1="20" y1={90 - k * 25} x2="480" y2={90 - k * 25} stroke="#1f2d33" strokeDasharray="2 2" />
-                      ))}
+                  configurations ? <div data-testid="epg-pathways" style={{ width: "100%", height: "260px" }}>
+                    <div style={{ font: "10px monospace", color: "#8ea1a8" }}>Backend configurations · rows F+ / F− / Z · columns echo snapshots</div>
+                    <svg viewBox="0 0 520 190" style={{ width: "100%", height: "100%" }}>
+                      {(["F+", "F−", "Z"] as const).map((label, row) => <g key={label}>
+                        <text x="8" y={42 + row * 55} fill="#8ea1a8" fontSize="11">{label}</text>
+                        <line x1="35" y1={38 + row * 55} x2="505" y2={38 + row * 55} stroke="#26363d" />
+                        {(Array.isArray(configurations.data) ? configurations.data : []).map((snapshot: unknown, echo: number) => {
+                          const states = Array.isArray(snapshot) && Array.isArray(snapshot[row]) ? snapshot[row] as number[] : [];
+                          const magnitude = states.reduce((peak, value) => typeof value === "number" && value > peak ? value : peak, 0);
+                          const x = 48 + echo * (440 / Math.max(1, (configurations.data as unknown[]).length - 1));
+                          return <line key={echo} x1={x} y1={38 + row * 55} x2={x} y2={38 + row * 55 - Math.min(32, magnitude * 32)} stroke={row === 2 ? "var(--amber)" : "var(--cyan)"} strokeWidth="3" />;
+                        })}
+                      </g>)}
                     </svg>
-                  </div>
+                  </div> : <div data-testid="epg-awaiting" style={{ color: "#8ea1a8", fontFamily: "monospace" }}>awaiting configurations from RUN</div>
                 )}
                 {physicsTab === "bloch_sphere" && (
-                  <div style={{ width: "200px", height: "200px", border: "1px solid #33434a", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                    <div style={{ width: "100%", height: "1px", backgroundColor: "#33434a", position: "absolute" }} />
-                    <div style={{ width: "1px", height: "100%", backgroundColor: "#33434a", position: "absolute" }} />
-                    <div style={{ width: "60px", height: "2px", backgroundColor: "var(--amber)", transformOrigin: "left center", transform: `rotate(${faDeg}deg)` }} />
+                  <div data-testid="bloch-hud" style={{ textAlign: "center" }}>
+                    <svg viewBox="0 0 220 220" width="220" height="220" aria-label="Mx horizontal and Mz vertical orthographic projection">
+                      <circle cx="110" cy="110" r="96" fill="none" stroke="#33434a" />
+                      <line x1="14" y1="110" x2="206" y2="110" stroke="#33434a" />
+                      <line x1="110" y1="14" x2="110" y2="206" stroke="#33434a" />
+                      <line x1="110" y1="110" x2={110 + (runVector?.[0] ?? 0) * 82} y2={110 - (runVector?.[2] ?? 1) * 82} transform={runVector ? undefined : `rotate(${faDeg} 110 110)`} stroke="var(--amber)" strokeWidth="4" />
+                      <circle cx="110" cy="110" r="4" fill="var(--cyan)" />
+                      <text x="172" y="104" fill="#8ea1a8" fontSize="9">Mx</text><text x="115" y="24" fill="#8ea1a8" fontSize="9">Mz</text>
+                    </svg>
+                    <div style={{ font: "10px monospace", color: "#8ea1a8" }}>orthographic projection: Mx → x, Mz → y</div>
+                    {!runVector && <div data-testid="bloch-seed-label" style={{ color: "var(--amber)", font: "10px monospace" }}>editor seed · FA slider, not RUN magnetization</div>}
                   </div>
                 )}
                 {physicsTab === "kspace" && <KSpaceReconLens />}
@@ -729,9 +757,6 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   />
                 )}
                 {physicsTab === "compare" && <CompareLensView currentFa={fa} currentTe={te} />}
-                {physicsTab === "pulse" && (
-                  <PulseInspector flipAngleDeg={faDeg} sliceThicknessMm={sliceThick} />
-                )}
                 {physicsTab === "phantom" && (
                   /* SINGLE DEDICATED CALIBRATION PHANTOM */
                   <div style={{ width: "180px", height: "180px", borderRadius: "50%", backgroundColor: "#0c1317", border: "2px solid #38e8f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", padding: "20px" }}>
@@ -948,7 +973,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.56 · Lego constructor</div>
+          <div className="system-info">MRQLab v0.57 · UX honesty</div>
         )}
       </section>
     </div>

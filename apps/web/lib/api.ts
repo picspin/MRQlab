@@ -29,11 +29,12 @@ export async function runExperiment(graph: ExperimentGraph): Promise<ResultGraph
 export async function runExperimentFromRecipe(
   recipeId: string,
   params: Record<string, number> = {},
+  options: { products?: string[]; engineOptions?: Record<string, number | boolean> } = {},
 ): Promise<ResultGraph> {
   const response = await fetch(`${BASE}/experiments/run-from-recipe`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ recipe_id: recipeId, params }),
+    body: JSON.stringify({ recipe_id: recipeId, params, products: options.products, engine_options: options.engineOptions }),
   });
   if (!response.ok) throw new Error(`experiment run failed: ${await response.text()}`);
   return response.json();

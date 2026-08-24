@@ -79,7 +79,7 @@ def compose_sequence(request: ComposeSequenceRequest) -> SequenceIR:
         end_time = max(end_time, stop)
 
     duration = request.duration_s if request.duration_s is not None else max(end_time, 1e-3)
-    if request.duration_s is not None and duration <= end_time:
+    if request.duration_s is not None and duration < end_time:
         raise ValueError("block extends beyond requested duration")
     result_channels = []
     for name, events in channels.items():

@@ -63,3 +63,15 @@ def test_run_from_recipe_unknown_id_is_404():
         json={"recipe_id": "does-not-exist"},
     )
     assert response.status_code == 404
+
+
+def test_run_from_recipe_can_request_tse_teaching_products():
+    response = client.post("/experiments/run-from-recipe", json={
+        "recipe_id": "brain_t2_tse",
+        "params": {"echo_count": 8},
+        "products": ["signal", "echo_train", "configurations"],
+        "engine_options": {"return_configurations": True, "epg_kmax": 8},
+    })
+    assert response.status_code == 200, response.text
+    kinds = {item["kind"] for item in response.json()["observations"]}
+    assert {"signal", "echo_train", "configurations"} <= kinds

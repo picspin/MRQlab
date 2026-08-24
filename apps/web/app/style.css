@@ -408,6 +408,13 @@ main {
   position: relative;
 }
 
+.display-screen.clinical-screen {
+  align-items: stretch;
+  justify-content: stretch;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .display-screen::before {
   content: " ";
   position: absolute;
