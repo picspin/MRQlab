@@ -43,3 +43,18 @@ def test_overlapping_rf_is_rejected():
 def test_unknown_kind_is_rejected():
     response = client.post("/sequences/compose", json={"name": "bad", "blocks": [block("x", "vendor", 0, {})]})
     assert response.status_code == 422
+
+
+def test_requested_duration_equal_to_last_block_end_is_legal():
+    response = client.post("/sequences/compose", json={"name": "half-open", "duration_s": .001, "blocks": [
+        block("a1", "adc_gate", 0, {"duration_s": .001}),
+    ]})
+    assert response.status_code == 200, response.text
+    assert response.json()["duration"] == .001
+
+
+def test_requested_duration_before_last_block_end_is_rejected():
+    response = client.post("/sequences/compose", json={"name": "too-short", "duration_s": .0009, "blocks": [
+        block("a1", "adc_gate", 0, {"duration_s": .001}),
+    ]})
+    assert response.status_code == 422
