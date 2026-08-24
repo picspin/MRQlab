@@ -19,6 +19,7 @@ ObservationKind = Literal[
     "sar",
     "tissue_contrast",
     "objective_score",
+    "slice_profile",
 ]
 
 _ALLOWED_PRODUCTS = frozenset(get_args(ObservationKind))
@@ -87,6 +88,8 @@ def build_result_graph(run) -> ResultGraph:
         estimated_work=int(meta.get("estimated_work", 0)),
     )
     products = run.experiment.readout.products
+    if run.sim_result.slice_profile is not None and "slice_profile" not in products:
+        products = (*products, "slice_profile")
     for product in products:
         if product not in _ALLOWED_PRODUCTS:
             raise ValueError(f"unknown_product: {product!r}")
@@ -191,6 +194,17 @@ def build_result_graph(run) -> ResultGraph:
             units={"value": "relative"},
             provenance=provenance,
         ),
+        "slice_profile": lambda emitted: Observation(
+            id="slice_profile",
+            kind="slice_profile",
+            data={
+                key: np.asarray(value).tolist()
+                for key, value in (run.sim_result.slice_profile or {}).items()
+            },
+            axes={"z_m": np.asarray((run.sim_result.slice_profile or {}).get("z_m", [])).tolist()},
+            units={"z_m": "m", "magnetization": "a.u."},
+            provenance=provenance,
+        ),
     }
     observations: list[Observation] = []
     edges: list[ResultEdge] = []
@@ -199,7 +213,7 @@ def build_result_graph(run) -> ResultGraph:
         observation = builders[product](frozenset(emitted))
         observations.append(observation)
         emitted.add(observation.id)
-        if product in {"signal", "magnetization", "configurations", "k_trajectory"}:
+        if product in {"signal", "magnetization", "configurations", "k_trajectory", "slice_profile"}:
             edges.append(ResultEdge(source=engine_name, target=observation.id, kind="engine"))
         for source in observation.derived_from:
             edge_kind = "recon" if product == "image" and source == "signal" else "derived_from"

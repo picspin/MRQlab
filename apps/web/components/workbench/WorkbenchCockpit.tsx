@@ -241,6 +241,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const refocusEff = cockpitSignals?.refocus_eff ?? 0;
   const configurations = resultGraph?.observations.find((observation) => observation.kind === "configurations");
   const magnetization = resultGraph?.observations.filter((observation) => observation.kind === "magnetization").at(-1);
+  const sliceProfile = resultGraph?.observations.find((observation) => observation.kind === "slice_profile");
 
   const lastVector = (value: unknown): number[] | null => {
     if (!Array.isArray(value)) return null;
@@ -733,6 +734,17 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 )}
                 {physicsTab === "bloch_sphere" && (
                   <div data-testid="bloch-hud" style={{ textAlign: "center" }}>
+                    {sliceProfile && typeof sliceProfile.data === "object" ? (
+                      <svg data-testid="slice-profile-plot" viewBox="0 0 320 150" width="320" height="150" aria-label="Backend slice profile Mz and Mxy versus z">
+                        <line x1="20" y1="130" x2="310" y2="130" stroke="#33434a" />
+                        {(["mz", "mxy"] as const).map((key) => {
+                          const values = Array.isArray(sliceProfile.data[key]) ? sliceProfile.data[key] as number[] : [];
+                          const points = values.map((value, index) => `${20 + index * 290 / Math.max(1, values.length - 1)},${75 - value * 55}`).join(" ");
+                          return <polyline key={key} points={points} fill="none" stroke={key === "mz" ? "var(--amber)" : "var(--cyan)"} strokeWidth="2" />;
+                        })}
+                        <text x="22" y="145" fill="#8ea1a8" fontSize="9">z (m) · backend RUN · Mz amber / Mxy cyan</text>
+                      </svg>
+                    ) : <div data-testid="slice-profile-awaiting" style={{ color: "#8ea1a8", fontFamily: "monospace" }}>awaiting slice_profile from RUN</div>}
                     <svg viewBox="0 0 220 220" width="220" height="220" aria-label="Mx horizontal and Mz vertical orthographic projection">
                       <circle cx="110" cy="110" r="96" fill="none" stroke="#33434a" />
                       <line x1="14" y1="110" x2="206" y2="110" stroke="#33434a" />
@@ -973,7 +985,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.57 · UX honesty</div>
+          <div className="system-info">MRQLab v0.58 · UX honesty</div>
         )}
       </section>
     </div>
