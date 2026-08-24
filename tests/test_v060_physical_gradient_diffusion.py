@@ -4,7 +4,8 @@ import pytest
 from mrqlab_experiment import build_preset, plan_experiment, run_experiment, TissueModel, validate_experiment
 from mrqlab_experiment.capabilities import REPRESENTATIONS
 from mrqlab_physics import EPGEngine, EngineOptions, Phantom, ScannerModel
-from mrqlab_physics.backends.epg_x import EpgXFeatureUnavailable, apply_bloch_mcconnell
+from mrqlab_physics import BlochMcConnellPools
+from mrqlab_physics.backends.epg_x import apply_bloch_mcconnell
 from mrqlab_sequence import build_sequence
 
 
@@ -54,8 +55,8 @@ def test_physical_epg_diffusion_is_applied_and_monotone():
     assert np.all(values[2] <= values[1] + 1e-14)
 
 
-def test_non_epg_engines_do_not_claim_diffusion_and_epgx_stays_closed():
-    for name in ("bloch", "hybrid", "ssepg", "pdg", "spectral"):
+def test_non_epg_engines_do_not_claim_diffusion_and_bm_is_open():
+    for name in ("bloch", "hybrid", "ssepg", "pdg", "spectral", "epg-x"):
         assert REPRESENTATIONS[name].validity.diffusion == "unsupported"
         assert "isotropic_diffusion" not in REPRESENTATIONS[name].supports
     graph = build_preset("dark-blood-tse")
@@ -65,5 +66,5 @@ def test_non_epg_engines_do_not_claim_diffusion_and_epgx_stays_closed():
     assert not validate_experiment(graph).valid
     with pytest.raises(ValueError, match="does not support diffusion"):
         run_experiment(graph)
-    with pytest.raises(EpgXFeatureUnavailable):
-        apply_bloch_mcconnell(np.zeros((6, 3), dtype=complex), 0.01)
+    state = np.zeros((6, 3), dtype=complex)
+    apply_bloch_mcconnell(state, 0.01, BlochMcConnellPools(1, .1, .5, 1, .1, .5, 1, 1))

@@ -74,6 +74,7 @@ _SPAN_BY_REPRESENTATION: dict[str, SpanKind] = {
     "bloch": "Bloch",
     "spectral": "Bloch",
     "epg": "EPG",
+    "epg-x": "EPG",
     "pdg": "PDG",
     "ssepg": "ssEPG",
 }

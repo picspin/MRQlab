@@ -1,10 +1,10 @@
 from importlib.metadata import entry_points
 
 from .base import EnginePlugin, SimulationEngine
-from .engines import BlochEngine, EPGEngine, HybridEngine, PdgEngine, SpectralEngine, SsepgEngine
+from .engines import BlochEngine, EPGEngine, EpgXEngine, HybridEngine, PdgEngine, SpectralEngine, SsepgEngine
 
 
-_BUILTIN_TYPES = (BlochEngine, EPGEngine, HybridEngine, PdgEngine, SpectralEngine, SsepgEngine)
+_BUILTIN_TYPES = (BlochEngine, EPGEngine, EpgXEngine, HybridEngine, PdgEngine, SpectralEngine, SsepgEngine)
 _engines: dict[str, tuple[SimulationEngine, str]] | None = None
 
 

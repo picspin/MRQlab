@@ -6,6 +6,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from mrqlab_physics import (
+    BlochMcConnellPools,
     EngineOptions,
     Isochromat,
     Phantom,
@@ -75,6 +76,17 @@ def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
                 diffusion_adc_mm2_s=t.diffusion_adc_mm2_s,
             )
         else:
+            if len(tissues) == 2 and tissues[0].exchange_rate_hz > 0:
+                a, b = tissues
+                k_ba = a.exchange_rate_hz * a.pool_fraction / b.pool_fraction
+                return Phantom(
+                    t1=a.t1, t2=a.t2, proton_density=a.proton_density,
+                    off_resonance_hz=graph.sample.off_resonance_hz,
+                    bloch_mcconnell=BlochMcConnellPools(
+                        a.t1, a.t2, a.proton_density, b.t1, b.t2, b.proton_density,
+                        a.exchange_rate_hz, k_ba,
+                    ),
+                )
             isochromats = tuple(
                 Isochromat(
                     t1=t.t1,
@@ -105,6 +117,19 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     if any(value is not None and value > 0 for value in adc_values) and sequence.metadata.get("gradient_units", "teaching") != "mt_m":
         raise CapabilityMismatch("diffusion requires SequenceIR metadata gradient_units='mt_m'")
     extra, explanations = disturbance_requirements(graph.disturbances)
+    tissue_values = graph.tissue if isinstance(graph.tissue, tuple) else ((graph.tissue,) if graph.tissue is not None else ())
+    exchange_declared = bool(tissue_values and tissue_values[0].exchange_rate_hz > 0)
+    if exchange_declared:
+        if len(tissue_values) != 2:
+            raise CapabilityMismatch("positive exchange_rate_hz requires exactly two liquid tissues")
+        a, b = tissue_values
+        if a.pool_fraction <= 0 or b.pool_fraction <= 0:
+            raise CapabilityMismatch("Bloch-McConnell pool fractions must be positive")
+        if abs(a.pool_fraction + b.pool_fraction - 1.0) > 1e-9:
+            raise CapabilityMismatch("Bloch-McConnell pool fractions must sum to 1")
+        if b.exchange_rate_hz > 0:
+            raise CapabilityMismatch("exchange_rate_hz is declared only on pool a")
+        extra = frozenset(extra | {"exchange", "multi_pool"})
     required = frozenset(graph.engine.required_capabilities | extra)
     if graph.engine.preferred is not None:
         preferred = graph.engine.preferred
@@ -117,6 +142,14 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
         source = "capability"
     if preferred is not None and preferred not in REPRESENTATIONS:
         get_engine(preferred)
+    if (
+        "exchange" in required
+        and graph.engine.preferred is not None
+        and graph.engine.preferred != "epg-x"
+    ):
+        raise CapabilityMismatch(
+            f"forced representation {graph.engine.preferred!r} cannot satisfy exchange"
+        )
     if (
         "slice_selective" in required
         and graph.engine.preferred is not None
@@ -250,7 +283,7 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
     physics_ir = compile_physics_ir(sequence, plan.representation, options)
     scanner_model = graph.effective_scanner
     try:
-        engine = get_engine(plan.representation if plan.representation in {"hybrid", "ssepg", "pdg"} else plan.engine)
+        engine = get_engine(plan.representation if plan.representation in {"hybrid", "ssepg", "pdg", "epg-x"} else plan.engine)
         result = engine.simulate(
             sequence,
             _phantom_from_sample(graph),

@@ -32,13 +32,15 @@ Selection is set inclusion. Missing capabilities fail closed.
 | EPG | yes | hard_rf, configuration_states, steady_state, isotropic_diffusion | TSE/CPMG echo trains. Single pool, bounded integer orders, metadata-first `dk`; isotropic diffusion requires physical gradients. |
 | Spectral | yes | hard_rf, off_resonance, multi_pool, magnetization_states | Fat/water phase and beating. No exchange, MT, CEST saturation, or fitted MRS lineshapes. |
 | ssEPG | yes | hard_rf, shaped_rf, configuration_states, spatial_encoding, slice_selective | Dedicated slice-selective shaped RF / z-profile compiler path. |
-| EPG-X | no | hard_rf, configuration_states, exchange, multi_pool | EPG plus exchange. Explicit unavailable seam. |
+| EPG-X | yes | hard_rf, configuration_states, exchange, multi_pool | Two-pool liquid Bloch–McConnell evolution on the 6-row layout. MT/CEST remain closed. |
 | PDG | yes | hard_rf, configuration_states, spatial_encoding, off_resonance, phase_distribution | Dedicated spatial B0 pathway↔image compiler on a phase-distribution grid. |
 | Density matrix | no | (future) | MRS base via Liouville–von Neumann. Vocabulary only in v0.1. |
 
 Built-in routing is SE/GRE → Bloch and TSE → EPG through `preferred_engine` metadata; an explicit engine preference still wins if capabilities allow.
 
-All shipped engines are returned as a kernel-owned `SimulationEngine` implementing `simulate(SequenceIR, Phantom, ScannerModel, EngineOptions) -> SimResult`. The façade classes remain `BlochEngine`, `EPGEngine`, and `SpectralEngine`. Recon, API, and web consume `SimResult`; they do not import engine classes.
+All shipped engines are returned as a kernel-owned `SimulationEngine` implementing `simulate(SequenceIR, Phantom, ScannerModel, EngineOptions) -> SimResult`. The façade classes include `BlochEngine`, `EPGEngine`, `EpgXEngine`, and `SpectralEngine`. Recon, API, and web consume `SimResult`; they do not import engine classes.
+
+EPG-X is selected only for exchange (or an explicit `epg-x` preference). Two liquid pools are declared as a two-item `graph.tissue` tuple. Pool a declares `k_ab` in `exchange_rate_hz`; detailed balance sets `k_ba = k_ab * f_a / f_b`. Both fractions must be positive and sum to one. Each tissue's proton density is its longitudinal equilibrium (`Za0 = PD_a`, `Zb0 = PD_b`). A positive rate without the second tissue fails closed. Hard RF rotates both liquid-pool triplets independently with the same pulse, and both pools currently share the sample off-resonance.
 
 ## Units and signal convention
 
@@ -81,7 +83,7 @@ Names must match the entry-point name and may not shadow `bloch`, `epg`, or `spe
 
 ## Extension seams
 
-`diffusion_attenuation` provides the diagonal configuration-space free-diffusion propagator. Classic EPG applies it to transverse configuration orders during free evolution only when tissue ADC is positive and the SequenceIR declares `gradient_units="mt_m"`; ADC with teaching or absent units fails closed. Bloch, hybrid, ssEPG, PDG, and spectral simulation do not apply diffusion. `EpgXLayout` fixes Bloch–McConnell and magnetization-transfer state rows; their evolution functions continue to raise explicit physics-v1 boundary errors. This prevents partially correct exchange or MT behavior from appearing as supported simulation.
+`diffusion_attenuation` provides the diagonal configuration-space free-diffusion propagator. Classic EPG applies it to transverse configuration orders during free evolution only when tissue ADC is positive and the SequenceIR declares `gradient_units="mt_m"`; ADC with teaching or absent units fails closed. Bloch, hybrid, ssEPG, PDG, EPG-X, and spectral simulation do not apply diffusion. `EpgXLayout` fixes Bloch–McConnell and magnetization-transfer state rows. `apply_bloch_mcconnell` is the two-liquid-pool exchange-and-relaxation free-evolution operator; exchange couples matching orders only. `apply_magnetization_transfer` still raises the physics-v1 MT error, and CEST remains unavailable.
 
 Floquet, CEST, MRS, and DCE are documented seams only. They have no implementation modules in `packages/mrqlab_experiment`.
 
