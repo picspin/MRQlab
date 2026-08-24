@@ -10,7 +10,7 @@ from mrqlab_sequence import SequenceIR
 
 from ..models import EngineOptions
 from ..ops.types import AdcSample, GradInterval, Operator, Relax, RfOp, Shift
-from .units import deg_to_rad
+from .units import DEFAULT_FOV_M, GAMMA_BAR_HZ_T, deg_to_rad
 
 
 MAX_SEQUENCE_EVENTS = 100_000
@@ -150,10 +150,18 @@ def _fallback_shift(
     next_t: float,
     gradients: tuple[_EventSeries, _EventSeries, _EventSeries],
     scale: float,
+    *,
+    units: str = "teaching",
+    fov_m: float = DEFAULT_FOV_M,
 ) -> Shift | None:
     dt = next_t - t
     gradient = tuple(_value_at(channel, t) for channel in gradients)
-    scaled_area = tuple(value * dt / scale for value in gradient)
+    if units == "mt_m":
+        scaled_area = tuple(value * 1e-3 * GAMMA_BAR_HZ_T * dt * fov_m for value in gradient)
+    elif units == "teaching":
+        scaled_area = tuple(value * dt / scale for value in gradient)
+    else:
+        raise ValueError("gradient_units must be 'teaching' or 'mt_m'")
     if not all(np.isfinite(value) for value in scaled_area):
         raise ValueError("gradient area must remain finite during scheduling")
     dk = tuple(int(np.rint(value)) for value in scaled_area)
@@ -212,13 +220,17 @@ def preflight_schedule(
         )
     )
     gradients = (series["gx"], series["gy"], series["gz"])
+    units = sequence.metadata.get("gradient_units", "teaching")
+    fov_m = float(sequence.metadata.get("fov_m", DEFAULT_FOV_M))
+    if not np.isfinite(fov_m) or fov_m <= 0:
+        raise ValueError("fov_m must be finite and positive")
     knot_count = 0
     fallback_shift_count = 0
     previous: float | None = None
     for t in _iter_knots(base_times, windows, options.dwell_time):
         if previous is not None and not explicit_shifts:
             fallback_shift_count += _fallback_shift(
-                previous, t, gradients, options.epg_dk_scale
+                previous, t, gradients, options.epg_dk_scale, units=units, fov_m=fov_m
             ) is not None
         previous = t
         knot_count += 1
@@ -255,6 +267,8 @@ def schedule(
     knots = list(_iter_knots(plan.base_times, plan.adc_windows, options.dwell_time))
     adc_times = set(_iter_adc_sample_times(plan.adc_windows, options.dwell_time))
     gradients = (plan.series["gx"], plan.series["gy"], plan.series["gz"])
+    units = sequence.metadata.get("gradient_units", "teaching")
+    fov_m = float(sequence.metadata.get("fov_m", DEFAULT_FOV_M))
     rf_at: dict[float, list[float]] = {}
     for event in sequence.channel("rf_amp"):
         rf_at.setdefault(event.time, []).append(float(event.value))
@@ -272,7 +286,7 @@ def schedule(
         operators.extend(plan.explicit_shifts.get(t, ()))
         if index > 0 and not plan.explicit_shifts:
             fallback = _fallback_shift(
-                knots[index - 1], t, gradients, options.epg_dk_scale
+                knots[index - 1], t, gradients, options.epg_dk_scale, units=units, fov_m=fov_m
             )
             if fallback is not None:
                 operators.append(fallback)

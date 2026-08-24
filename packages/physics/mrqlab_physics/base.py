@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from numbers import Integral
+from inspect import signature
 import time
 from typing import Any, Literal
 
@@ -11,17 +12,18 @@ from .kernel.caps import enforce_state_work_limit
 from .kernel.conventions import SIGNAL_CONVENTION
 from .kernel.runner import run_backend
 from .kernel.scheduler import preflight_schedule, schedule
+from .kernel.units import GAMMA_BAR_HZ_T
 from .models import EngineOptions, Phantom, ScannerModel, SimResult
 
 
 StateWidth = Callable[[Phantom, ScannerModel, EngineOptions], int]
-BackendFactory = Callable[[Phantom, ScannerModel, EngineOptions], StateBackend]
-MetadataFactory = Callable[[Phantom, ScannerModel, EngineOptions], dict[str, Any]]
+BackendFactory = Callable[[Phantom, ScannerModel, EngineOptions, SequenceIR], StateBackend]
+MetadataFactory = Callable[[Phantom, ScannerModel, EngineOptions, SequenceIR], dict[str, Any]]
 SnapshotField = Literal["magnetization", "configurations"]
 
 
 def _empty_metadata(
-    phantom: Phantom, scanner: ScannerModel, options: EngineOptions
+    phantom: Phantom, scanner: ScannerModel, options: EngineOptions, sequence: SequenceIR
 ) -> dict[str, Any]:
     return {}
 
@@ -115,9 +117,15 @@ class SimulationEngine:
             self.name, plan.operator_count, state_width, options
         )
         operators = schedule(sequence, options, plan)
-        backend = self.plugin.backend_factory(phantom, scanner, options)
+        backend_args = (phantom, scanner, options, sequence)
+        if len(signature(self.plugin.backend_factory).parameters) == 3:
+            backend_args = backend_args[:3]
+        backend = self.plugin.backend_factory(*backend_args)
         trace = run_backend(backend, operators, self._snapshots_requested(options))
-        extra_meta = self.plugin.metadata_factory(phantom, scanner, options)
+        metadata_args = (phantom, scanner, options, sequence)
+        if len(signature(self.plugin.metadata_factory).parameters) == 3:
+            metadata_args = metadata_args[:3]
+        extra_meta = self.plugin.metadata_factory(*metadata_args)
         if not isinstance(extra_meta, dict):
             raise TypeError("engine plugin metadata_factory must return a dict")
         meta = {
@@ -128,9 +136,15 @@ class SimulationEngine:
             "n_ops": plan.operator_count,
             "estimated_work": work,
         }
+        if getattr(backend, "diffusion_applied", False):
+            meta.setdefault("assumptions", []).append("isotropic_diffusion_applied")
         result = SimResult(
             signal=trace.signal,
-            k_trajectory=trace.k_trajectory * scanner.gradient_scale,
+            k_trajectory=trace.k_trajectory * (
+                GAMMA_BAR_HZ_T * 1e-3
+                if sequence.metadata.get("gradient_units", "teaching") == "mt_m"
+                else scanner.gradient_scale
+            ),
             meta=meta,
             timing={"simulation_seconds": time.perf_counter() - started},
         )

@@ -6,11 +6,11 @@ def _state_width(phantom, scanner, options) -> int:
     return spectral_state_width(phantom)
 
 
-def _backend(phantom, scanner, options):
+def _backend(phantom, scanner, options, sequence):
     return SpectralBackend(phantom, scanner)
 
 
-def _metadata(phantom, scanner, options):
+def _metadata(phantom, scanner, options, sequence):
     return {
         "available": True,
         "model": "independent chemical-shift pools",

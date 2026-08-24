@@ -14,7 +14,7 @@ from ..models import Phantom, SimResult
 from ..ops.types import GradInterval
 
 
-_GAMMA_HZ_T = 42.57747892e6
+from ..kernel.units import GAMMA_BAR_HZ_T
 
 
 class _SpatialEPGBackend:
@@ -32,7 +32,7 @@ class _SpatialEPGBackend:
         for backend in self.backends:
             backend.apply(op)
         if isinstance(op, GradInterval) and op.gradient[0] != 0:
-            phase = np.exp(2j * np.pi * _GAMMA_HZ_T * op.gradient[0] * self.x_m * op.dt)
+            phase = np.exp(2j * np.pi * GAMMA_BAR_HZ_T * op.gradient[0] * self.x_m * op.dt)
             for backend, value in zip(self.backends, phase, strict=True):
                 backend.omega[0] *= value
                 backend.omega[1] *= np.conj(value)
@@ -48,7 +48,7 @@ def _state_width(phantom, scanner, options):
     return 32 * 3 * (2 * min(options.epg_kmax, 8) + 1)
 
 
-def _unavailable_backend(phantom, scanner, options):
+def _unavailable_backend(phantom, scanner, options, sequence):
     raise RuntimeError("pdg uses its dedicated spatial configuration-state compiler path")
 
 
