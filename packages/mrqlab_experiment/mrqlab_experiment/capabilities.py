@@ -46,15 +46,15 @@ REPRESENTATIONS = {
     ),
     "epg": StateRepresentation(
         "epg",
-        frozenset({"hard_rf", "configuration_states", "steady_state"}),
+        frozenset({"hard_rf", "configuration_states", "steady_state", "isotropic_diffusion"}),
         True,
-        "Classic single-pool configuration states for echo trains",
+        "Classic single-pool configuration states with physical-gradient isotropic free diffusion",
         validity=EngineValidity(
             spatial_encoding="limited",
             shaped_rf="unsupported",
             flow="approximate",
             exchange="unsupported",
-            diffusion="unsupported",
+            diffusion="isotropic",
             differentiable=False,
             steady_state="supported",
         ),

@@ -17,7 +17,7 @@ def _state_width(phantom, scanner, options) -> int:
     return 3 * (2 * options.epg_kmax + 1) + 3 * len(phantom.resolved_isochromats())
 
 
-def _backend(phantom, scanner, options):
+def _backend(phantom, scanner, options, sequence):
     return EPGBackend(phantom, options.epg_kmax)
 
 

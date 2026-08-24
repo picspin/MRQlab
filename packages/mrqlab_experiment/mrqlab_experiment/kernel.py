@@ -72,6 +72,7 @@ def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
                 t2=t.t2,
                 proton_density=t.proton_density,
                 off_resonance_hz=graph.sample.off_resonance_hz,
+                diffusion_adc_mm2_s=t.diffusion_adc_mm2_s,
             )
         else:
             isochromats = tuple(
@@ -97,6 +98,12 @@ def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
 
 def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     sequence = compile_sequence(graph)
+    adc_values = (
+        [t.diffusion_adc_mm2_s for t in (graph.tissue if isinstance(graph.tissue, tuple) else (graph.tissue,))]
+        if graph.tissue is not None else []
+    )
+    if any(value is not None and value > 0 for value in adc_values) and sequence.metadata.get("gradient_units", "teaching") != "mt_m":
+        raise CapabilityMismatch("diffusion requires SequenceIR metadata gradient_units='mt_m'")
     extra, explanations = disturbance_requirements(graph.disturbances)
     required = frozenset(graph.engine.required_capabilities | extra)
     if graph.engine.preferred is not None:

@@ -18,7 +18,7 @@ def _state_width(phantom, scanner, options) -> int:
     return 3 * (2 * options.epg_kmax + 1) + 3 * 64
 
 
-def _unavailable_backend(phantom, scanner, options):
+def _unavailable_backend(phantom, scanner, options, sequence):
     raise RuntimeError("ssepg uses its dedicated spatial Bloch compiler path")
 
 

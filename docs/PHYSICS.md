@@ -29,7 +29,7 @@ Selection is set inclusion. Missing capabilities fail closed.
 | Representation | Available | Supports | Teaching use / boundary |
 |---|---|---|---|
 | Bloch | yes | hard_rf, off_resonance, spatial_encoding, magnetization_states | SE, GRE, off-resonance and spatial dephasing. Instantaneous RF and dimensionless teaching gradients. |
-| EPG | yes | hard_rf, configuration_states, steady_state | TSE/CPMG echo trains. Single pool, bounded integer orders, metadata-first `dk`. |
+| EPG | yes | hard_rf, configuration_states, steady_state, isotropic_diffusion | TSE/CPMG echo trains. Single pool, bounded integer orders, metadata-first `dk`; isotropic diffusion requires physical gradients. |
 | Spectral | yes | hard_rf, off_resonance, multi_pool, magnetization_states | Fat/water phase and beating. No exchange, MT, CEST saturation, or fitted MRS lineshapes. |
 | ssEPG | yes | hard_rf, shaped_rf, configuration_states, spatial_encoding, slice_selective | Dedicated slice-selective shaped RF / z-profile compiler path. |
 | EPG-X | no | hard_rf, configuration_states, exchange, multi_pool | EPG plus exchange. Explicit unavailable seam. |
@@ -44,7 +44,8 @@ All shipped engines are returned as a kernel-owned `SimulationEngine` implementi
 
 - IR RF amplitude and phase are degrees; the scheduler converts them to radians.
 - Time is seconds.
-- Current gradients are dimensionless teaching gradients scaled by `ScannerModel.gradient_scale` in Hz/m.
+- Gradients are dimensionless teaching values by default (an absent or `"teaching"` `SequenceIR.metadata["gradient_units"]`) and retain the v0.59 scaling by `ScannerModel.gradient_scale` in Hz/m.
+- `gradient_units="mt_m"` is an explicit opt-in declaring channel values in mT/m. The physics kernel converts them with the proton gyromagnetic ratio; existing templates deliberately do not opt in. Physical EPG order spacing is one cycle across `metadata["fov_m"]`, or across the documented 0.22 m default FOV.
 - Signal is `Mx + 1j*My`; positive off-resonance accumulates positive phase and NCO demodulation removes phase with a negative exponential.
 - EPG shifts prefer `SequenceIR.metadata["epg_dk_events"]`. Area quantization by `EngineOptions.epg_dk_scale` is a fallback for untagged IR.
 
@@ -80,7 +81,7 @@ Names must match the entry-point name and may not shadow `bloch`, `epg`, or `spe
 
 ## Extension seams
 
-`diffusion_attenuation` provides the diagonal configuration-space free-diffusion propagator but is not applied to teaching-unit gradients. `EpgXLayout` fixes Bloch–McConnell and magnetization-transfer state rows; their evolution functions raise explicit physics-v1 boundary errors. This prevents partially correct exchange or MT behavior from appearing as supported simulation.
+`diffusion_attenuation` provides the diagonal configuration-space free-diffusion propagator. Classic EPG applies it to transverse configuration orders during free evolution only when tissue ADC is positive and the SequenceIR declares `gradient_units="mt_m"`; ADC with teaching or absent units fails closed. Bloch, hybrid, ssEPG, PDG, and spectral simulation do not apply diffusion. `EpgXLayout` fixes Bloch–McConnell and magnetization-transfer state rows; their evolution functions continue to raise explicit physics-v1 boundary errors. This prevents partially correct exchange or MT behavior from appearing as supported simulation.
 
 Floquet, CEST, MRS, and DCE are documented seams only. They have no implementation modules in `packages/mrqlab_experiment`.
 

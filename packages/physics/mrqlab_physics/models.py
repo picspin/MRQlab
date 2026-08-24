@@ -65,6 +65,7 @@ class Phantom:
     t2: float = 0.1
     proton_density: float = 1.0
     off_resonance_hz: float = 0.0
+    diffusion_adc_mm2_s: float | None = None
     isochromats: tuple[Isochromat, ...] = ()
     pools: tuple[SpectralPool, ...] = ()
 
@@ -75,6 +76,10 @@ class Phantom:
             raise ValueError("phantom t1 and t2 must be positive")
         if self.proton_density < 0:
             raise ValueError("phantom proton_density must be non-negative")
+        if self.diffusion_adc_mm2_s is not None:
+            _require_finite_real("phantom diffusion_adc_mm2_s", self.diffusion_adc_mm2_s)
+            if self.diffusion_adc_mm2_s < 0:
+                raise ValueError("phantom diffusion_adc_mm2_s must be non-negative")
         if any(not isinstance(spin, Isochromat) for spin in self.isochromats):
             raise TypeError("phantom isochromats must contain Isochromat values")
         if any(not isinstance(pool, SpectralPool) for pool in self.pools):

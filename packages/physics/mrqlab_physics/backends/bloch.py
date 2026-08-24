@@ -4,12 +4,14 @@ from ..models import Isochromat, ScannerModel
 from ..ops.relax import relaxation_factors
 from ..ops.rf import rotate_cartesian
 from ..ops.types import GradInterval, Operator, Relax, RfOp, Shift
+from ..kernel.units import gradient_hz_per_m
 
 
 class BlochBackend:
-    def __init__(self, spins: tuple[Isochromat, ...], scanner: ScannerModel):
+    def __init__(self, spins: tuple[Isochromat, ...], scanner: ScannerModel, gradient_units="teaching"):
         self.spins = spins
         self.scanner = scanner
+        self.gradient_units = gradient_units
         self.state = np.zeros((len(spins), 3), dtype=float)
         self.state[:, 2] = [spin.proton_density for spin in spins]
         self.weights = np.asarray([spin.weight for spin in spins], dtype=float)
@@ -28,8 +30,8 @@ class BlochBackend:
                     spin.proton_density - self.state[index, 2]
                 ) * e1
         elif isinstance(op, GradInterval):
-            gradient_hz_per_m = np.asarray(op.gradient) * self.scanner.gradient_scale
-            phase = 2.0 * np.pi * (self.positions @ gradient_hz_per_m) * op.dt
+            gradient = gradient_hz_per_m(op.gradient, self.scanner, self.gradient_units)
+            phase = 2.0 * np.pi * (self.positions @ gradient) * op.dt
             transverse = (self.state[:, 0] + 1j * self.state[:, 1]) * np.exp(1j * phase)
             self.state[:, 0] = transverse.real
             self.state[:, 1] = transverse.imag

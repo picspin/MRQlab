@@ -6,14 +6,15 @@ def _state_width(phantom, scanner, options) -> int:
     return len(phantom.resolved_isochromats())
 
 
-def _backend(phantom, scanner, options):
-    return BlochBackend(phantom.resolved_isochromats(), scanner)
+def _backend(phantom, scanner, options, sequence):
+    return BlochBackend(phantom.resolved_isochromats(), scanner, sequence.metadata.get("gradient_units", "teaching"))
 
 
-def _metadata(phantom, scanner, options):
+def _metadata(phantom, scanner, options, sequence):
+    units = sequence.metadata.get("gradient_units", "teaching")
     return {
         "n_isochromats": len(phantom.resolved_isochromats()),
-        "assumptions": ["instantaneous RF", "dimensionless teaching gradients"],
+        "assumptions": ["instantaneous RF", "dimensionless teaching gradients" if units == "teaching" else "physical mt_m gradients"],
     }
 
 
