@@ -124,8 +124,8 @@ REPRESENTATIONS = {
     "epg-x": StateRepresentation(
         "epg-x",
         frozenset({"hard_rf", "configuration_states", "exchange", "multi_pool"}),
-        False,
-        "EPG-X combines EPG state with exchange operators",
+        True,
+        "Two-pool liquid Bloch-McConnell evolution on the six-row EPG-X layout",
         validity=EngineValidity(
             spatial_encoding="limited",
             shaped_rf="unsupported",
@@ -140,6 +140,17 @@ REPRESENTATIONS = {
 
 
 def select_representation(required: frozenset[str], preferred: str | None) -> StateRepresentation:
+    epgx = REPRESENTATIONS["epg-x"]
+    if "exchange" in required:
+        if preferred is not None and preferred != "epg-x":
+            raise CapabilityMismatch(
+                f"forced representation {preferred!r} cannot satisfy exchange"
+            )
+        if epgx.available and required <= epgx.supports:
+            return epgx
+        raise CapabilityMismatch(
+            f"required capabilities {sorted(required)} are unavailable: {epgx.explanation}"
+        )
     pdg = REPRESENTATIONS["pdg"]
     if "phase_distribution" in required:
         if pdg.available and required <= pdg.supports:

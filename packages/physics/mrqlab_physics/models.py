@@ -59,6 +59,28 @@ class SpectralPool:
             raise ValueError("spectral pool fraction must be non-negative and relaxation times positive")
 
 
+@dataclass(frozen=True, slots=True)
+class BlochMcConnellPools:
+    """Explicit two-liquid-pool parameters for the EPG-X backend."""
+
+    t1_a: float
+    t2_a: float
+    pd_a: float
+    t1_b: float
+    t2_b: float
+    pd_b: float
+    k_ab_hz: float
+    k_ba_hz: float
+
+    def __post_init__(self):
+        for name in ("t1_a", "t2_a", "pd_a", "t1_b", "t2_b", "pd_b", "k_ab_hz", "k_ba_hz"):
+            _require_finite_real(f"Bloch-McConnell {name}", getattr(self, name))
+        if min(self.t1_a, self.t2_a, self.t1_b, self.t2_b) <= 0:
+            raise ValueError("Bloch-McConnell relaxation times must be positive")
+        if min(self.pd_a, self.pd_b, self.k_ab_hz, self.k_ba_hz) < 0:
+            raise ValueError("Bloch-McConnell densities and rates must be non-negative")
+
+
 @dataclass(slots=True)
 class Phantom:
     t1: float = 1.0
@@ -68,6 +90,7 @@ class Phantom:
     diffusion_adc_mm2_s: float | None = None
     isochromats: tuple[Isochromat, ...] = ()
     pools: tuple[SpectralPool, ...] = ()
+    bloch_mcconnell: BlochMcConnellPools | None = None
 
     def __post_init__(self):
         for name in ("t1", "t2", "proton_density", "off_resonance_hz"):
@@ -84,6 +107,8 @@ class Phantom:
             raise TypeError("phantom isochromats must contain Isochromat values")
         if any(not isinstance(pool, SpectralPool) for pool in self.pools):
             raise TypeError("phantom pools must contain SpectralPool values")
+        if self.bloch_mcconnell is not None and not isinstance(self.bloch_mcconnell, BlochMcConnellPools):
+            raise TypeError("phantom bloch_mcconnell must be BlochMcConnellPools")
 
     def resolved_isochromats(self) -> tuple[Isochromat, ...]:
         if self.isochromats:

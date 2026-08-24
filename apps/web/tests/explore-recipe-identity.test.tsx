@@ -71,7 +71,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByText(/Hepatic Parenchyma/i)).toBeVisible();
   });
 
-  it("nav chrome says v0.60", () => {
+  it("nav chrome says v0.61", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -79,6 +79,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.60");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.61");
   });
 });

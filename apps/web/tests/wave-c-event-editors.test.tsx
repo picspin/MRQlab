@@ -89,9 +89,9 @@ describe("Wave C SequenceIR event editors", () => {
     expect(screen.queryByTestId("gradient-event-editor")).toBeNull();
   });
 
-  it("shows chrome v0.60", () => {
+  it("shows chrome v0.61", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.60");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.61");
   });
 
   it("labels gradient duration/ramp as editor seeds, not SequenceIR", async () => {

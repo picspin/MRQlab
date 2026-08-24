@@ -84,7 +84,7 @@ Selection is set inclusion over required capabilities. Missing capabilities fail
 | EPG | yes | hard_rf, configuration_states, steady_state | TSE/CPMG echo trains |
 | Spectral | yes | hard_rf, off_resonance, multi_pool, magnetization_states | Independent fat/water pools |
 | ssEPG | no | hard_rf, shaped_rf, configuration_states, spatial_encoding | Dedicated future slice-selective path |
-| EPG-X | no | hard_rf, configuration_states, exchange, multi_pool | EPG state plus exchange operators |
+| EPG-X | yes | hard_rf, configuration_states, exchange, multi_pool | Dedicated two-pool liquid Bloch–McConnell EPG-X engine |
 | PDG | no | hard_rf, configuration_states, spatial_encoding, off_resonance | Pathway ↔ spatial image bridge |
 | Density matrix | no | (future MRS base) | Liouville–von Neumann propagation |
 
