@@ -26,3 +26,11 @@ def test_slice_profile_selects_ssepg_and_runs():
     assert run.plan.engine == run.plan.representation == "ssepg"
     result = build_result_graph(run)
     assert any(item.kind == "slice_profile" for item in result.observations)
+
+
+def test_reality_b0_map_selects_pdg_and_runs():
+    graph = build_preset("dark-blood-tse")
+    graph.disturbances = stack_from_reality(50)
+    assert validate_experiment(graph).valid is True
+    run = run_experiment(graph)
+    assert run.plan.engine == run.plan.representation == "pdg"

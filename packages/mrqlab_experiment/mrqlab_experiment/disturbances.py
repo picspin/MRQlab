@@ -38,7 +38,7 @@ _REQUIREMENTS = {
         "EPG → ssEPG",
     ),
     "exchange": (frozenset({"exchange", "multi_pool"}), "EPG → EPG-X / hybrid"),
-    "b0_map": (frozenset({"spatial_encoding", "off_resonance"}), "EPG → PDG for spatial B0"),
+    "b0_map": (frozenset({"spatial_encoding", "off_resonance", "phase_distribution"}), "EPG → PDG for spatial B0"),
 }
 
 

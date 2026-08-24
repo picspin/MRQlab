@@ -20,6 +20,7 @@ ObservationKind = Literal[
     "tissue_contrast",
     "objective_score",
     "slice_profile",
+    "phase_distribution",
 ]
 
 _ALLOWED_PRODUCTS = frozenset(get_args(ObservationKind))
@@ -90,6 +91,8 @@ def build_result_graph(run) -> ResultGraph:
     products = run.experiment.readout.products
     if run.sim_result.slice_profile is not None and "slice_profile" not in products:
         products = (*products, "slice_profile")
+    if run.sim_result.phase_distribution is not None and "phase_distribution" not in products:
+        products = (*products, "phase_distribution")
     for product in products:
         if product not in _ALLOWED_PRODUCTS:
             raise ValueError(f"unknown_product: {product!r}")
@@ -205,6 +208,17 @@ def build_result_graph(run) -> ResultGraph:
             units={"z_m": "m", "magnetization": "a.u."},
             provenance=provenance,
         ),
+        "phase_distribution": lambda emitted: Observation(
+            id="phase_distribution",
+            kind="phase_distribution",
+            data={
+                key: (np.abs(value) if np.iscomplexobj(value) else np.asarray(value)).tolist()
+                for key, value in (run.sim_result.phase_distribution or {}).items()
+            },
+            axes={"x_m": np.asarray((run.sim_result.phase_distribution or {}).get("x_m", [])).tolist()},
+            units={"x_m": "m", "off_hz": "Hz", "configurations": "a.u.", "image": "a.u."},
+            provenance=provenance,
+        ),
     }
     observations: list[Observation] = []
     edges: list[ResultEdge] = []
@@ -213,7 +227,7 @@ def build_result_graph(run) -> ResultGraph:
         observation = builders[product](frozenset(emitted))
         observations.append(observation)
         emitted.add(observation.id)
-        if product in {"signal", "magnetization", "configurations", "k_trajectory", "slice_profile"}:
+        if product in {"signal", "magnetization", "configurations", "k_trajectory", "slice_profile", "phase_distribution"}:
             edges.append(ResultEdge(source=engine_name, target=observation.id, kind="engine"))
         for source in observation.derived_from:
             edge_kind = "recon" if product == "image" and source == "signal" else "derived_from"
