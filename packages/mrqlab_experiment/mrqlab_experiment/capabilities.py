@@ -94,8 +94,8 @@ REPRESENTATIONS = {
         frozenset(
             {"hard_rf", "shaped_rf", "configuration_states", "spatial_encoding", "slice_selective"}
         ),
-        False,
-        "ssEPG is a dedicated future compiler path for slice-selective RF",
+        True,
+        "ssEPG is a dedicated compiler path for slice-selective shaped RF on a z-grid; it is not hybrid or PDG",
         validity=EngineValidity(
             spatial_encoding="limited",
             shaped_rf="exact",
@@ -140,6 +140,13 @@ REPRESENTATIONS = {
 
 
 def select_representation(required: frozenset[str], preferred: str | None) -> StateRepresentation:
+    ssepg = REPRESENTATIONS["ssepg"]
+    if "slice_selective" in required:
+        if ssepg.available and required <= ssepg.supports:
+            return ssepg
+        raise CapabilityMismatch(
+            f"required capabilities {sorted(required)} are unavailable: {ssepg.explanation}"
+        )
     hybrid = REPRESENTATIONS["hybrid"]
     if (
         {"shaped_rf", "configuration_states"} <= required

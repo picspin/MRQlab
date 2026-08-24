@@ -31,7 +31,7 @@ Selection is set inclusion. Missing capabilities fail closed.
 | Bloch | yes | hard_rf, off_resonance, spatial_encoding, magnetization_states | SE, GRE, off-resonance and spatial dephasing. Instantaneous RF and dimensionless teaching gradients. |
 | EPG | yes | hard_rf, configuration_states, steady_state | TSE/CPMG echo trains. Single pool, bounded integer orders, metadata-first `dk`. |
 | Spectral | yes | hard_rf, off_resonance, multi_pool, magnetization_states | Fat/water phase and beating. No exchange, MT, CEST saturation, or fitted MRS lineshapes. |
-| ssEPG | no | hard_rf, shaped_rf, configuration_states, spatial_encoding | Dedicated future compiler path for slice-selective RF. |
+| ssEPG | yes | hard_rf, shaped_rf, configuration_states, spatial_encoding, slice_selective | Dedicated slice-selective shaped RF / z-profile compiler path. |
 | EPG-X | no | hard_rf, configuration_states, exchange, multi_pool | EPG plus exchange. Explicit unavailable seam. |
 | PDG | no | hard_rf, configuration_states, spatial_encoding, off_resonance | Optional provider seam bridging pathways and image formation. |
 | Density matrix | no | (future) | MRS base via Liouville–von Neumann. Vocabulary only in v0.1. |

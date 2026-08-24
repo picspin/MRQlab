@@ -126,5 +126,6 @@ class SimResult:
     k_trajectory: np.ndarray
     magnetization: np.ndarray | None = None
     configurations: np.ndarray | None = None
+    slice_profile: dict[str, np.ndarray] | None = None
     meta: dict[str, Any] = field(default_factory=dict)
     timing: dict[str, float] = field(default_factory=dict)
