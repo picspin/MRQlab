@@ -33,7 +33,7 @@ Selection is set inclusion. Missing capabilities fail closed.
 | Spectral | yes | hard_rf, off_resonance, multi_pool, magnetization_states | Fat/water phase and beating. No exchange, MT, CEST saturation, or fitted MRS lineshapes. |
 | ssEPG | yes | hard_rf, shaped_rf, configuration_states, spatial_encoding, slice_selective | Dedicated slice-selective shaped RF / z-profile compiler path. |
 | EPG-X | no | hard_rf, configuration_states, exchange, multi_pool | EPG plus exchange. Explicit unavailable seam. |
-| PDG | no | hard_rf, configuration_states, spatial_encoding, off_resonance | Optional provider seam bridging pathways and image formation. |
+| PDG | yes | hard_rf, configuration_states, spatial_encoding, off_resonance, phase_distribution | Dedicated spatial B0 pathway↔image compiler on a phase-distribution grid. |
 | Density matrix | no | (future) | MRS base via Liouville–von Neumann. Vocabulary only in v0.1. |
 
 Built-in routing is SE/GRE → Bloch and TSE → EPG through `preferred_engine` metadata; an explicit engine preference still wins if capabilities allow.

@@ -108,9 +108,9 @@ REPRESENTATIONS = {
     ),
     "pdg": StateRepresentation(
         "pdg",
-        frozenset({"hard_rf", "configuration_states", "spatial_encoding", "off_resonance"}),
-        False,
-        "PDG is an optional provider seam bridging pathways and image formation",
+        frozenset({"hard_rf", "configuration_states", "spatial_encoding", "off_resonance", "phase_distribution"}),
+        True,
+        "PDG is a dedicated pathway↔image compiler bridging EPG configuration states with spatial image formation via a phase-distribution grid",
         validity=EngineValidity(
             spatial_encoding="full",
             shaped_rf="approximate",
@@ -140,6 +140,13 @@ REPRESENTATIONS = {
 
 
 def select_representation(required: frozenset[str], preferred: str | None) -> StateRepresentation:
+    pdg = REPRESENTATIONS["pdg"]
+    if "phase_distribution" in required:
+        if pdg.available and required <= pdg.supports:
+            return pdg
+        raise CapabilityMismatch(
+            f"required capabilities {sorted(required)} are unavailable: {pdg.explanation}"
+        )
     ssepg = REPRESENTATIONS["ssepg"]
     if "slice_selective" in required:
         if ssepg.available and required <= ssepg.supports:

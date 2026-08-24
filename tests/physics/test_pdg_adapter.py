@@ -27,5 +27,9 @@ def test_pdg_adapter_delegates_unified_contract():
     assert result.meta == {"provider": "fake", "engine": "pdg"}
 
 
-def test_pdg_is_not_a_default_builtin_engine():
-    assert "pdg" not in {item["name"] for item in list_engines()}
+def test_builtin_pdg_does_not_replace_optional_provider_seam():
+    pdg = next(item for item in list_engines() if item["name"] == "pdg")
+    assert pdg["available"] is True
+    assert pdg["source"] == "built-in"
+    with pytest.raises(PDGProviderUnavailable, match="install and pass a PDGProvider"):
+        PDGAdapter().simulate(None, Phantom(), ScannerModel(), EngineOptions())

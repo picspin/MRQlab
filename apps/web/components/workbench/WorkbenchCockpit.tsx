@@ -242,6 +242,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const configurations = resultGraph?.observations.find((observation) => observation.kind === "configurations");
   const magnetization = resultGraph?.observations.filter((observation) => observation.kind === "magnetization").at(-1);
   const sliceProfile = resultGraph?.observations.find((observation) => observation.kind === "slice_profile");
+  const phaseDistribution = resultGraph?.observations.find((observation) => observation.kind === "phase_distribution");
 
   const lastVector = (value: unknown): number[] | null => {
     if (!Array.isArray(value)) return null;
@@ -716,7 +717,18 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   </div>
                 )}
                 {physicsTab === "epg_phase" && (
-                  configurations ? <div data-testid="epg-pathways" style={{ width: "100%", height: "260px" }}>
+                  phaseDistribution && typeof phaseDistribution.data === "object" ? <div data-testid="phase-distribution-plot" style={{ width: "100%", height: "260px" }}>
+                    <div style={{ font: "10px monospace", color: "#8ea1a8" }}>Backend phase_distribution · x vs off-resonance</div>
+                    <svg viewBox="0 0 520 190" style={{ width: "100%", height: "100%" }} aria-label="Backend PDG spatial off-resonance grid">
+                      <line x1="35" y1="95" x2="505" y2="95" stroke="#26363d" />
+                      {(Array.isArray(phaseDistribution.data.off_hz) ? phaseDistribution.data.off_hz as number[] : []).map((value, index, values) => {
+                        const peak = Math.max(1, ...values.map((item) => Math.abs(item)));
+                        const x = 35 + index * 470 / Math.max(1, values.length - 1);
+                        return <line key={index} x1={x} y1="95" x2={x} y2={95 - value * 70 / peak} stroke="var(--cyan)" strokeWidth="2" />;
+                      })}
+                      <text x="35" y="180" fill="#8ea1a8" fontSize="9">x (m) · off_hz from backend RUN</text>
+                    </svg>
+                  </div> : configurations ? <div data-testid="epg-pathways" style={{ width: "100%", height: "260px" }}>
                     <div style={{ font: "10px monospace", color: "#8ea1a8" }}>Backend configurations · rows F+ / F− / Z · columns echo snapshots</div>
                     <svg viewBox="0 0 520 190" style={{ width: "100%", height: "100%" }}>
                       {(["F+", "F−", "Z"] as const).map((label, row) => <g key={label}>
@@ -730,7 +742,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         })}
                       </g>)}
                     </svg>
-                  </div> : <div data-testid="epg-awaiting" style={{ color: "#8ea1a8", fontFamily: "monospace" }}>awaiting configurations from RUN</div>
+                  </div> : <div data-testid="epg-awaiting" style={{ color: "#8ea1a8", fontFamily: "monospace" }}>awaiting phase_distribution from RUN</div>
                 )}
                 {physicsTab === "bloch_sphere" && (
                   <div data-testid="bloch-hud" style={{ textAlign: "center" }}>
@@ -985,7 +997,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.58 · UX honesty</div>
+          <div className="system-info">MRQLab v0.59 · UX honesty</div>
         )}
       </section>
     </div>

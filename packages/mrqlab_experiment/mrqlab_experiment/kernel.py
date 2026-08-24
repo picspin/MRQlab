@@ -118,6 +118,14 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
         raise CapabilityMismatch(
             f"forced representation {graph.engine.preferred!r} cannot satisfy slice_selective"
         )
+    if (
+        "phase_distribution" in required
+        and graph.engine.preferred is not None
+        and graph.engine.preferred != "pdg"
+    ):
+        raise CapabilityMismatch(
+            f"forced representation {graph.engine.preferred!r} cannot satisfy phase_distribution"
+        )
     selected = select_representation(required, preferred)
     requested = EngineOptions(**graph.engine.options)
     options = replace(requested, max_work=min(requested.max_work, graph.constraints.max_work))
@@ -223,11 +231,19 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
         if slice_disturbance is None:
             raise CapabilityMismatch("ssepg requires an enabled slice_profile disturbance")
         sequence.metadata["ssepg"] = dict(slice_disturbance.parameters)
+    if plan.representation == "pdg":
+        b0_disturbance = next(
+            (item for item in graph.disturbances.items if item.enabled and item.kind == "b0_map"),
+            None,
+        )
+        if b0_disturbance is None:
+            raise CapabilityMismatch("pdg requires an enabled b0_map disturbance")
+        sequence.metadata["pdg"] = dict(b0_disturbance.parameters)
     options = EngineOptions(**plan.options)
     physics_ir = compile_physics_ir(sequence, plan.representation, options)
     scanner_model = graph.effective_scanner
     try:
-        engine = get_engine(plan.representation if plan.representation in {"hybrid", "ssepg"} else plan.engine)
+        engine = get_engine(plan.representation if plan.representation in {"hybrid", "ssepg", "pdg"} else plan.engine)
         result = engine.simulate(
             sequence,
             _phantom_from_sample(graph),
@@ -235,7 +251,7 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
             options,
         )
     except (RuntimeError, NotImplementedError, ValueError) as exc:
-        if plan.representation not in {"hybrid", "ssepg"}:
+        if plan.representation not in {"hybrid", "ssepg", "pdg"}:
             raise
         raise CapabilityMismatch(f"{plan.representation} engine handoff unavailable: {exc}") from exc
     return KernelRun(graph.model_copy(deep=True), sequence, result, plan, physics_ir)
