@@ -81,6 +81,27 @@ class BlochMcConnellPools:
             raise ValueError("Bloch-McConnell densities and rates must be non-negative")
 
 
+@dataclass(frozen=True, slots=True)
+class MagnetizationTransferPools:
+    """Free liquid pool and bound longitudinal-only pool for EPG-X MT."""
+
+    t1_a: float
+    t2_a: float
+    pd_a: float
+    t1_b: float
+    pd_b: float
+    k_ab_hz: float
+    k_ba_hz: float
+
+    def __post_init__(self):
+        for name in ("t1_a", "t2_a", "pd_a", "t1_b", "pd_b", "k_ab_hz", "k_ba_hz"):
+            _require_finite_real(f"magnetization-transfer {name}", getattr(self, name))
+        if min(self.t1_a, self.t2_a, self.t1_b) <= 0:
+            raise ValueError("magnetization-transfer relaxation times must be positive")
+        if min(self.pd_a, self.pd_b, self.k_ab_hz, self.k_ba_hz) < 0:
+            raise ValueError("magnetization-transfer densities and rates must be non-negative")
+
+
 @dataclass(slots=True)
 class Phantom:
     t1: float = 1.0
@@ -91,6 +112,7 @@ class Phantom:
     isochromats: tuple[Isochromat, ...] = ()
     pools: tuple[SpectralPool, ...] = ()
     bloch_mcconnell: BlochMcConnellPools | None = None
+    magnetization_transfer: MagnetizationTransferPools | None = None
 
     def __post_init__(self):
         for name in ("t1", "t2", "proton_density", "off_resonance_hz"):
@@ -109,6 +131,12 @@ class Phantom:
             raise TypeError("phantom pools must contain SpectralPool values")
         if self.bloch_mcconnell is not None and not isinstance(self.bloch_mcconnell, BlochMcConnellPools):
             raise TypeError("phantom bloch_mcconnell must be BlochMcConnellPools")
+        if self.magnetization_transfer is not None and not isinstance(
+            self.magnetization_transfer, MagnetizationTransferPools
+        ):
+            raise TypeError("phantom magnetization_transfer must be MagnetizationTransferPools")
+        if self.bloch_mcconnell is not None and self.magnetization_transfer is not None:
+            raise ValueError("phantom two-pool models are mutually exclusive")
 
     def resolved_isochromats(self) -> tuple[Isochromat, ...]:
         if self.isochromats:

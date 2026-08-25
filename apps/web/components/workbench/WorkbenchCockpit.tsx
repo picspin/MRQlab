@@ -997,7 +997,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.61 · UX honesty</div>
+          <div className="system-info">MRQLab v0.62 · UX honesty</div>
         )}
       </section>
     </div>
