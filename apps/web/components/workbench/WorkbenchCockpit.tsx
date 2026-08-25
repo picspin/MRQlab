@@ -44,6 +44,8 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   
   const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>(() => scenarioKeyForRecipe(initialRecipeId));
   const currentScenario: ScenarioSpec = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
+  const isSpectrumExperiment = selectedScenarioKey === "cest_amide";
+  const clinicalScenarioEntries = Object.entries(CLINICAL_SCENARIOS).filter(([key]) => key !== "cest_amide");
 
   // v0.43: Edit Mode toggle
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -290,14 +292,25 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
       <section className="instrument-bay" data-testid="instrument-bay">
         <div className="bay-header">
           <h3>EXPERIMENT</h3>
-          <span className="recipe-tag">{currentScenario.seqType}</span>
+          <span className="recipe-tag">{isSpectrumExperiment ? "CEST" : currentScenario.seqType}</span>
         </div>
 
-        {/* Scenario Selection Dropdown */}
+        {isSpectrumExperiment && (
+          <div data-testid="spectrum-experiment-identity" style={{ marginBottom: "10px", padding: "8px", background: "#0c1114", border: "1px solid var(--amber)", borderRadius: "4px" }}>
+            <div style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 800, letterSpacing: "0.08em" }}>SPECTRUM EXPERIMENT</div>
+            <div style={{ fontSize: "13px", color: "#e8f4f6", fontWeight: 700, marginTop: "2px" }}>Amide CEST Z-spectrum</div>
+            <div style={{ fontSize: "11px", color: "#8ba0a8", marginTop: "4px", lineHeight: 1.4 }}>
+              Two-liquid-pool CW · frequency axis · not MS plaque imaging
+            </div>
+          </div>
+        )}
+
         <div style={{ marginBottom: "14px" }}>
-          <label style={{ fontSize: "11px", color: "#8ba0a8", display: "block", marginBottom: "4px" }}>Clinical Scenario:</label>
+          <label style={{ fontSize: "11px", color: "#8ba0a8", display: "block", marginBottom: "4px" }}>
+            {isSpectrumExperiment ? "Switch to clinical imaging:" : "Clinical Scenario:"}
+          </label>
           <select
-            value={selectedScenarioKey}
+            value={isSpectrumExperiment ? "" : selectedScenarioKey}
             onChange={(e) => setSelectedScenarioKey(e.target.value)}
             style={{
               width: "100%",
@@ -312,7 +325,12 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             }}
             data-testid="scenario-dropdown"
           >
-            {Object.entries(CLINICAL_SCENARIOS).filter(([k]) => k !== "cest_amide").map(([k, s]) => (
+            {isSpectrumExperiment && (
+              <option value="" disabled>
+                Not a clinical imaging case
+              </option>
+            )}
+            {clinicalScenarioEntries.map(([k, s]) => (
               <option key={k} value={k}>
                 [{s.category}] {s.name}
               </option>
@@ -1030,7 +1048,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.64 · UX honesty</div>
+          <div className="system-info">MRQLab v0.65 · UX honesty</div>
         )}
       </section>
     </div>
