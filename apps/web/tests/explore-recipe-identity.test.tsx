@@ -91,11 +91,15 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
       </WorkspaceProvider>
     );
     expect(screen.getByText(/Amide solute/i)).toBeVisible();
+    expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/Amide CEST Z-spectrum/);
+    expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/not MS plaque imaging/i);
     const dropdown = screen.getByTestId("scenario-dropdown") as HTMLSelectElement;
+    expect(dropdown.value).toBe("");
     expect(Array.from(dropdown.options).map((option) => option.value)).not.toContain("cest_amide");
+    expect(dropdown.selectedOptions[0]?.textContent).toMatch(/Not a clinical imaging case/);
   });
 
-  it("nav chrome says v0.64", () => {
+  it("nav chrome says v0.65", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -103,6 +107,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.64");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.65");
   });
 });
