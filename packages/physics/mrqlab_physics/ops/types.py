@@ -13,6 +13,16 @@ class RfOp:
 
 
 @dataclass(frozen=True, slots=True)
+class SaturationOp:
+    """Declared homogeneous CW saturation; distinct from instantaneous hard RF."""
+
+    t: float
+    duration_s: float
+    offset_hz: float
+    b1_ut: float
+
+
+@dataclass(frozen=True, slots=True)
 class Relax:
     t: float
     dt: float
@@ -39,4 +49,4 @@ class AdcSample:
     nco_phase_rad: float
 
 
-Operator: TypeAlias = RfOp | Relax | Shift | GradInterval | AdcSample
+Operator: TypeAlias = RfOp | SaturationOp | Relax | Shift | GradInterval | AdcSample

@@ -17,6 +17,7 @@ from mrqlab_physics import (
     get_engine,
 )
 from mrqlab_sequence import SequenceIR
+from mrqlab_physics.kernel.units import GAMMA_BAR_HZ_T
 
 from .capabilities import CapabilityMismatch, EngineValidity, REPRESENTATIONS, select_representation
 from .compiler import compile_sequence
@@ -77,7 +78,8 @@ def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
                 diffusion_adc_mm2_s=t.diffusion_adc_mm2_s,
             )
         else:
-            if len(tissues) == 2 and tissues[0].exchange_rate_hz > 0:
+            cest_declared = isinstance(graph.sequence, SequenceIR) and graph.sequence.metadata.get("cest") is not None
+            if len(tissues) == 2 and (tissues[0].exchange_rate_hz > 0 or cest_declared):
                 a, b = tissues
                 k_ba = a.exchange_rate_hz * a.pool_fraction / b.pool_fraction
                 pool_model = (
@@ -89,6 +91,7 @@ def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
                     BlochMcConnellPools(
                         a.t1, a.t2, a.proton_density, b.t1, b.t2, b.proton_density,
                         a.exchange_rate_hz, k_ba,
+                        b.chemical_shift_ppm * GAMMA_BAR_HZ_T * graph.effective_scanner.b0_t * 1e-6,
                     )
                 )
                 return Phantom(
@@ -120,6 +123,7 @@ def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
 
 def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     sequence = compile_sequence(graph)
+    cest = sequence.metadata.get("cest")
     adc_values = (
         [t.diffusion_adc_mm2_s for t in (graph.tissue if isinstance(graph.tissue, tuple) else (graph.tissue,))]
         if graph.tissue is not None else []
@@ -128,6 +132,20 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
         raise CapabilityMismatch("diffusion requires SequenceIR metadata gradient_units='mt_m'")
     extra, explanations = disturbance_requirements(graph.disturbances)
     tissue_values = graph.tissue if isinstance(graph.tissue, tuple) else ((graph.tissue,) if graph.tissue is not None else ())
+    if cest is not None:
+        if graph.engine.preferred != "epg-x":
+            raise CapabilityMismatch("CEST metadata requires preferred engine 'epg-x'")
+        if len(tissue_values) != 2:
+            raise CapabilityMismatch("CEST requires two liquid tissues")
+        if any(t.bound_pool for t in tissue_values):
+            raise CapabilityMismatch("CEST does not accept bound MT pools")
+        if abs(tissue_values[0].chemical_shift_ppm) > 1e-12:
+            raise CapabilityMismatch("CEST pool A must be water at chemical_shift_ppm=0")
+        if "image" in graph.readout.products:
+            raise CapabilityMismatch("CEST z_spectrum does not support image products")
+        required_cest = ("offsets_ppm", "offset_unit", "saturation_duration_s", "saturation_power_uT")
+        if any(key not in cest for key in required_cest):
+            raise CapabilityMismatch("CEST metadata is missing offsets/unit/duration/power")
     exchange_declared = bool(tissue_values and tissue_values[0].exchange_rate_hz > 0)
     if tissue_values and tissue_values[0].bound_pool:
         raise CapabilityMismatch("pool a must be the free pool")
@@ -222,9 +240,9 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     cost_estimate = float(total_events * max(1, len(graph.readout.products)))
 
     stale_deps = {
-        "sample": ("signal", "image", "magnetization", "configurations", "echo_train", "objective_score"),
-        "scanner": ("signal", "image", "k_trajectory"),
-        "sequence": ("signal", "image", "k_trajectory", "magnetization", "configurations", "echo_train", "sar", "objective_score"),
+        "sample": ("signal", "image", "magnetization", "configurations", "echo_train", "objective_score", "z_spectrum", "mtr_asym"),
+        "scanner": ("signal", "image", "k_trajectory", "z_spectrum", "mtr_asym"),
+        "sequence": ("signal", "image", "k_trajectory", "magnetization", "configurations", "echo_train", "sar", "objective_score", "z_spectrum", "mtr_asym"),
     }
 
     return ExecutionPlan(

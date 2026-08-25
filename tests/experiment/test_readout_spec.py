@@ -79,6 +79,10 @@ def test_every_declared_observation_kind_is_emitted_or_fails_closed(kind):
     if kind == "objective_score":
         graph.objective = ObjectiveFunction()
     graph.readout = ReadoutSpec(products=(kind,))
+    if kind in {"z_spectrum", "mtr_asym"}:
+        with pytest.raises(ValueError, match="CEST z_spectrum"):
+            build_result_graph(run_experiment(graph))
+        return
     if kind == "configurations":
         with pytest.raises(ValueError, match="snapshot"):
             build_result_graph(run_experiment(graph))

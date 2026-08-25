@@ -23,6 +23,26 @@ export interface ExploreCase {
  */
 export const EXPLORE_CASES: ExploreCase[] = [
   {
+    id: "cest-apt", title: "Amide CEST Z-spectrum", anatomy: "Single voxel / water reference",
+    clinicalQuestion: "How does amide exchange create asymmetry in a backend-computed Z-spectrum?",
+    keyPhysics: "Two-liquid-pool CW Bloch–McConnell saturation transfer",
+    sequence: "EPG-X CEST offset sweep", parameters: { fa: 0, te: 0, tr: 2000 },
+    difficulty: "Advanced", category: "Spectroscopy & Exchange",
+    recipeId: "cest_amide_z_spectrum", executable: true,
+  },
+  {
+    id: "mrs-1h", title: "¹H MR Spectroscopy", anatomy: "Spectral observation",
+    clinicalQuestion: "Density-matrix engine unavailable", keyPhysics: "Not in v0.1",
+    sequence: "Unavailable", parameters: { fa: 0, te: 0, tr: 0 }, difficulty: "Advanced",
+    category: "Spectroscopy & Exchange", recipeId: null, executable: false,
+  },
+  {
+    id: "x-nuclei", title: "X-nuclei Spectroscopy", anatomy: "Non-proton nuclei",
+    clinicalQuestion: "X-nuclei engine unavailable", keyPhysics: "Not in v0.1",
+    sequence: "Unavailable", parameters: { fa: 0, te: 0, tr: 0 }, difficulty: "Advanced",
+    category: "Spectroscopy & Exchange", recipeId: null, executable: false,
+  },
+  {
     id: "ms-lesion-t2",
     title: "Multiple Sclerosis (MS) Plaque Contrast",
     anatomy: "Brain / White Matter",
@@ -111,6 +131,7 @@ export const RECIPE_TO_SCENARIO: Record<string, string> = Object.fromEntries(
 );
 
 export function scenarioKeyForRecipe(recipeId: string | null | undefined): string {
+  if (recipeId === "cest_amide_z_spectrum") return "cest_amide";
   if (recipeId && RECIPE_TO_SCENARIO[recipeId]) return RECIPE_TO_SCENARIO[recipeId];
   return "ms_brain";
 }

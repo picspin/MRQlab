@@ -21,6 +21,8 @@ ObservationKind = Literal[
     "objective_score",
     "slice_profile",
     "phase_distribution",
+    "z_spectrum",
+    "mtr_asym",
 ]
 
 _ALLOWED_PRODUCTS = frozenset(get_args(ObservationKind))
@@ -93,6 +95,10 @@ def build_result_graph(run) -> ResultGraph:
         products = (*products, "slice_profile")
     if run.sim_result.phase_distribution is not None and "phase_distribution" not in products:
         products = (*products, "phase_distribution")
+    if "mtr_asym" in products and "z_spectrum" not in products:
+        products = ("z_spectrum", *products)
+    if run.sim_result.z_spectrum is not None and "z_spectrum" not in products:
+        products = (*products, "z_spectrum")
     for product in products:
         if product not in _ALLOWED_PRODUCTS:
             raise ValueError(f"unknown_product: {product!r}")
@@ -106,6 +112,8 @@ def build_result_graph(run) -> ResultGraph:
             )
         if product == "objective_score" and run.experiment.objective is None:
             raise ValueError("objective_score requested without an objective")
+        if product in {"z_spectrum", "mtr_asym"} and run.sim_result.z_spectrum is None:
+            raise ValueError(f"{product} requested but no CEST z_spectrum sweep ran")
         if product == "objective_score" and run.experiment.objective is not None:
             unsupported = sorted(
                 {
@@ -219,6 +227,21 @@ def build_result_graph(run) -> ResultGraph:
             units={"x_m": "m", "off_hz": "Hz", "configurations": "a.u.", "image": "a.u."},
             provenance=provenance,
         ),
+        "z_spectrum": lambda emitted: Observation(
+            id="z_spectrum", kind="z_spectrum",
+            data={
+                "offset_ppm": np.asarray(run.sim_result.z_spectrum["offset_ppm"]).tolist(),
+                "offset_hz": np.asarray(run.sim_result.z_spectrum["offset_hz"]).tolist(),
+                "Z": np.asarray(run.sim_result.z_spectrum["Z"]).tolist(),
+                "Mz_sat": np.asarray(run.sim_result.z_spectrum["Mz_sat"]).tolist(),
+                "Mz_ref": float(np.asarray(run.sim_result.z_spectrum["Mz_ref"]).reshape(-1)[0]),
+                "normalization": "unsaturated_control", "reference": "water",
+            },
+            axes={"offset_ppm": np.asarray(run.sim_result.z_spectrum["offset_ppm"]).tolist()},
+            units={"offset": "ppm", "offset_hz": "Hz", "Z": "normalized"},
+            provenance=provenance,
+        ),
+        "mtr_asym": lambda emitted: _build_mtr_asym(run.sim_result.z_spectrum, provenance),
     }
     observations: list[Observation] = []
     edges: list[ResultEdge] = []
@@ -227,7 +250,7 @@ def build_result_graph(run) -> ResultGraph:
         observation = builders[product](frozenset(emitted))
         observations.append(observation)
         emitted.add(observation.id)
-        if product in {"signal", "magnetization", "configurations", "k_trajectory", "slice_profile", "phase_distribution"}:
+        if product in {"signal", "magnetization", "configurations", "k_trajectory", "slice_profile", "phase_distribution", "z_spectrum"}:
             edges.append(ResultEdge(source=engine_name, target=observation.id, kind="engine"))
         for source in observation.derived_from:
             edge_kind = "recon" if product == "image" and source == "signal" else "derived_from"
@@ -236,4 +259,22 @@ def build_result_graph(run) -> ResultGraph:
         experiment_id=run.experiment.id,
         observations=tuple(observations),
         edges=tuple(edges),
+    )
+
+
+def _build_mtr_asym(spectrum, provenance):
+    offsets = np.asarray(spectrum["offset_ppm"], dtype=float)
+    z = np.asarray(spectrum["Z"], dtype=float)
+    positive, values = [], []
+    for index, offset in enumerate(offsets):
+        if offset <= 0:
+            continue
+        match = np.flatnonzero(np.isclose(offsets, -offset, rtol=0, atol=1e-9))
+        if match.size:
+            positive.append(float(offset))
+            values.append(float(z[match[0]] - z[index]))
+    return Observation(
+        id="mtr_asym", kind="mtr_asym", data={"offset_ppm": positive, "MTR_asym": values},
+        axes={"offset_ppm": positive}, units={"offset": "ppm", "MTR_asym": "normalized"},
+        derived_from=("z_spectrum",), provenance=provenance,
     )

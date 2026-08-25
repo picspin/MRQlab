@@ -95,6 +95,8 @@ def test_two_liquid_bm_ignores_declared_saturation():
     assert "bloch_mcconnell_exchange_applied" in result.meta["assumptions"]
 
 
-def test_cest_remains_documented_closed_without_a_module():
+def test_cest_imaging_and_mrs_remain_documented_closed():
     assert not Path("packages/physics/mrqlab_physics/ops/cest.py").exists()
-    assert "CEST remain unavailable" in Path("docs/PHYSICS.md").read_text()
+    text = Path("docs/PHYSICS.md").read_text()
+    assert "CEST imaging" in text
+    assert "remain unavailable" in text

@@ -34,6 +34,18 @@ export interface ScenarioSpec {
 }
 
 export const CLINICAL_SCENARIOS: Record<string, ScenarioSpec> = {
+  cest_amide: {
+    id: "cest_amide", recipeId: "cest_amide_z_spectrum",
+    name: "Physics — Two-pool amide CEST Z-spectrum", category: "Neuro", seqType: "SE",
+    anatomy: "Single voxel", scanPlane: "AXIAL", weightingName: "Z(Δ) spectrum experiment",
+    clinicalQuestion: "How does exchanging amide saturation alter the backend-computed water Z-spectrum?",
+    tissues: [
+      { id: "water", name: "Water", t1: 1000, t2: 80, pd: .9, desc: "0 ppm reference liquid" },
+      { id: "amide", name: "Amide solute", t1: 1000, t2: 10, pd: .1, desc: "+3.5 ppm exchanging liquid" },
+    ],
+    defaultParams: { fa: 90, te: 1, tr: 2001, fov: 1, matrix: 1, sliceThick: 1,
+      sliceCount: 1, sliceGap: 0, isInterleaved: false },
+  },
   ms_brain: {
     id: "ms_brain",
     recipeId: "brain_t2_tse",

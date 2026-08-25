@@ -54,6 +54,7 @@ class TissueModel(BaseModel):
     pool_fraction: float = Field(default=1.0, ge=0, le=1.0)
     bound_pool: bool = False
     diffusion_adc_mm2_s: float | None = Field(default=None, ge=0)
+    chemical_shift_ppm: float = 0.0
 
 
 class PhysiologyModel(BaseModel):

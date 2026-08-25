@@ -71,9 +71,10 @@ class BlochMcConnellPools:
     pd_b: float
     k_ab_hz: float
     k_ba_hz: float
+    delta_b_hz: float = 0.0
 
     def __post_init__(self):
-        for name in ("t1_a", "t2_a", "pd_a", "t1_b", "t2_b", "pd_b", "k_ab_hz", "k_ba_hz"):
+        for name in ("t1_a", "t2_a", "pd_a", "t1_b", "t2_b", "pd_b", "k_ab_hz", "k_ba_hz", "delta_b_hz"):
             _require_finite_real(f"Bloch-McConnell {name}", getattr(self, name))
         if min(self.t1_a, self.t2_a, self.t1_b, self.t2_b) <= 0:
             raise ValueError("Bloch-McConnell relaxation times must be positive")
@@ -187,5 +188,6 @@ class SimResult:
     configurations: np.ndarray | None = None
     slice_profile: dict[str, np.ndarray] | None = None
     phase_distribution: dict[str, np.ndarray] | None = None
+    z_spectrum: dict[str, np.ndarray] | None = None
     meta: dict[str, Any] = field(default_factory=dict)
     timing: dict[str, float] = field(default_factory=dict)
