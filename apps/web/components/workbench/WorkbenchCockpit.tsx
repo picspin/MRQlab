@@ -18,6 +18,27 @@ import { SequenceLego } from "./SequenceLego";
 
 type TimelineSelection = { channel: string; time: number; value: number; index: number };
 
+function SpectrumPlot({ resultGraph }: { resultGraph: ResultGraph | null }) {
+  const spectrum = resultGraph?.observations.find((item) => item.kind === "z_spectrum");
+  const asym = resultGraph?.observations.find((item) => item.kind === "mtr_asym");
+  if (!spectrum) return <div data-testid="spectrum-awaiting">awaiting z_spectrum from RUN</div>;
+  const x = spectrum.data.offset_ppm as number[];
+  const z = spectrum.data.Z as number[];
+  const min = Math.min(...x), max = Math.max(...x), span = max - min || 1;
+  const points = x.map((value, i) => `${20 + 360 * (value - min) / span},${190 - 160 * z[i]}`).join(" ");
+  const ax = (asym?.data.offset_ppm || []) as number[];
+  const ay = (asym?.data.MTR_asym || []) as number[];
+  const asymPoints = ax.map((value, i) => `${20 + 360 * (value - min) / span},${110 - 80 * ay[i]}`).join(" ");
+  return <figure data-testid="spectrum-plot">
+    <svg viewBox="0 0 400 220" role="img" aria-label="Backend RUN Z spectrum">
+      {min < 0 && max > 0 && <line x1={20 + 360 * (0 - min) / span} x2={20 + 360 * (0 - min) / span} y1="20" y2="195" stroke="#60747c" />}
+      <polyline points={points} fill="none" stroke="var(--cyan)" strokeWidth="3" />
+      {asymPoints && <polyline points={asymPoints} fill="none" stroke="var(--amber)" strokeWidth="2" />}
+    </svg>
+    <figcaption>RUN backend arrays · {spectrum.provenance?.engine} · {spectrum.provenance?.assumptions?.join(" · ")} · {spectrum.data.normalization}</figcaption>
+  </figure>;
+}
+
 export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string } = {}) {
   const { profile, activeLens, setActiveLens, cursors, setCursors, executionState, setExecutionState } = useWorkspace();
   
@@ -112,7 +133,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [cockpitSignals, setCockpitSignals] = useState<CockpitSignalAnalysis | null>(null);
 
   // Physics sub-lens selection inside Physics mode
-  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare">("timeline");
+  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare" | "spectrum">("timeline");
 
   // Sync params when scenario changes
   useEffect(() => {
@@ -151,7 +172,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
 
     try {
       const tseProducts = ["signal", "echo_train", "configurations"];
-      const res = await runExperimentFromRecipe(currentScenario.recipeId, params, currentScenario.seqType === "GRE"
+      const res = await runExperimentFromRecipe(currentScenario.recipeId, currentScenario.recipeId === "cest_amide_z_spectrum" ? {} : params, currentScenario.recipeId === "cest_amide_z_spectrum"
+        ? { products: ["z_spectrum", "mtr_asym"] }
+        : currentScenario.seqType === "GRE"
         ? { products: ["signal", "echo_train"] }
         : { products: tseProducts, engineOptions: { return_configurations: true, epg_kmax: 8 } });
       setResultGraph(res);
@@ -289,7 +312,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             }}
             data-testid="scenario-dropdown"
           >
-            {Object.entries(CLINICAL_SCENARIOS).map(([k, s]) => (
+            {Object.entries(CLINICAL_SCENARIOS).filter(([k]) => k !== "cest_amide").map(([k, s]) => (
               <option key={k} value={k}>
                 [{s.category}] {s.name}
               </option>
@@ -530,6 +553,12 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 7. COMPARE A/B
               </button>
+              <button onClick={() => setPhysicsTab("spectrum")} data-testid="spectrum-tab-btn"
+                style={{ padding: "6px", fontSize: "10px", fontWeight: 700, fontFamily: "monospace",
+                  gridColumn: "1 / span 2", backgroundColor: physicsTab === "spectrum" ? "var(--cyan)" : "#182226",
+                  color: physicsTab === "spectrum" ? "#081114" : "#8ea1a8", border: "1px solid #33434a", borderRadius: "3px" }}>
+                8. SPECTRUM
+              </button>
             </div>
 
             <div className="state-metrics">
@@ -582,6 +611,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
 
           <div className={`display-screen ${profile === "clinical" ? "clinical-screen" : ""}`} style={{ minHeight: "380px" }}>
             {profile === "clinical" ? (
+              resultGraph?.observations.some((o) => o.kind === "z_spectrum") && !resultGraph.observations.some((o) => ["image", "mip", "slice_stack", "parameter_map"].includes(o.kind)) ? (
+                <div data-testid="clinical-rejects-z-spectrum">Clinical spatial viewport rejects z_spectrum</div>
+              ) : (
               /* CLINICAL QUAD MPR & MIP RAYCAST */
               <div data-testid="clinical-quad-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "10px", width: "100%", height: "100%", minHeight: 0, overflow: "hidden" }}>
                 {/* Quad 1: AXIAL */}
@@ -634,7 +666,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                     />
                   </div>
                 </div>
-              </div>
+              </div>)
             ) : (
               /* PHYSICS VIEWPORTS */
               <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
@@ -790,6 +822,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                     <div style={{ borderRadius: "50%", backgroundColor: "#333", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: "10px" }}>V4</div>
                   </div>
                 )}
+                {physicsTab === "spectrum" && <SpectrumPlot resultGraph={resultGraph} />}
               </div>
             )}
           </div>
@@ -997,7 +1030,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.63 · UX honesty</div>
+          <div className="system-info">MRQLab v0.64 · UX honesty</div>
         )}
       </section>
     </div>

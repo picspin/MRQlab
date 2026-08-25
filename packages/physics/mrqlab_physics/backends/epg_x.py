@@ -5,7 +5,8 @@ import numpy as np
 from ..models import BlochMcConnellPools, MagnetizationTransferPools, Phantom
 from ..ops.rf import epg_rf_matrix
 from ..ops.super_lorentzian import apply_super_lorentzian_saturation
-from ..ops.types import GradInterval, Operator, Relax, RfOp, Shift
+from ..ops.cest_saturation import apply_cw_bloch_mcconnell_saturation
+from ..ops.types import GradInterval, Operator, Relax, RfOp, SaturationOp, Shift
 from .epg import _translate
 
 
@@ -106,7 +107,13 @@ class EpgXBackend:
         self.omega[-1, self.zero] = pools.pd_b
 
     def apply(self, op: Operator) -> None:
-        if isinstance(op, RfOp):
+        if isinstance(op, SaturationOp):
+            if self.layout is not EpgXLayout.BLOCH_MCCONNELL:
+                raise EpgXFeatureUnavailable("CEST requires the 6-row two-liquid Bloch-McConnell layout")
+            apply_cw_bloch_mcconnell_saturation(
+                self.omega, op.duration_s, op.offset_hz, op.b1_ut, self.phantom.bloch_mcconnell
+            )
+        elif isinstance(op, RfOp):
             rotation = epg_rf_matrix(op.alpha_rad, op.phase_rad)
             self.omega[:3] = rotation @ self.omega[:3]
             if self.layout is EpgXLayout.BLOCH_MCCONNELL:

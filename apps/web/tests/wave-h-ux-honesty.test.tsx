@@ -86,8 +86,51 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.63", () => {
+  it("shows chrome v0.64", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.63");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.64");
+  });
+
+  it("awaits z_spectrum then plots backend arrays", async () => {
+    const spectrum = {
+      schema_version: "1.0",
+      experiment_id: "recipe:cest_amide_z_spectrum",
+      observations: [
+        {
+          id: "z_spectrum",
+          kind: "z_spectrum",
+          data: {
+            offset_ppm: [-5, 0, 3.5, 5],
+            Z: [0.9, 0.2, 0.55, 0.88],
+            normalization: "unsaturated_control",
+          },
+          provenance: { engine: "epg-x", assumptions: ["cest_z_spectrum_applied"] },
+        },
+        { id: "mtr_asym", kind: "mtr_asym", data: { offset_ppm: [3.5, 5], MTR_asym: [0.12, 0.02] } },
+      ],
+    };
+    mockApi(spectrum);
+    render(<WorkspaceProvider><PhysicsCockpit /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    fireEvent.click(screen.getByTestId("spectrum-tab-btn"));
+    expect(screen.getByTestId("spectrum-awaiting")).toBeVisible();
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    expect(await screen.findByTestId("spectrum-plot")).toBeVisible();
+    expect(screen.getByTestId("spectrum-plot")).toHaveTextContent(/unsaturated_control/);
+  });
+
+  it("clinical spatial viewport rejects z_spectrum", async () => {
+    mockApi({
+      schema_version: "1.0",
+      experiment_id: "recipe:cest_amide_z_spectrum",
+      observations: [
+        { id: "z_spectrum", kind: "z_spectrum", data: { offset_ppm: [0], Z: [1], normalization: "unsaturated_control" } },
+      ],
+    });
+    render(<WorkspaceProvider><WorkbenchCockpit initialRecipeId="cest_amide_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    expect(await screen.findByTestId("clinical-rejects-z-spectrum")).toBeVisible();
+    expect(screen.queryByTestId("clinical-quad-grid")).toBeNull();
+    expect(screen.queryByTestId("spectrum-plot")).toBeNull();
   });
 });

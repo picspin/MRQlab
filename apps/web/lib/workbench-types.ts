@@ -33,7 +33,10 @@ export interface Observation {
     experiment_hash?: string;
     engine?: string;
     representation?: string;
+    assumptions?: string[];
   };
+  axes?: Record<string, number[]>;
+  units?: Record<string, string>;
 }
 
 export interface ExperimentGraph {

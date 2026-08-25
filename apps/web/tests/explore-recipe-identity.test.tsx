@@ -22,6 +22,12 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(byId["ms-lesion-t2"].recipeId).toBe("brain_t2_tse");
     expect(byId["dark-blood-tse"].recipeId).toBe("dark_blood_vessel_wall_tse");
     expect(byId["dixon-fat-water"].recipeId).toBe("abdomen_dixon_gre");
+    expect(byId["cest-apt"].executable).toBe(true);
+    expect(byId["cest-apt"].recipeId).toBe("cest_amide_z_spectrum");
+    expect(byId["cest-apt"].category).toBe("Spectroscopy & Exchange");
+    expect(byId["mrs-1h"].executable).toBe(false);
+    expect(byId["mrs-1h"].recipeId).toBeNull();
+    expect(byId["x-nuclei"].executable).toBe(false);
 
     expect(byId["brain-flair"].executable).toBe(false);
     expect(byId["brain-flair"].recipeId).toBeNull();
@@ -35,6 +41,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(scenarioKeyForRecipe("dark_blood_vessel_wall_tse")).toBe("cardiac_darkblood");
     expect(scenarioKeyForRecipe("msk_knee_tse")).toBe("msk_knee");
     expect(scenarioKeyForRecipe("angio_tof_gre")).toBe("angio_tof");
+    expect(scenarioKeyForRecipe("cest_amide_z_spectrum")).toBe("cest_amide");
     expect(scenarioKeyForRecipe("nope")).toBe("ms_brain");
     expect(RECIPE_TO_SCENARIO.cardiac_cine_gre).toBeUndefined();
   });
@@ -50,6 +57,12 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
 
     const dark = screen.getByTestId("launch-dark-blood-tse");
     expect(dark).toHaveAttribute("href", "/workbench?recipe=dark_blood_vessel_wall_tse");
+
+    const cest = screen.getByTestId("launch-cest-apt");
+    expect(cest).toHaveAttribute("href", "/workbench?recipe=cest_amide_z_spectrum");
+    expect(screen.queryByTestId("launch-mrs-1h")).toBeNull();
+    expect(screen.getByTestId("badge-mrs-1h")).toHaveTextContent(/not in v0\.1/i);
+    expect(screen.getByTestId("badge-x-nuclei")).toHaveTextContent(/not in v0\.1/i);
 
     expect(screen.queryByTestId("launch-brain-flair")).toBeNull();
     expect(screen.queryByTestId("launch-myocardial-t1-map")).toBeNull();
@@ -71,7 +84,18 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByText(/Hepatic Parenchyma/i)).toBeVisible();
   });
 
-  it("nav chrome says v0.63", () => {
+  it("workbench deep-links the CEST recipe without putting it in the clinical dropdown", () => {
+    render(
+      <WorkspaceProvider>
+        <WorkbenchCockpit initialRecipeId="cest_amide_z_spectrum" />
+      </WorkspaceProvider>
+    );
+    expect(screen.getByText(/Amide solute/i)).toBeVisible();
+    const dropdown = screen.getByTestId("scenario-dropdown") as HTMLSelectElement;
+    expect(Array.from(dropdown.options).map((option) => option.value)).not.toContain("cest_amide");
+  });
+
+  it("nav chrome says v0.64", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -79,6 +103,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.63");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.64");
   });
 });

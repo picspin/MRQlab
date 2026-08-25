@@ -10,7 +10,10 @@ from .models import (
     ScannerModel,
     TemplateRef,
     TissueModel,
+    EngineRef,
+    ReadoutSpec,
 )
+from mrqlab_sequence import SequenceIR
 
 _PRESETS = {
     "spin-echo": ("SE", "Spin Echo", "teaching", ("RF", "RF", "READOUT")),
@@ -172,10 +175,36 @@ _CLINICAL_RECIPES: dict[str, ClinicalRecipeSpec] = {
 
 
 def list_clinical_recipes() -> list[str]:
-    return list(_CLINICAL_RECIPES.keys())
+    return [*_CLINICAL_RECIPES.keys(), "cest_amide_z_spectrum"]
 
 
 def build_clinical_recipe(name: str) -> ExperimentGraph:
+    if name == "cest_amide_z_spectrum":
+        nodes = (
+            ExperimentNode(id="sat", kind="RF", label="Declared CW saturation sweep"),
+            ExperimentNode(id="read", kind="READOUT", label="Water k=0 observation"),
+        )
+        return ExperimentGraph(
+            id="recipe:cest_amide_z_spectrum", name="Two-pool amide CEST Z-spectrum",
+            intent="physics", nodes=nodes,
+            edges=(ExperimentEdge(source="sat", target="read"),),
+            sequence=SequenceIR(
+                name="Amide CEST CW sweep", duration=2.001, channels=[],
+                metadata={"cest": {
+                    "offsets_ppm": [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5],
+                    "offset_unit": "ppm", "saturation_duration_s": 2.0,
+                    "saturation_power_uT": 2.0, "reference": "unsaturated_control",
+                }},
+            ),
+            tissue=(
+                TissueModel(id="water", label="Water", t1=1.0, t2=0.08, proton_density=.9,
+                            pool_fraction=.9, exchange_rate_hz=50, chemical_shift_ppm=0),
+                TissueModel(id="amide", label="Amide solute", t1=1.0, t2=.01, proton_density=.1,
+                            pool_fraction=.1, chemical_shift_ppm=3.5),
+            ),
+            scanner_model=ScannerModel(b0_t=3.0), engine=EngineRef(preferred="epg-x", options={"epg_kmax": 0}),
+            readout=ReadoutSpec(products=("z_spectrum", "mtr_asym")),
+        )
     try:
         recipe = _CLINICAL_RECIPES[name]
     except KeyError:
