@@ -131,7 +131,7 @@ export const RECIPE_TO_SCENARIO: Record<string, string> = Object.fromEntries(
 );
 
 export function scenarioKeyForRecipe(recipeId: string | null | undefined): string {
-  if (recipeId === "cest_amide_z_spectrum") return "cest_amide";
+  if (recipeId === "cest_amide_z_spectrum" || recipeId === "cest_amide_pulsed_z_spectrum") return "cest_amide";
   if (recipeId && RECIPE_TO_SCENARIO[recipeId]) return RECIPE_TO_SCENARIO[recipeId];
   return "ms_brain";
 }

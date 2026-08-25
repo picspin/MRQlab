@@ -188,6 +188,6 @@ class SimResult:
     configurations: np.ndarray | None = None
     slice_profile: dict[str, np.ndarray] | None = None
     phase_distribution: dict[str, np.ndarray] | None = None
-    z_spectrum: dict[str, np.ndarray] | None = None
+    z_spectrum: dict[str, Any] | None = None
     meta: dict[str, Any] = field(default_factory=dict)
     timing: dict[str, float] = field(default_factory=dict)

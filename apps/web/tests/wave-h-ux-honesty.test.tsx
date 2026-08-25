@@ -86,9 +86,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.65", () => {
+  it("shows chrome v0.66", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.65");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -103,6 +103,8 @@ describe("Wave H UX honesty", () => {
             offset_ppm: [-5, 0, 3.5, 5],
             Z: [0.9, 0.2, 0.55, 0.88],
             normalization: "unsaturated_control",
+            mode: "pulsed",
+            duty_cycle: 20 * .05 / 1.95,
           },
           provenance: { engine: "epg-x", assumptions: ["cest_z_spectrum_applied"] },
         },
@@ -117,6 +119,7 @@ describe("Wave H UX honesty", () => {
     fireEvent.click(screen.getByTestId("run-experiment-btn"));
     expect(await screen.findByTestId("spectrum-plot")).toBeVisible();
     expect(screen.getByTestId("spectrum-plot")).toHaveTextContent(/unsaturated_control/);
+    expect(screen.getByTestId("spectrum-mode")).toHaveTextContent(/pulsed/);
   });
 
   it("clinical spatial viewport rejects z_spectrum", async () => {

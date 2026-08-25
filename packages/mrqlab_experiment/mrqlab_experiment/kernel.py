@@ -146,6 +146,11 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
         required_cest = ("offsets_ppm", "offset_unit", "saturation_duration_s", "saturation_power_uT")
         if any(key not in cest for key in required_cest):
             raise CapabilityMismatch("CEST metadata is missing offsets/unit/duration/power")
+        from mrqlab_physics.ops.cest_saturation import validate_cest_timing
+        try:
+            validate_cest_timing(cest)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise CapabilityMismatch(str(exc)) from exc
     exchange_declared = bool(tissue_values and tissue_values[0].exchange_rate_hz > 0)
     if tissue_values and tissue_values[0].bound_pool:
         raise CapabilityMismatch("pool a must be the free pool")

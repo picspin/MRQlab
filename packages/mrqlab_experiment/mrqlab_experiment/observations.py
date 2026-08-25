@@ -236,6 +236,8 @@ def build_result_graph(run) -> ResultGraph:
                 "Mz_sat": np.asarray(run.sim_result.z_spectrum["Mz_sat"]).tolist(),
                 "Mz_ref": float(np.asarray(run.sim_result.z_spectrum["Mz_ref"]).reshape(-1)[0]),
                 "normalization": "unsaturated_control", "reference": "water",
+                "mode": run.sim_result.z_spectrum["mode"],
+                "duty_cycle": float(run.sim_result.z_spectrum["duty_cycle"]),
             },
             axes={"offset_ppm": np.asarray(run.sim_result.z_spectrum["offset_ppm"]).tolist()},
             units={"offset": "ppm", "offset_hz": "Hz", "Z": "normalized"},

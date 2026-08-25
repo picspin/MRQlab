@@ -175,26 +175,30 @@ _CLINICAL_RECIPES: dict[str, ClinicalRecipeSpec] = {
 
 
 def list_clinical_recipes() -> list[str]:
-    return [*_CLINICAL_RECIPES.keys(), "cest_amide_z_spectrum"]
+    return [*_CLINICAL_RECIPES.keys(), "cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum"]
 
 
 def build_clinical_recipe(name: str) -> ExperimentGraph:
-    if name == "cest_amide_z_spectrum":
+    if name in {"cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum"}:
+        pulsed = name == "cest_amide_pulsed_z_spectrum"
         nodes = (
-            ExperimentNode(id="sat", kind="RF", label="Declared CW saturation sweep"),
+            ExperimentNode(id="sat", kind="RF", label="Declared pulsed saturation train" if pulsed else "Declared CW saturation sweep"),
             ExperimentNode(id="read", kind="READOUT", label="Water k=0 observation"),
         )
+        cest = {
+            "offsets_ppm": [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5],
+            "offset_unit": "ppm", "saturation_duration_s": 1.95 if pulsed else 2.0,
+            "saturation_power_uT": 2.0, "reference": "unsaturated_control",
+        }
+        if pulsed:
+            cest.update(mode="pulsed", n_pulses=20, pulse_duration_s=.05, gap_duration_s=.05)
         return ExperimentGraph(
-            id="recipe:cest_amide_z_spectrum", name="Two-pool amide CEST Z-spectrum",
+            id=f"recipe:{name}", name=f"Two-pool amide {'pulsed ' if pulsed else ''}CEST Z-spectrum",
             intent="physics", nodes=nodes,
             edges=(ExperimentEdge(source="sat", target="read"),),
             sequence=SequenceIR(
-                name="Amide CEST CW sweep", duration=2.001, channels=[],
-                metadata={"cest": {
-                    "offsets_ppm": [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5],
-                    "offset_unit": "ppm", "saturation_duration_s": 2.0,
-                    "saturation_power_uT": 2.0, "reference": "unsaturated_control",
-                }},
+                name=f"Amide CEST {'pulsed train' if pulsed else 'CW sweep'}", duration=2.001, channels=[],
+                metadata={"cest": cest},
             ),
             tissue=(
                 TissueModel(id="water", label="Water", t1=1.0, t2=0.08, proton_density=.9,

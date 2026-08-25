@@ -36,6 +36,7 @@ function SpectrumPlot({ resultGraph }: { resultGraph: ResultGraph | null }) {
       {asymPoints && <polyline points={asymPoints} fill="none" stroke="var(--amber)" strokeWidth="2" />}
     </svg>
     <figcaption>RUN backend arrays · {spectrum.provenance?.engine} · {spectrum.provenance?.assumptions?.join(" · ")} · {spectrum.data.normalization}</figcaption>
+    {spectrum.data.mode && <div data-testid="spectrum-mode">{String(spectrum.data.mode)} · duty cycle {Number(spectrum.data.duty_cycle).toFixed(3)}</div>}
   </figure>;
 }
 
@@ -45,6 +46,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>(() => scenarioKeyForRecipe(initialRecipeId));
   const currentScenario: ScenarioSpec = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
   const isSpectrumExperiment = selectedScenarioKey === "cest_amide";
+  const activeRecipeId = isSpectrumExperiment && initialRecipeId?.startsWith("cest_amide_") ? initialRecipeId : currentScenario.recipeId;
   const clinicalScenarioEntries = Object.entries(CLINICAL_SCENARIOS).filter(([key]) => key !== "cest_amide");
 
   // v0.43: Edit Mode toggle
@@ -174,7 +176,8 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
 
     try {
       const tseProducts = ["signal", "echo_train", "configurations"];
-      const res = await runExperimentFromRecipe(currentScenario.recipeId, currentScenario.recipeId === "cest_amide_z_spectrum" ? {} : params, currentScenario.recipeId === "cest_amide_z_spectrum"
+      const isCestRecipe = ["cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum"].includes(activeRecipeId);
+      const res = await runExperimentFromRecipe(activeRecipeId, isCestRecipe ? {} : params, isCestRecipe
         ? { products: ["z_spectrum", "mtr_asym"] }
         : currentScenario.seqType === "GRE"
         ? { products: ["signal", "echo_train"] }
@@ -300,7 +303,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 800, letterSpacing: "0.08em" }}>SPECTRUM EXPERIMENT</div>
             <div style={{ fontSize: "13px", color: "#e8f4f6", fontWeight: 700, marginTop: "2px" }}>Amide CEST Z-spectrum</div>
             <div style={{ fontSize: "11px", color: "#8ba0a8", marginTop: "4px", lineHeight: 1.4 }}>
-              Two-liquid-pool CW · frequency axis · not MS plaque imaging
+              {activeRecipeId === "cest_amide_pulsed_z_spectrum" ? "Two-liquid-pool pulsed train" : "Two-liquid-pool CW"} · frequency axis · not MS plaque imaging
             </div>
           </div>
         )}
@@ -1048,7 +1051,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.65 · UX honesty</div>
+          <div className="system-info">MRQLab v0.66 · UX honesty</div>
         )}
       </section>
     </div>
