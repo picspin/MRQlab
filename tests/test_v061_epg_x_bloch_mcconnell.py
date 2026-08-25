@@ -3,8 +3,8 @@ import pytest
 
 from mrqlab_experiment import TissueModel, build_preset, plan_experiment, run_experiment, validate_experiment
 from mrqlab_experiment.capabilities import CapabilityMismatch
-from mrqlab_physics import BlochMcConnellPools, list_engines
-from mrqlab_physics.backends.epg_x import EpgXFeatureUnavailable, apply_bloch_mcconnell, apply_magnetization_transfer
+from mrqlab_physics import BlochMcConnellPools, MagnetizationTransferPools, list_engines
+from mrqlab_physics.backends.epg_x import apply_bloch_mcconnell, apply_magnetization_transfer
 
 
 def _pools(k=2.0):
@@ -69,9 +69,13 @@ def test_exchange_mixes_and_conserves_longitudinal_label():
     assert (state[2, 0] + state[5, 0]).real == pytest.approx(1, abs=1e-10)
 
 
-def test_mt_remains_closed_and_registry_is_open():
-    with pytest.raises(EpgXFeatureUnavailable, match="magnetization transfer is outside physics v1"):
-        apply_magnetization_transfer(np.zeros((4, 1)), .1)
+def test_mt_operator_and_registry_are_open():
+    state = np.zeros((4, 1), complex)
+    state[2, 0] = 1
+    apply_magnetization_transfer(
+        state, .1, MagnetizationTransferPools(1e12, .1, .5, 1e12, .5, 2, 2)
+    )
+    assert state[3, 0] > 0
     descriptor = next(item for item in list_engines() if item["name"] == "epg-x")
     assert descriptor["available"] is True
     assert descriptor["source"] == "built-in"

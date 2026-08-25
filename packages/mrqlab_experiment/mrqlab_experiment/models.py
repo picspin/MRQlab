@@ -52,6 +52,7 @@ class TissueModel(BaseModel):
     flow_velocity_mps: float = Field(default=0.0)
     exchange_rate_hz: float = Field(default=0.0, ge=0)
     pool_fraction: float = Field(default=1.0, ge=0, le=1.0)
+    bound_pool: bool = False
     diffusion_adc_mm2_s: float | None = Field(default=None, ge=0)
 
 

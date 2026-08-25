@@ -9,6 +9,7 @@ from mrqlab_physics import (
     BlochMcConnellPools,
     EngineOptions,
     Isochromat,
+    MagnetizationTransferPools,
     Phantom,
     ScannerModel,
     SimResult,
@@ -79,13 +80,22 @@ def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
             if len(tissues) == 2 and tissues[0].exchange_rate_hz > 0:
                 a, b = tissues
                 k_ba = a.exchange_rate_hz * a.pool_fraction / b.pool_fraction
+                pool_model = (
+                    MagnetizationTransferPools(
+                        a.t1, a.t2, a.proton_density, b.t1, b.proton_density,
+                        a.exchange_rate_hz, k_ba,
+                    )
+                    if b.bound_pool else
+                    BlochMcConnellPools(
+                        a.t1, a.t2, a.proton_density, b.t1, b.t2, b.proton_density,
+                        a.exchange_rate_hz, k_ba,
+                    )
+                )
                 return Phantom(
                     t1=a.t1, t2=a.t2, proton_density=a.proton_density,
                     off_resonance_hz=graph.sample.off_resonance_hz,
-                    bloch_mcconnell=BlochMcConnellPools(
-                        a.t1, a.t2, a.proton_density, b.t1, b.t2, b.proton_density,
-                        a.exchange_rate_hz, k_ba,
-                    ),
+                    magnetization_transfer=pool_model if b.bound_pool else None,
+                    bloch_mcconnell=pool_model if not b.bound_pool else None,
                 )
             isochromats = tuple(
                 Isochromat(
@@ -119,14 +129,18 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     extra, explanations = disturbance_requirements(graph.disturbances)
     tissue_values = graph.tissue if isinstance(graph.tissue, tuple) else ((graph.tissue,) if graph.tissue is not None else ())
     exchange_declared = bool(tissue_values and tissue_values[0].exchange_rate_hz > 0)
+    if tissue_values and tissue_values[0].bound_pool:
+        raise CapabilityMismatch("pool a must be the free pool")
+    if len(tissue_values) >= 2 and tissue_values[1].bound_pool and not exchange_declared:
+        raise CapabilityMismatch("a bound pool requires positive exchange_rate_hz on pool a")
     if exchange_declared:
         if len(tissue_values) != 2:
-            raise CapabilityMismatch("positive exchange_rate_hz requires exactly two liquid tissues")
+            raise CapabilityMismatch("positive exchange_rate_hz requires exactly two tissues")
         a, b = tissue_values
         if a.pool_fraction <= 0 or b.pool_fraction <= 0:
-            raise CapabilityMismatch("Bloch-McConnell pool fractions must be positive")
+            raise CapabilityMismatch("two-pool fractions must be positive")
         if abs(a.pool_fraction + b.pool_fraction - 1.0) > 1e-9:
-            raise CapabilityMismatch("Bloch-McConnell pool fractions must sum to 1")
+            raise CapabilityMismatch("two-pool fractions must sum to 1")
         if b.exchange_rate_hz > 0:
             raise CapabilityMismatch("exchange_rate_hz is declared only on pool a")
         extra = frozenset(extra | {"exchange", "multi_pool"})

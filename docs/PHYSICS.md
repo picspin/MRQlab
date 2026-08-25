@@ -32,7 +32,7 @@ Selection is set inclusion. Missing capabilities fail closed.
 | EPG | yes | hard_rf, configuration_states, steady_state, isotropic_diffusion | TSE/CPMG echo trains. Single pool, bounded integer orders, metadata-first `dk`; isotropic diffusion requires physical gradients. |
 | Spectral | yes | hard_rf, off_resonance, multi_pool, magnetization_states | Fat/water phase and beating. No exchange, MT, CEST saturation, or fitted MRS lineshapes. |
 | ssEPG | yes | hard_rf, shaped_rf, configuration_states, spatial_encoding, slice_selective | Dedicated slice-selective shaped RF / z-profile compiler path. |
-| EPG-X | yes | hard_rf, configuration_states, exchange, multi_pool | Two-pool liquid Bloch–McConnell evolution on the 6-row layout. MT/CEST remain closed. |
+| EPG-X | yes | hard_rf, configuration_states, exchange, multi_pool | Two-pool liquid Bloch–McConnell evolution on the 6-row layout, or MT free evolution on the 4-row free/bound layout. Super-Lorentzian saturation and CEST remain closed. |
 | PDG | yes | hard_rf, configuration_states, spatial_encoding, off_resonance, phase_distribution | Dedicated spatial B0 pathway↔image compiler on a phase-distribution grid. |
 | Density matrix | no | (future) | MRS base via Liouville–von Neumann. Vocabulary only in v0.1. |
 
@@ -83,7 +83,7 @@ Names must match the entry-point name and may not shadow `bloch`, `epg`, or `spe
 
 ## Extension seams
 
-`diffusion_attenuation` provides the diagonal configuration-space free-diffusion propagator. Classic EPG applies it to transverse configuration orders during free evolution only when tissue ADC is positive and the SequenceIR declares `gradient_units="mt_m"`; ADC with teaching or absent units fails closed. Bloch, hybrid, ssEPG, PDG, EPG-X, and spectral simulation do not apply diffusion. `EpgXLayout` fixes Bloch–McConnell and magnetization-transfer state rows. `apply_bloch_mcconnell` is the two-liquid-pool exchange-and-relaxation free-evolution operator; exchange couples matching orders only. `apply_magnetization_transfer` still raises the physics-v1 MT error, and CEST remains unavailable.
+`diffusion_attenuation` provides the diagonal configuration-space free-diffusion propagator. Classic EPG applies it to transverse configuration orders during free evolution only when tissue ADC is positive and the SequenceIR declares `gradient_units="mt_m"`; ADC with teaching or absent units fails closed. Bloch, hybrid, ssEPG, PDG, EPG-X, and spectral simulation do not apply diffusion. `EpgXLayout` fixes Bloch–McConnell and magnetization-transfer state rows. `apply_bloch_mcconnell` is the two-liquid-pool exchange-and-relaxation free-evolution operator; exchange couples matching orders only. `apply_magnetization_transfer` evolves the four-row free/bound layout: free-pool transverse relaxation, longitudinal relaxation and exchange, with hard RF leaving bound Z untouched. Super-Lorentzian absorption, pulsed off-resonance MT, and CEST remain unavailable.
 
 Floquet, CEST, MRS, and DCE are documented seams only. They have no implementation modules in `packages/mrqlab_experiment`.
 

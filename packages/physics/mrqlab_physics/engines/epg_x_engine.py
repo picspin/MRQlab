@@ -3,7 +3,8 @@ from ..base import EnginePlugin, SimulationEngine
 
 
 def _state_width(phantom, scanner, options):
-    return 6 * (2 * options.epg_kmax + 1)
+    rows = 4 if phantom.magnetization_transfer is not None else 6
+    return rows * (2 * options.epg_kmax + 1)
 
 
 def _backend(phantom, scanner, options, sequence):
@@ -11,9 +12,16 @@ def _backend(phantom, scanner, options, sequence):
 
 
 def _metadata(phantom, scanner, options, sequence):
-    assumptions = ["two-pool liquid EPG-X", "hard RF applied independently to both pools"]
-    if phantom.bloch_mcconnell and phantom.bloch_mcconnell.k_ab_hz > 0:
-        assumptions.append("bloch_mcconnell_exchange_applied")
+    if phantom.magnetization_transfer is not None:
+        assumptions = [
+            "free-plus-bound-pool EPG-X",
+            "hard RF rotates only the free-pool triplet; bound Z is untouched",
+            "magnetization_transfer_applied",
+        ]
+    else:
+        assumptions = ["two-pool liquid EPG-X", "hard RF applied independently to both pools"]
+        if phantom.bloch_mcconnell and phantom.bloch_mcconnell.k_ab_hz > 0:
+            assumptions.append("bloch_mcconnell_exchange_applied")
     return {
         "available": True,
         "kmax": options.epg_kmax,
@@ -24,7 +32,7 @@ def _metadata(phantom, scanner, options, sequence):
 
 EPG_X_PLUGIN = EnginePlugin(
     name="epg-x",
-    description="Two-liquid-pool Bloch-McConnell extended phase graph",
+    description="Two-pool Bloch-McConnell or free/bound MT extended phase graph",
     state_width=_state_width,
     backend_factory=_backend,
     metadata_factory=_metadata,
@@ -36,7 +44,7 @@ EPG_X_PLUGIN = EnginePlugin(
 
 class EpgXEngine(SimulationEngine):
     name = "epg-x"
-    description = "Two-liquid-pool Bloch-McConnell extended phase graph"
+    description = "Two-pool Bloch-McConnell or free/bound MT extended phase graph"
     available = True
 
     def __init__(self):
