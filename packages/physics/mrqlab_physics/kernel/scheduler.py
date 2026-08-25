@@ -135,6 +135,34 @@ def _metadata_shifts(sequence: SequenceIR) -> dict[float, tuple[Shift, ...]]:
     return {t: tuple(values) for t, values in shifts.items()}
 
 
+def _metadata_rf_events(sequence: SequenceIR) -> tuple[dict[str, float], ...]:
+    raw_events = sequence.metadata.get("rf_events", [])
+    if not isinstance(raw_events, (list, tuple)):
+        raise ValueError("rf_events must be a list of mappings")
+    events = []
+    for raw in raw_events:
+        if not isinstance(raw, Mapping) or "t" not in raw:
+            raise ValueError("each rf_event requires a finite t")
+        values = {}
+        for name, default in (("t", None), ("duration_s", 0.0), ("offset_hz", 0.0)):
+            value = raw.get(name, default)
+            if not isinstance(value, Real) or isinstance(value, bool) or not np.isfinite(value):
+                raise ValueError(f"rf_event {name} must be a finite real number")
+            values[name] = float(value)
+        b1 = raw.get("b1_ut")
+        if b1 is not None and (
+            not isinstance(b1, Real) or isinstance(b1, bool) or not np.isfinite(b1)
+        ):
+            raise ValueError("rf_event b1_ut must be a finite real number")
+        if values["duration_s"] < 0:
+            raise ValueError("rf_event duration_s must be non-negative")
+        if values["duration_s"] > 0 and (b1 is None or b1 <= 0):
+            raise ValueError("rf_event with positive duration_s requires positive b1_ut")
+        values["b1_ut"] = None if b1 is None else float(b1)
+        events.append(values)
+    return tuple(events)
+
+
 def _iter_knots(
     base_times: Sequence[float], windows: Sequence[_AdcWindow], dwell: float
 ) -> Iterable[float]:
@@ -270,17 +298,22 @@ def schedule(
     units = sequence.metadata.get("gradient_units", "teaching")
     fov_m = float(sequence.metadata.get("fov_m", DEFAULT_FOV_M))
     rf_at: dict[float, list[float]] = {}
+    rf_events = _metadata_rf_events(sequence)
     for event in sequence.channel("rf_amp"):
         rf_at.setdefault(event.time, []).append(float(event.value))
 
     operators: list[Operator] = []
     for index, t in enumerate(knots):
         for alpha_deg in rf_at.get(t, []):
+            declared = next((event for event in rf_events if abs(t - event["t"]) <= 1e-12), None)
             operators.append(
                 RfOp(
                     t,
                     deg_to_rad(alpha_deg),
                     deg_to_rad(_value_at(plan.series["rf_phase"], t)),
+                    duration_s=0.0 if declared is None else declared["duration_s"],
+                    offset_hz=0.0 if declared is None else declared["offset_hz"],
+                    b1_ut=None if declared is None else declared["b1_ut"],
                 )
             )
         operators.extend(plan.explicit_shifts.get(t, ()))
