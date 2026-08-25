@@ -92,6 +92,7 @@ class MagnetizationTransferPools:
     pd_b: float
     k_ab_hz: float
     k_ba_hz: float
+    t2_b: float | None = None
 
     def __post_init__(self):
         for name in ("t1_a", "t2_a", "pd_a", "t1_b", "pd_b", "k_ab_hz", "k_ba_hz"):

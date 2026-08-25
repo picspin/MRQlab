@@ -4,6 +4,7 @@ import numpy as np
 
 from ..models import BlochMcConnellPools, MagnetizationTransferPools, Phantom
 from ..ops.rf import epg_rf_matrix
+from ..ops.super_lorentzian import apply_super_lorentzian_saturation
 from ..ops.types import GradInterval, Operator, Relax, RfOp, Shift
 from .epg import _translate
 
@@ -108,10 +109,17 @@ class EpgXBackend:
         if isinstance(op, RfOp):
             rotation = epg_rf_matrix(op.alpha_rad, op.phase_rad)
             self.omega[:3] = rotation @ self.omega[:3]
-            # The bound pool is longitudinal-only: hard RF neither rotates nor
-            # saturates Zb (no Super-Lorentzian absorption in this seam).
             if self.layout is EpgXLayout.BLOCH_MCCONNELL:
                 self.omega[3:] = rotation @ self.omega[3:]
+            elif not np.isfinite(op.duration_s) or op.duration_s < 0:
+                raise ValueError("MT RF duration_s must be finite and non-negative")
+            elif op.duration_s > 0:
+                pools = self.phantom.magnetization_transfer
+                if pools.t2_b is None:
+                    raise ValueError("Super-Lorentzian saturation requires finite positive t2_b")
+                apply_super_lorentzian_saturation(
+                    self.omega, op.duration_s, op.b1_ut, op.offset_hz, pools.t2_b
+                )
         elif isinstance(op, Relax):
             if self.layout is EpgXLayout.BLOCH_MCCONNELL:
                 apply_bloch_mcconnell(self.omega, op.dt, self.phantom.bloch_mcconnell,

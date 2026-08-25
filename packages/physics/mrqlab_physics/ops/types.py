@@ -7,6 +7,9 @@ class RfOp:
     t: float
     alpha_rad: float
     phase_rad: float
+    duration_s: float = 0.0
+    offset_hz: float = 0.0
+    b1_ut: float | None = None
 
 
 @dataclass(frozen=True, slots=True)

@@ -83,7 +83,7 @@ def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
                 pool_model = (
                     MagnetizationTransferPools(
                         a.t1, a.t2, a.proton_density, b.t1, b.proton_density,
-                        a.exchange_rate_hz, k_ba,
+                        a.exchange_rate_hz, k_ba, b.t2,
                     )
                     if b.bound_pool else
                     BlochMcConnellPools(

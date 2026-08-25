@@ -18,6 +18,16 @@ def _metadata(phantom, scanner, options, sequence):
             "hard RF rotates only the free-pool triplet; bound Z is untouched",
             "magnetization_transfer_applied",
         ]
+        rf_times = {event.time for event in sequence.channel("rf_amp")}
+        if any(
+            isinstance(event, dict)
+            and event.get("duration_s", 0) > 0
+            and event.get("offset_hz", 0) != 0
+            and event.get("b1_ut", 0) > 0
+            and any(abs(float(event.get("t", float("inf"))) - t) <= 1e-12 for t in rf_times)
+            for event in sequence.metadata.get("rf_events", [])
+        ):
+            assumptions.append("super_lorentzian_saturation_applied")
     else:
         assumptions = ["two-pool liquid EPG-X", "hard RF applied independently to both pools"]
         if phantom.bloch_mcconnell and phantom.bloch_mcconnell.k_ab_hz > 0:
