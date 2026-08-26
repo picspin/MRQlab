@@ -42,6 +42,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(scenarioKeyForRecipe("msk_knee_tse")).toBe("msk_knee");
     expect(scenarioKeyForRecipe("angio_tof_gre")).toBe("angio_tof");
     expect(scenarioKeyForRecipe("cest_amide_z_spectrum")).toBe("cest_amide");
+    expect(scenarioKeyForRecipe("cest_amide_pulsed_z_spectrum")).toBe("cest_amide");
     expect(scenarioKeyForRecipe("nope")).toBe("ms_brain");
     expect(RECIPE_TO_SCENARIO.cardiac_cine_gre).toBeUndefined();
   });
@@ -99,7 +100,21 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(dropdown.selectedOptions[0]?.textContent).toMatch(/Not a clinical imaging case/);
   });
 
-  it("nav chrome says v0.65", () => {
+  it("workbench deep-links the pulsed CEST recipe as Spectrum, not MS plaque", () => {
+    render(
+      <WorkspaceProvider>
+        <WorkbenchCockpit initialRecipeId="cest_amide_pulsed_z_spectrum" />
+      </WorkspaceProvider>
+    );
+    expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/Amide CEST Z-spectrum/);
+    expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/pulsed train/i);
+    expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/not MS plaque imaging/i);
+    const dropdown = screen.getByTestId("scenario-dropdown") as HTMLSelectElement;
+    expect(dropdown.value).toBe("");
+    expect(dropdown.selectedOptions[0]?.textContent).toMatch(/Not a clinical imaging case/);
+  });
+
+  it("nav chrome says v0.66", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -107,6 +122,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.65");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66");
   });
 });

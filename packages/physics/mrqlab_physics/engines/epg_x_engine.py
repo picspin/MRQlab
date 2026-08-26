@@ -4,6 +4,7 @@ from ..backends.epg_x import EpgXBackend
 from ..base import EnginePlugin, SimulationEngine
 from ..kernel.units import GAMMA_BAR_HZ_T
 from ..models import SimResult
+from ..ops.cest_saturation import expand_cest_saturation_ops, validate_cest_timing
 from ..ops.types import Relax, SaturationOp
 
 
@@ -82,6 +83,7 @@ class EpgXEngine(SimulationEngine):
             raise ValueError("CEST offsets_ppm must be a non-empty finite list")
         if not np.isfinite(duration) or duration <= 0 or not np.isfinite(power) or power <= 0:
             raise ValueError("CEST saturation duration and power must be finite and positive")
+        mode, n_pulses, pulse, gap, elapsed, duty = validate_cest_timing(cest)
         if cest.get("reference", "unsaturated_control") != "unsaturated_control":
             raise ValueError("v0.64 CEST supports only unsaturated_control reference")
         order = np.argsort(offsets)
@@ -90,23 +92,33 @@ class EpgXEngine(SimulationEngine):
         mz = []
         for hz in offset_hz:
             backend = EpgXBackend(phantom, 0)
-            backend.apply(SaturationOp(0.0, duration, float(hz), power))
+            if mode == "cw":
+                backend.apply(SaturationOp(0.0, duration, float(hz), power))
+            else:
+                for op in expand_cest_saturation_ops(n_pulses, pulse, gap, float(hz), power):
+                    backend.apply(op)
             mz.append(float(np.real(backend.omega[2, 0])))
         control = EpgXBackend(phantom, 0)
-        control.apply(Relax(0.0, duration))
+        control.apply(Relax(0.0, elapsed))
         mz_ref = float(np.real(control.omega[2, 0]))
         if not np.isfinite(mz_ref) or mz_ref <= 0:
             raise ValueError("unsaturated CEST control Mz_ref must be finite and positive")
         z = np.clip(np.asarray(mz) / mz_ref, 0.0, 1.0 + 1e-9)
         assumptions = [
             "two-pool liquid EPG-X", "bloch-mcconnell", "single_voxel",
-            "cest_z_spectrum_applied", "unsaturated_control",
+            "cest_z_spectrum_applied",
         ]
+        if mode == "pulsed":
+            assumptions.append("cest_pulsed_train_applied")
+        assumptions.append("unsaturated_control")
+        per_offset_ops = 1 if mode == "cw" else 2 * n_pulses - 1
         return SimResult(
             signal=np.array([], dtype=complex), k_trajectory=np.empty((0, 3)),
             z_spectrum={"offset_ppm": offsets, "offset_hz": offset_hz, "Z": z,
-                        "Mz_sat": np.asarray(mz), "Mz_ref": np.asarray([mz_ref])},
-            meta={"engine": "epg-x", "assumptions": assumptions, "n_ops": len(offsets) + 1,
-                  "estimated_work": (len(offsets) + 1) * 7},
+                        "Mz_sat": np.asarray(mz), "Mz_ref": np.asarray([mz_ref]),
+                        "mode": mode, "duty_cycle": duty},
+            meta={"engine": "epg-x", "assumptions": assumptions,
+                  "n_ops": len(offsets) * per_offset_ops + 1,
+                  "estimated_work": (len(offsets) * per_offset_ops + 1) * 7},
             timing={},
         )

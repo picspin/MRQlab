@@ -14,7 +14,7 @@ class RfOp:
 
 @dataclass(frozen=True, slots=True)
 class SaturationOp:
-    """Declared homogeneous CW saturation; distinct from instantaneous hard RF."""
+    """Declared rectangular saturation block; distinct from instantaneous hard RF."""
 
     t: float
     duration_s: float
