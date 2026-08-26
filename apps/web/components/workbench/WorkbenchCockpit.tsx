@@ -137,7 +137,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [cockpitSignals, setCockpitSignals] = useState<CockpitSignalAnalysis | null>(null);
 
   // Physics sub-lens selection inside Physics mode
-  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare" | "spectrum">("timeline");
+  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare" | "spectrum">(isSpectrumExperiment ? "spectrum" : "timeline");
 
   // Sync params when scenario changes
   useEffect(() => {
@@ -153,6 +153,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     setIsInterleaved(s.defaultParams.isInterleaved);
     setActiveScanPlane(s.scanPlane);
     setMipCursorZ(Math.round(s.defaultParams.sliceCount / 2));
+    setPhysicsTab(selectedScenarioKey === "cest_amide" ? "spectrum" : "timeline");
   }, [selectedScenarioKey]);
 
   // Trigger Execution Plan (POST /experiments/run-from-recipe). Fail closed: never mint RESULT.
@@ -526,6 +527,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 3. ROTATING M(t)
               </button>
+              {!isSpectrumExperiment && (
               <button
                 onClick={() => setPhysicsTab("phantom")}
                 style={{
@@ -542,6 +544,8 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 🎯 4. TEST PHANTOM
               </button>
+              )}
+              {!isSpectrumExperiment && (
               <button
                 onClick={() => setPhysicsTab("kspace")}
                 data-testid="kspace-tab-btn"
@@ -559,6 +563,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 5. K-SPACE / RECON
               </button>
+              )}
               <button
                 onClick={() => setPhysicsTab("optimize")}
                 data-testid="optimize-tab-btn"
@@ -1099,7 +1104,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.66.3 · UX honesty</div>
+          <div className="system-info">MRQLab v0.66.4 · UX honesty</div>
         )}
       </section>
     </div>
