@@ -342,7 +342,27 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         </div>
 
         {/* Persona-Divergent Panels */}
-        {profile === "clinical" ? (
+        {profile === "clinical" && isSpectrumExperiment ? (
+          <div className="clinical-contrast-panel" data-testid="spectrum-clinical-honesty">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+              <h4 style={{ margin: 0 }}>SPECTRUM · SINGLE VOXEL</h4>
+              <span style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 700 }}>Z(Δ) · no acquisition plane</span>
+            </div>
+            <div style={{ background: "#0c1114", border: "1px solid #28373e", padding: "8px", borderRadius: "4px", fontSize: "11px", marginBottom: "12px", color: "#b2c5cc", lineHeight: 1.4 }}>
+              Frequency-axis experiment. Axial / Coronal / Sagittal planes do not apply. Water and amide pools are chemical-shift labels, not spatial tissues.
+            </div>
+            <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+              {currentScenario.tissues.map((t) => (
+                <div key={t.id} className="tissue-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px", padding: "6px" }}>
+                  <div>
+                    <b>{t.name}</b>
+                    <small style={{ display: "block" }}>{t.desc}</small>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : profile === "clinical" ? (
           /* CLINICAL LENS: Radiology View (ZERO EPG/Timing Jargon) */
           <div className="clinical-contrast-panel" data-testid="clinical-contrast-panel">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
@@ -376,7 +396,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             </div>
 
             {/* Scan Plane Selection */}
-            <div style={{ marginBottom: "12px" }}>
+            <div style={{ marginBottom: "12px" }} data-testid="acquisition-plane-picker">
               <label style={{ fontSize: "10px", color: "#7a9099", fontWeight: 700, display: "block", marginBottom: "4px" }}>PRIMARY ACQUISITION PLANE:</label>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "4px" }}>
                 {["AXIAL", "CORONAL", "SAGITTAL"].map((plane) => (
@@ -1077,7 +1097,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.66.1 · UX honesty</div>
+          <div className="system-info">MRQLab v0.66.2 · UX honesty</div>
         )}
       </section>
     </div>

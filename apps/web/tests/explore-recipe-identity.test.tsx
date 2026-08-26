@@ -115,9 +115,14 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.queryByTestId("echo-train-rail")).toBeNull();
     expect(screen.getByTestId("spectrum-control-honesty")).toBeVisible();
     expect(screen.getByTestId("clinical-rejects-z-spectrum")).toBeVisible();
+    expect(screen.queryByTestId("acquisition-plane-picker")).toBeNull();
+    expect(screen.queryByRole("button", { name: "AXIAL" })).toBeNull();
+    expect(screen.getByTestId("spectrum-clinical-honesty")).toBeVisible();
+    expect(screen.getByTestId("spectrum-clinical-honesty")).toHaveTextContent(/no acquisition plane/i);
+    expect(screen.queryByText("CLINICAL CONTRAST")).toBeNull();
   });
 
-  it("nav chrome says v0.66.1", () => {
+  it("nav chrome says v0.66.2", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -125,6 +130,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.1");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.2");
   });
 });
