@@ -120,9 +120,14 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByTestId("spectrum-clinical-honesty")).toBeVisible();
     expect(screen.getByTestId("spectrum-clinical-honesty")).toHaveTextContent(/no acquisition plane/i);
     expect(screen.queryByText("CLINICAL CONTRAST")).toBeNull();
+    expect(screen.getByTestId("display-header-title")).toHaveTextContent("SPECTRUM VIEWPORT · SINGLE VOXEL · Z(Δ)");
+    expect(screen.getByTestId("display-header-title")).not.toHaveTextContent("CLINICAL QUAD VIEWPORT");
+    expect(screen.getByTestId("display-header-title")).not.toHaveTextContent("AXIAL");
+    expect(screen.getByTestId("control-bank-mode")).toHaveTextContent("Saturation & Offset");
+    expect(screen.getByTestId("control-bank-mode")).not.toHaveTextContent("Geometry & Contrast");
   });
 
-  it("nav chrome says v0.66.2", () => {
+  it("nav chrome says v0.66.3", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -130,6 +135,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.2");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.3");
   });
 });

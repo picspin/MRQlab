@@ -643,8 +643,10 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
       <section className="active-lens-display" data-testid="active-lens-display">
         <div className="display-bezel">
           <header className="display-header">
-            <span>
-              {profile === "clinical"
+            <span data-testid="display-header-title">
+              {isSpectrumExperiment
+                ? "SPECTRUM VIEWPORT · SINGLE VOXEL · Z(Δ)"
+                : profile === "clinical"
                 ? `CLINICAL QUAD VIEWPORT · ${currentScenario.anatomy.toUpperCase()} · ${activeScanPlane}`
                 : `PHYSICS INSTRUMENT · ${physicsTab.toUpperCase()}`}
             </span>
@@ -917,7 +919,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
       <section className="control-bank" data-testid="control-bank">
         <div className="bank-header">
           <h3>CONTROL BANK</h3>
-          <span className="sub-mode">{profile === "clinical" ? "Geometry & Contrast" : "Operator Dials"}</span>
+          <span className="sub-mode" data-testid="control-bank-mode">{isSpectrumExperiment ? "Saturation & Offset" : profile === "clinical" ? "Geometry & Contrast" : "Operator Dials"}</span>
         </div>
 
         {isSpectrumExperiment ? (
@@ -1097,7 +1099,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.66.2 · UX honesty</div>
+          <div className="system-info">MRQLab v0.66.3 · UX honesty</div>
         )}
       </section>
     </div>
