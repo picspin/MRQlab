@@ -112,9 +112,12 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     const dropdown = screen.getByTestId("scenario-dropdown") as HTMLSelectElement;
     expect(dropdown.value).toBe("");
     expect(dropdown.selectedOptions[0]?.textContent).toMatch(/Not a clinical imaging case/);
+    expect(screen.queryByTestId("echo-train-rail")).toBeNull();
+    expect(screen.getByTestId("spectrum-control-honesty")).toBeVisible();
+    expect(screen.getByTestId("clinical-rejects-z-spectrum")).toBeVisible();
   });
 
-  it("nav chrome says v0.66", () => {
+  it("nav chrome says v0.66.1", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -122,6 +125,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.1");
   });
 });

@@ -15,9 +15,9 @@ const result = { schema_version: "1.0", experiment_id: "recipe", observations: [
 ] };
 const json = (body: unknown) => new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
 
-function PhysicsCockpit() {
+function PhysicsCockpit({ recipe }: { recipe?: string } = {}) {
   const { setProfile } = useWorkspace();
-  return <><button onClick={() => setProfile("physics")}>Physics profile</button><WorkbenchCockpit /></>;
+  return <><button onClick={() => setProfile("physics")}>Physics profile</button><WorkbenchCockpit initialRecipeId={recipe} /></>;
 }
 
 function mockApi(runResult: unknown = result) {
@@ -86,9 +86,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.66", () => {
+  it("shows chrome v0.66.1", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.1");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -135,5 +135,18 @@ describe("Wave H UX honesty", () => {
     expect(await screen.findByTestId("clinical-rejects-z-spectrum")).toBeVisible();
     expect(screen.queryByTestId("clinical-quad-grid")).toBeNull();
     expect(screen.queryByTestId("spectrum-plot")).toBeNull();
+  });
+
+  it("CEST physics seam is CEST, not SE, and hides the TSE echo train", () => {
+    mockApi();
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    expect(screen.getByTestId("physics-seam")).toHaveTextContent("SEAM: CEST");
+    expect(screen.getByTestId("physics-seam")).not.toHaveTextContent("SEAM: SE");
+    expect(screen.queryByTestId("echo-train-rail")).toBeNull();
+    expect(screen.getByText("k=0 water")).toBeVisible();
+    expect(screen.getByText("EPG-X CEST")).toBeVisible();
+    expect(screen.getByTestId("spectrum-control-honesty")).toBeVisible();
+    expect(screen.queryByTestId("physics-excite-fa-slider")).toBeNull();
   });
 });
