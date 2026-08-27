@@ -9,6 +9,7 @@ import {
   RECIPE_TO_SCENARIO,
   scenarioKeyForRecipe,
 } from "../lib/explore-catalog";
+import { CLINICAL_SCENARIOS } from "../lib/scenarios";
 
 afterEach(() => {
   cleanup();
@@ -45,6 +46,16 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(scenarioKeyForRecipe("cest_amide_pulsed_z_spectrum")).toBe("cest_amide");
     expect(scenarioKeyForRecipe("nope")).toBe("ms_brain");
     expect(RECIPE_TO_SCENARIO.cardiac_cine_gre).toBeUndefined();
+  });
+
+  it("cest_amide scenario is Spectroscopy/CEST/VOXEL, not Neuro/SE/AXIAL", () => {
+    const cest = CLINICAL_SCENARIOS.cest_amide;
+    expect(cest.category).toBe("Spectroscopy");
+    expect(cest.seqType).toBe("CEST");
+    expect(cest.scanPlane).toBe("VOXEL");
+    expect(cest.category).not.toBe("Neuro");
+    expect(cest.seqType).not.toBe("SE");
+    expect(cest.scanPlane).not.toBe("AXIAL");
   });
 
   it("Launch Cockpit deep-links executable cases and badges the rest", () => {
@@ -112,9 +123,22 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     const dropdown = screen.getByTestId("scenario-dropdown") as HTMLSelectElement;
     expect(dropdown.value).toBe("");
     expect(dropdown.selectedOptions[0]?.textContent).toMatch(/Not a clinical imaging case/);
+    expect(screen.queryByTestId("echo-train-rail")).toBeNull();
+    expect(screen.getByTestId("spectrum-control-honesty")).toBeVisible();
+    expect(screen.getByTestId("clinical-rejects-z-spectrum")).toBeVisible();
+    expect(screen.queryByTestId("acquisition-plane-picker")).toBeNull();
+    expect(screen.queryByRole("button", { name: "AXIAL" })).toBeNull();
+    expect(screen.getByTestId("spectrum-clinical-honesty")).toBeVisible();
+    expect(screen.getByTestId("spectrum-clinical-honesty")).toHaveTextContent(/no acquisition plane/i);
+    expect(screen.queryByText("CLINICAL CONTRAST")).toBeNull();
+    expect(screen.getByTestId("display-header-title")).toHaveTextContent("SPECTRUM VIEWPORT · SINGLE VOXEL · Z(Δ)");
+    expect(screen.getByTestId("display-header-title")).not.toHaveTextContent("CLINICAL QUAD VIEWPORT");
+    expect(screen.getByTestId("display-header-title")).not.toHaveTextContent("AXIAL");
+    expect(screen.getByTestId("control-bank-mode")).toHaveTextContent("Saturation & Offset");
+    expect(screen.getByTestId("control-bank-mode")).not.toHaveTextContent("Geometry & Contrast");
   });
 
-  it("nav chrome says v0.66", () => {
+  it("nav chrome says v0.66.6", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -122,6 +146,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.6");
   });
 });

@@ -137,7 +137,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [cockpitSignals, setCockpitSignals] = useState<CockpitSignalAnalysis | null>(null);
 
   // Physics sub-lens selection inside Physics mode
-  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare" | "spectrum">("timeline");
+  const [physicsTab, setPhysicsTab] = useState<"timeline" | "epg_phase" | "bloch_sphere" | "kspace" | "phantom" | "optimize" | "compare" | "spectrum">(isSpectrumExperiment ? "spectrum" : "timeline");
 
   // Sync params when scenario changes
   useEffect(() => {
@@ -153,6 +153,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     setIsInterleaved(s.defaultParams.isInterleaved);
     setActiveScanPlane(s.scanPlane);
     setMipCursorZ(Math.round(s.defaultParams.sliceCount / 2));
+    setPhysicsTab(selectedScenarioKey === "cest_amide" ? "spectrum" : "timeline");
   }, [selectedScenarioKey]);
 
   // Trigger Execution Plan (POST /experiments/run-from-recipe). Fail closed: never mint RESULT.
@@ -195,6 +196,10 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   };
 
   useEffect(() => {
+    if (isSpectrumExperiment) {
+      setCockpitSignals(null);
+      return;
+    }
     let cancelled = false;
     fetchCockpitSignals({
       seq_type: currentScenario.seqType,
@@ -223,6 +228,10 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   }, [selectedScenarioKey, fa, te, tr, currentScenario]);
 
   useEffect(() => {
+    if (isSpectrumExperiment) {
+      setCompiledSequence(null);
+      return;
+    }
     let cancelled = false;
     const template = currentScenario.seqType;
     const params: Record<string, number> = {
@@ -342,7 +351,27 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         </div>
 
         {/* Persona-Divergent Panels */}
-        {profile === "clinical" ? (
+        {profile === "clinical" && isSpectrumExperiment ? (
+          <div className="clinical-contrast-panel" data-testid="spectrum-clinical-honesty">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+              <h4 style={{ margin: 0 }}>SPECTRUM · SINGLE VOXEL</h4>
+              <span style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 700 }}>Z(Δ) · no acquisition plane</span>
+            </div>
+            <div style={{ background: "#0c1114", border: "1px solid #28373e", padding: "8px", borderRadius: "4px", fontSize: "11px", marginBottom: "12px", color: "#b2c5cc", lineHeight: 1.4 }}>
+              Frequency-axis experiment. Axial / Coronal / Sagittal planes do not apply. Water and amide pools are chemical-shift labels, not spatial tissues.
+            </div>
+            <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+              {currentScenario.tissues.map((t) => (
+                <div key={t.id} className="tissue-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px", padding: "6px" }}>
+                  <div>
+                    <b>{t.name}</b>
+                    <small style={{ display: "block" }}>{t.desc}</small>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : profile === "clinical" ? (
           /* CLINICAL LENS: Radiology View (ZERO EPG/Timing Jargon) */
           <div className="clinical-contrast-panel" data-testid="clinical-contrast-panel">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
@@ -376,7 +405,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             </div>
 
             {/* Scan Plane Selection */}
-            <div style={{ marginBottom: "12px" }}>
+            <div style={{ marginBottom: "12px" }} data-testid="acquisition-plane-picker">
               <label style={{ fontSize: "10px", color: "#7a9099", fontWeight: 700, display: "block", marginBottom: "4px" }}>PRIMARY ACQUISITION PLANE:</label>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "4px" }}>
                 {["AXIAL", "CORONAL", "SAGITTAL"].map((plane) => (
@@ -452,7 +481,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 >
                   {isEditMode ? "🔓 EDITING" : "✏️ EDIT"}
                 </button>
-                <span style={{ fontSize: "10px", color: "var(--cyan)", fontWeight: 700, fontFamily: "monospace" }}>SEAM: {currentScenario.seqType}</span>
+                <span data-testid="physics-seam" style={{ fontSize: "10px", color: "var(--cyan)", fontWeight: 700, fontFamily: "monospace" }}>SEAM: {isSpectrumExperiment ? "CEST" : currentScenario.seqType}</span>
               </div>
             </div>
 
@@ -506,6 +535,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 3. ROTATING M(t)
               </button>
+              {!isSpectrumExperiment && (
               <button
                 onClick={() => setPhysicsTab("phantom")}
                 style={{
@@ -522,6 +552,8 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 🎯 4. TEST PHANTOM
               </button>
+              )}
+              {!isSpectrumExperiment && (
               <button
                 onClick={() => setPhysicsTab("kspace")}
                 data-testid="kspace-tab-btn"
@@ -539,6 +571,8 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 5. K-SPACE / RECON
               </button>
+              )}
+              {!isSpectrumExperiment && (
               <button
                 onClick={() => setPhysicsTab("optimize")}
                 data-testid="optimize-tab-btn"
@@ -556,6 +590,8 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 6. OPTIMIZE / PARETO
               </button>
+              )}
+              {!isSpectrumExperiment && (
               <button
                 onClick={() => setPhysicsTab("compare")}
                 data-testid="compare-tab-btn"
@@ -574,6 +610,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 7. COMPARE A/B
               </button>
+              )}
               <button onClick={() => setPhysicsTab("spectrum")} data-testid="spectrum-tab-btn"
                 style={{ padding: "6px", fontSize: "10px", fontWeight: 700, fontFamily: "monospace",
                   gridColumn: "1 / span 2", backgroundColor: physicsTab === "spectrum" ? "var(--cyan)" : "#182226",
@@ -583,18 +620,37 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             </div>
 
             <div className="state-metrics">
-              <div>
-                <label>RF Energy ∫B1²dt</label>
-                <span>{relativeSar.toFixed(1)} a.u.</span>
-              </div>
-              <div>
-                <label>Coherence Order k</label>
-                <span>{isGRE ? "GRE Steady State" : "EPG k=16"}</span>
-              </div>
-              <div>
-                <label>Refocusing Eff</label>
-                <span>{(refocusEff * 100).toFixed(1)}%</span>
-              </div>
+              {isSpectrumExperiment ? (
+                <>
+                  <div>
+                    <label>Observation</label>
+                    <span>Z-spectrum</span>
+                  </div>
+                  <div>
+                    <label>Coherence Order k</label>
+                    <span>k=0 water</span>
+                  </div>
+                  <div>
+                    <label>Hamiltonian</label>
+                    <span>EPG-X CEST</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label>RF Energy ∫B1²dt</label>
+                    <span>{relativeSar.toFixed(1)} a.u.</span>
+                  </div>
+                  <div>
+                    <label>Coherence Order k</label>
+                    <span>{isGRE ? "GRE Steady State" : "EPG k=16"}</span>
+                  </div>
+                  <div>
+                    <label>Refocusing Eff</label>
+                    <span>{(refocusEff * 100).toFixed(1)}%</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -604,12 +660,14 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
       <section className="active-lens-display" data-testid="active-lens-display">
         <div className="display-bezel">
           <header className="display-header">
-            <span>
-              {profile === "clinical"
+            <span data-testid="display-header-title">
+              {isSpectrumExperiment
+                ? "SPECTRUM VIEWPORT · SINGLE VOXEL · Z(Δ)"
+                : profile === "clinical"
                 ? `CLINICAL QUAD VIEWPORT · ${currentScenario.anatomy.toUpperCase()} · ${activeScanPlane}`
                 : `PHYSICS INSTRUMENT · ${physicsTab.toUpperCase()}`}
             </span>
-            {profile === "physics" && <div style={{ display: "flex", gap: 6 }}>
+            {profile === "physics" && !isSpectrumExperiment && <div style={{ display: "flex", gap: 6 }}>
               <button data-testid="inspect-rf-btn" onClick={() => {
                 const rf = compiledSequence?.channels.find((channel) => channel.name === "rf_amp")?.events[0];
                 setPhysicsTab("timeline");
@@ -632,7 +690,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
 
           <div className={`display-screen ${profile === "clinical" ? "clinical-screen" : ""}`} style={{ minHeight: "380px" }}>
             {profile === "clinical" ? (
-              resultGraph?.observations.some((o) => o.kind === "z_spectrum") && !resultGraph.observations.some((o) => ["image", "mip", "slice_stack", "parameter_map"].includes(o.kind)) ? (
+              isSpectrumExperiment || (resultGraph?.observations.some((o) => o.kind === "z_spectrum") && !resultGraph.observations.some((o) => ["image", "mip", "slice_stack", "parameter_map"].includes(o.kind))) ? (
                 <div data-testid="clinical-rejects-z-spectrum">Clinical spatial viewport rejects z_spectrum</div>
               ) : (
               /* CLINICAL QUAD MPR & MIP RAYCAST */
@@ -849,8 +907,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
           </div>
         </div>
 
-        {/* Linked Echo Train Scrubber */}
-        <div className="linked-scope-rail">
+        {/* Linked Echo Train Scrubber — imaging sequences only */}
+        {!isSpectrumExperiment && (
+        <div className="linked-scope-rail" data-testid="echo-train-rail">
           <label>INTERACTIVE ECHO TRAIN (ETL=16 CROSS-LENS LINKED)</label>
           <div className="echo-chips-row">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((echo) => {
@@ -870,16 +929,22 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             })}
           </div>
         </div>
+        )}
       </section>
 
       {/* 3. Control Bank: Geometric & Physical Dials */}
       <section className="control-bank" data-testid="control-bank">
         <div className="bank-header">
           <h3>CONTROL BANK</h3>
-          <span className="sub-mode">{profile === "clinical" ? "Geometry & Contrast" : "Operator Dials"}</span>
+          <span className="sub-mode" data-testid="control-bank-mode">{isSpectrumExperiment ? "Saturation & Offset" : profile === "clinical" ? "Geometry & Contrast" : "Operator Dials"}</span>
         </div>
 
-        {profile === "clinical" ? (
+        {isSpectrumExperiment ? (
+          <div className="control-group" data-testid="spectrum-control-honesty">
+            <label>Spectrum controls</label>
+            <span className="value-badge">Imaging FA/TE/ETL dials are not the CEST Hamiltonian. Saturation offset, B1, and train live in recipe metadata. RUN still hits the backend.</span>
+          </div>
+        ) : profile === "clinical" ? (
           /* Clinical Controls: Slice thickness, gap, count, FOV, TR/TE */
           <>
             <div className="control-group">
@@ -1051,7 +1116,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.66 · UX honesty</div>
+          <div className="system-info">MRQLab v0.66.6 · UX honesty</div>
         )}
       </section>
     </div>
