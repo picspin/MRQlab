@@ -564,6 +564,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 5. K-SPACE / RECON
               </button>
               )}
+              {!isSpectrumExperiment && (
               <button
                 onClick={() => setPhysicsTab("optimize")}
                 data-testid="optimize-tab-btn"
@@ -581,6 +582,8 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 6. OPTIMIZE / PARETO
               </button>
+              )}
+              {!isSpectrumExperiment && (
               <button
                 onClick={() => setPhysicsTab("compare")}
                 data-testid="compare-tab-btn"
@@ -599,6 +602,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               >
                 7. COMPARE A/B
               </button>
+              )}
               <button onClick={() => setPhysicsTab("spectrum")} data-testid="spectrum-tab-btn"
                 style={{ padding: "6px", fontSize: "10px", fontWeight: 700, fontFamily: "monospace",
                   gridColumn: "1 / span 2", backgroundColor: physicsTab === "spectrum" ? "var(--cyan)" : "#182226",
@@ -655,7 +659,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 ? `CLINICAL QUAD VIEWPORT · ${currentScenario.anatomy.toUpperCase()} · ${activeScanPlane}`
                 : `PHYSICS INSTRUMENT · ${physicsTab.toUpperCase()}`}
             </span>
-            {profile === "physics" && <div style={{ display: "flex", gap: 6 }}>
+            {profile === "physics" && !isSpectrumExperiment && <div style={{ display: "flex", gap: 6 }}>
               <button data-testid="inspect-rf-btn" onClick={() => {
                 const rf = compiledSequence?.channels.find((channel) => channel.name === "rf_amp")?.events[0];
                 setPhysicsTab("timeline");
@@ -1104,7 +1108,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.66.4 · UX honesty</div>
+          <div className="system-info">MRQLab v0.66.5 · UX honesty</div>
         )}
       </section>
     </div>

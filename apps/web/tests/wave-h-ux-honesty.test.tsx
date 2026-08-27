@@ -86,9 +86,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.66.4", () => {
+  it("shows chrome v0.66.5", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.4");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.5");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -151,6 +151,10 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("spectrum-awaiting")).toBeVisible();
     expect(screen.queryByTestId("kspace-tab-btn")).toBeNull();
     expect(screen.queryByRole("button", { name: /TEST PHANTOM/ })).toBeNull();
+    expect(screen.queryByTestId("optimize-tab-btn")).toBeNull();
+    expect(screen.queryByTestId("compare-tab-btn")).toBeNull();
+    expect(screen.queryByTestId("inspect-rf-btn")).toBeNull();
+    expect(screen.queryByTestId("inspect-g-btn")).toBeNull();
     expect(screen.getByTestId("display-header-title")).toHaveTextContent("SPECTRUM");
     expect(screen.getByTestId("display-header-title")).not.toHaveTextContent("TIMELINE");
   });
