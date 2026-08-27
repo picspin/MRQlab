@@ -55,6 +55,12 @@ def test_tse_overlay_still_writes_sequence_params():
     assert overlaid.sequence.params["echo_count"] == 8
 
 
+def test_empty_cest_overlay_leaves_recipe_metadata_untouched():
+    graph = build_clinical_recipe("cest_amide_pulsed_z_spectrum")
+    overlaid = _overlay_sequence_params(graph, {})
+    assert overlaid.sequence.metadata["cest"] == graph.sequence.metadata["cest"]
+
+
 def test_run_from_recipe_accepts_cest_knobs():
     response = client.post("/experiments/run-from-recipe", json={
         "recipe_id": "cest_amide_pulsed_z_spectrum",

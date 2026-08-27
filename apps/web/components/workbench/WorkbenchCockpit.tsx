@@ -109,6 +109,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [cestPowerUt, setCestPowerUt] = useState<number>(2);
   const [cestOffsetSpanPpm, setCestOffsetSpanPpm] = useState<number>(5);
   const [cestDutyCycle, setCestDutyCycle] = useState<number>(0.5);
+  const [cestDirty, setCestDirty] = useState<{ power: boolean; span: boolean; duty: boolean }>({
+    power: false, span: false, duty: false,
+  });
   
   // Custom uploaded DICOM / Phantom image
   const [customImageSrc, setCustomImageSrc] = useState<string | null>(null);
@@ -160,6 +163,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     setCestPowerUt(2);
     setCestOffsetSpanPpm(5);
     setCestDutyCycle(0.5);
+    setCestDirty({ power: false, span: false, duty: false });
   }, [selectedScenarioKey]);
 
   // Trigger Execution Plan (POST /experiments/run-from-recipe). Fail closed: never mint RESULT.
@@ -172,9 +176,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     const isCestRecipe = ["cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum"].includes(activeRecipeId);
     const params: Record<string, number> = isCestRecipe
       ? {
-          saturation_power_uT: cestPowerUt,
-          offset_span_ppm: cestOffsetSpanPpm,
-          ...(activeRecipeId === "cest_amide_pulsed_z_spectrum" ? { duty_cycle: cestDutyCycle } : {}),
+          ...(cestDirty.power ? { saturation_power_uT: cestPowerUt } : {}),
+          ...(cestDirty.span ? { offset_span_ppm: cestOffsetSpanPpm } : {}),
+          ...(cestDirty.duty && activeRecipeId === "cest_amide_pulsed_z_spectrum" ? { duty_cycle: cestDutyCycle } : {}),
         }
       : {
           te: te / 1000.0,
@@ -952,14 +956,14 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Saturation B1</label>
               <div className="slider-row">
-                <input type="range" min="0.5" max="5" step="0.1" value={cestPowerUt} onChange={(e) => setCestPowerUt(Number(e.target.value))} data-testid="cest-b1-slider" />
+                <input type="range" min="0.5" max="5" step="0.1" value={cestPowerUt} onChange={(e) => { setCestPowerUt(Number(e.target.value)); setCestDirty((d) => ({ ...d, power: true })); }} data-testid="cest-b1-slider" />
                 <span className="value-badge">{cestPowerUt.toFixed(1)} µT</span>
               </div>
             </div>
             <div className="control-group">
               <label>Offset span</label>
               <div className="slider-row">
-                <input type="range" min="3.5" max="10" step="0.5" value={cestOffsetSpanPpm} onChange={(e) => setCestOffsetSpanPpm(Number(e.target.value))} data-testid="cest-offset-span-slider" />
+                <input type="range" min="3.5" max="10" step="0.5" value={cestOffsetSpanPpm} onChange={(e) => { setCestOffsetSpanPpm(Number(e.target.value)); setCestDirty((d) => ({ ...d, span: true })); }} data-testid="cest-offset-span-slider" />
                 <span className="value-badge">±{cestOffsetSpanPpm} ppm</span>
               </div>
             </div>
@@ -967,7 +971,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               <div className="control-group">
                 <label>Duty cycle</label>
                 <div className="slider-row">
-                  <input type="range" min="0.2" max="1" step="0.05" value={cestDutyCycle} onChange={(e) => setCestDutyCycle(Number(e.target.value))} data-testid="cest-duty-slider" />
+                  <input type="range" min="0.2" max="1" step="0.05" value={cestDutyCycle} onChange={(e) => { setCestDutyCycle(Number(e.target.value)); setCestDirty((d) => ({ ...d, duty: true })); }} data-testid="cest-duty-slider" />
                   <span className="value-badge">{cestDutyCycle.toFixed(2)}</span>
                 </div>
               </div>
@@ -1145,7 +1149,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.67.1 · CEST knobs</div>
         )}
       </section>
     </div>
