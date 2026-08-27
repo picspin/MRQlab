@@ -9,6 +9,7 @@ import {
   RECIPE_TO_SCENARIO,
   scenarioKeyForRecipe,
 } from "../lib/explore-catalog";
+import { CLINICAL_SCENARIOS } from "../lib/scenarios";
 
 afterEach(() => {
   cleanup();
@@ -45,6 +46,16 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(scenarioKeyForRecipe("cest_amide_pulsed_z_spectrum")).toBe("cest_amide");
     expect(scenarioKeyForRecipe("nope")).toBe("ms_brain");
     expect(RECIPE_TO_SCENARIO.cardiac_cine_gre).toBeUndefined();
+  });
+
+  it("cest_amide scenario is Spectroscopy/CEST/VOXEL, not Neuro/SE/AXIAL", () => {
+    const cest = CLINICAL_SCENARIOS.cest_amide;
+    expect(cest.category).toBe("Spectroscopy");
+    expect(cest.seqType).toBe("CEST");
+    expect(cest.scanPlane).toBe("VOXEL");
+    expect(cest.category).not.toBe("Neuro");
+    expect(cest.seqType).not.toBe("SE");
+    expect(cest.scanPlane).not.toBe("AXIAL");
   });
 
   it("Launch Cockpit deep-links executable cases and badges the rest", () => {
@@ -127,7 +138,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByTestId("control-bank-mode")).not.toHaveTextContent("Geometry & Contrast");
   });
 
-  it("nav chrome says v0.66.5", () => {
+  it("nav chrome says v0.66.6", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -135,6 +146,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.5");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.6");
   });
 });

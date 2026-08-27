@@ -196,6 +196,10 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   };
 
   useEffect(() => {
+    if (isSpectrumExperiment) {
+      setCockpitSignals(null);
+      return;
+    }
     let cancelled = false;
     fetchCockpitSignals({
       seq_type: currentScenario.seqType,
@@ -224,6 +228,10 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   }, [selectedScenarioKey, fa, te, tr, currentScenario]);
 
   useEffect(() => {
+    if (isSpectrumExperiment) {
+      setCompiledSequence(null);
+      return;
+    }
     let cancelled = false;
     const template = currentScenario.seqType;
     const params: Record<string, number> = {
@@ -1108,7 +1116,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.66.5 · UX honesty</div>
+          <div className="system-info">MRQLab v0.66.6 · UX honesty</div>
         )}
       </section>
     </div>

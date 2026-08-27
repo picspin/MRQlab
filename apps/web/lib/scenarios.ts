@@ -12,10 +12,10 @@ export interface ScenarioSpec {
   id: string;
   recipeId: string;
   name: string;
-  category: "Neuro" | "Cardiac" | "Body" | "MSK" | "Vascular";
-  seqType: "TSE" | "GRE" | "SE";
+  category: "Neuro" | "Cardiac" | "Body" | "MSK" | "Vascular" | "Spectroscopy";
+  seqType: "TSE" | "GRE" | "SE" | "CEST";
   anatomy: string;
-  scanPlane: "AXIAL" | "CORONAL" | "SAGITTAL" | "SHORT AXIS";
+  scanPlane: "AXIAL" | "CORONAL" | "SAGITTAL" | "SHORT AXIS" | "VOXEL";
   weightingName: string;
   clinicalQuestion: string;
   tissues: ScenarioTissue[];
@@ -36,8 +36,8 @@ export interface ScenarioSpec {
 export const CLINICAL_SCENARIOS: Record<string, ScenarioSpec> = {
   cest_amide: {
     id: "cest_amide", recipeId: "cest_amide_z_spectrum",
-    name: "Physics — Two-pool amide CEST Z-spectrum", category: "Neuro", seqType: "SE",
-    anatomy: "Single voxel", scanPlane: "AXIAL", weightingName: "Z(Δ) spectrum experiment",
+    name: "Physics — Two-pool amide CEST Z-spectrum", category: "Spectroscopy", seqType: "CEST",
+    anatomy: "Single voxel", scanPlane: "VOXEL", weightingName: "Z(Δ) spectrum experiment",
     clinicalQuestion: "How does exchanging amide saturation alter the backend-computed water Z-spectrum?",
     tissues: [
       { id: "water", name: "Water", t1: 1000, t2: 80, pd: .9, desc: "0 ppm reference liquid" },
