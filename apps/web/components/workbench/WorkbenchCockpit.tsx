@@ -21,8 +21,7 @@ type TimelineSelection = { channel: string; time: number; value: number; index: 
 function cestKnobsFromMetadata(cest: Record<string, unknown> | undefined) {
   if (!cest) return null;
   const power = Number(cest.saturation_power_uT);
-  const offsets = Array.isArray(cest.offsets_ppm) ? (cest.offsets_ppm as number[]).map(Number) : [];
-  const span = offsets.length ? Math.max(...offsets.map(Math.abs)) : NaN;
+  const span = Number(cest.offset_span_ppm);
   const duty = Number(cest.duty_cycle);
   return {
     power: Number.isFinite(power) ? power : undefined,
@@ -1182,7 +1181,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.3 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.67.4 · CEST knobs</div>
         )}
       </section>
     </div>

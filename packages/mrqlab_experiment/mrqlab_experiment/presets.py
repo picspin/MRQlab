@@ -187,7 +187,8 @@ def build_clinical_recipe(name: str) -> ExperimentGraph:
         )
         cest = {
             "offsets_ppm": [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5],
-            "offset_unit": "ppm", "saturation_duration_s": 1.95 if pulsed else 2.0,
+            "offset_unit": "ppm", "offset_span_ppm": 5.0,
+            "saturation_duration_s": 1.95 if pulsed else 2.0,
             "saturation_power_uT": 2.0, "reference": "unsaturated_control",
         }
         if pulsed:

@@ -240,7 +240,9 @@ def _overlay_cest_metadata(cest: dict[str, Any], params: dict[str, Any]) -> dict
             raise ValueError("CEST saturation_power_uT must be finite and positive")
         next_cest["saturation_power_uT"] = power
     if "offset_span_ppm" in params:
-        next_cest["offsets_ppm"] = _cest_offset_grid(float(params["offset_span_ppm"]), next_cest.get("offsets_ppm", []))
+        span = float(params["offset_span_ppm"])
+        next_cest["offsets_ppm"] = _cest_offset_grid(span, next_cest.get("offsets_ppm", []))
+        next_cest["offset_span_ppm"] = span
     if "duty_cycle" in params:
         if next_cest.get("mode", "cw") != "pulsed":
             raise ValueError("duty cycle overlay is only valid for pulsed CEST")

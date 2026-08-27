@@ -15,6 +15,7 @@ def test_cest_params_overlay_into_metadata_cest_not_top_level():
     assert cest["offsets_ppm"][0] == -6.0
     assert cest["offsets_ppm"][-1] == 6.0
     assert 3.5 in cest["offsets_ppm"]
+    assert cest["offset_span_ppm"] == 6.0
     assert "saturation_power_uT" not in overlaid.sequence.metadata
     assert "offset_span_ppm" not in overlaid.sequence.metadata
 
@@ -66,6 +67,13 @@ def test_pulsed_recipe_declares_duty_cycle_in_metadata_cest():
     pulsed = build_clinical_recipe("cest_amide_pulsed_z_spectrum").sequence.metadata["cest"]
     assert pulsed["duty_cycle"] == pulsed["n_pulses"] * pulsed["pulse_duration_s"] / pulsed["saturation_duration_s"]
     assert "duty_cycle" not in build_clinical_recipe("cest_amide_z_spectrum").sequence.metadata["cest"]
+
+
+def test_cest_recipe_declares_offset_span_ppm_in_metadata_cest():
+    cw = build_clinical_recipe("cest_amide_z_spectrum").sequence.metadata["cest"]
+    pulsed = build_clinical_recipe("cest_amide_pulsed_z_spectrum").sequence.metadata["cest"]
+    assert cw["offset_span_ppm"] == max(abs(v) for v in cw["offsets_ppm"])
+    assert pulsed["offset_span_ppm"] == max(abs(v) for v in pulsed["offsets_ppm"])
 
 
 def test_run_from_recipe_accepts_cest_knobs():
