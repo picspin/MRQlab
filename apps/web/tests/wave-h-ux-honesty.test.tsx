@@ -86,9 +86,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.66.6", () => {
+  it("shows chrome v0.67", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.6");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -146,7 +146,10 @@ describe("Wave H UX honesty", () => {
     expect(screen.queryByTestId("echo-train-rail")).toBeNull();
     expect(screen.getByText("k=0 water")).toBeVisible();
     expect(screen.getByText("EPG-X CEST")).toBeVisible();
-    expect(screen.getByTestId("spectrum-control-honesty")).toBeVisible();
+    expect(screen.queryByTestId("spectrum-control-honesty")).toBeNull();
+    expect(screen.getByTestId("cest-b1-slider")).toBeVisible();
+    expect(screen.getByTestId("cest-offset-span-slider")).toBeVisible();
+    expect(screen.getByTestId("cest-duty-slider")).toBeVisible();
     expect(screen.queryByTestId("physics-excite-fa-slider")).toBeNull();
     expect(screen.getByTestId("spectrum-awaiting")).toBeVisible();
     expect(screen.queryByTestId("kspace-tab-btn")).toBeNull();
@@ -157,5 +160,34 @@ describe("Wave H UX honesty", () => {
     expect(screen.queryByTestId("inspect-g-btn")).toBeNull();
     expect(screen.getByTestId("display-header-title")).toHaveTextContent("SPECTRUM");
     expect(screen.getByTestId("display-header-title")).not.toHaveTextContent("TIMELINE");
+  });
+
+  it("CEST RUN posts saturation knobs, not imaging FA/TE, and sliders do not auto-run", async () => {
+    mockApi();
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    fireEvent.change(screen.getByTestId("cest-b1-slider"), { target: { value: "3.5" } });
+    fireEvent.change(screen.getByTestId("cest-offset-span-slider"), { target: { value: "6" } });
+    fireEvent.change(screen.getByTestId("cest-duty-slider"), { target: { value: "0.7" } });
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    expect(fetchMock.mock.calls.every((call) => !String(call[0]).includes("/experiments/run-from-recipe"))).toBe(true);
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    await waitFor(() => expect(fetchMock.mock.calls.some((call) => String(call[0]).includes("/experiments/run-from-recipe"))).toBe(true));
+    const runCall = fetchMock.mock.calls.find((call) => String(call[0]).includes("/experiments/run-from-recipe"));
+    const body = JSON.parse(String(runCall?.[1]?.body));
+    expect(body.recipe_id).toBe("cest_amide_pulsed_z_spectrum");
+    expect(body.params).toEqual({ saturation_power_uT: 3.5, offset_span_ppm: 6, duty_cycle: 0.7 });
+    expect(body.params.te).toBeUndefined();
+    expect(body.params.flip_angle).toBeUndefined();
+    expect(body.products).toEqual(["z_spectrum", "mtr_asym"]);
+  });
+
+  it("CW CEST hides the duty slider", () => {
+    mockApi();
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    expect(screen.getByTestId("cest-b1-slider")).toBeVisible();
+    expect(screen.getByTestId("cest-offset-span-slider")).toBeVisible();
+    expect(screen.queryByTestId("cest-duty-slider")).toBeNull();
   });
 });

@@ -124,7 +124,10 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(dropdown.value).toBe("");
     expect(dropdown.selectedOptions[0]?.textContent).toMatch(/Not a clinical imaging case/);
     expect(screen.queryByTestId("echo-train-rail")).toBeNull();
-    expect(screen.getByTestId("spectrum-control-honesty")).toBeVisible();
+    expect(screen.queryByTestId("spectrum-control-honesty")).toBeNull();
+    expect(screen.getByTestId("cest-b1-slider")).toBeVisible();
+    expect(screen.getByTestId("cest-offset-span-slider")).toBeVisible();
+    expect(screen.getByTestId("cest-duty-slider")).toBeVisible();
     expect(screen.getByTestId("clinical-rejects-z-spectrum")).toBeVisible();
     expect(screen.queryByTestId("acquisition-plane-picker")).toBeNull();
     expect(screen.queryByRole("button", { name: "AXIAL" })).toBeNull();
@@ -138,7 +141,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByTestId("control-bank-mode")).not.toHaveTextContent("Geometry & Contrast");
   });
 
-  it("nav chrome says v0.66.6", () => {
+  it("nav chrome says v0.67", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -146,6 +149,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.6");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67");
   });
 });

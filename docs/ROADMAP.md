@@ -26,7 +26,7 @@ Waves A–H follow the plan; AI Lab runtime is last.
 
 ## Next
 
-The v0.66 single-voxel two-liquid-pool rectangular pulsed CEST saturation-train seam is closed alongside CW. CEST imaging, multi-solute CEST, shaped RF, and MRS density-matrix work remain later roadmap items.
+The v0.67 Control Bank overlays saturation B1, offset span, and pulsed duty cycle into `metadata.cest` (CW still rejects duty). CEST imaging, multi-solute CEST, shaped RF, and MRS density-matrix work remain later roadmap items.
 
 - Next fidelity: physical gradient units and diffusion wiring, then Bloch–McConnell/MT, CEST saturation, richer MRS, and an optional PDG provider distribution.
 - Progressive Beginner, Clinical, Physics, and Hardware *concept* curricula. “Hardware” remains a learning mode, never an acquisition connection.
