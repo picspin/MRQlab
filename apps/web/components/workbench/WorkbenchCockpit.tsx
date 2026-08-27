@@ -5,7 +5,7 @@ import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
 import { scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
-import { CockpitSignalAnalysis, fetchCockpitSignals, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
+import { CockpitSignalAnalysis, fetchCockpitSignals, listClinicalRecipes, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
@@ -17,6 +17,22 @@ import { GradientEventEditor } from "./GradientEventEditor";
 import { SequenceLego } from "./SequenceLego";
 
 type TimelineSelection = { channel: string; time: number; value: number; index: number };
+
+function cestKnobsFromMetadata(cest: Record<string, unknown> | undefined) {
+  if (!cest) return null;
+  const power = Number(cest.saturation_power_uT);
+  const offsets = Array.isArray(cest.offsets_ppm) ? (cest.offsets_ppm as number[]).map(Number) : [];
+  const span = offsets.length ? Math.max(...offsets.map(Math.abs)) : NaN;
+  const n = Number(cest.n_pulses);
+  const pulse = Number(cest.pulse_duration_s);
+  const duration = Number(cest.saturation_duration_s);
+  const duty = n > 0 && pulse > 0 && duration > 0 ? (n * pulse) / duration : NaN;
+  return {
+    power: Number.isFinite(power) ? power : undefined,
+    span: Number.isFinite(span) ? span : undefined,
+    duty: Number.isFinite(duty) ? duty : undefined,
+  };
+}
 
 function SpectrumPlot({ resultGraph }: { resultGraph: ResultGraph | null }) {
   const spectrum = resultGraph?.observations.find((item) => item.kind === "z_spectrum");
@@ -112,6 +128,8 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [cestDirty, setCestDirty] = useState<{ power: boolean; span: boolean; duty: boolean }>({
     power: false, span: false, duty: false,
   });
+  const cestDirtyRef = useRef(cestDirty);
+  cestDirtyRef.current = cestDirty;
   
   // Custom uploaded DICOM / Phantom image
   const [customImageSrc, setCustomImageSrc] = useState<string | null>(null);
@@ -165,6 +183,24 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     setCestDutyCycle(0.5);
     setCestDirty({ power: false, span: false, duty: false });
   }, [selectedScenarioKey]);
+
+  useEffect(() => {
+    if (!isSpectrumExperiment) return;
+    let cancelled = false;
+    void listClinicalRecipes().then((recipes) => {
+      if (cancelled) return;
+      const match = recipes.find((item) => item.id === activeRecipeId);
+      const cest = (match?.experiment as { sequence?: { metadata?: { cest?: Record<string, unknown> } } } | undefined)
+        ?.sequence?.metadata?.cest;
+      const knobs = cestKnobsFromMetadata(cest);
+      if (!knobs) return;
+      const dirty = cestDirtyRef.current;
+      if (knobs.power != null && !dirty.power) setCestPowerUt(knobs.power);
+      if (knobs.span != null && !dirty.span) setCestOffsetSpanPpm(knobs.span);
+      if (knobs.duty != null && !dirty.duty) setCestDutyCycle(knobs.duty);
+    }).catch(() => undefined);
+    return () => { cancelled = true; };
+  }, [isSpectrumExperiment, activeRecipeId]);
 
   // Trigger Execution Plan (POST /experiments/run-from-recipe). Fail closed: never mint RESULT.
   const triggerRun = async () => {
@@ -957,14 +993,14 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               <label>Saturation B1</label>
               <div className="slider-row">
                 <input type="range" min="0.5" max="5" step="0.1" value={cestPowerUt} onChange={(e) => { setCestPowerUt(Number(e.target.value)); setCestDirty((d) => ({ ...d, power: true })); }} data-testid="cest-b1-slider" />
-                <span className="value-badge">{cestPowerUt.toFixed(1)} µT</span>
+                <span className="value-badge" data-testid="cest-b1-value">{cestPowerUt.toFixed(1)} µT</span>
               </div>
             </div>
             <div className="control-group">
               <label>Offset span</label>
               <div className="slider-row">
                 <input type="range" min="3.5" max="10" step="0.5" value={cestOffsetSpanPpm} onChange={(e) => { setCestOffsetSpanPpm(Number(e.target.value)); setCestDirty((d) => ({ ...d, span: true })); }} data-testid="cest-offset-span-slider" />
-                <span className="value-badge">±{cestOffsetSpanPpm} ppm</span>
+                <span className="value-badge" data-testid="cest-offset-span-value">±{cestOffsetSpanPpm} ppm</span>
               </div>
             </div>
             {activeRecipeId === "cest_amide_pulsed_z_spectrum" && (
@@ -972,7 +1008,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 <label>Duty cycle</label>
                 <div className="slider-row">
                   <input type="range" min="0.2" max="1" step="0.05" value={cestDutyCycle} onChange={(e) => { setCestDutyCycle(Number(e.target.value)); setCestDirty((d) => ({ ...d, duty: true })); }} data-testid="cest-duty-slider" />
-                  <span className="value-badge">{cestDutyCycle.toFixed(2)}</span>
+                  <span className="value-badge" data-testid="cest-duty-value">{cestDutyCycle.toFixed(2)}</span>
                 </div>
               </div>
             )}
@@ -1149,7 +1185,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.1 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.67.2 · CEST knobs</div>
         )}
       </section>
     </div>

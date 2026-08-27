@@ -18,6 +18,12 @@ export async function listPresets(): Promise<Array<{ name: string; experiment: E
   return (await response.json()).presets;
 }
 
+export async function listClinicalRecipes(): Promise<Array<{ id: string; experiment: ExperimentGraph }>> {
+  const response = await fetch(`${BASE}/clinical-recipes`);
+  if (!response.ok) throw new Error(`clinical-recipes failed: ${response.status}`);
+  return (await response.json()).recipes;
+}
+
 export async function runExperiment(graph: ExperimentGraph): Promise<ResultGraph> {
   const response = await fetch(`${BASE}/experiments/run`, {
     method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(graph),

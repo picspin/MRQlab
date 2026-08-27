@@ -141,7 +141,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByTestId("control-bank-mode")).not.toHaveTextContent("Geometry & Contrast");
   });
 
-  it("nav chrome says v0.67.1", () => {
+  it("nav chrome says v0.67.2", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -149,6 +149,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.1");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.2");
   });
 });
