@@ -255,6 +255,7 @@ def _overlay_cest_metadata(cest: dict[str, Any], params: dict[str, Any]) -> dict
             raise ValueError("CEST duty_cycle cannot rebuild a valid saturation train")
         next_cest["pulse_duration_s"] = pulse
         next_cest["gap_duration_s"] = gap
+        next_cest["duty_cycle"] = duty
     return next_cest
 
 

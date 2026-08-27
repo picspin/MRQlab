@@ -23,10 +23,7 @@ function cestKnobsFromMetadata(cest: Record<string, unknown> | undefined) {
   const power = Number(cest.saturation_power_uT);
   const offsets = Array.isArray(cest.offsets_ppm) ? (cest.offsets_ppm as number[]).map(Number) : [];
   const span = offsets.length ? Math.max(...offsets.map(Math.abs)) : NaN;
-  const n = Number(cest.n_pulses);
-  const pulse = Number(cest.pulse_duration_s);
-  const duration = Number(cest.saturation_duration_s);
-  const duty = n > 0 && pulse > 0 && duration > 0 ? (n * pulse) / duration : NaN;
+  const duty = Number(cest.duty_cycle);
   return {
     power: Number.isFinite(power) ? power : undefined,
     span: Number.isFinite(span) ? span : undefined,
@@ -1185,7 +1182,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.2 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.67.3 · CEST knobs</div>
         )}
       </section>
     </div>

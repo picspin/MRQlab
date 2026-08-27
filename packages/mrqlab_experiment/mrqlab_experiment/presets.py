@@ -191,7 +191,7 @@ def build_clinical_recipe(name: str) -> ExperimentGraph:
             "saturation_power_uT": 2.0, "reference": "unsaturated_control",
         }
         if pulsed:
-            cest.update(mode="pulsed", n_pulses=20, pulse_duration_s=.05, gap_duration_s=.05)
+            cest.update(mode="pulsed", n_pulses=20, pulse_duration_s=.05, gap_duration_s=.05, duty_cycle=.05 * 20 / 1.95)
         return ExperimentGraph(
             id=f"recipe:{name}", name=f"Two-pool amide {'pulsed ' if pulsed else ''}CEST Z-spectrum",
             intent="physics", nodes=nodes,

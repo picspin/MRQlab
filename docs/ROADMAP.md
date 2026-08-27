@@ -26,7 +26,7 @@ Waves A–H follow the plan; AI Lab runtime is last.
 
 ## Next
 
-The v0.67 Control Bank overlays saturation B1, offset span, and pulsed duty cycle into `metadata.cest` (CW still rejects duty). 0.67.1: virgin RUN posts `{}`. 0.67.2: knobs hydrate from recipe `metadata.cest` (pulsed duty ≈0.513, not seed 0.50). CEST imaging, multi-solute CEST, shaped RF, and MRS density-matrix work remain later roadmap items.
+The v0.67 Control Bank overlays saturation B1, offset span, and pulsed duty cycle into `metadata.cest` (CW still rejects duty). 0.67.1: virgin RUN posts `{}`. 0.67.2: knobs hydrate from recipe `metadata.cest`. 0.67.3: pulsed recipe declares `duty_cycle`; frontend reads that field and does not recompute `n·pulse/duration`. CEST imaging, multi-solute CEST, shaped RF, and MRS density-matrix work remain later roadmap items.
 
 - Next fidelity: physical gradient units and diffusion wiring, then Bloch–McConnell/MT, CEST saturation, richer MRS, and an optional PDG provider distribution.
 - Progressive Beginner, Clinical, Physics, and Hardware *concept* curricula. “Hardware” remains a learning mode, never an acquisition connection.

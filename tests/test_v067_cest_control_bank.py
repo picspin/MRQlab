@@ -26,6 +26,7 @@ def test_pulsed_duty_cycle_rebuilds_train_and_keeps_elapsed():
     elapsed = cest["n_pulses"] * cest["pulse_duration_s"] + (cest["n_pulses"] - 1) * cest["gap_duration_s"]
     assert elapsed == cest["saturation_duration_s"]
     assert cest["n_pulses"] * cest["pulse_duration_s"] / elapsed == 0.8
+    assert cest["duty_cycle"] == 0.8
     assert "duty_cycle" not in overlaid.sequence.metadata
 
 
@@ -59,6 +60,12 @@ def test_empty_cest_overlay_leaves_recipe_metadata_untouched():
     graph = build_clinical_recipe("cest_amide_pulsed_z_spectrum")
     overlaid = _overlay_sequence_params(graph, {})
     assert overlaid.sequence.metadata["cest"] == graph.sequence.metadata["cest"]
+
+
+def test_pulsed_recipe_declares_duty_cycle_in_metadata_cest():
+    pulsed = build_clinical_recipe("cest_amide_pulsed_z_spectrum").sequence.metadata["cest"]
+    assert pulsed["duty_cycle"] == pulsed["n_pulses"] * pulsed["pulse_duration_s"] / pulsed["saturation_duration_s"]
+    assert "duty_cycle" not in build_clinical_recipe("cest_amide_z_spectrum").sequence.metadata["cest"]
 
 
 def test_run_from_recipe_accepts_cest_knobs():

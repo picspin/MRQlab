@@ -30,7 +30,7 @@ function mockApi(runResult: unknown = result) {
     if (url.includes("/clinical-recipes")) return json({ recipes: [
       { id: "cest_amide_pulsed_z_spectrum", experiment: { sequence: { metadata: { cest: {
         saturation_power_uT: 2.0, offsets_ppm: [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5],
-        n_pulses: 20, pulse_duration_s: 0.05, gap_duration_s: 0.05, saturation_duration_s: 1.95, mode: "pulsed",
+        n_pulses: 20, pulse_duration_s: 0.05, gap_duration_s: 0.05, saturation_duration_s: 1.95, mode: "pulsed", duty_cycle: 0.42,
       } } } } },
       { id: "cest_amide_z_spectrum", experiment: { sequence: { metadata: { cest: {
         saturation_power_uT: 2.0, offsets_ppm: [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5],
@@ -95,9 +95,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.67.2", () => {
+  it("shows chrome v0.67.3", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.2");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.3");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -228,7 +228,8 @@ describe("Wave H UX honesty", () => {
     mockApi();
     render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
     fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
-    await waitFor(() => expect(screen.getByTestId("cest-duty-value")).toHaveTextContent("0.51"));
+    await waitFor(() => expect(screen.getByTestId("cest-duty-value")).toHaveTextContent("0.42"));
+    expect(screen.getByTestId("cest-duty-value")).not.toHaveTextContent("0.51");
     expect(screen.getByTestId("cest-duty-value")).not.toHaveTextContent("0.50");
     expect(screen.getByTestId("cest-b1-value")).toHaveTextContent("2.0 µT");
     expect(screen.getByTestId("cest-offset-span-value")).toHaveTextContent("±5 ppm");
