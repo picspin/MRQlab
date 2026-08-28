@@ -33,7 +33,7 @@ function mockApi(runResult: unknown = result) {
         n_pulses: 20, pulse_duration_s: 0.05, gap_duration_s: 0.05, saturation_duration_s: 1.95, mode: "pulsed", duty_cycle: 0.42,
       } } } } },
       { id: "cest_amide_z_spectrum", experiment: { sequence: { metadata: { cest: {
-        saturation_power_uT: 2.0, offsets_ppm: [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5], offset_span_ppm: 5,
+        saturation_power_uT: 2.0, offsets_ppm: [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5], offset_span_ppm: 5, mode: "cw",
       } } } } },
     ] });
     return json({});
@@ -95,9 +95,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.67.7", () => {
+  it("shows chrome v0.67.8", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.7");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.8");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -292,5 +292,19 @@ describe("Wave H UX honesty", () => {
     await waitFor(() => expect(screen.getByTestId("cest-duty-slider")).toBeVisible());
     expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/pulsed train/i);
     expect(screen.getByTestId("cest-duty-value")).toHaveTextContent("0.42");
+  });
+
+  it("Spectrum title follows metadata.cest.mode, not a hardcoded Amide CEST Z-spectrum", async () => {
+    mockApi();
+    const { unmount } = render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    await waitFor(() => expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/Amide CEST pulsed Z-spectrum/));
+    expect(screen.getByTestId("spectrum-experiment-identity")).not.toHaveTextContent(/Amide CEST CW Z-spectrum/);
+    unmount();
+
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    await waitFor(() => expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/Amide CEST CW Z-spectrum/));
+    expect(screen.getByTestId("spectrum-experiment-identity")).not.toHaveTextContent(/pulsed Z-spectrum/);
   });
 });
