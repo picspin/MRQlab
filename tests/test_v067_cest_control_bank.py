@@ -76,6 +76,13 @@ def test_cest_recipe_declares_offset_span_ppm_in_metadata_cest():
     assert pulsed["offset_span_ppm"] == max(abs(v) for v in pulsed["offsets_ppm"])
 
 
+def test_cest_recipe_declares_mode_in_metadata_cest():
+    cw = build_clinical_recipe("cest_amide_z_spectrum").sequence.metadata["cest"]
+    pulsed = build_clinical_recipe("cest_amide_pulsed_z_spectrum").sequence.metadata["cest"]
+    assert pulsed["mode"] == "pulsed"
+    assert cw["mode"] == "cw"
+
+
 def test_run_from_recipe_accepts_cest_knobs():
     response = client.post("/experiments/run-from-recipe", json={
         "recipe_id": "cest_amide_pulsed_z_spectrum",

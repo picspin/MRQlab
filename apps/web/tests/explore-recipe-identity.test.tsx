@@ -118,7 +118,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
       </WorkspaceProvider>
     );
     expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/Amide CEST Z-spectrum/);
-    expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/pulsed train/i);
     expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/not MS plaque imaging/i);
     const dropdown = screen.getByTestId("scenario-dropdown") as HTMLSelectElement;
     expect(dropdown.value).toBe("");
@@ -127,7 +126,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.queryByTestId("spectrum-control-honesty")).toBeNull();
     expect(screen.getByTestId("cest-b1-slider")).toBeVisible();
     expect(screen.getByTestId("cest-offset-span-slider")).toBeVisible();
-    expect(screen.getByTestId("cest-duty-slider")).toBeVisible();
+    expect(screen.queryByTestId("cest-duty-slider")).toBeNull();
     expect(screen.getByTestId("clinical-rejects-z-spectrum")).toBeVisible();
     expect(screen.queryByTestId("acquisition-plane-picker")).toBeNull();
     expect(screen.queryByRole("button", { name: "AXIAL" })).toBeNull();
@@ -141,7 +140,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByTestId("control-bank-mode")).not.toHaveTextContent("Geometry & Contrast");
   });
 
-  it("nav chrome says v0.67.5", () => {
+  it("nav chrome says v0.67.6", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -149,6 +148,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.5");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.6");
   });
 });

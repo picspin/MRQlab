@@ -23,10 +23,12 @@ function cestKnobsFromMetadata(cest: Record<string, unknown> | undefined) {
   const power = Number(cest.saturation_power_uT);
   const span = Number(cest.offset_span_ppm);
   const duty = Number(cest.duty_cycle);
+  const mode = typeof cest.mode === "string" ? cest.mode : undefined;
   return {
     power: Number.isFinite(power) ? power : undefined,
     span: Number.isFinite(span) ? span : undefined,
     duty: Number.isFinite(duty) ? duty : undefined,
+    mode,
   };
 }
 
@@ -121,6 +123,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [cestPowerUt, setCestPowerUt] = useState<number | null>(null);
   const [cestOffsetSpanPpm, setCestOffsetSpanPpm] = useState<number | null>(null);
   const [cestDutyCycle, setCestDutyCycle] = useState<number | null>(null);
+  const [cestMode, setCestMode] = useState<string | null>(null);
   const [cestDirty, setCestDirty] = useState<{ power: boolean; span: boolean; duty: boolean }>({
     power: false, span: false, duty: false,
   });
@@ -177,6 +180,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     setCestPowerUt(null);
     setCestOffsetSpanPpm(null);
     setCestDutyCycle(null);
+    setCestMode(null);
     setCestDirty({ power: false, span: false, duty: false });
   }, [selectedScenarioKey]);
 
@@ -194,6 +198,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
       if (knobs.power != null && !dirty.power) setCestPowerUt(knobs.power);
       if (knobs.span != null && !dirty.span) setCestOffsetSpanPpm(knobs.span);
       if (knobs.duty != null && !dirty.duty) setCestDutyCycle(knobs.duty);
+      if (knobs.mode) setCestMode(knobs.mode);
     }).catch(() => undefined);
     return () => { cancelled = true; };
   }, [isSpectrumExperiment, activeRecipeId]);
@@ -210,7 +215,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
       ? {
           ...(cestDirty.power && cestPowerUt != null ? { saturation_power_uT: cestPowerUt } : {}),
           ...(cestDirty.span && cestOffsetSpanPpm != null ? { offset_span_ppm: cestOffsetSpanPpm } : {}),
-          ...(cestDirty.duty && cestDutyCycle != null && activeRecipeId === "cest_amide_pulsed_z_spectrum" ? { duty_cycle: cestDutyCycle } : {}),
+          ...(cestDirty.duty && cestDutyCycle != null && cestMode === "pulsed" ? { duty_cycle: cestDutyCycle } : {}),
         }
       : {
           te: te / 1000.0,
@@ -356,7 +361,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 800, letterSpacing: "0.08em" }}>SPECTRUM EXPERIMENT</div>
             <div style={{ fontSize: "13px", color: "#e8f4f6", fontWeight: 700, marginTop: "2px" }}>Amide CEST Z-spectrum</div>
             <div style={{ fontSize: "11px", color: "#8ba0a8", marginTop: "4px", lineHeight: 1.4 }}>
-              {activeRecipeId === "cest_amide_pulsed_z_spectrum" ? "Two-liquid-pool pulsed train" : "Two-liquid-pool CW"} · frequency axis · not MS plaque imaging
+              {cestMode === "pulsed" ? "Two-liquid-pool pulsed train" : cestMode === "cw" ? "Two-liquid-pool CW" : "Two-liquid-pool saturation"} · frequency axis · not MS plaque imaging
             </div>
           </div>
         )}
@@ -999,7 +1004,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 <span className="value-badge" data-testid="cest-offset-span-value">{cestOffsetSpanPpm == null ? "—" : `±${cestOffsetSpanPpm} ppm`}</span>
               </div>
             </div>
-            {activeRecipeId === "cest_amide_pulsed_z_spectrum" && (
+            {cestMode === "pulsed" && (
               <div className="control-group">
                 <label>Duty cycle</label>
                 <div className="slider-row">
@@ -1181,7 +1186,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.5 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.67.6 · CEST knobs</div>
         )}
       </section>
     </div>
