@@ -31,6 +31,14 @@ export const EXPLORE_CASES: ExploreCase[] = [
     recipeId: "cest_amide_z_spectrum", executable: true,
   },
   {
+    id: "cest-apt-pulsed", title: "Amide CEST pulsed Z-spectrum", anatomy: "Single voxel / water reference",
+    clinicalQuestion: "How does a pulsed saturation train change the backend-computed amide Z-spectrum versus CW?",
+    keyPhysics: "Two-liquid-pool pulsed Bloch–McConnell saturation train",
+    sequence: "EPG-X CEST pulsed offset sweep", parameters: { fa: 0, te: 0, tr: 2000 },
+    difficulty: "Advanced", category: "Spectroscopy & Exchange",
+    recipeId: "cest_amide_pulsed_z_spectrum", executable: true,
+  },
+  {
     id: "mrs-1h", title: "¹H MR Spectroscopy", anatomy: "Spectral observation",
     clinicalQuestion: "Density-matrix engine unavailable", keyPhysics: "Not in v0.1",
     sequence: "Unavailable", parameters: { fa: 0, te: 0, tr: 0 }, difficulty: "Advanced",

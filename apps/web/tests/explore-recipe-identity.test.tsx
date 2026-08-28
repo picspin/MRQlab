@@ -26,6 +26,12 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(byId["cest-apt"].executable).toBe(true);
     expect(byId["cest-apt"].recipeId).toBe("cest_amide_z_spectrum");
     expect(byId["cest-apt"].category).toBe("Spectroscopy & Exchange");
+    expect(byId["cest-apt"].keyPhysics).toMatch(/CW/i);
+    expect(byId["cest-apt-pulsed"].executable).toBe(true);
+    expect(byId["cest-apt-pulsed"].recipeId).toBe("cest_amide_pulsed_z_spectrum");
+    expect(byId["cest-apt-pulsed"].category).toBe("Spectroscopy & Exchange");
+    expect(byId["cest-apt-pulsed"].keyPhysics).toMatch(/pulsed/i);
+    expect(byId["cest-apt-pulsed"].keyPhysics).not.toMatch(/CW/i);
     expect(byId["mrs-1h"].executable).toBe(false);
     expect(byId["mrs-1h"].recipeId).toBeNull();
     expect(byId["x-nuclei"].executable).toBe(false);
@@ -72,6 +78,8 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
 
     const cest = screen.getByTestId("launch-cest-apt");
     expect(cest).toHaveAttribute("href", "/workbench?recipe=cest_amide_z_spectrum");
+    const pulsed = screen.getByTestId("launch-cest-apt-pulsed");
+    expect(pulsed).toHaveAttribute("href", "/workbench?recipe=cest_amide_pulsed_z_spectrum");
     expect(screen.queryByTestId("launch-mrs-1h")).toBeNull();
     expect(screen.getByTestId("badge-mrs-1h")).toHaveTextContent(/not in v0\.1/i);
     expect(screen.getByTestId("badge-x-nuclei")).toHaveTextContent(/not in v0\.1/i);
@@ -140,7 +148,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByTestId("control-bank-mode")).not.toHaveTextContent("Geometry & Contrast");
   });
 
-  it("nav chrome says v0.67.6", () => {
+  it("nav chrome says v0.67.7", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -148,6 +156,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.6");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.7");
   });
 });
