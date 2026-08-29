@@ -95,9 +95,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.67.13", () => {
+  it("shows chrome v0.67.14", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.13");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.14");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -256,6 +256,8 @@ describe("Wave H UX honesty", () => {
     expect(screen.queryByTestId("cest-duty-slider")).toBeNull();
     expect(screen.getByTestId("cest-b1-slider")).toBeDisabled();
     expect(screen.getByTestId("cest-offset-span-slider")).toBeDisabled();
+    expect(screen.getByTestId("cest-b1-slider")).not.toHaveValue("0.5");
+    expect(screen.getByTestId("cest-offset-span-slider")).not.toHaveValue("3.5");
     expect(screen.getByTestId("cest-b1-value")).not.toHaveTextContent("2.0");
     expect(screen.getByTestId("cest-offset-span-value")).not.toHaveTextContent("±5");
     releaseRecipes!(json({ recipes: [
@@ -270,6 +272,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("cest-b1-slider")).not.toBeDisabled();
     expect(screen.getByTestId("cest-offset-span-slider")).not.toBeDisabled();
     expect(screen.getByTestId("cest-duty-slider")).not.toBeDisabled();
+    expect(screen.getByTestId("cest-b1-slider")).toHaveValue("2");
+    expect(screen.getByTestId("cest-offset-span-slider")).toHaveValue("7");
+    expect(screen.getByTestId("cest-duty-slider")).toHaveValue("0.42");
   });
 
   it("CEST duty slider follows metadata.cest.mode, not the recipe id", async () => {
