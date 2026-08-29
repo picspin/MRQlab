@@ -95,9 +95,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.67.17", () => {
+  it("shows chrome v0.67.18", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.17");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.18");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -154,7 +154,7 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("physics-seam")).not.toHaveTextContent("SEAM: SE");
     expect(screen.queryByTestId("echo-train-rail")).toBeNull();
     expect(screen.getByText("k=0 water")).toBeVisible();
-    expect(screen.getByText("EPG-X CEST")).toBeVisible();
+    await waitFor(() => expect(screen.getByTestId("physics-hamiltonian")).toHaveTextContent("EPG-X CEST pulsed"));
     expect(screen.queryByTestId("spectrum-control-honesty")).toBeNull();
     expect(screen.getByTestId("cest-b1-slider")).toBeVisible();
     expect(screen.getByTestId("cest-offset-span-slider")).toBeVisible();
@@ -316,6 +316,20 @@ describe("Wave H UX honesty", () => {
     fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
     await waitFor(() => expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/Amide CEST CW Z-spectrum/));
     expect(screen.getByTestId("spectrum-experiment-identity")).not.toHaveTextContent(/pulsed Z-spectrum/);
+  });
+
+  it("Physics Hamiltonian follows metadata.cest.mode, not a generic EPG-X CEST", async () => {
+    mockApi();
+    const { unmount } = render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    await waitFor(() => expect(screen.getByTestId("physics-hamiltonian")).toHaveTextContent("EPG-X CEST pulsed"));
+    expect(screen.getByTestId("physics-hamiltonian")).not.toHaveTextContent("EPG-X CEST CW");
+    unmount();
+
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    await waitFor(() => expect(screen.getByTestId("physics-hamiltonian")).toHaveTextContent("EPG-X CEST CW"));
+    expect(screen.getByTestId("physics-hamiltonian")).not.toHaveTextContent("pulsed");
   });
 
   it("CEST RUN follows Spectrum identity, not a two-id recipe whitelist", async () => {

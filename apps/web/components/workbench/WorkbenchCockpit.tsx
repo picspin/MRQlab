@@ -685,7 +685,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   </div>
                   <div>
                     <label>Hamiltonian</label>
-                    <span>EPG-X CEST</span>
+                    <span data-testid="physics-hamiltonian">{cestMode === "pulsed" ? "EPG-X CEST pulsed" : cestMode === "cw" ? "EPG-X CEST CW" : "EPG-X CEST"}</span>
                   </div>
                 </>
               ) : (
@@ -1190,7 +1190,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.17 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.67.18 · CEST knobs</div>
         )}
       </section>
     </div>
