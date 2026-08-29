@@ -32,6 +32,10 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(byId["cest-apt-pulsed"].category).toBe("Spectroscopy & Exchange");
     expect(byId["cest-apt-pulsed"].keyPhysics).toMatch(/pulsed/i);
     expect(byId["cest-apt-pulsed"].keyPhysics).not.toMatch(/CW/i);
+    expect(byId["cest-apt"].parameters).toBeUndefined();
+    expect(byId["cest-apt-pulsed"].parameters).toBeUndefined();
+    expect(byId["mrs-1h"].parameters).toBeUndefined();
+    expect(byId["x-nuclei"].parameters).toBeUndefined();
     expect(byId["mrs-1h"].executable).toBe(false);
     expect(byId["mrs-1h"].recipeId).toBeNull();
     expect(byId["x-nuclei"].executable).toBe(false);
@@ -162,7 +166,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.queryByTestId("clinical-quad-grid")).toBeNull();
   });
 
-  it("nav chrome says v0.67.10", () => {
+  it("nav chrome says v0.67.11", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -170,6 +174,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.10");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.11");
   });
 });

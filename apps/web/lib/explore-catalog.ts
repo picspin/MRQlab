@@ -9,7 +9,8 @@ export interface ExploreCase {
   clinicalQuestion: string;
   keyPhysics: string;
   sequence: string;
-  parameters: { fa: number; te: number; tr: number };
+  /** Imaging FA/TE/TR. Omit on spectroscopy cards — they are not spin-echo products. */
+  parameters?: { fa: number; te: number; tr: number };
   difficulty: ExploreDifficulty;
   category: string;
   /** Canonical backend recipe id, or null when the card is not executable in v0.1. */
@@ -26,7 +27,7 @@ export const EXPLORE_CASES: ExploreCase[] = [
     id: "cest-apt", title: "Amide CEST Z-spectrum", anatomy: "Single voxel / water reference",
     clinicalQuestion: "How does amide exchange create asymmetry in a backend-computed Z-spectrum?",
     keyPhysics: "Two-liquid-pool CW Bloch–McConnell saturation transfer",
-    sequence: "EPG-X CEST offset sweep", parameters: { fa: 0, te: 0, tr: 2000 },
+    sequence: "EPG-X CEST offset sweep",
     difficulty: "Advanced", category: "Spectroscopy & Exchange",
     recipeId: "cest_amide_z_spectrum", executable: true,
   },
@@ -34,20 +35,20 @@ export const EXPLORE_CASES: ExploreCase[] = [
     id: "cest-apt-pulsed", title: "Amide CEST pulsed Z-spectrum", anatomy: "Single voxel / water reference",
     clinicalQuestion: "How does a pulsed saturation train change the backend-computed amide Z-spectrum versus CW?",
     keyPhysics: "Two-liquid-pool pulsed Bloch–McConnell saturation train",
-    sequence: "EPG-X CEST pulsed offset sweep", parameters: { fa: 0, te: 0, tr: 2000 },
+    sequence: "EPG-X CEST pulsed offset sweep",
     difficulty: "Advanced", category: "Spectroscopy & Exchange",
     recipeId: "cest_amide_pulsed_z_spectrum", executable: true,
   },
   {
     id: "mrs-1h", title: "¹H MR Spectroscopy", anatomy: "Spectral observation",
     clinicalQuestion: "Density-matrix engine unavailable", keyPhysics: "Not in v0.1",
-    sequence: "Unavailable", parameters: { fa: 0, te: 0, tr: 0 }, difficulty: "Advanced",
+    sequence: "Unavailable", difficulty: "Advanced",
     category: "Spectroscopy & Exchange", recipeId: null, executable: false,
   },
   {
     id: "x-nuclei", title: "X-nuclei Spectroscopy", anatomy: "Non-proton nuclei",
     clinicalQuestion: "X-nuclei engine unavailable", keyPhysics: "Not in v0.1",
-    sequence: "Unavailable", parameters: { fa: 0, te: 0, tr: 0 }, difficulty: "Advanced",
+    sequence: "Unavailable", difficulty: "Advanced",
     category: "Spectroscopy & Exchange", recipeId: null, executable: false,
   },
   {
