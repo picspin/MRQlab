@@ -68,6 +68,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(cest.category).not.toBe("Neuro");
     expect(cest.seqType).not.toBe("SE");
     expect(cest.scanPlane).not.toBe("AXIAL");
+    expect(cest.defaultParams).toBeUndefined();
   });
 
   it("Launch Cockpit deep-links executable cases and badges the rest", () => {
@@ -166,7 +167,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.queryByTestId("clinical-quad-grid")).toBeNull();
   });
 
-  it("nav chrome says v0.67.11", () => {
+  it("nav chrome says v0.67.12", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -174,6 +175,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.11");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.12");
   });
 });

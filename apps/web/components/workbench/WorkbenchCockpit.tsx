@@ -76,11 +76,12 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [matrixSize, setMatrixSize] = useState<number>(256);
 
   // Acquisition and Physics Parameters
-  const [fa, setFa] = useState<number>(currentScenario.defaultParams.fa);
-  const [exciteFa, setExciteFa] = useState<number>(currentScenario.seqType === "GRE" ? currentScenario.defaultParams.fa : 90);
+  const imagingDefaults = currentScenario.defaultParams;
+  const [fa, setFa] = useState<number>(imagingDefaults?.fa ?? 90);
+  const [exciteFa, setExciteFa] = useState<number>(currentScenario.seqType === "GRE" ? (imagingDefaults?.fa ?? 90) : 90);
   const [adcBwHz, setAdcBwHz] = useState<number>(62500);
-  const [te, setTe] = useState<number>(currentScenario.defaultParams.te);
-  const [tr, setTr] = useState<number>(currentScenario.defaultParams.tr);
+  const [te, setTe] = useState<number>(imagingDefaults?.te ?? 0);
+  const [tr, setTr] = useState<number>(imagingDefaults?.tr ?? 0);
   const [compiledSequence, setCompiledSequence] = useState<SequenceIR | null>(null);
   const [timelineSelection, setTimelineSelection] = useState<TimelineSelection | null>(null);
   const [blocks, setBlocks] = useState<SequenceBlock[]>([]);
@@ -113,13 +114,13 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     void compileBlocks([...blocks, { id, kind, t0_s: Math.round(blocks.length * 10) / 10000, params }]);
     setSelectedBlockId(id);
   };
-  const [fov, setFov] = useState<number>(currentScenario.defaultParams.fov);
-  const [sliceThick, setSliceThick] = useState<number>(currentScenario.defaultParams.sliceThick);
-  const [sliceCount, setSliceCount] = useState<number>(currentScenario.defaultParams.sliceCount);
-  const [sliceGap, setSliceGap] = useState<number>(currentScenario.defaultParams.sliceGap);
-  const [isInterleaved, setIsInterleaved] = useState<boolean>(currentScenario.defaultParams.isInterleaved);
+  const [fov, setFov] = useState<number>(imagingDefaults?.fov ?? 0);
+  const [sliceThick, setSliceThick] = useState<number>(imagingDefaults?.sliceThick ?? 0);
+  const [sliceCount, setSliceCount] = useState<number>(imagingDefaults?.sliceCount ?? 0);
+  const [sliceGap, setSliceGap] = useState<number>(imagingDefaults?.sliceGap ?? 0);
+  const [isInterleaved, setIsInterleaved] = useState<boolean>(imagingDefaults?.isInterleaved ?? false);
   const [activeScanPlane, setActiveScanPlane] = useState<string>(currentScenario.scanPlane);
-  const [mipCursorZ, setMipCursorZ] = useState<number>(Math.round(currentScenario.defaultParams.sliceCount / 2));
+  const [mipCursorZ, setMipCursorZ] = useState<number>(Math.round((imagingDefaults?.sliceCount ?? 0) / 2));
   const [cestPowerUt, setCestPowerUt] = useState<number | null>(null);
   const [cestOffsetSpanPpm, setCestOffsetSpanPpm] = useState<number | null>(null);
   const [cestDutyCycle, setCestDutyCycle] = useState<number | null>(null);
@@ -165,17 +166,18 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   // Sync params when scenario changes
   useEffect(() => {
     const s = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
-    setFa(s.defaultParams.fa);
-    setExciteFa(s.seqType === "GRE" ? s.defaultParams.fa : 90);
-    setTe(s.defaultParams.te);
-    setTr(s.defaultParams.tr);
-    setFov(s.defaultParams.fov);
-    setSliceThick(s.defaultParams.sliceThick);
-    setSliceCount(s.defaultParams.sliceCount);
-    setSliceGap(s.defaultParams.sliceGap);
-    setIsInterleaved(s.defaultParams.isInterleaved);
+    const imaging = s.defaultParams;
+    setFa(imaging?.fa ?? 90);
+    setExciteFa(s.seqType === "GRE" ? (imaging?.fa ?? 90) : 90);
+    setTe(imaging?.te ?? 0);
+    setTr(imaging?.tr ?? 0);
+    setFov(imaging?.fov ?? 0);
+    setSliceThick(imaging?.sliceThick ?? 0);
+    setSliceCount(imaging?.sliceCount ?? 0);
+    setSliceGap(imaging?.sliceGap ?? 0);
+    setIsInterleaved(imaging?.isInterleaved ?? false);
     setActiveScanPlane(s.scanPlane);
-    setMipCursorZ(Math.round(s.defaultParams.sliceCount / 2));
+    setMipCursorZ(Math.round((imaging?.sliceCount ?? 0) / 2));
     setPhysicsTab(selectedScenarioKey === "cest_amide" ? "spectrum" : "timeline");
     setCestPowerUt(null);
     setCestOffsetSpanPpm(null);
@@ -1188,7 +1190,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.11 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.67.12 · CEST knobs</div>
         )}
       </section>
     </div>

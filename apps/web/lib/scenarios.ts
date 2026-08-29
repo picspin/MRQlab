@@ -19,7 +19,8 @@ export interface ScenarioSpec {
   weightingName: string;
   clinicalQuestion: string;
   tissues: ScenarioTissue[];
-  defaultParams: {
+  /** Imaging FA/TE/TR/geometry. Omit on spectroscopy scenarios — they are not spin-echo products. */
+  defaultParams?: {
     fa: number;
     te: number;
     tr: number;
@@ -43,8 +44,6 @@ export const CLINICAL_SCENARIOS: Record<string, ScenarioSpec> = {
       { id: "water", name: "Water", t1: 1000, t2: 80, pd: .9, desc: "0 ppm reference liquid" },
       { id: "amide", name: "Amide solute", t1: 1000, t2: 10, pd: .1, desc: "+3.5 ppm exchanging liquid" },
     ],
-    defaultParams: { fa: 90, te: 1, tr: 2001, fov: 1, matrix: 1, sliceThick: 1,
-      sliceCount: 1, sliceGap: 0, isInterleaved: false },
   },
   ms_brain: {
     id: "ms_brain",
