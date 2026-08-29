@@ -9,7 +9,7 @@ import {
   RECIPE_TO_SCENARIO,
   scenarioKeyForRecipe,
 } from "../lib/explore-catalog";
-import { CLINICAL_SCENARIOS } from "../lib/scenarios";
+import { CLINICAL_SCENARIOS, isSpectrumScenario } from "../lib/scenarios";
 
 afterEach(() => {
   cleanup();
@@ -69,6 +69,13 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(cest.seqType).not.toBe("SE");
     expect(cest.scanPlane).not.toBe("AXIAL");
     expect(cest.defaultParams).toBeUndefined();
+  });
+
+  it("Spectrum identity follows seqType CEST, not the cest_amide key name", () => {
+    expect(isSpectrumScenario(CLINICAL_SCENARIOS.cest_amide)).toBe(true);
+    expect(isSpectrumScenario(CLINICAL_SCENARIOS.ms_brain)).toBe(false);
+    expect(isSpectrumScenario({ seqType: "CEST" })).toBe(true);
+    expect(isSpectrumScenario({ seqType: "TSE" })).toBe(false);
   });
 
   it("Launch Cockpit deep-links executable cases and badges the rest", () => {
@@ -167,7 +174,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.queryByTestId("clinical-quad-grid")).toBeNull();
   });
 
-  it("nav chrome says v0.67.12", () => {
+  it("nav chrome says v0.67.13", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -175,6 +182,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.12");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.13");
   });
 });

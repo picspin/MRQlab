@@ -34,6 +34,10 @@ export interface ScenarioSpec {
   };
 }
 
+export function isSpectrumScenario(scenario: Pick<ScenarioSpec, "seqType">): boolean {
+  return scenario.seqType === "CEST";
+}
+
 export const CLINICAL_SCENARIOS: Record<string, ScenarioSpec> = {
   cest_amide: {
     id: "cest_amide", recipeId: "cest_amide_z_spectrum",

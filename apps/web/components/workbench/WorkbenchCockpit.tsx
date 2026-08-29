@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
-import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
+import { CLINICAL_SCENARIOS, isSpectrumScenario, ScenarioSpec } from "../../lib/scenarios";
 import { scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
 import { CockpitSignalAnalysis, fetchCockpitSignals, listClinicalRecipes, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
@@ -59,9 +59,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   
   const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>(() => scenarioKeyForRecipe(initialRecipeId));
   const currentScenario: ScenarioSpec = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
-  const isSpectrumExperiment = selectedScenarioKey === "cest_amide";
+  const isSpectrumExperiment = isSpectrumScenario(currentScenario);
   const activeRecipeId = isSpectrumExperiment && initialRecipeId?.startsWith("cest_amide_") ? initialRecipeId : currentScenario.recipeId;
-  const clinicalScenarioEntries = Object.entries(CLINICAL_SCENARIOS).filter(([key]) => key !== "cest_amide");
+  const clinicalScenarioEntries = Object.entries(CLINICAL_SCENARIOS).filter(([, s]) => !isSpectrumScenario(s));
 
   // v0.43: Edit Mode toggle
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -178,7 +178,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     setIsInterleaved(imaging?.isInterleaved ?? false);
     setActiveScanPlane(s.scanPlane);
     setMipCursorZ(Math.round((imaging?.sliceCount ?? 0) / 2));
-    setPhysicsTab(selectedScenarioKey === "cest_amide" ? "spectrum" : "timeline");
+    setPhysicsTab(isSpectrumScenario(s) ? "spectrum" : "timeline");
     setCestPowerUt(null);
     setCestOffsetSpanPpm(null);
     setCestDutyCycle(null);
@@ -997,14 +997,14 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Saturation B1</label>
               <div className="slider-row">
-                <input type="range" min="0.5" max="5" step="0.1" value={cestPowerUt ?? 0.5} onChange={(e) => { setCestPowerUt(Number(e.target.value)); setCestDirty((d) => ({ ...d, power: true })); }} data-testid="cest-b1-slider" />
+                <input type="range" min="0.5" max="5" step="0.1" value={cestPowerUt ?? 0.5} disabled={cestPowerUt == null} onChange={(e) => { setCestPowerUt(Number(e.target.value)); setCestDirty((d) => ({ ...d, power: true })); }} data-testid="cest-b1-slider" />
                 <span className="value-badge" data-testid="cest-b1-value">{cestPowerUt == null ? "—" : `${cestPowerUt.toFixed(1)} µT`}</span>
               </div>
             </div>
             <div className="control-group">
               <label>Offset span</label>
               <div className="slider-row">
-                <input type="range" min="3.5" max="10" step="0.5" value={cestOffsetSpanPpm ?? 3.5} onChange={(e) => { setCestOffsetSpanPpm(Number(e.target.value)); setCestDirty((d) => ({ ...d, span: true })); }} data-testid="cest-offset-span-slider" />
+                <input type="range" min="3.5" max="10" step="0.5" value={cestOffsetSpanPpm ?? 3.5} disabled={cestOffsetSpanPpm == null} onChange={(e) => { setCestOffsetSpanPpm(Number(e.target.value)); setCestDirty((d) => ({ ...d, span: true })); }} data-testid="cest-offset-span-slider" />
                 <span className="value-badge" data-testid="cest-offset-span-value">{cestOffsetSpanPpm == null ? "—" : `±${cestOffsetSpanPpm} ppm`}</span>
               </div>
             </div>
@@ -1012,7 +1012,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               <div className="control-group">
                 <label>Duty cycle</label>
                 <div className="slider-row">
-                  <input type="range" min="0.2" max="1" step="0.05" value={cestDutyCycle ?? 0.2} onChange={(e) => { setCestDutyCycle(Number(e.target.value)); setCestDirty((d) => ({ ...d, duty: true })); }} data-testid="cest-duty-slider" />
+                  <input type="range" min="0.2" max="1" step="0.05" value={cestDutyCycle ?? 0.2} disabled={cestDutyCycle == null} onChange={(e) => { setCestDutyCycle(Number(e.target.value)); setCestDirty((d) => ({ ...d, duty: true })); }} data-testid="cest-duty-slider" />
                   <span className="value-badge" data-testid="cest-duty-value">{cestDutyCycle == null ? "—" : cestDutyCycle.toFixed(2)}</span>
                 </div>
               </div>
@@ -1190,7 +1190,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.12 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.67.13 · CEST knobs</div>
         )}
       </section>
     </div>
