@@ -60,6 +60,8 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(scenarioKeyForRecipe("cest_amide_pulsed_z_spectrum")).toBe("cest_amide");
     expect(scenarioKeyForRecipe("cest_amide_foo_z_spectrum")).toBe("cest_amide");
     expect(scenarioKeyForRecipe("cest_amide_foo_z_spectrum")).not.toBe("ms_brain");
+    expect(scenarioKeyForRecipe("cest_amine_z_spectrum")).toBe("cest_amide");
+    expect(scenarioKeyForRecipe("cest_amine_z_spectrum")).not.toBe("ms_brain");
     expect(scenarioKeyForRecipe("nope")).toBe("ms_brain");
     expect(RECIPE_TO_SCENARIO.cardiac_cine_gre).toBeUndefined();
   });
@@ -178,7 +180,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.queryByTestId("clinical-quad-grid")).toBeNull();
   });
 
-  it("nav chrome says v0.67.15", () => {
+  it("nav chrome says v0.67.16", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -186,6 +188,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.15");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.16");
   });
 });

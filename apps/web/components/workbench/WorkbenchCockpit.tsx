@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, isSpectrumScenario, ScenarioSpec } from "../../lib/scenarios";
-import { scenarioKeyForRecipe } from "../../lib/explore-catalog";
+import { isCestSpectrumRecipe, scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
 import { CockpitSignalAnalysis, fetchCockpitSignals, listClinicalRecipes, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
@@ -60,7 +60,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>(() => scenarioKeyForRecipe(initialRecipeId));
   const currentScenario: ScenarioSpec = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
   const isSpectrumExperiment = isSpectrumScenario(currentScenario);
-  const activeRecipeId = isSpectrumExperiment && initialRecipeId?.startsWith("cest_amide_") ? initialRecipeId : currentScenario.recipeId;
+  const activeRecipeId = isSpectrumExperiment && isCestSpectrumRecipe(initialRecipeId) ? initialRecipeId : currentScenario.recipeId;
   const clinicalScenarioEntries = Object.entries(CLINICAL_SCENARIOS).filter(([, s]) => !isSpectrumScenario(s));
 
   // v0.43: Edit Mode toggle
@@ -1190,7 +1190,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.15 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.67.16 · CEST knobs</div>
         )}
       </section>
     </div>

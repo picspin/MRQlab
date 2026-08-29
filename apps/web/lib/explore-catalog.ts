@@ -139,9 +139,13 @@ export const RECIPE_TO_SCENARIO: Record<string, string> = Object.fromEntries(
   Object.entries(CLINICAL_SCENARIOS).map(([key, spec]) => [spec.recipeId, key])
 );
 
+export function isCestSpectrumRecipe(recipeId: string | null | undefined): boolean {
+  return Boolean(recipeId?.startsWith("cest_") && recipeId.includes("z_spectrum"));
+}
+
 export function scenarioKeyForRecipe(recipeId: string | null | undefined): string {
-  if (recipeId?.startsWith("cest_amide_")) return "cest_amide";
   if (recipeId && RECIPE_TO_SCENARIO[recipeId]) return RECIPE_TO_SCENARIO[recipeId];
+  if (isCestSpectrumRecipe(recipeId)) return "cest_amide";
   return "ms_brain";
 }
 
