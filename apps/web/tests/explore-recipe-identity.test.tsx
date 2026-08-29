@@ -26,10 +26,14 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(byId["cest-apt"].executable).toBe(true);
     expect(byId["cest-apt"].recipeId).toBe("cest_amide_z_spectrum");
     expect(byId["cest-apt"].category).toBe("Spectroscopy & Exchange");
+    expect(byId["cest-apt"].title).toMatch(/CW/i);
+    expect(byId["cest-apt"].title).not.toMatch(/pulsed/i);
     expect(byId["cest-apt"].keyPhysics).toMatch(/CW/i);
     expect(byId["cest-apt-pulsed"].executable).toBe(true);
     expect(byId["cest-apt-pulsed"].recipeId).toBe("cest_amide_pulsed_z_spectrum");
     expect(byId["cest-apt-pulsed"].category).toBe("Spectroscopy & Exchange");
+    expect(byId["cest-apt-pulsed"].title).toMatch(/pulsed/i);
+    expect(byId["cest-apt-pulsed"].title).not.toMatch(/CW/i);
     expect(byId["cest-apt-pulsed"].keyPhysics).toMatch(/pulsed/i);
     expect(byId["cest-apt-pulsed"].keyPhysics).not.toMatch(/CW/i);
     expect(byId["cest-apt"].parameters).toBeUndefined();
@@ -174,7 +178,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.queryByTestId("clinical-quad-grid")).toBeNull();
   });
 
-  it("nav chrome says v0.67.14", () => {
+  it("nav chrome says v0.67.15", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -182,6 +186,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.14");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.15");
   });
 });

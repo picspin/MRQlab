@@ -24,7 +24,7 @@ export interface ExploreCase {
  */
 export const EXPLORE_CASES: ExploreCase[] = [
   {
-    id: "cest-apt", title: "Amide CEST Z-spectrum", anatomy: "Single voxel / water reference",
+    id: "cest-apt", title: "Amide CEST CW Z-spectrum", anatomy: "Single voxel / water reference",
     clinicalQuestion: "How does amide exchange create asymmetry in a backend-computed Z-spectrum?",
     keyPhysics: "Two-liquid-pool CW Bloch–McConnell saturation transfer",
     sequence: "EPG-X CEST offset sweep",
