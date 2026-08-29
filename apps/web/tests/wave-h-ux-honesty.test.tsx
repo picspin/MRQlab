@@ -95,9 +95,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.67.9", () => {
+  it("shows chrome v0.67.10", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.9");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.10");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -306,5 +306,21 @@ describe("Wave H UX honesty", () => {
     fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
     await waitFor(() => expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/Amide CEST CW Z-spectrum/));
     expect(screen.getByTestId("spectrum-experiment-identity")).not.toHaveTextContent(/pulsed Z-spectrum/);
+  });
+
+  it("CEST RUN follows Spectrum identity, not a two-id recipe whitelist", async () => {
+    mockApi();
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_foo_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    await waitFor(() => expect(fetchMock.mock.calls.some((call) => String(call[0]).includes("/experiments/run-from-recipe"))).toBe(true));
+    const runCall = fetchMock.mock.calls.find((call) => String(call[0]).includes("/experiments/run-from-recipe"));
+    const body = JSON.parse(String(runCall?.[1]?.body));
+    expect(body.recipe_id).toBe("cest_amide_foo_z_spectrum");
+    expect(body.products).toEqual(["z_spectrum", "mtr_asym"]);
+    expect(body.params.te).toBeUndefined();
+    expect(body.params.flip_angle).toBeUndefined();
+    expect(body.params.echo_count).toBeUndefined();
   });
 });

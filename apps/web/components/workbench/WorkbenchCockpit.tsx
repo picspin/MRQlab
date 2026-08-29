@@ -210,7 +210,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     setResultGraph(null);
     setExecutionState?.("RUNNING");
 
-    const isCestRecipe = ["cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum"].includes(activeRecipeId);
+    const isCestRecipe = isSpectrumExperiment;
     const params: Record<string, number> = isCestRecipe
       ? {
           ...(cestDirty.power && cestPowerUt != null ? { saturation_power_uT: cestPowerUt } : {}),
@@ -1188,7 +1188,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.9 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.67.10 · CEST knobs</div>
         )}
       </section>
     </div>
