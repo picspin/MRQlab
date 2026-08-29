@@ -50,6 +50,8 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(scenarioKeyForRecipe("angio_tof_gre")).toBe("angio_tof");
     expect(scenarioKeyForRecipe("cest_amide_z_spectrum")).toBe("cest_amide");
     expect(scenarioKeyForRecipe("cest_amide_pulsed_z_spectrum")).toBe("cest_amide");
+    expect(scenarioKeyForRecipe("cest_amide_foo_z_spectrum")).toBe("cest_amide");
+    expect(scenarioKeyForRecipe("cest_amide_foo_z_spectrum")).not.toBe("ms_brain");
     expect(scenarioKeyForRecipe("nope")).toBe("ms_brain");
     expect(RECIPE_TO_SCENARIO.cardiac_cine_gre).toBeUndefined();
   });
@@ -148,7 +150,19 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByTestId("control-bank-mode")).not.toHaveTextContent("Geometry & Contrast");
   });
 
-  it("nav chrome says v0.67.8", () => {
+  it("cest_amide_* deep-link stays Spectrum, not MS plaque", () => {
+    render(
+      <WorkspaceProvider>
+        <WorkbenchCockpit initialRecipeId="cest_amide_foo_z_spectrum" />
+      </WorkspaceProvider>
+    );
+    expect(screen.getByTestId("spectrum-experiment-identity")).toBeVisible();
+    expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/not MS plaque imaging/i);
+    expect(screen.getByTestId("clinical-rejects-z-spectrum")).toBeVisible();
+    expect(screen.queryByTestId("clinical-quad-grid")).toBeNull();
+  });
+
+  it("nav chrome says v0.67.9", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -156,6 +170,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.8");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.9");
   });
 });
