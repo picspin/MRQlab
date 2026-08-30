@@ -89,9 +89,9 @@ describe("Wave C SequenceIR event editors", () => {
     expect(screen.queryByTestId("gradient-event-editor")).toBeNull();
   });
 
-  it("shows chrome v0.68.1", () => {
+  it("shows chrome v0.68.2", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.68.1");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.68.2");
   });
 
   it("labels gradient duration/ramp as editor seeds, not SequenceIR", async () => {
@@ -122,6 +122,36 @@ describe("Wave C SequenceIR event editors", () => {
     expect(screen.getByTestId("grad-amp")).toHaveValue(12);
     expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/SequenceIR amplitude is mT\/m/i);
     expect(screen.getByTestId("editor-seed-note")).not.toHaveTextContent(/timeline normalized value is not mT\/m/i);
+  });
+
+  it("hydrates G duration/ramp from event overlay, not editor seeds", async () => {
+    const overlayed = {
+      ...sequence,
+      channels: sequence.channels.map((channel) =>
+        channel.name === "gx" ? { ...channel, events: [{ time: 0.004, value: 20 }] } : channel,
+      ),
+      metadata: {
+        gradient_units: "mt_m",
+        event_overlays: {
+          "gx:0": { amplitude_mt_m: 20, duration_s: 0.002, ramp_time_s: 0.0004, unit: "mT_m" },
+        },
+      },
+    };
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(overlayed);
+      if (url.includes("/pulse/inspect")) return json(pulse);
+      if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 20 });
+      if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
+      return json({});
+    }));
+    await renderCockpit();
+    fireEvent.click(screen.getByTestId("event-gx-0"));
+    expect(screen.getByTestId("grad-amp")).toHaveValue(20);
+    expect(screen.getByTestId("grad-duration")).toHaveValue(2);
+    expect(screen.getByTestId("grad-ramp")).toHaveValue(0.4);
+    expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/duration\/ramp from overlay/i);
+    expect(screen.getByTestId("editor-seed-note")).not.toHaveTextContent(/duration\/ramp = editor seed/i);
   });
 
   it("labels pulse duration/TBW/phase as editor seeds", async () => {

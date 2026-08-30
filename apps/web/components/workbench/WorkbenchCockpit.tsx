@@ -870,6 +870,8 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         key={`${timelineSelection.channel}-${timelineSelection.index}`}
                         channel={timelineSelection.channel.toUpperCase().replace("X", "x").replace("Y", "y").replace("Z", "z") as "Gx" | "Gy" | "Gz"}
                         initialAmplitude={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.amplitude_mt_m ?? (compiledSequence!.metadata?.gradient_units === "mt_m" ? timelineSelection.value : 20))}
+                        initialDurationMs={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.duration_s) * 1000 || undefined}
+                        initialRampMs={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.ramp_time_s) * 1000 || undefined}
                         physicalUnits={compiledSequence!.metadata?.gradient_units === "mt_m"}
                         onApply={applyEventPatch}
                       />
@@ -1191,7 +1193,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.68.1 · physical G</div>
+          <div className="system-info">MRQLab v0.68.2 · physical G</div>
         )}
       </section>
     </div>
