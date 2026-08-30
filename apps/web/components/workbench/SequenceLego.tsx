@@ -12,16 +12,17 @@ const CATALOG: Array<{ kind: SequenceBlockKind; label: string; channel: string }
   { kind: "adc_gate", label: "ADC gate", channel: "ADC" },
 ];
 
-export function SequenceLego({ blocks, selectedId, onPlace, onMove, onSelect, onDelete }: {
+export function SequenceLego({ blocks, selectedId, physicalUnits, onPlace, onMove, onSelect, onDelete }: {
   blocks: SequenceBlock[];
   selectedId?: string;
+  physicalUnits?: boolean;
   onPlace: (kind: SequenceBlockKind) => void;
   onMove: (id: string, t0_s: number) => void;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
   return <section data-testid="sequence-lego" style={{ padding: 8, borderBottom: "1px solid #34464d" }}>
-    <div style={{ fontSize: 10, color: "#8ea1a8", marginBottom: 6 }}>TEACHING BLOCKS · click to place · 0.1 ms grid</div>
+    <div style={{ fontSize: 10, color: "#8ea1a8", marginBottom: 6 }}>{physicalUnits ? "PHYSICAL G · mT/m · click to place · 0.1 ms grid" : "TEACHING BLOCKS · click to place · 0.1 ms grid"}</div>
     <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
       {CATALOG.map((item) => <button key={item.kind} data-testid={`catalog-${item.kind}`} onClick={() => onPlace(item.kind)}
         title={`Place on ${item.channel}`}>{item.label}</button>)}

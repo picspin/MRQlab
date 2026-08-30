@@ -833,7 +833,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         </select>
                       </div>
                     )}
-                    <SequenceLego blocks={blocks} selectedId={selectedBlockId} onPlace={placeBlock} onSelect={setSelectedBlockId}
+                    <SequenceLego blocks={blocks} selectedId={selectedBlockId} physicalUnits={compiledSequence?.metadata?.gradient_units === "mt_m"} onPlace={placeBlock} onSelect={setSelectedBlockId}
                       onMove={(id, t0_s) => void compileBlocks(blocks.map((block) => block.id === id ? { ...block, t0_s } : block))}
                       onDelete={(id) => { setSelectedBlockId(undefined); void compileBlocks(blocks.filter((block) => block.id !== id)); }} />
                     {runError && <div role="alert" style={{ color: "#fb7185", padding: 6 }}>STATUS ERROR · {runError}</div>}
@@ -1193,7 +1193,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.68.4 · physical G</div>
+          <div className="system-info">MRQLab v0.68.5 · physical G</div>
         )}
       </section>
     </div>
