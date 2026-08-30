@@ -187,7 +187,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.queryByTestId("clinical-quad-grid")).toBeNull();
   });
 
-  it("nav chrome says v0.68.3", () => {
+  it("nav chrome says v0.68.4", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -195,6 +195,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.68.3");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.68.4");
   });
 });

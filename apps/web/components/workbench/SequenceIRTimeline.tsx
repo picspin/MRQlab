@@ -46,7 +46,7 @@ export function SequenceIRTimeline({
         data-testid="timeline-duration"
         style={{ fontSize: "10px", color: "#8ea1a8", fontFamily: "monospace", marginBottom: "4px" }}
       >
-        {durationMs.toFixed(1)} ms · {sequence.name} · SequenceIR 5-ch
+        {durationMs.toFixed(1)} ms · {sequence.name} · {sequence.metadata?.gradient_units === "mt_m" ? "Gx/Gy/Gz mT/m" : "SequenceIR 5-ch"}
       </div>
       <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", height: `${height + 8}px` }}>
         {TEACHING_CHANNELS.map((name, row) => {

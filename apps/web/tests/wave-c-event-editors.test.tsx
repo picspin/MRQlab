@@ -89,9 +89,9 @@ describe("Wave C SequenceIR event editors", () => {
     expect(screen.queryByTestId("gradient-event-editor")).toBeNull();
   });
 
-  it("shows chrome v0.68.3", () => {
+  it("shows chrome v0.68.4", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.68.3");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.68.4");
   });
 
   it("labels gradient duration/ramp as editor seeds, not SequenceIR", async () => {
@@ -122,6 +122,13 @@ describe("Wave C SequenceIR event editors", () => {
     expect(screen.getByTestId("grad-amp")).toHaveValue(12);
     expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/SequenceIR amplitude is mT\/m/i);
     expect(screen.getByTestId("editor-seed-note")).not.toHaveTextContent(/timeline normalized value is not mT\/m/i);
+    expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent(/Gx\/Gy\/Gz mT\/m/i);
+  });
+
+  it("labels teaching timeline as SequenceIR 5-ch, not physical mT/m", async () => {
+    await renderCockpit();
+    expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent(/SequenceIR 5-ch/i);
+    expect(screen.getByTestId("sequence-ir-timeline")).not.toHaveTextContent(/mT\/m/i);
   });
 
   it("hydrates G duration/ramp from event overlay, not editor seeds", async () => {
