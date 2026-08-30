@@ -4,6 +4,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from mrqlab_sequence import Channel, Event, SequenceIR
 
+from mrqlab_physics.kernel.units import DEFAULT_FOV_M
+
 from .gradient import GradientHardwareConstraints, GradientPulseSpec, validate_gradient
 from .pulse_inspector import PulseInspectRequest
 
@@ -95,4 +97,6 @@ def compose_sequence(request: ComposeSequenceRequest) -> SequenceIR:
     }
     if any(block.kind.startswith("trap_") for block in request.blocks):
         metadata["gradient_units"] = "mt_m"
+        metadata["fov_m"] = DEFAULT_FOV_M
+        metadata["preferred_engine"] = "epg"
     return SequenceIR(name=request.name, duration=duration, channels=result_channels, metadata=metadata)
