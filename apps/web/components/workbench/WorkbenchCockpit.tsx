@@ -362,7 +362,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
           <div data-testid="spectrum-experiment-identity" style={{ marginBottom: "10px", padding: "8px", background: "#0c1114", border: "1px solid var(--amber)", borderRadius: "4px" }}>
             <div style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 800, letterSpacing: "0.08em" }}>SPECTRUM EXPERIMENT</div>
             <div style={{ fontSize: "13px", color: "#e8f4f6", fontWeight: 700, marginTop: "2px" }}>
-              {cestMode === "pulsed" ? "Amide CEST pulsed Z-spectrum" : cestMode === "cw" ? "Amide CEST CW Z-spectrum" : "Amide CEST Z-spectrum"}
+              {`${currentScenario.id === "cest_amine" ? "Amine" : "Amide"} CEST ${cestMode === "pulsed" ? "pulsed Z-spectrum" : cestMode === "cw" ? "CW Z-spectrum" : "Z-spectrum"}`}
             </div>
             <div style={{ fontSize: "11px", color: "#8ba0a8", marginTop: "4px", lineHeight: 1.4 }}>
               {cestMode === "pulsed" ? "Two-liquid-pool pulsed train" : cestMode === "cw" ? "Two-liquid-pool CW" : "Two-liquid-pool saturation"} · frequency axis · not MS plaque imaging
@@ -1193,7 +1193,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.69 · physical G</div>
+          <div className="system-info">MRQLab v0.70 · amine CEST</div>
         )}
       </section>
     </div>

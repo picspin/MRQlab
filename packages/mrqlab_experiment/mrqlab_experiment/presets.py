@@ -175,18 +175,23 @@ _CLINICAL_RECIPES: dict[str, ClinicalRecipeSpec] = {
 
 
 def list_clinical_recipes() -> list[str]:
-    return [*_CLINICAL_RECIPES.keys(), "cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum"]
+    return [*_CLINICAL_RECIPES.keys(), "cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum", "cest_amine_z_spectrum"]
 
 
 def build_clinical_recipe(name: str) -> ExperimentGraph:
-    if name in {"cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum"}:
-        pulsed = name == "cest_amide_pulsed_z_spectrum"
+    cest_recipes = {
+        "cest_amide_z_spectrum": ("amide", 3.5, False),
+        "cest_amide_pulsed_z_spectrum": ("amide", 3.5, True),
+        "cest_amine_z_spectrum": ("amine", 2.0, False),
+    }
+    if name in cest_recipes:
+        solute, shift, pulsed = cest_recipes[name]
         nodes = (
             ExperimentNode(id="sat", kind="RF", label="Declared pulsed saturation train" if pulsed else "Declared CW saturation sweep"),
             ExperimentNode(id="read", kind="READOUT", label="Water k=0 observation"),
         )
         cest = {
-            "offsets_ppm": [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5],
+            "offsets_ppm": [-5, -4, -3.5, -2, 0, 2, 3.5, 4, 5] if solute == "amine" else [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5],
             "offset_unit": "ppm", "offset_span_ppm": 5.0,
             "saturation_duration_s": 1.95 if pulsed else 2.0,
             "saturation_power_uT": 2.0, "reference": "unsaturated_control",
@@ -194,19 +199,20 @@ def build_clinical_recipe(name: str) -> ExperimentGraph:
         }
         if pulsed:
             cest.update(n_pulses=20, pulse_duration_s=.05, gap_duration_s=.05, duty_cycle=.05 * 20 / 1.95)
+        label = solute.capitalize()
         return ExperimentGraph(
-            id=f"recipe:{name}", name=f"Two-pool amide {'pulsed ' if pulsed else ''}CEST Z-spectrum",
+            id=f"recipe:{name}", name=f"Two-pool {solute} {'pulsed ' if pulsed else ''}CEST Z-spectrum",
             intent="physics", nodes=nodes,
             edges=(ExperimentEdge(source="sat", target="read"),),
             sequence=SequenceIR(
-                name=f"Amide CEST {'pulsed train' if pulsed else 'CW sweep'}", duration=2.001, channels=[],
+                name=f"{label} CEST {'pulsed train' if pulsed else 'CW sweep'}", duration=2.001, channels=[],
                 metadata={"cest": cest},
             ),
             tissue=(
                 TissueModel(id="water", label="Water", t1=1.0, t2=0.08, proton_density=.9,
                             pool_fraction=.9, exchange_rate_hz=50, chemical_shift_ppm=0),
-                TissueModel(id="amide", label="Amide solute", t1=1.0, t2=.01, proton_density=.1,
-                            pool_fraction=.1, chemical_shift_ppm=3.5),
+                TissueModel(id=solute, label=f"{label} solute", t1=1.0, t2=.01, proton_density=.1,
+                            pool_fraction=.1, chemical_shift_ppm=shift),
             ),
             scanner_model=ScannerModel(b0_t=3.0), engine=EngineRef(preferred="epg-x", options={"epg_kmax": 0}),
             readout=ReadoutSpec(products=("z_spectrum", "mtr_asym")),
