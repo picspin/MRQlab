@@ -1190,7 +1190,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.19 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.68 · physical G</div>
         )}
       </section>
     </div>

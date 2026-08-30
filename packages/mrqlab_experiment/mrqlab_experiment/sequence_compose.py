@@ -66,7 +66,7 @@ def compose_sequence(request: ComposeSequenceRequest) -> SequenceIR:
                 channel=channel.replace("g", "G")), GradientHardwareConstraints())
             if not result.is_valid:
                 raise ValueError("; ".join(result.violations))
-            channels[channel].append(Event(time=block.t0_s, value=1 if params.amplitude_mt_m >= 0 else -1))
+            channels[channel].append(Event(time=block.t0_s, value=params.amplitude_mt_m))
         else:
             params = AdcBlockParams.model_validate(block.params)
             channel = "adc_gate"
@@ -89,6 +89,10 @@ def compose_sequence(request: ComposeSequenceRequest) -> SequenceIR:
             gradient_blocks = sorted((b for b in request.blocks if b.kind == f"trap_{name}"), key=lambda b: b.t0_s)
             for index, block in enumerate(gradient_blocks):
                 overlays[f"{name}:{index}"] = GradientBlockParams.model_validate(block.params).model_dump(mode="json")
-    return SequenceIR(name=request.name, duration=duration, channels=result_channels,
-                      metadata={"blocks": [block.model_dump(mode="json") for block in request.blocks],
-                                "event_overlays": overlays})
+    metadata = {
+        "blocks": [block.model_dump(mode="json") for block in request.blocks],
+        "event_overlays": overlays,
+    }
+    if any(block.kind.startswith("trap_") for block in request.blocks):
+        metadata["gradient_units"] = "mt_m"
+    return SequenceIR(name=request.name, duration=duration, channels=result_channels, metadata=metadata)
