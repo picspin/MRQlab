@@ -9,7 +9,7 @@ import {
   RECIPE_TO_SCENARIO,
   scenarioKeyForRecipe,
 } from "../lib/explore-catalog";
-import { CLINICAL_SCENARIOS } from "../lib/scenarios";
+import { CLINICAL_SCENARIOS, isSpectrumScenario } from "../lib/scenarios";
 
 afterEach(() => {
   cleanup();
@@ -26,6 +26,27 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(byId["cest-apt"].executable).toBe(true);
     expect(byId["cest-apt"].recipeId).toBe("cest_amide_z_spectrum");
     expect(byId["cest-apt"].category).toBe("Spectroscopy & Exchange");
+    expect(byId["cest-apt"].title).toMatch(/CW/i);
+    expect(byId["cest-apt"].title).not.toMatch(/pulsed/i);
+    expect(byId["cest-apt"].sequence).toMatch(/CW/i);
+    expect(byId["cest-apt"].sequence).not.toMatch(/pulsed/i);
+    expect(byId["cest-apt"].keyPhysics).toMatch(/CW/i);
+    expect(byId["cest-apt"].clinicalQuestion).toMatch(/CW/i);
+    expect(byId["cest-apt"].clinicalQuestion).not.toMatch(/pulsed/i);
+    expect(byId["cest-apt-pulsed"].executable).toBe(true);
+    expect(byId["cest-apt-pulsed"].recipeId).toBe("cest_amide_pulsed_z_spectrum");
+    expect(byId["cest-apt-pulsed"].category).toBe("Spectroscopy & Exchange");
+    expect(byId["cest-apt-pulsed"].title).toMatch(/pulsed/i);
+    expect(byId["cest-apt-pulsed"].title).not.toMatch(/CW/i);
+    expect(byId["cest-apt-pulsed"].sequence).toMatch(/pulsed/i);
+    expect(byId["cest-apt-pulsed"].sequence).not.toMatch(/CW/i);
+    expect(byId["cest-apt-pulsed"].keyPhysics).toMatch(/pulsed/i);
+    expect(byId["cest-apt-pulsed"].keyPhysics).not.toMatch(/CW/i);
+    expect(byId["cest-apt-pulsed"].clinicalQuestion).toMatch(/pulsed/i);
+    expect(byId["cest-apt"].parameters).toBeUndefined();
+    expect(byId["cest-apt-pulsed"].parameters).toBeUndefined();
+    expect(byId["mrs-1h"].parameters).toBeUndefined();
+    expect(byId["x-nuclei"].parameters).toBeUndefined();
     expect(byId["mrs-1h"].executable).toBe(false);
     expect(byId["mrs-1h"].recipeId).toBeNull();
     expect(byId["x-nuclei"].executable).toBe(false);
@@ -44,6 +65,10 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(scenarioKeyForRecipe("angio_tof_gre")).toBe("angio_tof");
     expect(scenarioKeyForRecipe("cest_amide_z_spectrum")).toBe("cest_amide");
     expect(scenarioKeyForRecipe("cest_amide_pulsed_z_spectrum")).toBe("cest_amide");
+    expect(scenarioKeyForRecipe("cest_amide_foo_z_spectrum")).toBe("cest_amide");
+    expect(scenarioKeyForRecipe("cest_amide_foo_z_spectrum")).not.toBe("ms_brain");
+    expect(scenarioKeyForRecipe("cest_amine_z_spectrum")).toBe("cest_amide");
+    expect(scenarioKeyForRecipe("cest_amine_z_spectrum")).not.toBe("ms_brain");
     expect(scenarioKeyForRecipe("nope")).toBe("ms_brain");
     expect(RECIPE_TO_SCENARIO.cardiac_cine_gre).toBeUndefined();
   });
@@ -56,6 +81,14 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(cest.category).not.toBe("Neuro");
     expect(cest.seqType).not.toBe("SE");
     expect(cest.scanPlane).not.toBe("AXIAL");
+    expect(cest.defaultParams).toBeUndefined();
+  });
+
+  it("Spectrum identity follows seqType CEST, not the cest_amide key name", () => {
+    expect(isSpectrumScenario(CLINICAL_SCENARIOS.cest_amide)).toBe(true);
+    expect(isSpectrumScenario(CLINICAL_SCENARIOS.ms_brain)).toBe(false);
+    expect(isSpectrumScenario({ seqType: "CEST" })).toBe(true);
+    expect(isSpectrumScenario({ seqType: "TSE" })).toBe(false);
   });
 
   it("Launch Cockpit deep-links executable cases and badges the rest", () => {
@@ -72,6 +105,8 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
 
     const cest = screen.getByTestId("launch-cest-apt");
     expect(cest).toHaveAttribute("href", "/workbench?recipe=cest_amide_z_spectrum");
+    const pulsed = screen.getByTestId("launch-cest-apt-pulsed");
+    expect(pulsed).toHaveAttribute("href", "/workbench?recipe=cest_amide_pulsed_z_spectrum");
     expect(screen.queryByTestId("launch-mrs-1h")).toBeNull();
     expect(screen.getByTestId("badge-mrs-1h")).toHaveTextContent(/not in v0\.1/i);
     expect(screen.getByTestId("badge-x-nuclei")).toHaveTextContent(/not in v0\.1/i);
@@ -118,13 +153,15 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
       </WorkspaceProvider>
     );
     expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/Amide CEST Z-spectrum/);
-    expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/pulsed train/i);
     expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/not MS plaque imaging/i);
     const dropdown = screen.getByTestId("scenario-dropdown") as HTMLSelectElement;
     expect(dropdown.value).toBe("");
     expect(dropdown.selectedOptions[0]?.textContent).toMatch(/Not a clinical imaging case/);
     expect(screen.queryByTestId("echo-train-rail")).toBeNull();
-    expect(screen.getByTestId("spectrum-control-honesty")).toBeVisible();
+    expect(screen.queryByTestId("spectrum-control-honesty")).toBeNull();
+    expect(screen.getByTestId("cest-b1-slider")).toBeVisible();
+    expect(screen.getByTestId("cest-offset-span-slider")).toBeVisible();
+    expect(screen.queryByTestId("cest-duty-slider")).toBeNull();
     expect(screen.getByTestId("clinical-rejects-z-spectrum")).toBeVisible();
     expect(screen.queryByTestId("acquisition-plane-picker")).toBeNull();
     expect(screen.queryByRole("button", { name: "AXIAL" })).toBeNull();
@@ -138,7 +175,19 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByTestId("control-bank-mode")).not.toHaveTextContent("Geometry & Contrast");
   });
 
-  it("nav chrome says v0.66.6", () => {
+  it("cest_amide_* deep-link stays Spectrum, not MS plaque", () => {
+    render(
+      <WorkspaceProvider>
+        <WorkbenchCockpit initialRecipeId="cest_amide_foo_z_spectrum" />
+      </WorkspaceProvider>
+    );
+    expect(screen.getByTestId("spectrum-experiment-identity")).toBeVisible();
+    expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/not MS plaque imaging/i);
+    expect(screen.getByTestId("clinical-rejects-z-spectrum")).toBeVisible();
+    expect(screen.queryByTestId("clinical-quad-grid")).toBeNull();
+  });
+
+  it("nav chrome says v0.67.19", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -146,6 +195,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.6");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.19");
   });
 });

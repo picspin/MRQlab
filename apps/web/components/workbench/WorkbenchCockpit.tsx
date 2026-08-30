@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useWorkspace } from "../workspace/WorkspaceProvider";
-import { CLINICAL_SCENARIOS, ScenarioSpec } from "../../lib/scenarios";
-import { scenarioKeyForRecipe } from "../../lib/explore-catalog";
+import { CLINICAL_SCENARIOS, isSpectrumScenario, ScenarioSpec } from "../../lib/scenarios";
+import { isCestSpectrumRecipe, scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
-import { CockpitSignalAnalysis, fetchCockpitSignals, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
+import { CockpitSignalAnalysis, fetchCockpitSignals, listClinicalRecipes, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
@@ -17,6 +17,20 @@ import { GradientEventEditor } from "./GradientEventEditor";
 import { SequenceLego } from "./SequenceLego";
 
 type TimelineSelection = { channel: string; time: number; value: number; index: number };
+
+function cestKnobsFromMetadata(cest: Record<string, unknown> | undefined) {
+  if (!cest) return null;
+  const power = Number(cest.saturation_power_uT);
+  const span = Number(cest.offset_span_ppm);
+  const duty = Number(cest.duty_cycle);
+  const mode = typeof cest.mode === "string" ? cest.mode : undefined;
+  return {
+    power: Number.isFinite(power) ? power : undefined,
+    span: Number.isFinite(span) ? span : undefined,
+    duty: Number.isFinite(duty) ? duty : undefined,
+    mode,
+  };
+}
 
 function SpectrumPlot({ resultGraph }: { resultGraph: ResultGraph | null }) {
   const spectrum = resultGraph?.observations.find((item) => item.kind === "z_spectrum");
@@ -45,9 +59,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   
   const [selectedScenarioKey, setSelectedScenarioKey] = useState<string>(() => scenarioKeyForRecipe(initialRecipeId));
   const currentScenario: ScenarioSpec = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
-  const isSpectrumExperiment = selectedScenarioKey === "cest_amide";
-  const activeRecipeId = isSpectrumExperiment && initialRecipeId?.startsWith("cest_amide_") ? initialRecipeId : currentScenario.recipeId;
-  const clinicalScenarioEntries = Object.entries(CLINICAL_SCENARIOS).filter(([key]) => key !== "cest_amide");
+  const isSpectrumExperiment = isSpectrumScenario(currentScenario);
+  const activeRecipeId = isSpectrumExperiment && isCestSpectrumRecipe(initialRecipeId) ? initialRecipeId : currentScenario.recipeId;
+  const clinicalScenarioEntries = Object.entries(CLINICAL_SCENARIOS).filter(([, s]) => !isSpectrumScenario(s));
 
   // v0.43: Edit Mode toggle
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -62,11 +76,12 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   const [matrixSize, setMatrixSize] = useState<number>(256);
 
   // Acquisition and Physics Parameters
-  const [fa, setFa] = useState<number>(currentScenario.defaultParams.fa);
-  const [exciteFa, setExciteFa] = useState<number>(currentScenario.seqType === "GRE" ? currentScenario.defaultParams.fa : 90);
+  const imagingDefaults = currentScenario.defaultParams;
+  const [fa, setFa] = useState<number>(imagingDefaults?.fa ?? 90);
+  const [exciteFa, setExciteFa] = useState<number>(currentScenario.seqType === "GRE" ? (imagingDefaults?.fa ?? 90) : 90);
   const [adcBwHz, setAdcBwHz] = useState<number>(62500);
-  const [te, setTe] = useState<number>(currentScenario.defaultParams.te);
-  const [tr, setTr] = useState<number>(currentScenario.defaultParams.tr);
+  const [te, setTe] = useState<number>(imagingDefaults?.te ?? 0);
+  const [tr, setTr] = useState<number>(imagingDefaults?.tr ?? 0);
   const [compiledSequence, setCompiledSequence] = useState<SequenceIR | null>(null);
   const [timelineSelection, setTimelineSelection] = useState<TimelineSelection | null>(null);
   const [blocks, setBlocks] = useState<SequenceBlock[]>([]);
@@ -99,13 +114,22 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     void compileBlocks([...blocks, { id, kind, t0_s: Math.round(blocks.length * 10) / 10000, params }]);
     setSelectedBlockId(id);
   };
-  const [fov, setFov] = useState<number>(currentScenario.defaultParams.fov);
-  const [sliceThick, setSliceThick] = useState<number>(currentScenario.defaultParams.sliceThick);
-  const [sliceCount, setSliceCount] = useState<number>(currentScenario.defaultParams.sliceCount);
-  const [sliceGap, setSliceGap] = useState<number>(currentScenario.defaultParams.sliceGap);
-  const [isInterleaved, setIsInterleaved] = useState<boolean>(currentScenario.defaultParams.isInterleaved);
+  const [fov, setFov] = useState<number>(imagingDefaults?.fov ?? 0);
+  const [sliceThick, setSliceThick] = useState<number>(imagingDefaults?.sliceThick ?? 0);
+  const [sliceCount, setSliceCount] = useState<number>(imagingDefaults?.sliceCount ?? 0);
+  const [sliceGap, setSliceGap] = useState<number>(imagingDefaults?.sliceGap ?? 0);
+  const [isInterleaved, setIsInterleaved] = useState<boolean>(imagingDefaults?.isInterleaved ?? false);
   const [activeScanPlane, setActiveScanPlane] = useState<string>(currentScenario.scanPlane);
-  const [mipCursorZ, setMipCursorZ] = useState<number>(Math.round(currentScenario.defaultParams.sliceCount / 2));
+  const [mipCursorZ, setMipCursorZ] = useState<number>(Math.round((imagingDefaults?.sliceCount ?? 0) / 2));
+  const [cestPowerUt, setCestPowerUt] = useState<number | null>(null);
+  const [cestOffsetSpanPpm, setCestOffsetSpanPpm] = useState<number | null>(null);
+  const [cestDutyCycle, setCestDutyCycle] = useState<number | null>(null);
+  const [cestMode, setCestMode] = useState<string | null>(null);
+  const [cestDirty, setCestDirty] = useState<{ power: boolean; span: boolean; duty: boolean }>({
+    power: false, span: false, duty: false,
+  });
+  const cestDirtyRef = useRef(cestDirty);
+  cestDirtyRef.current = cestDirty;
   
   // Custom uploaded DICOM / Phantom image
   const [customImageSrc, setCustomImageSrc] = useState<string | null>(null);
@@ -142,19 +166,44 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   // Sync params when scenario changes
   useEffect(() => {
     const s = CLINICAL_SCENARIOS[selectedScenarioKey] || CLINICAL_SCENARIOS.ms_brain;
-    setFa(s.defaultParams.fa);
-    setExciteFa(s.seqType === "GRE" ? s.defaultParams.fa : 90);
-    setTe(s.defaultParams.te);
-    setTr(s.defaultParams.tr);
-    setFov(s.defaultParams.fov);
-    setSliceThick(s.defaultParams.sliceThick);
-    setSliceCount(s.defaultParams.sliceCount);
-    setSliceGap(s.defaultParams.sliceGap);
-    setIsInterleaved(s.defaultParams.isInterleaved);
+    const imaging = s.defaultParams;
+    setFa(imaging?.fa ?? 90);
+    setExciteFa(s.seqType === "GRE" ? (imaging?.fa ?? 90) : 90);
+    setTe(imaging?.te ?? 0);
+    setTr(imaging?.tr ?? 0);
+    setFov(imaging?.fov ?? 0);
+    setSliceThick(imaging?.sliceThick ?? 0);
+    setSliceCount(imaging?.sliceCount ?? 0);
+    setSliceGap(imaging?.sliceGap ?? 0);
+    setIsInterleaved(imaging?.isInterleaved ?? false);
     setActiveScanPlane(s.scanPlane);
-    setMipCursorZ(Math.round(s.defaultParams.sliceCount / 2));
-    setPhysicsTab(selectedScenarioKey === "cest_amide" ? "spectrum" : "timeline");
+    setMipCursorZ(Math.round((imaging?.sliceCount ?? 0) / 2));
+    setPhysicsTab(isSpectrumScenario(s) ? "spectrum" : "timeline");
+    setCestPowerUt(null);
+    setCestOffsetSpanPpm(null);
+    setCestDutyCycle(null);
+    setCestMode(null);
+    setCestDirty({ power: false, span: false, duty: false });
   }, [selectedScenarioKey]);
+
+  useEffect(() => {
+    if (!isSpectrumExperiment) return;
+    let cancelled = false;
+    void listClinicalRecipes().then((recipes) => {
+      if (cancelled) return;
+      const match = recipes.find((item) => item.id === activeRecipeId);
+      const cest = (match?.experiment as { sequence?: { metadata?: { cest?: Record<string, unknown> } } } | undefined)
+        ?.sequence?.metadata?.cest;
+      const knobs = cestKnobsFromMetadata(cest);
+      if (!knobs) return;
+      const dirty = cestDirtyRef.current;
+      if (knobs.power != null && !dirty.power) setCestPowerUt(knobs.power);
+      if (knobs.span != null && !dirty.span) setCestOffsetSpanPpm(knobs.span);
+      if (knobs.duty != null && !dirty.duty) setCestDutyCycle(knobs.duty);
+      if (knobs.mode) setCestMode(knobs.mode);
+    }).catch(() => undefined);
+    return () => { cancelled = true; };
+  }, [isSpectrumExperiment, activeRecipeId]);
 
   // Trigger Execution Plan (POST /experiments/run-from-recipe). Fail closed: never mint RESULT.
   const triggerRun = async () => {
@@ -163,22 +212,23 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     setResultGraph(null);
     setExecutionState?.("RUNNING");
 
-    const params: Record<string, number> = {
-      te: te / 1000.0,
-      tr: tr / 1000.0,
-    };
-    if (currentScenario.seqType === "GRE") {
-      params.flip_angle = exciteFa;
-    } else {
-      params.flip_angle = exciteFa;
-      params.refocusing_flip_angle = fa;
-      params.echo_count = 16;
-    }
+    const isCestRecipe = isSpectrumExperiment;
+    const params: Record<string, number> = isCestRecipe
+      ? {
+          ...(cestDirty.power && cestPowerUt != null ? { saturation_power_uT: cestPowerUt } : {}),
+          ...(cestDirty.span && cestOffsetSpanPpm != null ? { offset_span_ppm: cestOffsetSpanPpm } : {}),
+          ...(cestDirty.duty && cestDutyCycle != null && cestMode === "pulsed" ? { duty_cycle: cestDutyCycle } : {}),
+        }
+      : {
+          te: te / 1000.0,
+          tr: tr / 1000.0,
+          flip_angle: exciteFa,
+          ...(currentScenario.seqType === "GRE" ? {} : { refocusing_flip_angle: fa, echo_count: 16 }),
+        };
 
     try {
       const tseProducts = ["signal", "echo_train", "configurations"];
-      const isCestRecipe = ["cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum"].includes(activeRecipeId);
-      const res = await runExperimentFromRecipe(activeRecipeId, isCestRecipe ? {} : params, isCestRecipe
+      const res = await runExperimentFromRecipe(activeRecipeId, params, isCestRecipe
         ? { products: ["z_spectrum", "mtr_asym"] }
         : currentScenario.seqType === "GRE"
         ? { products: ["signal", "echo_train"] }
@@ -196,17 +246,18 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   };
 
   useEffect(() => {
-    if (isSpectrumExperiment) {
+    const seqType = currentScenario.seqType;
+    if (isSpectrumExperiment || seqType === "CEST") {
       setCockpitSignals(null);
       return;
     }
     let cancelled = false;
     fetchCockpitSignals({
-      seq_type: currentScenario.seqType,
+      seq_type: seqType,
       fa_deg: fa,
       te_ms: te,
       tr_ms: tr,
-      echo_train_length: currentScenario.seqType === "GRE" ? 1 : 16,
+      echo_train_length: seqType === "GRE" ? 1 : 16,
       tissues: currentScenario.tissues.map((t) => ({
         id: t.id,
         name: t.name,
@@ -228,12 +279,12 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
   }, [selectedScenarioKey, fa, te, tr, currentScenario]);
 
   useEffect(() => {
-    if (isSpectrumExperiment) {
+    const template = currentScenario.seqType;
+    if (isSpectrumExperiment || template === "CEST") {
       setCompiledSequence(null);
       return;
     }
     let cancelled = false;
-    const template = currentScenario.seqType;
     const params: Record<string, number> = {
       te: te / 1000.0,
       tr: tr / 1000.0,
@@ -310,9 +361,11 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         {isSpectrumExperiment && (
           <div data-testid="spectrum-experiment-identity" style={{ marginBottom: "10px", padding: "8px", background: "#0c1114", border: "1px solid var(--amber)", borderRadius: "4px" }}>
             <div style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 800, letterSpacing: "0.08em" }}>SPECTRUM EXPERIMENT</div>
-            <div style={{ fontSize: "13px", color: "#e8f4f6", fontWeight: 700, marginTop: "2px" }}>Amide CEST Z-spectrum</div>
+            <div style={{ fontSize: "13px", color: "#e8f4f6", fontWeight: 700, marginTop: "2px" }}>
+              {cestMode === "pulsed" ? "Amide CEST pulsed Z-spectrum" : cestMode === "cw" ? "Amide CEST CW Z-spectrum" : "Amide CEST Z-spectrum"}
+            </div>
             <div style={{ fontSize: "11px", color: "#8ba0a8", marginTop: "4px", lineHeight: 1.4 }}>
-              {activeRecipeId === "cest_amide_pulsed_z_spectrum" ? "Two-liquid-pool pulsed train" : "Two-liquid-pool CW"} · frequency axis · not MS plaque imaging
+              {cestMode === "pulsed" ? "Two-liquid-pool pulsed train" : cestMode === "cw" ? "Two-liquid-pool CW" : "Two-liquid-pool saturation"} · frequency axis · not MS plaque imaging
             </div>
           </div>
         )}
@@ -632,7 +685,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   </div>
                   <div>
                     <label>Hamiltonian</label>
-                    <span>EPG-X CEST</span>
+                    <span data-testid="physics-hamiltonian">{cestMode === "pulsed" ? "EPG-X CEST pulsed" : cestMode === "cw" ? "EPG-X CEST CW" : "EPG-X CEST"}</span>
                   </div>
                 </>
               ) : (
@@ -940,10 +993,31 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         </div>
 
         {isSpectrumExperiment ? (
-          <div className="control-group" data-testid="spectrum-control-honesty">
-            <label>Spectrum controls</label>
-            <span className="value-badge">Imaging FA/TE/ETL dials are not the CEST Hamiltonian. Saturation offset, B1, and train live in recipe metadata. RUN still hits the backend.</span>
-          </div>
+          <>
+            <div className="control-group">
+              <label>Saturation B1</label>
+              <div className="slider-row">
+                <input type="range" min="0.5" max="5" step="0.1" value={cestPowerUt == null ? "" : cestPowerUt} disabled={cestPowerUt == null} onChange={(e) => { setCestPowerUt(Number(e.target.value)); setCestDirty((d) => ({ ...d, power: true })); }} data-testid="cest-b1-slider" />
+                <span className="value-badge" data-testid="cest-b1-value">{cestPowerUt == null ? "—" : `${cestPowerUt.toFixed(1)} µT`}</span>
+              </div>
+            </div>
+            <div className="control-group">
+              <label>Offset span</label>
+              <div className="slider-row">
+                <input type="range" min="3.5" max="10" step="0.5" value={cestOffsetSpanPpm == null ? "" : cestOffsetSpanPpm} disabled={cestOffsetSpanPpm == null} onChange={(e) => { setCestOffsetSpanPpm(Number(e.target.value)); setCestDirty((d) => ({ ...d, span: true })); }} data-testid="cest-offset-span-slider" />
+                <span className="value-badge" data-testid="cest-offset-span-value">{cestOffsetSpanPpm == null ? "—" : `±${cestOffsetSpanPpm} ppm`}</span>
+              </div>
+            </div>
+            {cestMode === "pulsed" && (
+              <div className="control-group">
+                <label>Duty cycle</label>
+                <div className="slider-row">
+                  <input type="range" min="0.2" max="1" step="0.05" value={cestDutyCycle == null ? "" : cestDutyCycle} disabled={cestDutyCycle == null} onChange={(e) => { setCestDutyCycle(Number(e.target.value)); setCestDirty((d) => ({ ...d, duty: true })); }} data-testid="cest-duty-slider" />
+                  <span className="value-badge" data-testid="cest-duty-value">{cestDutyCycle == null ? "—" : cestDutyCycle.toFixed(2)}</span>
+                </div>
+              </div>
+            )}
+          </>
         ) : profile === "clinical" ? (
           /* Clinical Controls: Slice thickness, gap, count, FOV, TR/TE */
           <>
@@ -1116,7 +1190,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.66.6 · UX honesty</div>
+          <div className="system-info">MRQLab v0.67.19 · CEST knobs</div>
         )}
       </section>
     </div>

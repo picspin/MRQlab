@@ -1,3 +1,4 @@
+import math
 import os
 from typing import Any
 
@@ -218,6 +219,48 @@ def experiments_validate(graph: ExperimentGraph):
     return validate_experiment(graph)
 
 
+_CEST_KNOBS = frozenset({"saturation_power_uT", "offset_span_ppm", "duty_cycle"})
+
+
+def _cest_offset_grid(span: float, previous: list) -> list[float]:
+    if not math.isfinite(span) or span < 3.5:
+        raise ValueError("CEST offset_span_ppm must be finite and at least 3.5 so amide stays on the sweep")
+    kept = [float(value) for value in previous if abs(float(value)) <= span + 1e-12]
+    return sorted({-span, span, 0.0, 3.5, *kept})
+
+
+def _overlay_cest_metadata(cest: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+    unknown = sorted(set(params) - _CEST_KNOBS)
+    if unknown:
+        raise ValueError(f"unknown CEST overlay keys: {unknown}")
+    next_cest = dict(cest)
+    if "saturation_power_uT" in params:
+        power = float(params["saturation_power_uT"])
+        if not math.isfinite(power) or power <= 0:
+            raise ValueError("CEST saturation_power_uT must be finite and positive")
+        next_cest["saturation_power_uT"] = power
+    if "offset_span_ppm" in params:
+        span = float(params["offset_span_ppm"])
+        next_cest["offsets_ppm"] = _cest_offset_grid(span, next_cest.get("offsets_ppm", []))
+        next_cest["offset_span_ppm"] = span
+    if "duty_cycle" in params:
+        if next_cest.get("mode", "cw") != "pulsed":
+            raise ValueError("duty cycle overlay is only valid for pulsed CEST")
+        duty = float(params["duty_cycle"])
+        if not math.isfinite(duty) or not 0 < duty <= 1:
+            raise ValueError("CEST duty_cycle must be in (0, 1]")
+        n_pulses = int(next_cest["n_pulses"])
+        elapsed = float(next_cest["saturation_duration_s"])
+        pulse = duty * elapsed / n_pulses
+        gap = 0.0 if n_pulses == 1 else (elapsed - n_pulses * pulse) / (n_pulses - 1)
+        if not math.isfinite(pulse) or pulse <= 0 or not math.isfinite(gap) or gap < 0:
+            raise ValueError("CEST duty_cycle cannot rebuild a valid saturation train")
+        next_cest["pulse_duration_s"] = pulse
+        next_cest["gap_duration_s"] = gap
+        next_cest["duty_cycle"] = duty
+    return next_cest
+
+
 def _overlay_sequence_params(graph: ExperimentGraph, params: dict[str, Any]) -> ExperimentGraph:
     if not params:
         return graph
@@ -227,9 +270,15 @@ def _overlay_sequence_params(graph: ExperimentGraph, params: dict[str, Any]) -> 
         for key, value in params.items():
             new_params[key] = value
         graph.sequence = graph.sequence.model_copy(update={"params": new_params})
-    elif hasattr(graph.sequence, "metadata"):
-        for key, value in params.items():
-            graph.sequence.metadata[key] = value
+        return graph
+    metadata = dict(getattr(graph.sequence, "metadata", {}) or {})
+    if "cest" in metadata:
+        metadata["cest"] = _overlay_cest_metadata(dict(metadata["cest"]), params)
+        graph.sequence = graph.sequence.model_copy(update={"metadata": metadata})
+        return graph
+    for key, value in params.items():
+        metadata[key] = value
+    graph.sequence = graph.sequence.model_copy(update={"metadata": metadata})
     return graph
 
 
@@ -241,7 +290,10 @@ def _resolve_recipe_graph(recipe_id: str, params: dict[str, Any] | None = None) 
             graph = build_clinical_recipe(recipe_id)
         except ValueError as exc:
             raise HTTPException(404, f"recipe {recipe_id} not found") from exc
-    return _overlay_sequence_params(graph, params or {})
+    try:
+        return _overlay_sequence_params(graph, params or {})
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
 
 
 @app.post("/experiments/run")

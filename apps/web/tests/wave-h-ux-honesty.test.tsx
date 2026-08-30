@@ -27,6 +27,15 @@ function mockApi(runResult: unknown = result) {
     if (url.includes("/experiments/run-from-recipe")) return json(runResult);
     if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
     if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 1 });
+    if (url.includes("/clinical-recipes")) return json({ recipes: [
+      { id: "cest_amide_pulsed_z_spectrum", experiment: { sequence: { metadata: { cest: {
+        saturation_power_uT: 2.0, offsets_ppm: [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5], offset_span_ppm: 7,
+        n_pulses: 20, pulse_duration_s: 0.05, gap_duration_s: 0.05, saturation_duration_s: 1.95, mode: "pulsed", duty_cycle: 0.42,
+      } } } } },
+      { id: "cest_amide_z_spectrum", experiment: { sequence: { metadata: { cest: {
+        saturation_power_uT: 2.0, offsets_ppm: [-5, -4.5, -4, -3.5, 0, 3.5, 4, 4.5, 5], offset_span_ppm: 5, mode: "cw",
+      } } } } },
+    ] });
     return json({});
   }));
 }
@@ -86,9 +95,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.66.6", () => {
+  it("shows chrome v0.67.19", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.66.6");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.19");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -137,7 +146,7 @@ describe("Wave H UX honesty", () => {
     expect(screen.queryByTestId("spectrum-plot")).toBeNull();
   });
 
-  it("CEST physics seam is CEST, not SE, and hides the TSE echo train", () => {
+  it("CEST physics seam is CEST, not SE, and hides the TSE echo train", async () => {
     mockApi();
     render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
     fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
@@ -145,8 +154,11 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("physics-seam")).not.toHaveTextContent("SEAM: SE");
     expect(screen.queryByTestId("echo-train-rail")).toBeNull();
     expect(screen.getByText("k=0 water")).toBeVisible();
-    expect(screen.getByText("EPG-X CEST")).toBeVisible();
-    expect(screen.getByTestId("spectrum-control-honesty")).toBeVisible();
+    await waitFor(() => expect(screen.getByTestId("physics-hamiltonian")).toHaveTextContent("EPG-X CEST pulsed"));
+    expect(screen.queryByTestId("spectrum-control-honesty")).toBeNull();
+    expect(screen.getByTestId("cest-b1-slider")).toBeVisible();
+    expect(screen.getByTestId("cest-offset-span-slider")).toBeVisible();
+    await waitFor(() => expect(screen.getByTestId("cest-duty-slider")).toBeVisible());
     expect(screen.queryByTestId("physics-excite-fa-slider")).toBeNull();
     expect(screen.getByTestId("spectrum-awaiting")).toBeVisible();
     expect(screen.queryByTestId("kspace-tab-btn")).toBeNull();
@@ -157,5 +169,182 @@ describe("Wave H UX honesty", () => {
     expect(screen.queryByTestId("inspect-g-btn")).toBeNull();
     expect(screen.getByTestId("display-header-title")).toHaveTextContent("SPECTRUM");
     expect(screen.getByTestId("display-header-title")).not.toHaveTextContent("TIMELINE");
+  });
+
+  it("CEST RUN posts saturation knobs, not imaging FA/TE, and sliders do not auto-run", async () => {
+    mockApi();
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    await waitFor(() => expect(screen.getByTestId("cest-duty-slider")).toBeVisible());
+    fireEvent.change(screen.getByTestId("cest-b1-slider"), { target: { value: "3.5" } });
+    fireEvent.change(screen.getByTestId("cest-offset-span-slider"), { target: { value: "6" } });
+    fireEvent.change(screen.getByTestId("cest-duty-slider"), { target: { value: "0.7" } });
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    expect(fetchMock.mock.calls.every((call) => !String(call[0]).includes("/experiments/run-from-recipe"))).toBe(true);
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    await waitFor(() => expect(fetchMock.mock.calls.some((call) => String(call[0]).includes("/experiments/run-from-recipe"))).toBe(true));
+    const runCall = fetchMock.mock.calls.find((call) => String(call[0]).includes("/experiments/run-from-recipe"));
+    const body = JSON.parse(String(runCall?.[1]?.body));
+    expect(body.recipe_id).toBe("cest_amide_pulsed_z_spectrum");
+    expect(body.params).toEqual({ saturation_power_uT: 3.5, offset_span_ppm: 6, duty_cycle: 0.7 });
+    expect(body.params.te).toBeUndefined();
+    expect(body.params.flip_angle).toBeUndefined();
+    expect(body.products).toEqual(["z_spectrum", "mtr_asym"]);
+  });
+
+  it("virgin CEST RUN posts empty params so recipe metadata.cest is unchanged", async () => {
+    mockApi();
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    await waitFor(() => expect(fetchMock.mock.calls.some((call) => String(call[0]).includes("/experiments/run-from-recipe"))).toBe(true));
+    const runCall = fetchMock.mock.calls.find((call) => String(call[0]).includes("/experiments/run-from-recipe"));
+    const body = JSON.parse(String(runCall?.[1]?.body));
+    expect(body.params).toEqual({});
+  });
+
+  it("only dirty CEST knobs overlay", async () => {
+    mockApi();
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    fireEvent.change(screen.getByTestId("cest-b1-slider"), { target: { value: "3.5" } });
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    await waitFor(() => expect(fetchMock.mock.calls.some((call) => String(call[0]).includes("/experiments/run-from-recipe"))).toBe(true));
+    const runCall = fetchMock.mock.calls.find((call) => String(call[0]).includes("/experiments/run-from-recipe"));
+    expect(JSON.parse(String(runCall?.[1]?.body)).params).toEqual({ saturation_power_uT: 3.5 });
+  });
+
+  it("CW CEST hides the duty slider", () => {
+    mockApi();
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    expect(screen.getByTestId("cest-b1-slider")).toBeVisible();
+    expect(screen.getByTestId("cest-offset-span-slider")).toBeVisible();
+    expect(screen.queryByTestId("cest-duty-slider")).toBeNull();
+  });
+
+  it("CEST knobs display recipe metadata.cest, not hardcoded seeds", async () => {
+    mockApi();
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    await waitFor(() => expect(screen.getByTestId("cest-duty-value")).toHaveTextContent("0.42"));
+    expect(screen.getByTestId("cest-duty-value")).not.toHaveTextContent("0.51");
+    expect(screen.getByTestId("cest-duty-value")).not.toHaveTextContent("0.50");
+    expect(screen.getByTestId("cest-b1-value")).toHaveTextContent("2.0 µT");
+    expect(screen.getByTestId("cest-offset-span-value")).toHaveTextContent("±7 ppm");
+    expect(screen.getByTestId("cest-offset-span-value")).not.toHaveTextContent("±5 ppm");
+  });
+
+  it("CEST knobs show em dash until recipe hydrate, not hardcoded seeds", async () => {
+    let releaseRecipes: ((value: Response) => void) | undefined;
+    const recipesGate = new Promise<Response>((resolve) => { releaseRecipes = resolve; });
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(sequence);
+      if (url.includes("/experiments/run-from-recipe")) return json(result);
+      if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
+      if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 1 });
+      if (url.includes("/clinical-recipes")) return recipesGate;
+      return json({});
+    }));
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    expect(screen.getByTestId("cest-b1-value")).toHaveTextContent("—");
+    expect(screen.getByTestId("cest-offset-span-value")).toHaveTextContent("—");
+    expect(screen.queryByTestId("cest-duty-slider")).toBeNull();
+    expect(screen.getByTestId("cest-b1-slider")).toBeDisabled();
+    expect(screen.getByTestId("cest-offset-span-slider")).toBeDisabled();
+    expect(screen.getByTestId("cest-b1-slider")).not.toHaveValue("0.5");
+    expect(screen.getByTestId("cest-offset-span-slider")).not.toHaveValue("3.5");
+    expect(screen.getByTestId("cest-b1-value")).not.toHaveTextContent("2.0");
+    expect(screen.getByTestId("cest-offset-span-value")).not.toHaveTextContent("±5");
+    releaseRecipes!(json({ recipes: [
+      { id: "cest_amide_pulsed_z_spectrum", experiment: { sequence: { metadata: { cest: {
+        saturation_power_uT: 2.0, offsets_ppm: [-5, 5], offset_span_ppm: 7,
+        n_pulses: 20, pulse_duration_s: 0.05, gap_duration_s: 0.05, saturation_duration_s: 1.95, mode: "pulsed", duty_cycle: 0.42,
+      } } } } },
+    ] }));
+    await waitFor(() => expect(screen.getByTestId("cest-duty-value")).toHaveTextContent("0.42"));
+    expect(screen.getByTestId("cest-b1-value")).toHaveTextContent("2.0 µT");
+    expect(screen.getByTestId("cest-offset-span-value")).toHaveTextContent("±7 ppm");
+    expect(screen.getByTestId("cest-b1-slider")).not.toBeDisabled();
+    expect(screen.getByTestId("cest-offset-span-slider")).not.toBeDisabled();
+    expect(screen.getByTestId("cest-duty-slider")).not.toBeDisabled();
+    expect(screen.getByTestId("cest-b1-slider")).toHaveValue("2");
+    expect(screen.getByTestId("cest-offset-span-slider")).toHaveValue("7");
+    expect(screen.getByTestId("cest-duty-slider")).toHaveValue("0.42");
+  });
+
+  it("CEST duty slider follows metadata.cest.mode, not the recipe id", async () => {
+    let releaseRecipes: ((value: Response) => void) | undefined;
+    const recipesGate = new Promise<Response>((resolve) => { releaseRecipes = resolve; });
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(sequence);
+      if (url.includes("/experiments/run-from-recipe")) return json(result);
+      if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
+      if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 1 });
+      if (url.includes("/clinical-recipes")) return recipesGate;
+      return json({});
+    }));
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    expect(screen.queryByTestId("cest-duty-slider")).toBeNull();
+    expect(screen.getByTestId("spectrum-experiment-identity")).not.toHaveTextContent(/pulsed train/i);
+    expect(screen.getByTestId("spectrum-experiment-identity")).not.toHaveTextContent(/Two-liquid-pool CW/i);
+    releaseRecipes!(json({ recipes: [
+      { id: "cest_amide_pulsed_z_spectrum", experiment: { sequence: { metadata: { cest: {
+        saturation_power_uT: 2.0, offset_span_ppm: 7, mode: "pulsed", duty_cycle: 0.42,
+      } } } } },
+    ] }));
+    await waitFor(() => expect(screen.getByTestId("cest-duty-slider")).toBeVisible());
+    expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/pulsed train/i);
+    expect(screen.getByTestId("cest-duty-value")).toHaveTextContent("0.42");
+  });
+
+  it("Spectrum title follows metadata.cest.mode, not a hardcoded Amide CEST Z-spectrum", async () => {
+    mockApi();
+    const { unmount } = render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    await waitFor(() => expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/Amide CEST pulsed Z-spectrum/));
+    expect(screen.getByTestId("spectrum-experiment-identity")).not.toHaveTextContent(/Amide CEST CW Z-spectrum/);
+    unmount();
+
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    await waitFor(() => expect(screen.getByTestId("spectrum-experiment-identity")).toHaveTextContent(/Amide CEST CW Z-spectrum/));
+    expect(screen.getByTestId("spectrum-experiment-identity")).not.toHaveTextContent(/pulsed Z-spectrum/);
+  });
+
+  it("Physics Hamiltonian follows metadata.cest.mode, not a generic EPG-X CEST", async () => {
+    mockApi();
+    const { unmount } = render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_pulsed_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    await waitFor(() => expect(screen.getByTestId("physics-hamiltonian")).toHaveTextContent("EPG-X CEST pulsed"));
+    expect(screen.getByTestId("physics-hamiltonian")).not.toHaveTextContent("EPG-X CEST CW");
+    unmount();
+
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    await waitFor(() => expect(screen.getByTestId("physics-hamiltonian")).toHaveTextContent("EPG-X CEST CW"));
+    expect(screen.getByTestId("physics-hamiltonian")).not.toHaveTextContent("pulsed");
+  });
+
+  it("CEST RUN follows Spectrum identity, not a two-id recipe whitelist", async () => {
+    mockApi();
+    render(<WorkspaceProvider><PhysicsCockpit recipe="cest_amide_foo_z_spectrum" /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    await waitFor(() => expect(fetchMock.mock.calls.some((call) => String(call[0]).includes("/experiments/run-from-recipe"))).toBe(true));
+    const runCall = fetchMock.mock.calls.find((call) => String(call[0]).includes("/experiments/run-from-recipe"));
+    const body = JSON.parse(String(runCall?.[1]?.body));
+    expect(body.recipe_id).toBe("cest_amide_foo_z_spectrum");
+    expect(body.products).toEqual(["z_spectrum", "mtr_asym"]);
+    expect(body.params.te).toBeUndefined();
+    expect(body.params.flip_angle).toBeUndefined();
+    expect(body.params.echo_count).toBeUndefined();
   });
 });
