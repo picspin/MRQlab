@@ -95,9 +95,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.68.2", () => {
+  it("shows chrome v0.68.3", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.68.2");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.68.3");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
