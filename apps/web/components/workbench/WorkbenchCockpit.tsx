@@ -42,13 +42,30 @@ function SpectrumPlot({ resultGraph }: { resultGraph: ResultGraph | null }) {
   const points = x.map((value, i) => `${20 + 360 * (value - min) / span},${190 - 160 * z[i]}`).join(" ");
   const ax = (asym?.data.offset_ppm || []) as number[];
   const ay = (asym?.data.MTR_asym || []) as number[];
-  const asymPoints = ax.map((value, i) => `${20 + 360 * (value - min) / span},${110 - 80 * ay[i]}`).join(" ");
+  const asymPoints = ax.map((value, i) => `${20 + 360 * (value - min) / span},${190 - 160 * ay[i]}`).join(" ");
+  const axis = (y1: number, y2: number) => min < 0 && max > 0
+    ? <line x1={20 + 360 * (0 - min) / span} x2={20 + 360 * (0 - min) / span} y1={y1} y2={y2} stroke="#60747c" />
+    : null;
   return <figure data-testid="spectrum-plot">
-    <svg viewBox="0 0 400 220" role="img" aria-label="Backend RUN Z spectrum">
-      {min < 0 && max > 0 && <line x1={20 + 360 * (0 - min) / span} x2={20 + 360 * (0 - min) / span} y1="20" y2="195" stroke="#60747c" />}
-      <polyline points={points} fill="none" stroke="var(--cyan)" strokeWidth="3" />
-      {asymPoints && <polyline points={asymPoints} fill="none" stroke="var(--amber)" strokeWidth="2" />}
-    </svg>
+    <div data-testid="spectrum-engine-boundary" style={{ fontSize: "11px", color: "#8ba0a8", marginBottom: "6px" }}>
+      CEST · pool model + Bloch–McConnell + EPG-X · not MRS / COSY density-matrix
+    </div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+      <div data-testid="spectrum-z-panel">
+        <div style={{ fontSize: "10px", color: "var(--cyan)", fontWeight: 800, letterSpacing: "0.08em" }}>Z(Δ)</div>
+        <svg viewBox="0 0 400 220" role="img" aria-label="Backend RUN Z spectrum">
+          {axis(20, 195)}
+          <polyline points={points} fill="none" stroke="var(--cyan)" strokeWidth="3" />
+        </svg>
+      </div>
+      <div data-testid="spectrum-mtr-panel">
+        <div style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 800, letterSpacing: "0.08em" }}>MTR_asym</div>
+        <svg viewBox="0 0 400 220" role="img" aria-label="Backend RUN MTR asymmetry">
+          {axis(20, 195)}
+          {asymPoints && <polyline points={asymPoints} fill="none" stroke="var(--amber)" strokeWidth="2" />}
+        </svg>
+      </div>
+    </div>
     <figcaption>RUN backend arrays · {spectrum.provenance?.engine} · {spectrum.provenance?.assumptions?.join(" · ")} · {spectrum.data.normalization}</figcaption>
     {spectrum.data.mode && <div data-testid="spectrum-mode">{String(spectrum.data.mode)} · duty cycle {Number(spectrum.data.duty_cycle).toFixed(3)}</div>}
   </figure>;
@@ -1193,7 +1210,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.70 · amine CEST</div>
+          <div className="system-info">MRQLab v0.71 · Spectrum viewport</div>
         )}
       </section>
     </div>
