@@ -71,8 +71,9 @@ function SpectrumPlot({ resultGraph }: { resultGraph: ResultGraph | null }) {
           {axis(20, 195)}
           {asymPoints && <polyline points={asymPoints} fill="none" stroke="var(--amber)" strokeWidth="2" />}
         </svg>
+        <div data-testid="spectrum-mtr-scale" style={{ fontSize: "10px", color: "#8ba0a8" }}>±{mtrMax}</div>
         <div data-testid="spectrum-mtr-axis" style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ba0a8" }}>
-          <span>±{mtrMax}</span><span>0 ppm</span><span>{max}</span>
+          <span>{min}</span><span>0 ppm</span><span>{max}</span>
         </div>
       </div>
     </div>
@@ -1220,7 +1221,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.72 · Spectrum axes</div>
+          <div className="system-info">MRQLab v0.73 · Spectrum axes</div>
         )}
       </section>
     </div>
