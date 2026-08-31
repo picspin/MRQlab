@@ -41,4 +41,26 @@ describe("Wave F Lego constructor", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("STATUS ERROR");
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
+
+  it("labels Lego as physical G after compose opt-in, not TEACHING BLOCKS", async () => {
+    const physical = {
+      ...composed,
+      channels: composed.channels.map((channel) =>
+        channel.name === "gx" ? { ...channel, events: [{ time: 0.001, value: 20 }] } : channel,
+      ),
+      metadata: { gradient_units: "mt_m", blocks: [] },
+    };
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/compose")) return json(physical);
+      if (url.includes("/sequences/build")) return json(oldSequence);
+      if (url.includes("/cockpit/signals")) return json({ signals: {} });
+      return json({});
+    });
+    await open();
+    expect(screen.getByTestId("sequence-lego")).toHaveTextContent(/TEACHING BLOCKS/i);
+    fireEvent.click(screen.getByTestId("catalog-trap_gx"));
+    await waitFor(() => expect(screen.getByTestId("sequence-lego")).toHaveTextContent(/PHYSICAL G · mT\/m/i));
+    expect(screen.getByTestId("sequence-lego")).not.toHaveTextContent(/TEACHING BLOCKS/i);
+  });
 });

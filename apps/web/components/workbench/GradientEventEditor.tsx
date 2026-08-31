@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { GradientValidationResult, validateGradient } from "../../lib/api";
 
-export function GradientEventEditor({ channel, initialAmplitude, onApply }: { channel: "Gx" | "Gy" | "Gz"; initialAmplitude: number; onApply?: (patch: { amplitude_mt_m: number; duration_s: number; ramp_time_s: number; unit: "mT_m" }) => Promise<void> }) {
+export function GradientEventEditor({ channel, initialAmplitude, initialDurationMs, initialRampMs, physicalUnits, onApply }: { channel: "Gx" | "Gy" | "Gz"; initialAmplitude: number; initialDurationMs?: number; initialRampMs?: number; physicalUnits?: boolean; onApply?: (patch: { amplitude_mt_m: number; duration_s: number; ramp_time_s: number; unit: "mT_m" }) => Promise<void> }) {
+  const overlayTiming = initialDurationMs != null && initialRampMs != null;
   const [amplitude, setAmplitude] = useState(initialAmplitude);
-  const [duration, setDuration] = useState(1);
-  const [ramp, setRamp] = useState(0.1);
+  const [duration, setDuration] = useState(overlayTiming ? initialDurationMs : 1);
+  const [ramp, setRamp] = useState(overlayTiming ? initialRampMs : 0.1);
   const [result, setResult] = useState<GradientValidationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -43,7 +44,11 @@ export function GradientEventEditor({ channel, initialAmplitude, onApply }: { ch
         <label>Ramp (ms) <input data-testid="grad-ramp" type="number" step="0.1" value={ramp} onChange={(e) => setRamp(Number(e.target.value))} /></label>
       </div>
       <div data-testid="editor-seed-note" style={{ color: "#8ea1a8", fontSize: "10px", marginTop: "6px" }}>
-        editor seed · not SequenceIR unless loaded from overlay · timeline normalized value is not mT/m
+        {overlayTiming
+          ? "SequenceIR amplitude is mT/m · duration/ramp from overlay"
+          : physicalUnits
+            ? "SequenceIR amplitude is mT/m · duration/ramp = editor seed · not SequenceIR unless loaded from overlay"
+            : "editor seed · not SequenceIR unless loaded from overlay · timeline normalized value is not mT/m"}
       </div>
       {pending && <div data-testid="gradient-validate-pending" style={{ color: "#8ea1a8", fontSize: "10px", marginTop: "4px" }}>validating…</div>}
       {error && <div role="alert" data-testid="gradient-validate-error" style={{ color: "#fb7185" }}>{error}</div>}

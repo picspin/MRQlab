@@ -40,6 +40,14 @@ export const EXPLORE_CASES: ExploreCase[] = [
     recipeId: "cest_amide_pulsed_z_spectrum", executable: true,
   },
   {
+    id: "cest-amine", title: "Amine CEST CW Z-spectrum", anatomy: "Single voxel / water reference",
+    clinicalQuestion: "How does CW amine exchange create asymmetry in a backend-computed Z-spectrum?",
+    keyPhysics: "Two-liquid-pool CW Bloch–McConnell saturation transfer",
+    sequence: "EPG-X CEST CW offset sweep",
+    difficulty: "Advanced", category: "Spectroscopy & Exchange",
+    recipeId: "cest_amine_z_spectrum", executable: true,
+  },
+  {
     id: "mrs-1h", title: "¹H MR Spectroscopy", anatomy: "Spectral observation",
     clinicalQuestion: "Density-matrix engine unavailable", keyPhysics: "Not in v0.1",
     sequence: "Unavailable", difficulty: "Advanced",
@@ -139,7 +147,7 @@ export const RECIPE_TO_SCENARIO: Record<string, string> = Object.fromEntries(
   Object.entries(CLINICAL_SCENARIOS).map(([key, spec]) => [spec.recipeId, key])
 );
 
-export function isCestSpectrumRecipe(recipeId: string | null | undefined): boolean {
+export function isCestSpectrumRecipe(recipeId: string | null | undefined): recipeId is string {
   return Boolean(recipeId?.startsWith("cest_") && recipeId.includes("z_spectrum"));
 }
 

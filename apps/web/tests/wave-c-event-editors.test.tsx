@@ -89,9 +89,9 @@ describe("Wave C SequenceIR event editors", () => {
     expect(screen.queryByTestId("gradient-event-editor")).toBeNull();
   });
 
-  it("shows chrome v0.67.19", () => {
+  it("shows chrome v0.74.2", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.19");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.74.2");
   });
 
   it("labels gradient duration/ramp as editor seeds, not SequenceIR", async () => {
@@ -99,6 +99,66 @@ describe("Wave C SequenceIR event editors", () => {
     fireEvent.click(screen.getByTestId("event-gx-0"));
     expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/editor seed/i);
     expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/not SequenceIR/i);
+  });
+
+  it("loads physical G amplitude from SequenceIR when gradient_units is mt_m", async () => {
+    const physical = {
+      ...sequence,
+      channels: sequence.channels.map((channel) =>
+        channel.name === "gx" ? { ...channel, events: [{ time: 0.004, value: 12 }] } : channel,
+      ),
+      metadata: { gradient_units: "mt_m" },
+    };
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(physical);
+      if (url.includes("/pulse/inspect")) return json(pulse);
+      if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 12 });
+      if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
+      return json({});
+    }));
+    await renderCockpit();
+    fireEvent.click(screen.getByTestId("event-gx-0"));
+    expect(screen.getByTestId("grad-amp")).toHaveValue(12);
+    expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/SequenceIR amplitude is mT\/m/i);
+    expect(screen.getByTestId("editor-seed-note")).not.toHaveTextContent(/timeline normalized value is not mT\/m/i);
+    expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent(/Gx\/Gy\/Gz mT\/m/i);
+  });
+
+  it("labels teaching timeline as SequenceIR 5-ch, not physical mT/m", async () => {
+    await renderCockpit();
+    expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent(/SequenceIR 5-ch/i);
+    expect(screen.getByTestId("sequence-ir-timeline")).not.toHaveTextContent(/mT\/m/i);
+  });
+
+  it("hydrates G duration/ramp from event overlay, not editor seeds", async () => {
+    const overlayed = {
+      ...sequence,
+      channels: sequence.channels.map((channel) =>
+        channel.name === "gx" ? { ...channel, events: [{ time: 0.004, value: 20 }] } : channel,
+      ),
+      metadata: {
+        gradient_units: "mt_m",
+        event_overlays: {
+          "gx:0": { amplitude_mt_m: 20, duration_s: 0.002, ramp_time_s: 0.0004, unit: "mT_m" },
+        },
+      },
+    };
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(overlayed);
+      if (url.includes("/pulse/inspect")) return json(pulse);
+      if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 20 });
+      if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
+      return json({});
+    }));
+    await renderCockpit();
+    fireEvent.click(screen.getByTestId("event-gx-0"));
+    expect(screen.getByTestId("grad-amp")).toHaveValue(20);
+    expect(screen.getByTestId("grad-duration")).toHaveValue(2);
+    expect(screen.getByTestId("grad-ramp")).toHaveValue(0.4);
+    expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/duration\/ramp from overlay/i);
+    expect(screen.getByTestId("editor-seed-note")).not.toHaveTextContent(/duration\/ramp = editor seed/i);
   });
 
   it("labels pulse duration/TBW/phase as editor seeds", async () => {

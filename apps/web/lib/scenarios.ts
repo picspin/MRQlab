@@ -49,6 +49,16 @@ export const CLINICAL_SCENARIOS: Record<string, ScenarioSpec> = {
       { id: "amide", name: "Amide solute", t1: 1000, t2: 10, pd: .1, desc: "+3.5 ppm exchanging liquid" },
     ],
   },
+  cest_amine: {
+    id: "cest_amine", recipeId: "cest_amine_z_spectrum",
+    name: "Physics — Two-pool amine CEST Z-spectrum", category: "Spectroscopy", seqType: "CEST",
+    anatomy: "Single voxel", scanPlane: "VOXEL", weightingName: "Z(Δ) spectrum experiment",
+    clinicalQuestion: "How does exchanging amine saturation alter the backend-computed water Z-spectrum?",
+    tissues: [
+      { id: "water", name: "Water", t1: 1000, t2: 80, pd: .9, desc: "0 ppm reference liquid" },
+      { id: "amine", name: "Amine solute", t1: 1000, t2: 10, pd: .1, desc: "+2.0 ppm exchanging liquid" },
+    ],
+  },
   ms_brain: {
     id: "ms_brain",
     recipeId: "brain_t2_tse",

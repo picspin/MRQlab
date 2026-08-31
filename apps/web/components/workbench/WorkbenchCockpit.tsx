@@ -42,13 +42,44 @@ function SpectrumPlot({ resultGraph }: { resultGraph: ResultGraph | null }) {
   const points = x.map((value, i) => `${20 + 360 * (value - min) / span},${190 - 160 * z[i]}`).join(" ");
   const ax = (asym?.data.offset_ppm || []) as number[];
   const ay = (asym?.data.MTR_asym || []) as number[];
-  const asymPoints = ax.map((value, i) => `${20 + 360 * (value - min) / span},${110 - 80 * ay[i]}`).join(" ");
+  const mtrMax = Math.max(0.01, ...ay.map(Math.abs));
+  const aMin = ax.length ? Math.min(...ax) : min;
+  const aMax = ax.length ? Math.max(...ax) : max;
+  const aSpan = aMax - aMin || 1;
+  const asymPoints = ax.map((value, i) => `${20 + 360 * (value - aMin) / aSpan},${190 - 80 * (1 + ay[i] / mtrMax)}`).join(" ");
+  const axis = (xMin: number, xMax: number, y1: number, y2: number) => xMin < 0 && xMax > 0
+    ? <line x1={20 + 360 * (0 - xMin) / (xMax - xMin || 1)} x2={20 + 360 * (0 - xMin) / (xMax - xMin || 1)} y1={y1} y2={y2} stroke="#60747c" />
+    : null;
+  const ppmTicks = (
+    <div data-testid="spectrum-z-axis" style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ba0a8" }}>
+      <span>{min}</span><span>0 ppm</span><span>{max}</span>
+    </div>
+  );
   return <figure data-testid="spectrum-plot">
-    <svg viewBox="0 0 400 220" role="img" aria-label="Backend RUN Z spectrum">
-      {min < 0 && max > 0 && <line x1={20 + 360 * (0 - min) / span} x2={20 + 360 * (0 - min) / span} y1="20" y2="195" stroke="#60747c" />}
-      <polyline points={points} fill="none" stroke="var(--cyan)" strokeWidth="3" />
-      {asymPoints && <polyline points={asymPoints} fill="none" stroke="var(--amber)" strokeWidth="2" />}
-    </svg>
+    <div data-testid="spectrum-engine-boundary" style={{ fontSize: "11px", color: "#8ba0a8", marginBottom: "6px" }}>
+      CEST · pool model + Bloch–McConnell + EPG-X · not MRS / COSY density-matrix
+    </div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+      <div data-testid="spectrum-z-panel">
+        <div style={{ fontSize: "10px", color: "var(--cyan)", fontWeight: 800, letterSpacing: "0.08em" }}>Z(Δ)</div>
+        <svg viewBox="0 0 400 220" role="img" aria-label="Backend RUN Z spectrum">
+          {axis(min, max, 20, 195)}
+          <polyline points={points} fill="none" stroke="var(--cyan)" strokeWidth="3" />
+        </svg>
+        {ppmTicks}
+      </div>
+      <div data-testid="spectrum-mtr-panel">
+        <div style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 800, letterSpacing: "0.08em" }}>MTR_asym</div>
+        <svg viewBox="0 0 400 220" role="img" aria-label="Backend RUN MTR asymmetry">
+          {axis(aMin, aMax, 20, 195)}
+          {asymPoints && <polyline points={asymPoints} fill="none" stroke="var(--amber)" strokeWidth="2" />}
+        </svg>
+        <div data-testid="spectrum-mtr-scale" style={{ fontSize: "10px", color: "#8ba0a8" }}>±{mtrMax}</div>
+        <div data-testid="spectrum-mtr-axis" style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ba0a8" }}>
+          <span>{aMin}</span><span>ppm</span><span>{aMax}</span>
+        </div>
+      </div>
+    </div>
     <figcaption>RUN backend arrays · {spectrum.provenance?.engine} · {spectrum.provenance?.assumptions?.join(" · ")} · {spectrum.data.normalization}</figcaption>
     {spectrum.data.mode && <div data-testid="spectrum-mode">{String(spectrum.data.mode)} · duty cycle {Number(spectrum.data.duty_cycle).toFixed(3)}</div>}
   </figure>;
@@ -362,7 +393,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
           <div data-testid="spectrum-experiment-identity" style={{ marginBottom: "10px", padding: "8px", background: "#0c1114", border: "1px solid var(--amber)", borderRadius: "4px" }}>
             <div style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 800, letterSpacing: "0.08em" }}>SPECTRUM EXPERIMENT</div>
             <div style={{ fontSize: "13px", color: "#e8f4f6", fontWeight: 700, marginTop: "2px" }}>
-              {cestMode === "pulsed" ? "Amide CEST pulsed Z-spectrum" : cestMode === "cw" ? "Amide CEST CW Z-spectrum" : "Amide CEST Z-spectrum"}
+              {`${currentScenario.id === "cest_amine" ? "Amine" : "Amide"} CEST ${cestMode === "pulsed" ? "pulsed Z-spectrum" : cestMode === "cw" ? "CW Z-spectrum" : "Z-spectrum"}`}
             </div>
             <div style={{ fontSize: "11px", color: "#8ba0a8", marginTop: "4px", lineHeight: 1.4 }}>
               {cestMode === "pulsed" ? "Two-liquid-pool pulsed train" : cestMode === "cw" ? "Two-liquid-pool CW" : "Two-liquid-pool saturation"} · frequency axis · not MS plaque imaging
@@ -833,7 +864,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         </select>
                       </div>
                     )}
-                    <SequenceLego blocks={blocks} selectedId={selectedBlockId} onPlace={placeBlock} onSelect={setSelectedBlockId}
+                    <SequenceLego blocks={blocks} selectedId={selectedBlockId} physicalUnits={compiledSequence?.metadata?.gradient_units === "mt_m"} onPlace={placeBlock} onSelect={setSelectedBlockId}
                       onMove={(id, t0_s) => void compileBlocks(blocks.map((block) => block.id === id ? { ...block, t0_s } : block))}
                       onDelete={(id) => { setSelectedBlockId(undefined); void compileBlocks(blocks.filter((block) => block.id !== id)); }} />
                     {runError && <div role="alert" style={{ color: "#fb7185", padding: 6 }}>STATUS ERROR · {runError}</div>}
@@ -869,7 +900,10 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                       <GradientEventEditor
                         key={`${timelineSelection.channel}-${timelineSelection.index}`}
                         channel={timelineSelection.channel.toUpperCase().replace("X", "x").replace("Y", "y").replace("Z", "z") as "Gx" | "Gy" | "Gz"}
-                        initialAmplitude={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.amplitude_mt_m ?? 20)}
+                        initialAmplitude={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.amplitude_mt_m ?? (compiledSequence!.metadata?.gradient_units === "mt_m" ? timelineSelection.value : 20))}
+                        initialDurationMs={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.duration_s) * 1000 || undefined}
+                        initialRampMs={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.ramp_time_s) * 1000 || undefined}
+                        physicalUnits={compiledSequence!.metadata?.gradient_units === "mt_m"}
                         onApply={applyEventPatch}
                       />
                     )}
@@ -1190,7 +1224,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.67.19 · CEST knobs</div>
+          <div className="system-info">MRQLab v0.74.2 · patch end-zero</div>
         )}
       </section>
     </div>

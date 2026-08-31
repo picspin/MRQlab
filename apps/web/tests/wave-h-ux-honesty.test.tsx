@@ -95,9 +95,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.67.19", () => {
+  it("shows chrome v0.74.2", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.67.19");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.74.2");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -129,6 +129,23 @@ describe("Wave H UX honesty", () => {
     expect(await screen.findByTestId("spectrum-plot")).toBeVisible();
     expect(screen.getByTestId("spectrum-plot")).toHaveTextContent(/unsaturated_control/);
     expect(screen.getByTestId("spectrum-mode")).toHaveTextContent(/pulsed/);
+    expect(screen.getByTestId("spectrum-z-panel")).toBeVisible();
+    expect(screen.getByTestId("spectrum-z-panel")).toHaveTextContent(/Z\(Δ\)/);
+    expect(screen.getByTestId("spectrum-mtr-panel")).toBeVisible();
+    expect(screen.getByTestId("spectrum-mtr-panel")).toHaveTextContent(/MTR.?asym/i);
+    expect(screen.getByTestId("spectrum-engine-boundary")).toHaveTextContent(/CEST/);
+    expect(screen.getByTestId("spectrum-engine-boundary")).toHaveTextContent(/Bloch–McConnell|Bloch-McConnell|EPG-X/i);
+    expect(screen.getByTestId("spectrum-engine-boundary")).toHaveTextContent(/not MRS/i);
+    expect(screen.queryByTestId("spectrum-mrs-panel")).toBeNull();
+    expect(screen.getByTestId("spectrum-z-axis")).toHaveTextContent(/ppm/);
+    expect(screen.getByTestId("spectrum-z-axis")).toHaveTextContent("-5");
+    expect(screen.getByTestId("spectrum-z-axis")).toHaveTextContent("5");
+    expect(screen.getByTestId("spectrum-mtr-axis")).toHaveTextContent(/ppm/);
+    expect(screen.getByTestId("spectrum-mtr-axis")).not.toHaveTextContent(/0\.12/);
+    expect(screen.getByTestId("spectrum-mtr-axis")).toHaveTextContent("3.5");
+    expect(screen.getByTestId("spectrum-mtr-axis")).not.toHaveTextContent("-5");
+    expect(screen.getByTestId("spectrum-mtr-scale")).toHaveTextContent(/0\.12/);
+    expect(screen.getByTestId("spectrum-mtr-scale")).not.toHaveTextContent(/ppm/);
   });
 
   it("clinical spatial viewport rejects z_spectrum", async () => {

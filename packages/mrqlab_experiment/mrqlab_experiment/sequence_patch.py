@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from mrqlab_sequence import SequenceIR
+from mrqlab_sequence import Event, SequenceIR
 
 from .gradient import GradientHardwareConstraints, GradientPulseSpec, validate_gradient
 from .pulse_inspector import PulseInspectRequest
@@ -42,6 +42,7 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
     if request.event.index >= len(events):
         raise ValueError(f"unknown event {channel_name}:{request.event.index}")
 
+    gradient_patch: GradientEventPatch | None = None
     if channel_name == "rf_amp":
         patch = RfEventPatch.model_validate(request.patch)
         # Reuse the pulse inspector's established pulse constraints.
@@ -52,12 +53,13 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
             phase_deg=patch.phase_deg,
         )
     else:
-        patch = GradientEventPatch.model_validate(request.patch)
+        gradient_patch = GradientEventPatch.model_validate(request.patch)
+        patch = gradient_patch
         validation = validate_gradient(
             GradientPulseSpec(
-                amplitude_mt_m=patch.amplitude_mt_m,
-                duration_ms=patch.duration_s * 1000,
-                ramp_time_ms=patch.ramp_time_s * 1000,
+                amplitude_mt_m=gradient_patch.amplitude_mt_m,
+                duration_ms=gradient_patch.duration_s * 1000,
+                ramp_time_ms=gradient_patch.ramp_time_s * 1000,
                 channel={"gx": "Gx", "gy": "Gy", "gz": "Gz"}[channel_name],
             ),
             GradientHardwareConstraints(),
@@ -69,6 +71,22 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
     overlays = dict(result.metadata.get("event_overlays", {}))
     overlays[f"{channel_name}:{request.event.index}"] = patch.model_dump(mode="json")
     result.metadata["event_overlays"] = overlays
+    events = result.channel(channel_name)
+    start = events[request.event.index]
     if channel_name == "rf_amp":
-        result.channel(channel_name)[request.event.index].value = patch.flip_angle_deg
+        start.value = patch.flip_angle_deg
+    elif gradient_patch is not None and result.metadata.get("gradient_units") == "mt_m":
+        start.value = gradient_patch.amplitude_mt_m
+        new_stop = start.time + gradient_patch.duration_s
+        if new_stop > result.duration:
+            raise ValueError("block extends beyond requested duration")
+        nxt = request.event.index + 1
+        if nxt < len(events) and events[nxt].value == 0:
+            if nxt + 1 < len(events) and new_stop > events[nxt + 1].time:
+                raise ValueError(f"overlapping blocks on {channel_name}")
+            events[nxt].time = new_stop
+        else:
+            if nxt < len(events) and new_stop > events[nxt].time:
+                raise ValueError(f"overlapping blocks on {channel_name}")
+            events.insert(nxt, Event(time=new_stop, value=0))
     return SequenceIR.model_validate(result.model_dump())
