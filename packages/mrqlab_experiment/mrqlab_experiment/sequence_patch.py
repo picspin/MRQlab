@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from mrqlab_sequence import SequenceIR
+from mrqlab_sequence import Event, SequenceIR
 
 from .gradient import GradientHardwareConstraints, GradientPulseSpec, validate_gradient
 from .pulse_inspector import PulseInspectRequest
@@ -71,8 +71,22 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
     overlays = dict(result.metadata.get("event_overlays", {}))
     overlays[f"{channel_name}:{request.event.index}"] = patch.model_dump(mode="json")
     result.metadata["event_overlays"] = overlays
+    events = result.channel(channel_name)
+    start = events[request.event.index]
     if channel_name == "rf_amp":
-        result.channel(channel_name)[request.event.index].value = patch.flip_angle_deg
+        start.value = patch.flip_angle_deg
     elif gradient_patch is not None and result.metadata.get("gradient_units") == "mt_m":
-        result.channel(channel_name)[request.event.index].value = gradient_patch.amplitude_mt_m
+        start.value = gradient_patch.amplitude_mt_m
+        new_stop = start.time + gradient_patch.duration_s
+        if new_stop > result.duration:
+            raise ValueError("block extends beyond requested duration")
+        nxt = request.event.index + 1
+        if nxt < len(events) and events[nxt].value == 0:
+            if nxt + 1 < len(events) and new_stop > events[nxt + 1].time:
+                raise ValueError(f"overlapping blocks on {channel_name}")
+            events[nxt].time = new_stop
+        else:
+            if nxt < len(events) and new_stop > events[nxt].time:
+                raise ValueError(f"overlapping blocks on {channel_name}")
+            events.insert(nxt, Event(time=new_stop, value=0))
     return SequenceIR.model_validate(result.model_dump())
