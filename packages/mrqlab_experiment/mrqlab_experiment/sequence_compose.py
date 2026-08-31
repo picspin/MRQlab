@@ -68,7 +68,10 @@ def compose_sequence(request: ComposeSequenceRequest) -> SequenceIR:
                 channel=channel.replace("g", "G")), GradientHardwareConstraints())
             if not result.is_valid:
                 raise ValueError("; ".join(result.violations))
-            channels[channel].append(Event(time=block.t0_s, value=params.amplitude_mt_m))
+            channels[channel].extend((
+                Event(time=block.t0_s, value=params.amplitude_mt_m),
+                Event(time=block.t0_s + params.duration_s, value=0),
+            ))
         else:
             params = AdcBlockParams.model_validate(block.params)
             channel = "adc_gate"
