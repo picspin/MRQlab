@@ -95,9 +95,9 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.73", () => {
+  it("shows chrome v0.74", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.73");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.74");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
@@ -142,6 +142,8 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("spectrum-z-axis")).toHaveTextContent("5");
     expect(screen.getByTestId("spectrum-mtr-axis")).toHaveTextContent(/ppm/);
     expect(screen.getByTestId("spectrum-mtr-axis")).not.toHaveTextContent(/0\.12/);
+    expect(screen.getByTestId("spectrum-mtr-axis")).toHaveTextContent("3.5");
+    expect(screen.getByTestId("spectrum-mtr-axis")).not.toHaveTextContent("-5");
     expect(screen.getByTestId("spectrum-mtr-scale")).toHaveTextContent(/0\.12/);
     expect(screen.getByTestId("spectrum-mtr-scale")).not.toHaveTextContent(/ppm/);
   });

@@ -43,9 +43,12 @@ function SpectrumPlot({ resultGraph }: { resultGraph: ResultGraph | null }) {
   const ax = (asym?.data.offset_ppm || []) as number[];
   const ay = (asym?.data.MTR_asym || []) as number[];
   const mtrMax = Math.max(0.01, ...ay.map(Math.abs));
-  const asymPoints = ax.map((value, i) => `${20 + 360 * (value - min) / span},${190 - 80 * (1 + ay[i] / mtrMax)}`).join(" ");
-  const axis = (y1: number, y2: number) => min < 0 && max > 0
-    ? <line x1={20 + 360 * (0 - min) / span} x2={20 + 360 * (0 - min) / span} y1={y1} y2={y2} stroke="#60747c" />
+  const aMin = ax.length ? Math.min(...ax) : min;
+  const aMax = ax.length ? Math.max(...ax) : max;
+  const aSpan = aMax - aMin || 1;
+  const asymPoints = ax.map((value, i) => `${20 + 360 * (value - aMin) / aSpan},${190 - 80 * (1 + ay[i] / mtrMax)}`).join(" ");
+  const axis = (xMin: number, xMax: number, y1: number, y2: number) => xMin < 0 && xMax > 0
+    ? <line x1={20 + 360 * (0 - xMin) / (xMax - xMin || 1)} x2={20 + 360 * (0 - xMin) / (xMax - xMin || 1)} y1={y1} y2={y2} stroke="#60747c" />
     : null;
   const ppmTicks = (
     <div data-testid="spectrum-z-axis" style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ba0a8" }}>
@@ -60,7 +63,7 @@ function SpectrumPlot({ resultGraph }: { resultGraph: ResultGraph | null }) {
       <div data-testid="spectrum-z-panel">
         <div style={{ fontSize: "10px", color: "var(--cyan)", fontWeight: 800, letterSpacing: "0.08em" }}>Z(Δ)</div>
         <svg viewBox="0 0 400 220" role="img" aria-label="Backend RUN Z spectrum">
-          {axis(20, 195)}
+          {axis(min, max, 20, 195)}
           <polyline points={points} fill="none" stroke="var(--cyan)" strokeWidth="3" />
         </svg>
         {ppmTicks}
@@ -68,12 +71,12 @@ function SpectrumPlot({ resultGraph }: { resultGraph: ResultGraph | null }) {
       <div data-testid="spectrum-mtr-panel">
         <div style={{ fontSize: "10px", color: "var(--amber)", fontWeight: 800, letterSpacing: "0.08em" }}>MTR_asym</div>
         <svg viewBox="0 0 400 220" role="img" aria-label="Backend RUN MTR asymmetry">
-          {axis(20, 195)}
+          {axis(aMin, aMax, 20, 195)}
           {asymPoints && <polyline points={asymPoints} fill="none" stroke="var(--amber)" strokeWidth="2" />}
         </svg>
         <div data-testid="spectrum-mtr-scale" style={{ fontSize: "10px", color: "#8ba0a8" }}>±{mtrMax}</div>
         <div data-testid="spectrum-mtr-axis" style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#8ba0a8" }}>
-          <span>{min}</span><span>0 ppm</span><span>{max}</span>
+          <span>{aMin}</span><span>ppm</span><span>{aMax}</span>
         </div>
       </div>
     </div>
@@ -1221,7 +1224,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.73 · Spectrum axes</div>
+          <div className="system-info">MRQLab v0.74 · Spectrum axes</div>
         )}
       </section>
     </div>
