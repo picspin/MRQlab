@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { SequenceBlockKind } from "../../lib/api";
 import { SequenceIR, TEACHING_CHANNELS, ChannelName } from "../../lib/sequence-ir";
 
 const LABELS: Record<ChannelName, string> = {
@@ -22,16 +23,20 @@ const COLORS: Record<string, string> = {
   adc_gate: "#fb7185",
 };
 
+const BLOCK_KINDS = new Set<SequenceBlockKind>(["excite_sinc", "refocus_sinc", "trap_gx", "trap_gy", "trap_gz", "adc_gate"]);
+
 export function SequenceIRTimeline({
   sequence,
   cursorTimeMs,
   selectedEventKey,
   onSelectEvent,
+  onDropBlock,
 }: {
   sequence: SequenceIR;
   cursorTimeMs?: number;
   selectedEventKey?: string;
   onSelectEvent?: (channel: string, time: number, value: number, index: number) => void;
+  onDropBlock?: (kind: SequenceBlockKind, channel: ChannelName, t0_s: number) => void;
 }) {
   const durationMs = sequence.duration * 1000;
   const width = 600;
@@ -39,6 +44,33 @@ export function SequenceIRTimeline({
   const height = 16 + TEACHING_CHANNELS.length * rowH;
 
   const xOf = (tSec: number) => 48 + (tSec / Math.max(sequence.duration, 1e-9)) * (width - 60);
+  const t0FromX = (x: number) => Math.round(((x - 48) / (width - 60)) * Math.max(sequence.duration, 1e-9) * 10000) / 10000;
+
+  const readDropX = (event: React.DragEvent) => {
+    const bag = event as unknown as { offsetX?: number; clientX?: number };
+    const native = event.nativeEvent as unknown as { offsetX?: number; clientX?: number };
+    const pick = (...vals: Array<number | undefined>) => {
+      for (const value of vals) {
+        if (typeof value === "number" && Number.isFinite(value) && value !== 0) return value;
+      }
+      return 0;
+    };
+    const offsetX = pick(bag.offsetX, native.offsetX);
+    if (offsetX) return offsetX;
+    const clientX = pick(bag.clientX, event.clientX, native.clientX);
+    const svg = (event.currentTarget as Element).closest("svg");
+    const rect = svg?.getBoundingClientRect();
+    if (rect && rect.width > 0) return ((clientX - rect.left) / rect.width) * width;
+    return clientX;
+  };
+
+  const dropOnRow = (name: ChannelName, event: React.DragEvent) => {
+    event.preventDefault();
+    const raw = event.dataTransfer.getData("text/plain") as SequenceBlockKind;
+    if (!BLOCK_KINDS.has(raw)) return;
+    const t0 = Math.min(Math.max(0, t0FromX(readDropX(event))), sequence.duration);
+    onDropBlock?.(raw, name, t0);
+  };
 
   return (
     <div data-testid="sequence-ir-timeline" style={{ width: "100%", height: "100%" }}>
@@ -55,7 +87,10 @@ export function SequenceIRTimeline({
           const events = ch?.events ?? [];
           const peak = Math.max(1e-6, ...events.map((e) => Math.abs(e.value)), 1);
           return (
-            <g key={name} data-testid={`ch-${name}`}>
+            <g key={name} data-testid={`ch-${name}`}
+              onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; }}
+              onDrop={(event) => dropOnRow(name, event)}>
+              <rect x="0" y={y0 - 16} width={width} height={rowH} fill="transparent" />
               <text x="4" y={y0 + 4} fill="#8ea1a8" fontSize="9" fontFamily="monospace">
                 {LABELS[name]}
               </text>
