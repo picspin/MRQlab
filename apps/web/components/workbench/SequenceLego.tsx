@@ -24,8 +24,9 @@ export function SequenceLego({ blocks, selectedId, physicalUnits, onPlace, onMov
   return <section data-testid="sequence-lego" style={{ padding: 8, borderBottom: "1px solid #34464d" }}>
     <div style={{ fontSize: 10, color: "#8ea1a8", marginBottom: 6 }}>{physicalUnits ? "PHYSICAL G · mT/m · click to place · 0.1 ms grid" : "TEACHING BLOCKS · click to place · 0.1 ms grid"}</div>
     <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-      {CATALOG.map((item) => <button key={item.kind} data-testid={`catalog-${item.kind}`} onClick={() => onPlace(item.kind)}
-        title={`Place on ${item.channel}`}>{item.label}</button>)}
+      {CATALOG.map((item) => <button key={item.kind} data-testid={`catalog-${item.kind}`} draggable
+        onDragStart={(event) => { event.dataTransfer.setData("text/plain", item.kind); event.dataTransfer.effectAllowed = "copy"; }}
+        onClick={() => onPlace(item.kind)} title={`Place on ${item.channel}`}>{item.label}</button>)}
     </div>
     {blocks.map((block) => <div key={block.id} data-testid={`block-${block.id}`} onClick={() => onSelect(block.id)}
       style={{ marginTop: 6, padding: 4, border: selectedId === block.id ? "1px solid var(--cyan)" : "1px solid #34464d" }}>

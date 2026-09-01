@@ -135,15 +135,24 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     }
   };
 
-  const placeBlock = (kind: SequenceBlockKind) => {
+  const placeBlock = (kind: SequenceBlockKind, t0_s?: number) => {
     const id = `${kind}-${blocks.length + 1}`;
     const params: Record<string, number | string> = kind.endsWith("sinc")
       ? { duration_s: 0.001, time_bandwidth: 4, flip_angle_deg: kind === "excite_sinc" ? 90 : 180, phase_deg: 0 }
       : kind.startsWith("trap_")
         ? { amplitude_mt_m: 20, duration_s: 0.001, ramp_time_s: 0.0002, unit: "mT_m" }
         : { duration_s: 0.001 };
-    void compileBlocks([...blocks, { id, kind, t0_s: Math.round(blocks.length * 10) / 10000, params }]);
+    const t0 = t0_s != null ? Math.round(t0_s * 10000) / 10000 : Math.round(blocks.length * 10) / 10000;
+    void compileBlocks([...blocks, { id, kind, t0_s: t0, params }]);
     setSelectedBlockId(id);
+  };
+  const KIND_CHANNEL: Record<SequenceBlockKind, string> = {
+    excite_sinc: "rf_amp", refocus_sinc: "rf_amp",
+    trap_gx: "gx", trap_gy: "gy", trap_gz: "gz", adc_gate: "adc_gate",
+  };
+  const placeBlockAt = (kind: SequenceBlockKind, channel: string, t0_s: number) => {
+    if (KIND_CHANNEL[kind] !== channel) return;
+    placeBlock(kind, t0_s);
   };
   const [fov, setFov] = useState<number>(imagingDefaults?.fov ?? 0);
   const [sliceThick, setSliceThick] = useState<number>(imagingDefaults?.sliceThick ?? 0);
@@ -873,6 +882,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         sequence={compiledSequence}
                         cursorTimeMs={cursors.cursorTime}
                         selectedEventKey={timelineSelection ? `${timelineSelection.channel}-${timelineSelection.index}` : undefined}
+                        onDropBlock={placeBlockAt}
                         onSelectEvent={(channel, time, value, index) => {
                           setTimelineSelection({ channel, time, value, index });
                           setCursors({
@@ -1224,7 +1234,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.74.2 · patch end-zero</div>
+          <div className="system-info">MRQLab v0.75 · Lego drag</div>
         )}
       </section>
     </div>
