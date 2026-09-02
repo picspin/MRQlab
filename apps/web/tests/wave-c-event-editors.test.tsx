@@ -89,9 +89,9 @@ describe("Wave C SequenceIR event editors", () => {
     expect(screen.queryByTestId("gradient-event-editor")).toBeNull();
   });
 
-  it("shows chrome v0.75", () => {
+  it("shows chrome v0.76", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.75");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76");
   });
 
   it("labels gradient duration/ramp as editor seeds, not SequenceIR", async () => {
@@ -166,6 +166,36 @@ describe("Wave C SequenceIR event editors", () => {
     fireEvent.click(screen.getByTestId("event-rf_amp-0"));
     expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/editor seed/i);
     expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/not SequenceIR/i);
+  });
+
+  it("hydrates pulse duration/TBW/phase from event overlay, not editor seeds", async () => {
+    const overlayed = {
+      ...sequence,
+      channels: sequence.channels.map((channel) =>
+        channel.name === "rf_amp" ? { ...channel, events: [{ time: 0.001, value: 75 }] } : channel,
+      ),
+      metadata: {
+        event_overlays: {
+          "rf_amp:0": { duration_s: 0.003, time_bandwidth: 6, flip_angle_deg: 75, phase_deg: 30 },
+        },
+      },
+    };
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(overlayed);
+      if (url.includes("/pulse/inspect")) return json({ ...pulse, duration_ms: 3, time_bandwidth: 6, flip_angle_deg: 75, phase_deg: 30 });
+      if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 20 });
+      if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
+      return json({});
+    }));
+    await renderCockpit();
+    fireEvent.click(screen.getByTestId("event-rf_amp-0"));
+    expect(screen.getByTestId("pulse-duration")).toHaveValue(3);
+    expect(screen.getByTestId("pulse-tbw")).toHaveValue(6);
+    expect(screen.getByTestId("pulse-fa")).toHaveValue(75);
+    expect(screen.getByTestId("pulse-phase")).toHaveValue(30);
+    expect(screen.getByTestId("editor-seed-note")).toHaveTextContent(/duration\/TBW\/phase from overlay/i);
+    expect(screen.getByTestId("editor-seed-note")).not.toHaveTextContent(/duration\/TBW\/phase = editor seed/i);
   });
 
   it("fail-closes the gradient editor on validate reject", async () => {

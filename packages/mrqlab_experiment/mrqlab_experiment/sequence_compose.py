@@ -94,6 +94,13 @@ def compose_sequence(request: ComposeSequenceRequest) -> SequenceIR:
             gradient_blocks = sorted((b for b in request.blocks if b.kind == f"trap_{name}"), key=lambda b: b.t0_s)
             for index, block in enumerate(gradient_blocks):
                 overlays[f"{name}:{index}"] = GradientBlockParams.model_validate(block.params).model_dump(mode="json")
+        if name == "rf_amp":
+            rf_blocks = sorted(
+                (b for b in request.blocks if b.kind in ("excite_sinc", "refocus_sinc")),
+                key=lambda b: b.t0_s,
+            )
+            for index, block in enumerate(rf_blocks):
+                overlays[f"rf_amp:{index}"] = RfBlockParams.model_validate(block.params).model_dump(mode="json")
     metadata = {
         "blocks": [block.model_dump(mode="json") for block in request.blocks],
         "event_overlays": overlays,

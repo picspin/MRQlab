@@ -14,12 +14,13 @@ interface PulseInspectorProps {
   onApply?: (patch: { duration_s: number; time_bandwidth: number; flip_angle_deg: number; phase_deg: number }) => Promise<void>;
 }
 
-export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationMs = 2.5, timeBandwidth = 4, phaseDeg = 0, eventEditor = false, onClose, onApply }: PulseInspectorProps) {
+export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationMs, timeBandwidth, phaseDeg, eventEditor = false, onClose, onApply }: PulseInspectorProps) {
+  const overlayTiming = durationMs != null && timeBandwidth != null && phaseDeg != null;
   const [pulse, setPulse] = useState<PulseInspectAnalysis | null>(null);
-  const [duration, setDuration] = useState(durationMs);
-  const [tbw, setTbw] = useState(timeBandwidth);
+  const [duration, setDuration] = useState(overlayTiming ? durationMs : 2.5);
+  const [tbw, setTbw] = useState(overlayTiming ? timeBandwidth : 4);
   const [flipAngle, setFlipAngle] = useState(flipAngleDeg);
-  const [phase, setPhase] = useState(phaseDeg);
+  const [phase, setPhase] = useState(overlayTiming ? phaseDeg : 0);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [applying, setApplying] = useState(false);
@@ -121,7 +122,7 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
         <label>Phase (°) <input data-testid="pulse-phase" type="number" step="1" value={phase} onChange={(e) => setPhase(Number(e.target.value))} /></label>
       </div>
       <div data-testid="editor-seed-note" style={{ color: "#8ea1a8", fontSize: "10px", padding: "0 8px 6px" }}>
-        duration/TBW/phase = editor seed · not SequenceIR
+        {overlayTiming ? "duration/TBW/phase from overlay" : "duration/TBW/phase = editor seed · not SequenceIR"}
       </div>
       {pending && <div data-testid="pulse-inspect-pending" style={{ color: "#8ea1a8", fontSize: "10px", padding: "0 8px" }}>inspecting…</div>}
       {error && <div role="alert" data-testid="pulse-inspect-error" style={{ color: "#fb7185", padding: "8px" }}>{error}</div>}

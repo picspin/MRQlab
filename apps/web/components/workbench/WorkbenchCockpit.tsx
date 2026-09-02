@@ -900,8 +900,11 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                     {timelineSelection?.channel === "rf_amp" && (
                       <PulseInspector
                         key={`rf-${timelineSelection.index}`}
-                        flipAngleDeg={timelineSelection.value}
+                        flipAngleDeg={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.flip_angle_deg ?? timelineSelection.value)}
                         sliceThicknessMm={sliceThick}
+                        durationMs={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.duration_s) * 1000 || undefined}
+                        timeBandwidth={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.time_bandwidth) || undefined}
+                        phaseDeg={(compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.phase_deg as number | undefined}
                         eventEditor
                         onApply={applyEventPatch}
                       />
@@ -1234,7 +1237,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.75 · Lego drag</div>
+          <div className="system-info">MRQLab v0.76 · RF overlay</div>
         )}
       </section>
     </div>
