@@ -42,19 +42,19 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
     if request.event.index >= len(events):
         raise ValueError(f"unknown event {channel_name}:{request.event.index}")
 
+    rf_patch: RfEventPatch | None = None
     gradient_patch: GradientEventPatch | None = None
     if channel_name == "rf_amp":
-        patch = RfEventPatch.model_validate(request.patch)
-        # Reuse the pulse inspector's established pulse constraints.
+        rf_patch = RfEventPatch.model_validate(request.patch)
         PulseInspectRequest(
-            duration_ms=patch.duration_s * 1000,
-            time_bandwidth=patch.time_bandwidth,
-            flip_angle_deg=patch.flip_angle_deg,
-            phase_deg=patch.phase_deg,
+            duration_ms=rf_patch.duration_s * 1000,
+            time_bandwidth=rf_patch.time_bandwidth,
+            flip_angle_deg=rf_patch.flip_angle_deg,
+            phase_deg=rf_patch.phase_deg,
         )
+        overlay = rf_patch.model_dump(mode="json")
     else:
         gradient_patch = GradientEventPatch.model_validate(request.patch)
-        patch = gradient_patch
         validation = validate_gradient(
             GradientPulseSpec(
                 amplitude_mt_m=gradient_patch.amplitude_mt_m,
@@ -66,15 +66,33 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
         )
         if not validation.is_valid:
             raise ValueError("; ".join(validation.violations))
+        overlay = gradient_patch.model_dump(mode="json")
 
     result = request.ir.model_copy(deep=True)
     overlays = dict(result.metadata.get("event_overlays", {}))
-    overlays[f"{channel_name}:{request.event.index}"] = patch.model_dump(mode="json")
+    overlays[f"{channel_name}:{request.event.index}"] = overlay
     result.metadata["event_overlays"] = overlays
     events = result.channel(channel_name)
     start = events[request.event.index]
-    if channel_name == "rf_amp":
-        start.value = patch.flip_angle_deg
+    if rf_patch is not None:
+        start.value = rf_patch.flip_angle_deg
+        phases = result.channel("rf_phase")
+        if request.event.index >= len(phases):
+            raise ValueError("rf_phase event missing")
+        if phases[request.event.index].time != start.time:
+            raise ValueError("rf_phase event does not match rf_amp time")
+        phases[request.event.index].value = rf_patch.phase_deg
+        blocks = result.metadata.get("blocks")
+        if isinstance(blocks, list) and blocks:
+            rf_blocks = sorted(
+                (block for block in blocks if isinstance(block, dict) and block.get("kind") in ("excite_sinc", "refocus_sinc")),
+                key=lambda block: block.get("t0_s", 0),
+            )
+            if request.event.index >= len(rf_blocks):
+                raise ValueError("unknown RF block for overlay index")
+            params = dict(rf_blocks[request.event.index].get("params") or {})
+            params.update(overlay)
+            rf_blocks[request.event.index]["params"] = params
     elif gradient_patch is not None and result.metadata.get("gradient_units") == "mt_m":
         start.value = gradient_patch.amplitude_mt_m
         new_stop = start.time + gradient_patch.duration_s

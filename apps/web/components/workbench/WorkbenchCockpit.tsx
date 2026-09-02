@@ -188,6 +188,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         patch,
       });
       setCompiledSequence(next);
+      if (Array.isArray(next.metadata?.blocks)) {
+        setBlocks(next.metadata.blocks as SequenceBlock[]);
+      }
       setExecutionState?.("READY");
       setRunError(null);
     } catch (reason) {
@@ -1237,7 +1240,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76 · RF overlay</div>
+          <div className="system-info">MRQLab v0.76.1 · RF overlay</div>
         )}
       </section>
     </div>
