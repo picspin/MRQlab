@@ -5,7 +5,7 @@ import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, isSpectrumScenario, ScenarioSpec } from "../../lib/scenarios";
 import { isCestSpectrumRecipe, scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
-import { CockpitSignalAnalysis, fetchCockpitSignals, listClinicalRecipes, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
+import { CockpitSignalAnalysis, fetchCockpitSignals, listClinicalRecipes, runExperiment, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
@@ -248,7 +248,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     return () => { cancelled = true; };
   }, [isSpectrumExperiment, activeRecipeId]);
 
-  // Trigger Execution Plan (POST /experiments/run-from-recipe). Fail closed: never mint RESULT.
+  // Trigger Execution Plan. Composed Lego IR runs on the clinical recipe chassis; virgin/CEST stays recipe-based.
   const triggerRun = async () => {
     setIsComputing(true);
     setRunError(null);
@@ -270,12 +270,21 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         };
 
     try {
-      const tseProducts = ["signal", "echo_train", "configurations"];
-      const res = await runExperimentFromRecipe(activeRecipeId, params, isCestRecipe
-        ? { products: ["z_spectrum", "mtr_asym"] }
-        : currentScenario.seqType === "GRE"
-        ? { products: ["signal", "echo_train"] }
-        : { products: tseProducts, engineOptions: { return_configurations: true, epg_kmax: 8 } });
+      let res: ResultGraph;
+      if (!isCestRecipe && blocks.length > 0 && compiledSequence) {
+        if (!activeRecipeId) throw new Error("active clinical recipe is required for Lego RUN");
+        const recipes = await listClinicalRecipes();
+        const recipe = recipes.find((item) => item.id === activeRecipeId);
+        if (!recipe) throw new Error(`active clinical recipe not found: ${activeRecipeId}`);
+        res = await runExperiment({ ...recipe.experiment, sequence: compiledSequence });
+      } else {
+        const tseProducts = ["signal", "echo_train", "configurations"];
+        res = await runExperimentFromRecipe(activeRecipeId, params, isCestRecipe
+          ? { products: ["z_spectrum", "mtr_asym"] }
+          : currentScenario.seqType === "GRE"
+          ? { products: ["signal", "echo_train"] }
+          : { products: tseProducts, engineOptions: { return_configurations: true, epg_kmax: 8 } });
+      }
       setResultGraph(res);
       setExecutionState?.("RESULT");
     } catch (e) {
@@ -1243,7 +1252,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76.4 · RF/G/ADC overlay</div>
+          <div className="system-info">MRQLab v0.76.5 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>

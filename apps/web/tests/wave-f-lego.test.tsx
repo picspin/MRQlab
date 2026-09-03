@@ -33,6 +33,40 @@ describe("Wave F Lego constructor", () => {
     })).toBe(true));
   });
 
+  it("RUNs a composed Lego SequenceIR on the active clinical recipe graph", async () => {
+    const recipe = {
+      schema_version: "1.0", id: "brain_t2_tse", name: "Brain T2 TSE",
+      sequence: { template: { ref: "tse", parameters: {} } },
+      sample: { tissues: [] }, scanner: { b0_t: 3 }, engine: {}, readout: { products: ["signal"] },
+      constraints: {}, disturbances: [], provenance: {},
+    };
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(async (input: RequestInfo, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(oldSequence);
+      if (url.includes("/sequences/compose")) return json(composed);
+      if (url.includes("/cockpit/signals")) return json({ signals: {} });
+      if (url.includes("/clinical-recipes")) return json({ recipes: [{ id: "brain_t2_tse", experiment: recipe }] });
+      if (url.endsWith("/experiments/run")) {
+        const body = JSON.parse(String(init?.body));
+        expect(init?.method).toBe("POST");
+        expect(body.sequence.channels).toEqual(composed.channels);
+        expect(body.sequence.template).toBeUndefined();
+        return json({ schema_version: "1.0", experiment_id: recipe.id, observations: [] });
+      }
+      return json({}, 404);
+    });
+    await open();
+    fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url]) =>
+      String(url).includes("/sequences/compose"),
+    )).toBe(true));
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    await waitFor(() => expect(screen.getByTestId("status-rail")).toHaveTextContent("STATUS: RESULT"));
+    const urls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.map(([url]) => String(url));
+    expect(urls.some((url) => url.endsWith("/experiments/run"))).toBe(true);
+    expect(urls.some((url) => url.includes("/experiments/run-from-recipe"))).toBe(false);
+  });
+
   it("keeps previous IR when compose returns 422", async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(async (input: RequestInfo) => {
       const url = String(input); if (url.includes("/sequences/compose")) return json({ detail: "overlap" }, 422);
@@ -123,9 +157,9 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.76.4", () => {
+  it("shows chrome v0.76.5", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.4");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.5");
   });
 
   it("keeps patched RF params on the next Lego compose", async () => {
