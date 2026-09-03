@@ -94,11 +94,34 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
             params.update(overlay)
             rf_blocks[request.event.index]["params"] = params
     elif gradient_patch is not None and result.metadata.get("gradient_units") == "mt_m":
+        blocks = result.metadata.get("blocks")
+        gradient_blocks = None
+        if isinstance(blocks, list):
+            gradient_blocks = sorted(
+                (
+                    block
+                    for block in blocks
+                    if isinstance(block, dict) and block.get("kind") == f"trap_{channel_name}"
+                ),
+                key=lambda block: block.get("t0_s", 0),
+            )
+            if request.event.index >= len(gradient_blocks):
+                raise ValueError("unknown gradient block for overlay index")
+            block_start = gradient_blocks[request.event.index].get("t0_s")
+            matching_event = next(
+                ((index, event) for index, event in enumerate(events) if event.time == block_start),
+                None,
+            )
+            if matching_event is None:
+                raise ValueError("gradient block start event missing")
+            start_index, start = matching_event
+        else:
+            start_index = request.event.index
         start.value = gradient_patch.amplitude_mt_m
         new_stop = start.time + gradient_patch.duration_s
         if new_stop > result.duration:
             raise ValueError("block extends beyond requested duration")
-        nxt = request.event.index + 1
+        nxt = start_index + 1
         if nxt < len(events) and events[nxt].value == 0:
             if nxt + 1 < len(events) and new_stop > events[nxt + 1].time:
                 raise ValueError(f"overlapping blocks on {channel_name}")
@@ -107,4 +130,8 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
             if nxt < len(events) and new_stop > events[nxt].time:
                 raise ValueError(f"overlapping blocks on {channel_name}")
             events.insert(nxt, Event(time=new_stop, value=0))
+        if gradient_blocks is not None:
+            params = dict(gradient_blocks[request.event.index].get("params") or {})
+            params.update(overlay)
+            gradient_blocks[request.event.index]["params"] = params
     return SequenceIR.model_validate(result.model_dump())

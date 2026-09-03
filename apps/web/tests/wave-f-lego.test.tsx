@@ -123,9 +123,9 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.76.1", () => {
+  it("shows chrome v0.76.2", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.1");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.2");
   });
 
   it("keeps patched RF params on the next Lego compose", async () => {
@@ -201,6 +201,54 @@ describe("Wave F Lego constructor", () => {
         && body.blocks[0].params.duration_s === 0.003
         && body.blocks[0].params.time_bandwidth === 6
         && body.blocks[1].kind === "trap_gx";
+    })).toBe(true));
+  });
+
+  it("keeps patched G params on the next Lego compose", async () => {
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(async (input: RequestInfo, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/sequences/compose")) {
+        const body = JSON.parse(String(init?.body));
+        const gradients = body.blocks.filter((item: { kind: string }) => item.kind.startsWith("trap_"));
+        return json({
+          name: "Lego sequence", duration: 0.02,
+          channels: [
+            { name: "rf_amp", events: [] }, { name: "rf_phase", events: [] },
+            { name: "gx", events: gradients.map((item: { t0_s: number; params: { amplitude_mt_m: number } }) => ({ time: item.t0_s, value: item.params.amplitude_mt_m })) },
+            { name: "gy", events: [] }, { name: "gz", events: [] }, { name: "adc_gate", events: [] },
+          ],
+          metadata: { gradient_units: "mt_m", blocks: body.blocks, event_overlays: gradients.length ? { "gx:0": gradients[0].params } : {} },
+        });
+      }
+      if (url.includes("/sequences/patch")) {
+        const body = JSON.parse(String(init?.body));
+        const patchedBlocks = body.ir.metadata.blocks.map((item: { kind: string; params: Record<string, number> }) =>
+          item.kind === "trap_gx" ? { ...item, params: { ...item.params, ...body.patch } } : item,
+        );
+        return json({ ...body.ir, metadata: { ...body.ir.metadata, blocks: patchedBlocks, event_overlays: { "gx:0": body.patch } } });
+      }
+      if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 14 });
+      if (url.includes("/sequences/build")) return json(oldSequence);
+      if (url.includes("/cockpit/signals")) return json({ signals: {} });
+      return json({});
+    });
+    await open();
+    fireEvent.click(screen.getByTestId("catalog-trap_gx"));
+    await screen.findByTestId("event-gx-0");
+    fireEvent.click(screen.getByTestId("event-gx-0"));
+    fireEvent.change(screen.getByTestId("grad-amp"), { target: { value: "14" } });
+    fireEvent.change(screen.getByTestId("grad-duration"), { target: { value: "2" } });
+    fireEvent.change(screen.getByTestId("grad-ramp"), { target: { value: "0.3" } });
+    await waitFor(() => expect(screen.getByTestId("event-apply")).toBeEnabled());
+    fireEvent.click(screen.getByTestId("event-apply"));
+    await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url]) => String(url).includes("/sequences/patch"))).toBe(true));
+    fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url, init]) => {
+      if (!String(url).includes("/sequences/compose")) return false;
+      const body = JSON.parse(String(init?.body));
+      return body.blocks.length === 2 && body.blocks[0].kind === "trap_gx"
+        && body.blocks[0].params.amplitude_mt_m === 14 && body.blocks[0].params.duration_s === 0.002
+        && body.blocks[0].params.ramp_time_s === 0.0003 && body.blocks[1].kind === "excite_sinc";
     })).toBe(true));
   });
 });
