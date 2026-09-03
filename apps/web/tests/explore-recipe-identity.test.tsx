@@ -213,7 +213,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(Array.from(dropdown.options).map((option) => option.value)).not.toContain("cest_amine");
   });
 
-  it("nav chrome says v0.76.2", () => {
+  it("nav chrome says v0.76.3", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -221,6 +221,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.2");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.3");
   });
 });

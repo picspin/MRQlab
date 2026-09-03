@@ -925,7 +925,10 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                     )}
                     {timelineSelection?.channel === "adc_gate" && (
                       <div data-testid="adc-event-chip" style={{ margin: "8px", padding: "6px 10px", border: "1px solid #fb7185", fontFamily: "monospace" }}>
-                        ADC · {(timelineSelection.time * 1000).toFixed(1)} ms · value {timelineSelection.value}
+                        ADC · {(timelineSelection.time * 1000).toFixed(1)} ms · {(() => {
+                          const duration = Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`adc_gate:${timelineSelection.index}`]?.duration_s);
+                          return duration > 0 ? `${(duration * 1000).toFixed(1)} ms` : `value ${timelineSelection.value}`;
+                        })()}
                       </div>
                     )}
                   </div>
@@ -1240,7 +1243,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76.2 · RF/G overlay</div>
+          <div className="system-info">MRQLab v0.76.3 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>

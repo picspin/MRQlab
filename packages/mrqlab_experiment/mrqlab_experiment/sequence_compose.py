@@ -101,6 +101,10 @@ def compose_sequence(request: ComposeSequenceRequest) -> SequenceIR:
             )
             for index, block in enumerate(rf_blocks):
                 overlays[f"rf_amp:{index}"] = RfBlockParams.model_validate(block.params).model_dump(mode="json")
+        if name == "adc_gate":
+            adc_blocks = sorted((b for b in request.blocks if b.kind == "adc_gate"), key=lambda b: b.t0_s)
+            for index, block in enumerate(adc_blocks):
+                overlays[f"adc_gate:{index}"] = AdcBlockParams.model_validate(block.params).model_dump(mode="json")
     metadata = {
         "blocks": [block.model_dump(mode="json") for block in request.blocks],
         "event_overlays": overlays,

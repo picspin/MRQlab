@@ -89,9 +89,30 @@ describe("Wave C SequenceIR event editors", () => {
     expect(screen.queryByTestId("gradient-event-editor")).toBeNull();
   });
 
-  it("shows chrome v0.76.2", () => {
+  it("hydrates ADC duration from its overlay while staying read-only", async () => {
+    const overlayed = {
+      ...sequence,
+      metadata: { event_overlays: { "adc_gate:0": { duration_s: 0.004 } } },
+    };
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(overlayed);
+      if (url.includes("/pulse/inspect")) return json(pulse);
+      if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 20 });
+      if (url.includes("/cockpit/signals")) return json({ signals: {}, delta_signal: 0, cnr_proxy: 0, relative_sar: 0, refocus_eff: 0 });
+      return json({});
+    }));
+    await renderCockpit();
+    fireEvent.click(screen.getByTestId("event-adc_gate-0"));
+    expect(screen.getByTestId("adc-event-chip")).toHaveTextContent("ADC · 10.0 ms · 4.0 ms");
+    expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
+    expect(screen.queryByTestId("pulse-event-editor")).toBeNull();
+    expect(screen.queryByTestId("gradient-event-editor")).toBeNull();
+  });
+
+  it("shows chrome v0.76.3", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.2");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.3");
   });
 
   it("labels gradient duration/ramp as editor seeds, not SequenceIR", async () => {
