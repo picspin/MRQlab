@@ -69,11 +69,28 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
         overlay = gradient_patch.model_dump(mode="json")
 
     result = request.ir.model_copy(deep=True)
+    events = result.channel(channel_name)
+    start = events[request.event.index]
+    if rf_patch is not None:
+        new_stop = start.time + rf_patch.duration_s
+        if new_stop > result.duration:
+            raise ValueError("block extends beyond requested duration")
+        blocks = result.metadata.get("blocks")
+        rf_blocks = []
+        if isinstance(blocks, list):
+            rf_blocks = sorted(
+                (block for block in blocks if isinstance(block, dict) and block.get("kind") in ("excite_sinc", "refocus_sinc")),
+                key=lambda block: block.get("t0_s", 0),
+            )
+        if rf_blocks:
+            if any(start.time < block.get("t0_s", 0) < new_stop for block in rf_blocks):
+                raise ValueError(f"overlapping blocks on {channel_name}")
+        elif any(start.time < event.time < new_stop for event in events):
+            raise ValueError(f"overlapping blocks on {channel_name}")
+
     overlays = dict(result.metadata.get("event_overlays", {}))
     overlays[f"{channel_name}:{request.event.index}"] = overlay
     result.metadata["event_overlays"] = overlays
-    events = result.channel(channel_name)
-    start = events[request.event.index]
     if rf_patch is not None:
         start.value = rf_patch.flip_angle_deg
         phases = result.channel("rf_phase")
@@ -82,12 +99,7 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
         if phases[request.event.index].time != start.time:
             raise ValueError("rf_phase event does not match rf_amp time")
         phases[request.event.index].value = rf_patch.phase_deg
-        blocks = result.metadata.get("blocks")
         if isinstance(blocks, list) and blocks:
-            rf_blocks = sorted(
-                (block for block in blocks if isinstance(block, dict) and block.get("kind") in ("excite_sinc", "refocus_sinc")),
-                key=lambda block: block.get("t0_s", 0),
-            )
             if request.event.index >= len(rf_blocks):
                 raise ValueError("unknown RF block for overlay index")
             params = dict(rf_blocks[request.event.index].get("params") or {})

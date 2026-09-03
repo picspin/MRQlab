@@ -11,7 +11,7 @@ def block(identifier, kind, t0_s, params):
 
 
 def _compose_excite():
-    response = client.post("/sequences/compose", json={"name": "lesson", "blocks": [
+    response = client.post("/sequences/compose", json={"name": "lesson", "duration_s": 0.01, "blocks": [
         block("rf1", "excite_sinc", 0, {
             "duration_s": 0.001,
             "time_bandwidth": 4,
@@ -56,7 +56,7 @@ def test_rf_patch_writes_rf_phase_and_metadata_blocks():
 
 
 def test_rf_patch_updates_time_ordered_block_not_request_order():
-    response = client.post("/sequences/compose", json={"name": "se", "blocks": [
+    response = client.post("/sequences/compose", json={"name": "se", "duration_s": 0.01, "blocks": [
         block("rf2", "refocus_sinc", 0.004, {
             "duration_s": 0.002,
             "time_bandwidth": 4,
