@@ -33,7 +33,7 @@ describe("Wave F Lego constructor", () => {
     })).toBe(true));
   });
 
-  it("RUNs a composed Lego SequenceIR on the active clinical recipe graph", async () => {
+  it("keeps and RUNs a composed Lego SequenceIR after a recipe slider changes", async () => {
     const recipe = {
       schema_version: "1.0", id: "brain_t2_tse", name: "Brain T2 TSE",
       sequence: { template: { ref: "tse", parameters: {} } },
@@ -60,6 +60,15 @@ describe("Wave F Lego constructor", () => {
     await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url]) =>
       String(url).includes("/sequences/compose"),
     )).toBe(true));
+    const buildCount = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter(([url]) =>
+      String(url).includes("/sequences/build"),
+    ).length;
+    fireEvent.change(screen.getByTestId("physics-tr-slider"), { target: { value: "3500" } });
+    await waitFor(() => expect(screen.getByTestId("physics-tr-slider")).toHaveValue("3500"));
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter(([url]) =>
+      String(url).includes("/sequences/build"),
+    )).toHaveLength(buildCount);
+    await waitFor(() => expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "90"));
     fireEvent.click(screen.getByTestId("run-experiment-btn"));
     await waitFor(() => expect(screen.getByTestId("status-rail")).toHaveTextContent("STATUS: RESULT"));
     const urls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.map(([url]) => String(url));
@@ -157,9 +166,9 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.76.5", () => {
+  it("shows chrome v0.76.6", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.5");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.6");
   });
 
   it("keeps patched RF params on the next Lego compose", async () => {

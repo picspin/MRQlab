@@ -336,6 +336,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
       setCompiledSequence(null);
       return;
     }
+    if (blocks.length > 0) return;
     let cancelled = false;
     const params: Record<string, number> = {
       te: te / 1000.0,
@@ -356,7 +357,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     return () => {
       cancelled = true;
     };
-  }, [currentScenario.seqType, exciteFa, fa, te, tr]);
+  }, [currentScenario.seqType, exciteFa, fa, te, tr, blocks.length]);
 
   // Handle echo selection for cross-lens cursor
   const handleSelectEcho = (echoNum: number, timeMs: number) => {
@@ -1211,7 +1212,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Repetition Time (TR)</label>
               <div className="slider-row">
-                <input type="range" min={isGRE ? 15 : 1000} max={isGRE ? 500 : 5000} step={isGRE ? 5 : 500} value={tr} onChange={(e) => setTr(Number(e.target.value))} />
+                <input type="range" min={isGRE ? 15 : 1000} max={isGRE ? 500 : 5000} step={isGRE ? 5 : 500} value={tr} onChange={(e) => setTr(Number(e.target.value))} data-testid="physics-tr-slider" />
                 <span className="value-badge">{tr} ms</span>
               </div>
             </div>
@@ -1252,7 +1253,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76.5 · RF/G/ADC overlay</div>
+          <div className="system-info">MRQLab v0.76.6 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>
