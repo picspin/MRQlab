@@ -33,7 +33,7 @@ describe("Wave F Lego constructor", () => {
     })).toBe(true));
   });
 
-  it("keeps and RUNs a composed Lego SequenceIR after a recipe slider changes", async () => {
+  it("disables recipe-overlay sliders and RUNs the composed Lego SequenceIR", async () => {
     const recipe = {
       schema_version: "1.0", id: "brain_t2_tse", name: "Brain T2 TSE",
       sequence: { template: { ref: "tse", parameters: {} } },
@@ -63,8 +63,11 @@ describe("Wave F Lego constructor", () => {
     const buildCount = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter(([url]) =>
       String(url).includes("/sequences/build"),
     ).length;
-    fireEvent.change(screen.getByTestId("physics-tr-slider"), { target: { value: "3500" } });
-    await waitFor(() => expect(screen.getByTestId("physics-tr-slider")).toHaveValue("3500"));
+    expect(screen.getByTestId("physics-excite-fa-slider")).toBeDisabled();
+    expect(screen.getByTestId("physics-refocus-fa-slider")).toBeDisabled();
+    expect(screen.getByTestId("physics-te-slider")).toBeDisabled();
+    expect(screen.getByTestId("physics-tr-slider")).toBeDisabled();
+    expect(screen.getByTestId("lego-slider-seed")).toHaveTextContent(/seed/i);
     expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter(([url]) =>
       String(url).includes("/sequences/build"),
     )).toHaveLength(buildCount);
@@ -166,9 +169,9 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.76.7", () => {
+  it("shows chrome v0.76.8", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.7");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.8");
   });
 
   it("keeps patched RF params on the next Lego compose", async () => {

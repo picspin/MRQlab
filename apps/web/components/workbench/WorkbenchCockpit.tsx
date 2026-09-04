@@ -1084,6 +1084,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         ) : profile === "clinical" ? (
           /* Clinical Controls: Slice thickness, gap, count, FOV, TR/TE */
           <>
+            {blocks.length > 0 && <div data-testid="lego-slider-seed" style={{ fontSize: "10px", color: "var(--amber)", fontFamily: "monospace" }}>seed · Lego IR</div>}
             <div className="control-group">
               <label>Matrix &amp; Voxel Size</label>
               <div className="slider-row">
@@ -1145,7 +1146,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Effective TE</label>
               <div className="slider-row">
-                <input type="range" min={isGRE ? 1.5 : 30} max={isGRE ? 25 : 160} step={isGRE ? 0.5 : 10} value={te} onChange={(e) => setTe(Number(e.target.value))} />
+                <input type="range" min={isGRE ? 1.5 : 30} max={isGRE ? 25 : 160} step={isGRE ? 0.5 : 10} value={te} disabled={blocks.length > 0} onChange={(e) => setTe(Number(e.target.value))} data-testid="clinical-te-slider" />
                 <span className="value-badge">{te} ms</span>
               </div>
             </div>
@@ -1159,6 +1160,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   max={isGRE ? 500 : 5000}
                   step={isGRE ? 5 : 500}
                   value={tr}
+                  disabled={blocks.length > 0}
                   onChange={(e) => setTr(Number(e.target.value))}
                   data-testid="clinical-tr-slider"
                 />
@@ -1169,6 +1171,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         ) : (
           /* Physics Controls: excitation FA, refocus FA, TE, TR, ADC BW */
           <>
+            {blocks.length > 0 && <div data-testid="lego-slider-seed" style={{ fontSize: "10px", color: "var(--amber)", fontFamily: "monospace" }}>seed · Lego IR</div>}
             <div className="control-group">
               <label>Excitation Flip Angle</label>
               <div className="slider-row">
@@ -1178,6 +1181,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   max={isGRE ? 90 : 90}
                   step={1}
                   value={exciteFa}
+                  disabled={blocks.length > 0}
                   onChange={(e) => setExciteFa(Number(e.target.value))}
                   data-testid="physics-excite-fa-slider"
                 />
@@ -1194,6 +1198,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   max={isGRE ? 90 : 180}
                   step={isGRE ? 1 : 5}
                   value={faDeg}
+                  disabled={blocks.length > 0}
                   onChange={(e) => setFa(Number(e.target.value))}
                   data-testid="physics-refocus-fa-slider"
                 />
@@ -1204,7 +1209,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Effective TE</label>
               <div className="slider-row">
-                <input type="range" min={isGRE ? 1.5 : 30} max={isGRE ? 25 : 160} step={isGRE ? 0.5 : 10} value={te} onChange={(e) => setTe(Number(e.target.value))} />
+                <input type="range" min={isGRE ? 1.5 : 30} max={isGRE ? 25 : 160} step={isGRE ? 0.5 : 10} value={te} disabled={blocks.length > 0} onChange={(e) => setTe(Number(e.target.value))} data-testid="physics-te-slider" />
                 <span className="value-badge">{te} ms</span>
               </div>
             </div>
@@ -1212,7 +1217,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Repetition Time (TR)</label>
               <div className="slider-row">
-                <input type="range" min={isGRE ? 15 : 1000} max={isGRE ? 500 : 5000} step={isGRE ? 5 : 500} value={tr} onChange={(e) => setTr(Number(e.target.value))} data-testid="physics-tr-slider" />
+                <input type="range" min={isGRE ? 15 : 1000} max={isGRE ? 500 : 5000} step={isGRE ? 5 : 500} value={tr} disabled={blocks.length > 0} onChange={(e) => setTr(Number(e.target.value))} data-testid="physics-tr-slider" />
                 <span className="value-badge">{tr} ms</span>
               </div>
             </div>
@@ -1253,7 +1258,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76.7 · RF/G/ADC overlay</div>
+          <div className="system-info">MRQLab v0.76.8 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>
