@@ -72,9 +72,6 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
     events = result.channel(channel_name)
     start = events[request.event.index]
     if rf_patch is not None:
-        new_stop = start.time + rf_patch.duration_s
-        if new_stop > result.duration:
-            raise ValueError("block extends beyond requested duration")
         blocks = result.metadata.get("blocks")
         rf_blocks = []
         if isinstance(blocks, list):
@@ -82,6 +79,17 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
                 (block for block in blocks if isinstance(block, dict) and block.get("kind") in ("excite_sinc", "refocus_sinc")),
                 key=lambda block: block.get("t0_s", 0),
             )
+        if rf_blocks:
+            if request.event.index >= len(rf_blocks):
+                raise ValueError("unknown RF block for overlay index")
+            block_start = rf_blocks[request.event.index].get("t0_s")
+            matching_event = next((event for event in events if event.time == block_start), None)
+            if matching_event is None:
+                raise ValueError("RF block start event missing")
+            start = matching_event
+        new_stop = start.time + rf_patch.duration_s
+        if new_stop > result.duration:
+            raise ValueError("block extends beyond requested duration")
         if rf_blocks:
             if any(start.time < block.get("t0_s", 0) < new_stop for block in rf_blocks):
                 raise ValueError(f"overlapping blocks on {channel_name}")
@@ -99,9 +107,16 @@ def patch_sequence(request: SequencePatchRequest) -> SequenceIR:
         if phases[request.event.index].time != start.time:
             raise ValueError("rf_phase event does not match rf_amp time")
         phases[request.event.index].value = rf_patch.phase_deg
+        if rf_blocks:
+            old_duration = rf_blocks[request.event.index].get("params", {}).get("duration_s")
+            old_stop = start.time + old_duration if isinstance(old_duration, (int, float)) else None
+            end_zero = next(
+                (event for event in events if event.time == old_stop and event.value == 0),
+                None,
+            )
+            if end_zero is not None:
+                end_zero.time = start.time + rf_patch.duration_s
         if isinstance(blocks, list) and blocks:
-            if request.event.index >= len(rf_blocks):
-                raise ValueError("unknown RF block for overlay index")
             params = dict(rf_blocks[request.event.index].get("params") or {})
             params.update(overlay)
             rf_blocks[request.event.index]["params"] = params

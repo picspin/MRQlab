@@ -58,7 +58,10 @@ def compose_sequence(request: ComposeSequenceRequest) -> SequenceIR:
             PulseInspectRequest(duration_ms=params.duration_s * 1000, time_bandwidth=params.time_bandwidth,
                                 flip_angle_deg=params.flip_angle_deg, phase_deg=params.phase_deg)
             channel = "rf_amp"
-            channels[channel].append(Event(time=block.t0_s, value=params.flip_angle_deg))
+            channels[channel].extend((
+                Event(time=block.t0_s, value=params.flip_angle_deg),
+                Event(time=block.t0_s + params.duration_s, value=0),
+            ))
             channels["rf_phase"].append(Event(time=block.t0_s, value=params.phase_deg))
         elif block.kind.startswith("trap_"):
             params = GradientBlockParams.model_validate(block.params)

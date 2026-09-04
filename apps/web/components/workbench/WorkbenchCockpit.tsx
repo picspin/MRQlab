@@ -1253,7 +1253,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76.6 · RF/G/ADC overlay</div>
+          <div className="system-info">MRQLab v0.76.7 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>
