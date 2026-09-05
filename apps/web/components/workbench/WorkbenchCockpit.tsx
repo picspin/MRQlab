@@ -1223,7 +1223,12 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             </div>
 
             <div className="control-group">
-              <label>ADC Bandwidth</label>
+              <label>
+                ADC Bandwidth{" "}
+                <span data-testid="adc-bw-slider-seed" style={{ color: "var(--amber)", fontSize: "10px" }}>
+                  seed · not wired
+                </span>
+              </label>
               <div className="slider-row">
                 <input
                   type="range"
@@ -1258,7 +1263,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76.8 · RF/G/ADC overlay</div>
+          <div className="system-info">MRQLab v0.76.9 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>

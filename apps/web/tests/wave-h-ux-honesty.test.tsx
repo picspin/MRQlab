@@ -95,9 +95,28 @@ describe("Wave H UX honesty", () => {
     expect(screen.getByTestId("sequence-ir-timeline")).toHaveTextContent("newest");
   });
 
-  it("shows chrome v0.76.8", () => {
+  it("labels ADC bandwidth as an enabled, unwired seed and omits it from virgin RUN", async () => {
+    mockApi(); render(<WorkspaceProvider><PhysicsCockpit /></WorkspaceProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
+    const slider = screen.getByTestId("physics-adc-bw-slider");
+    expect(slider).toBeVisible();
+    expect(slider).toBeEnabled();
+    expect(screen.getByTestId("adc-bw-slider-seed")).toHaveTextContent(/seed.*not wired/i);
+    fireEvent.change(slider, { target: { value: "150000" } });
+    expect(slider).toHaveValue("150000");
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    await waitFor(() => expect(fetchMock.mock.calls.some(([url]) =>
+      String(url).includes("/experiments/run-from-recipe"),
+    )).toBe(true));
+    const runCall = fetchMock.mock.calls.find(([url]) => String(url).includes("/experiments/run-from-recipe"));
+    expect(String(runCall?.[1]?.body)).not.toMatch(/adc_bw|bandwidth_hz/);
+    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/experiments/run"))).toBe(false);
+  });
+
+  it("shows chrome v0.76.9", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.8");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.9");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {

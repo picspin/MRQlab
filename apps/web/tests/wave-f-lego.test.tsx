@@ -67,6 +67,10 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("physics-refocus-fa-slider")).toBeDisabled();
     expect(screen.getByTestId("physics-te-slider")).toBeDisabled();
     expect(screen.getByTestId("physics-tr-slider")).toBeDisabled();
+    const adcBw = screen.getByTestId("physics-adc-bw-slider");
+    expect(adcBw).toBeEnabled();
+    fireEvent.change(adcBw, { target: { value: "150000" } });
+    expect(screen.getByTestId("adc-bw-slider-seed")).toHaveTextContent(/seed.*not wired/i);
     expect(screen.getByTestId("lego-slider-seed")).toHaveTextContent(/seed/i);
     expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter(([url]) =>
       String(url).includes("/sequences/build"),
@@ -77,6 +81,11 @@ describe("Wave F Lego constructor", () => {
     const urls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.map(([url]) => String(url));
     expect(urls.some((url) => url.endsWith("/experiments/run"))).toBe(true);
     expect(urls.some((url) => url.includes("/experiments/run-from-recipe"))).toBe(false);
+    for (const [url, init] of (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls) {
+      if (/\/sequences\/(compose|patch)|\/experiments\/run$/.test(String(url))) {
+        expect(String(init?.body)).not.toMatch(/adc_bw|bandwidth_hz/);
+      }
+    }
   });
 
   it("keeps previous IR when compose returns 422", async () => {
@@ -169,9 +178,9 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.76.8", () => {
+  it("shows chrome v0.76.9", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.8");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.9");
   });
 
   it("keeps patched RF params on the next Lego compose", async () => {
