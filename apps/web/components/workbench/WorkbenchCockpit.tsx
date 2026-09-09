@@ -1090,6 +1090,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               <div className="slider-row">
                 <select
                   value={matrixSize}
+                  disabled={blocks.length > 0}
                   onChange={(e) => setMatrixSize(Number(e.target.value))}
                   style={{ background: "#111", color: "var(--cyan)", border: "1px solid #33434a", padding: "4px 8px", borderRadius: "3px", fontSize: "11px", fontWeight: 700 }}
                   data-testid="matrix-size-select"
@@ -1114,7 +1115,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Slice Thickness</label>
               <div className="slider-row">
-                <input type="range" min="1.0" max="8.0" step="0.5" value={sliceThick} onChange={(e) => setSliceThick(Number(e.target.value))} />
+                <input type="range" min="1.0" max="8.0" step="0.5" value={sliceThick} disabled={blocks.length > 0} onChange={(e) => setSliceThick(Number(e.target.value))} data-testid="clinical-slice-thickness-slider" />
                 <span className="value-badge">{sliceThick} mm</span>
               </div>
             </div>
@@ -1122,7 +1123,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Slice Gap</label>
               <div className="slider-row">
-                <input type="range" min="0.0" max="5.0" step="0.5" value={sliceGap} onChange={(e) => setSliceGap(Number(e.target.value))} />
+                <input type="range" min="0.0" max="5.0" step="0.5" value={sliceGap} disabled={blocks.length > 0} onChange={(e) => setSliceGap(Number(e.target.value))} data-testid="clinical-slice-gap-slider" />
                 <span className="value-badge">{sliceGap} mm</span>
               </div>
             </div>
@@ -1130,7 +1131,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Number of Slices</label>
               <div className="slider-row">
-                <input type="range" min="6" max="40" step="2" value={sliceCount} onChange={(e) => setSliceCount(Number(e.target.value))} />
+                <input type="range" min="6" max="40" step="2" value={sliceCount} disabled={blocks.length > 0} onChange={(e) => setSliceCount(Number(e.target.value))} data-testid="clinical-slice-count-slider" />
                 <span className="value-badge">{sliceCount}</span>
               </div>
             </div>
@@ -1138,7 +1139,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Field of View (FOV)</label>
               <div className="slider-row">
-                <input type="range" min="120" max="400" step="20" value={fov} onChange={(e) => setFov(Number(e.target.value))} />
+                <input type="range" min="120" max="400" step="20" value={fov} disabled={blocks.length > 0} onChange={(e) => setFov(Number(e.target.value))} data-testid="clinical-fov-slider" />
                 <span className="value-badge">{fov} mm</span>
               </div>
             </div>
@@ -1263,7 +1264,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76.9 · RF/G/ADC overlay</div>
+          <div className="system-info">MRQLab v0.76.10 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>

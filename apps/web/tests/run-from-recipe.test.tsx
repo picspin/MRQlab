@@ -85,12 +85,27 @@ describe("Wave A: fail-closed RUN from clinical recipe", () => {
         <WorkbenchCockpit />
       </WorkspaceProvider>
     );
+    const geometry = [
+      ["matrix-size-select", "384"],
+      ["clinical-slice-thickness-slider", "6"],
+      ["clinical-slice-gap-slider", "2"],
+      ["clinical-slice-count-slider", "30"],
+      ["clinical-fov-slider", "300"],
+    ] as const;
+    geometry.forEach(([testId, value]) => {
+      const control = screen.getByTestId(testId);
+      expect(control).toBeEnabled();
+      fireEvent.change(control, { target: { value } });
+    });
     fireEvent.click(screen.getByTestId("run-experiment-btn"));
     await waitFor(() => expect(screen.getByTestId("status-rail")).toHaveTextContent("STATUS: RESULT"));
     expect(screen.getByTestId("status-rail")).toHaveTextContent("KERNEL ENGINE: EPG");
     const urls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.map((c) => String(c[0]));
     expect(urls.some((u) => u.includes("/experiments/run-from-recipe"))).toBe(true);
     expect(urls.some((u) => /\/experiments\/run$/.test(u) || u.endsWith("/experiments/run"))).toBe(false);
+    const runCall = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.find(([url]) =>
+      String(url).includes("/experiments/run-from-recipe"));
+    expect(String(runCall?.[1]?.body)).not.toMatch(/fov|slice|matrix/i);
   });
 
   it("sets STATUS ERROR and does not mint a fake ResultGraph on 422", async () => {

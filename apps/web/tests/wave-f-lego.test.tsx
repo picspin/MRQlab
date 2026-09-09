@@ -11,7 +11,7 @@ const oldSequence = { name: "SE", duration: .02, channels: [
 const composed = { ...oldSequence, name: "Lego sequence", channels: oldSequence.channels.map((channel) =>
   channel.name === "rf_amp" ? { ...channel, events: [{ time: 0, value: 90 }] } : channel), metadata: { blocks: [] } };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
-function PhysicsCockpit() { const { setProfile } = useWorkspace(); return <><button onClick={() => setProfile("physics")}>Physics</button><WorkbenchCockpit /></>; }
+function PhysicsCockpit() { const { setProfile } = useWorkspace(); return <><button onClick={() => setProfile("physics")}>Physics</button><button onClick={() => setProfile("clinical")}>Clinical</button><WorkbenchCockpit /></>; }
 
 describe("Wave F Lego constructor", () => {
   beforeEach(() => vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
@@ -23,6 +23,42 @@ describe("Wave F Lego constructor", () => {
   })));
   afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
   async function open() { render(<WorkspaceProvider><PhysicsCockpit /></WorkspaceProvider>); fireEvent.click(screen.getByRole("button", { name: "Physics" })); await screen.findByTestId("event-rf_amp-0"); }
+
+  it("keeps virgin Clinical geometry live, then disables it for Lego without wiring payloads", async () => {
+    render(<WorkspaceProvider><PhysicsCockpit /></WorkspaceProvider>);
+    const controls = [
+      screen.getByTestId("matrix-size-select"),
+      screen.getByTestId("clinical-slice-thickness-slider"),
+      screen.getByTestId("clinical-slice-gap-slider"),
+      screen.getByTestId("clinical-slice-count-slider"),
+      screen.getByTestId("clinical-fov-slider"),
+    ];
+    controls.forEach((control) => expect(control).toBeEnabled());
+    fireEvent.change(controls[0], { target: { value: "384" } });
+    fireEvent.change(controls[1], { target: { value: "6" } });
+    fireEvent.change(controls[2], { target: { value: "2" } });
+    fireEvent.change(controls[3], { target: { value: "30" } });
+    fireEvent.change(controls[4], { target: { value: "300" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Physics" }));
+    fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    fireEvent.click(screen.getByRole("button", { name: "Clinical" }));
+    await waitFor(() => [
+      "matrix-size-select",
+      "clinical-slice-thickness-slider",
+      "clinical-slice-gap-slider",
+      "clinical-slice-count-slider",
+      "clinical-fov-slider",
+    ].forEach((testId) => expect(screen.getByTestId(testId)).toBeDisabled()));
+    expect(screen.getByTestId("lego-slider-seed")).toHaveTextContent(/seed.*Lego IR/i);
+    controls.forEach((control) => fireEvent.change(screen.getByTestId(control.getAttribute("data-testid")!), { target: { value: "128" } }));
+
+    for (const [url, init] of (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls) {
+      if (/\/sequences\/(compose|patch)|\/experiments\/run$/.test(String(url))) {
+        expect(String(init?.body)).not.toMatch(/"(?:fov|fov_mm|slice_gap|slice_count|matrix|matrix_size)"/i);
+      }
+    }
+  });
 
   it("places excite through compose with a backend block list", async () => {
     await open(); fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
@@ -178,9 +214,9 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.76.9", () => {
+  it("shows chrome v0.76.10", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.9");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.10");
   });
 
   it("keeps patched RF params on the next Lego compose", async () => {
