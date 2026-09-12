@@ -91,6 +91,7 @@ describe("Wave A: fail-closed RUN from clinical recipe", () => {
       ["clinical-slice-gap-slider", "2"],
       ["clinical-slice-count-slider", "30"],
       ["clinical-fov-slider", "300"],
+      ["clinical-acceleration-slider", "2"],
     ] as const;
     geometry.forEach(([testId, value]) => {
       const control = screen.getByTestId(testId);
@@ -105,7 +106,7 @@ describe("Wave A: fail-closed RUN from clinical recipe", () => {
     expect(urls.some((u) => /\/experiments\/run$/.test(u) || u.endsWith("/experiments/run"))).toBe(false);
     const runCall = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.find(([url]) =>
       String(url).includes("/experiments/run-from-recipe"));
-    expect(String(runCall?.[1]?.body)).not.toMatch(/fov|slice|matrix/i);
+    expect(String(runCall?.[1]?.body)).not.toMatch(/fov|slice|matrix|acceleration(?:Factor|_factor)?|readout(?:WidthFactor|_width_factor|-width)|partial(?:FourierFrac|_fourier_frac|-fourier)/i);
   });
 
   it("sets STATUS ERROR and does not mint a fake ResultGraph on 422", async () => {

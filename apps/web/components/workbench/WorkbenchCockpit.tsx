@@ -867,6 +867,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                           max="2.0"
                           step="0.1"
                           value={readoutWidthFactor}
+                          disabled={blocks.length > 0}
                           onChange={(e) => setReadoutWidthFactor(Number(e.target.value))}
                           style={{ width: "80px" }}
                           data-testid="readout-width-slider"
@@ -876,6 +877,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         <span style={{ marginLeft: "10px" }}>Partial Fourier:</span>
                         <select
                           value={partialFourierFrac}
+                          disabled={blocks.length > 0}
                           onChange={(e) => setPartialFourierFrac(Number(e.target.value))}
                           style={{ background: "#111", color: "var(--amber)", border: "1px solid var(--amber)", fontSize: "10px" }}
                           data-testid="partial-fourier-select"
@@ -1107,7 +1109,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Parallel Acceleration (R)</label>
               <div className="slider-row">
-                <input type="range" min="1" max="4" step="1" value={accelerationFactor} onChange={(e) => setAccelerationFactor(Number(e.target.value))} />
+                <input type="range" min="1" max="4" step="1" value={accelerationFactor} disabled={blocks.length > 0} onChange={(e) => setAccelerationFactor(Number(e.target.value))} data-testid="clinical-acceleration-slider" />
                 <span className="value-badge">R = {accelerationFactor}x</span>
               </div>
             </div>
@@ -1264,7 +1266,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76.10 · RF/G/ADC overlay</div>
+          <div className="system-info">MRQLab v0.76.11 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>

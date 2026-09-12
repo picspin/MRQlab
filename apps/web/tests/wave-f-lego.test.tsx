@@ -32,6 +32,7 @@ describe("Wave F Lego constructor", () => {
       screen.getByTestId("clinical-slice-gap-slider"),
       screen.getByTestId("clinical-slice-count-slider"),
       screen.getByTestId("clinical-fov-slider"),
+      screen.getByTestId("clinical-acceleration-slider"),
     ];
     controls.forEach((control) => expect(control).toBeEnabled());
     fireEvent.change(controls[0], { target: { value: "384" } });
@@ -39,9 +40,21 @@ describe("Wave F Lego constructor", () => {
     fireEvent.change(controls[2], { target: { value: "2" } });
     fireEvent.change(controls[3], { target: { value: "30" } });
     fireEvent.change(controls[4], { target: { value: "300" } });
+    fireEvent.change(controls[5], { target: { value: "2" } });
 
     fireEvent.click(screen.getByRole("button", { name: "Physics" }));
+    fireEvent.click(screen.getByTestId("edit-mode-toggle"));
+    const readoutWidth = screen.getByTestId("readout-width-slider");
+    const partialFourier = screen.getByTestId("partial-fourier-select");
+    expect(readoutWidth).toBeEnabled();
+    expect(partialFourier).toBeEnabled();
+    fireEvent.change(readoutWidth, { target: { value: "1.5" } });
+    fireEvent.change(partialFourier, { target: { value: "0.75" } });
     fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    await waitFor(() => {
+      expect(readoutWidth).toBeDisabled();
+      expect(partialFourier).toBeDisabled();
+    });
     fireEvent.click(screen.getByRole("button", { name: "Clinical" }));
     await waitFor(() => [
       "matrix-size-select",
@@ -49,13 +62,14 @@ describe("Wave F Lego constructor", () => {
       "clinical-slice-gap-slider",
       "clinical-slice-count-slider",
       "clinical-fov-slider",
+      "clinical-acceleration-slider",
     ].forEach((testId) => expect(screen.getByTestId(testId)).toBeDisabled()));
     expect(screen.getByTestId("lego-slider-seed")).toHaveTextContent(/seed.*Lego IR/i);
     controls.forEach((control) => fireEvent.change(screen.getByTestId(control.getAttribute("data-testid")!), { target: { value: "128" } }));
 
     for (const [url, init] of (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls) {
       if (/\/sequences\/(compose|patch)|\/experiments\/run$/.test(String(url))) {
-        expect(String(init?.body)).not.toMatch(/"(?:fov|fov_mm|slice_gap|slice_count|matrix|matrix_size)"/i);
+        expect(String(init?.body)).not.toMatch(/"(?:fov|fov_mm|slice_gap|slice_count|matrix|matrix_size|acceleration(?:Factor|_factor)?|readout(?:WidthFactor|_width_factor|-width)|partial(?:FourierFrac|_fourier_frac|-fourier))"/i);
       }
     }
   });
@@ -119,7 +133,7 @@ describe("Wave F Lego constructor", () => {
     expect(urls.some((url) => url.includes("/experiments/run-from-recipe"))).toBe(false);
     for (const [url, init] of (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls) {
       if (/\/sequences\/(compose|patch)|\/experiments\/run$/.test(String(url))) {
-        expect(String(init?.body)).not.toMatch(/adc_bw|bandwidth_hz/);
+        expect(String(init?.body)).not.toMatch(/adc_bw|bandwidth_hz|acceleration(?:Factor|_factor)?|readout(?:WidthFactor|_width_factor|-width)|partial(?:FourierFrac|_fourier_frac|-fourier)/i);
       }
     }
   });
@@ -214,9 +228,9 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.76.10", () => {
+  it("shows chrome v0.76.11", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.10");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.11");
   });
 
   it("keeps patched RF params on the next Lego compose", async () => {
