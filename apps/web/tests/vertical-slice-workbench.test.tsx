@@ -1,5 +1,5 @@
-import { cleanup, render, screen, fireEvent } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { WorkspaceShell } from "../components/workspace/WorkspaceShell";
 import { WorkspaceProvider, useWorkspace } from "../components/workspace/WorkspaceProvider";
 import { WorkbenchCockpit } from "../components/workbench/WorkbenchCockpit";
@@ -7,6 +7,7 @@ import { WorkbenchCockpit } from "../components/workbench/WorkbenchCockpit";
 describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Retromorphism", () => {
   afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
   });
 
   it("renders top-level taxonomy (EXPLORE, WORKBENCH, LABS, AI LAB)", () => {
@@ -61,7 +62,7 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     // Clinical Mode Default
     expect(screen.getByTestId("clinical-contrast-panel")).toBeVisible();
     expect(screen.getByText(/CLINICAL CONTRAST/i)).toBeVisible();
-    expect(screen.getByText(/MS Lesion Plaque/i)).toBeVisible();
+    expect(screen.getByText(/lesion-WM contrast/i)).toBeVisible();
   });
 
   it("supports Cross-Lens Cursor linking when clicking echo chips", () => {
@@ -88,8 +89,7 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     const dropdown = screen.getByTestId("scenario-dropdown");
     fireEvent.change(dropdown, { target: { value: "abdomen_dixon" } });
 
-    expect(screen.getByText(/Hepatic Parenchyma/i)).toBeVisible();
-    expect(screen.getByText(/Focal Hepatic Steatosis/i)).toBeVisible();
+    expect(screen.getByText(/separate fat\/water phase/i)).toBeVisible();
   });
 
   it("supports Physics Lens: operators, EPG phase space, and dedicated test phantom", async () => {
@@ -145,15 +145,25 @@ describe("Web Vertical Slice: Taxonomy, Dual Persona, Single Large Display & Ret
     expect(screen.getByTestId("inspect-g-btn")).toBeVisible();
   });
 
-  it("renders cockpit signal metrics as a backend payload slot (no local physics)", () => {
+  it("renders cockpit signal metrics after the virgin backend payload arrives (no local physics)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/cockpit/signals")) return new Response(JSON.stringify({
+        signals: {}, delta_signal: 0.2, cnr_proxy: 1.5, relative_sar: 2, refocus_eff: 0.8,
+      }));
+      return new Response(JSON.stringify({}));
+    }));
     render(
       <WorkspaceProvider>
         <WorkbenchCockpit />
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("cockpit-signal-metrics")).toBeVisible();
+    await waitFor(() => expect(screen.getByTestId("cockpit-signal-metrics")).toBeVisible());
     expect(screen.getByTestId("cockpit-delta-signal")).toBeVisible();
     expect(screen.getByTestId("cockpit-cnr-proxy")).toBeVisible();
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url]) =>
+      String(url).includes("/cockpit/signals"),
+    )).toBe(true);
   });
 
   it("executes experiment with real ResultGraph backend dispatch on RUN", () => {

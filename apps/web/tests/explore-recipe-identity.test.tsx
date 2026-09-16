@@ -137,7 +137,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     );
     const dropdown = screen.getByTestId("scenario-dropdown") as HTMLSelectElement;
     expect(dropdown.value).toBe("abdomen_dixon");
-    expect(screen.getByText(/Hepatic Parenchyma/i)).toBeVisible();
+    expect(screen.getByText(/separate fat\/water phase/i)).toBeVisible();
   });
 
   it("workbench deep-links the CEST recipe without putting it in the clinical dropdown", () => {
@@ -213,7 +213,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(Array.from(dropdown.options).map((option) => option.value)).not.toContain("cest_amine");
   });
 
-  it("nav chrome says v0.76.11", () => {
+  it("nav chrome says v0.76.12", () => {
     render(
       <WorkspaceProvider>
         <WorkspaceShell>
@@ -221,6 +221,6 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
         </WorkspaceShell>
       </WorkspaceProvider>
     );
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.11");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.12");
   });
 });

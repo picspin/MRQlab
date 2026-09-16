@@ -14,7 +14,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
       <nav aria-label="Top Level Taxonomy" className="top-nav">
         <div className="nav-brand">
           <Link href="/">MRQLAB</Link>
-          <span className="version-tag" data-testid="version-tag">v0.76.11</span>
+          <span className="version-tag" data-testid="version-tag">v0.76.12</span>
         </div>
 
         <div className="nav-routes">

@@ -83,6 +83,22 @@ describe("Wave F Lego constructor", () => {
     })).toBe(true));
   });
 
+  it("stops virgin signal analysis and hides recipe metrics while Lego blocks are active", async () => {
+    await open();
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    fireEvent.click(screen.getByRole("button", { name: "Clinical" }));
+    await waitFor(() => expect(screen.getByTestId("cockpit-delta-signal")).toBeVisible());
+    const virginSignalCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/cockpit/signals")).length;
+    expect(virginSignalCalls).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "Physics" }));
+    fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    await waitFor(() => expect(screen.queryByTestId("cockpit-delta-signal")).toBeNull());
+    expect(screen.queryByTestId("cockpit-cnr-proxy")).toBeNull();
+    await Promise.resolve();
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).includes("/cockpit/signals"))).toHaveLength(virginSignalCalls);
+  });
+
   it("disables recipe-overlay sliders and RUNs the composed Lego SequenceIR", async () => {
     const recipe = {
       schema_version: "1.0", id: "brain_t2_tse", name: "Brain T2 TSE",
@@ -228,9 +244,9 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.76.11", () => {
+  it("shows chrome v0.76.12", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.11");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.12");
   });
 
   it("keeps patched RF params on the next Lego compose", async () => {

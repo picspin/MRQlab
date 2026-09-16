@@ -299,7 +299,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
 
   useEffect(() => {
     const seqType = currentScenario.seqType;
-    if (isSpectrumExperiment || seqType === "CEST") {
+    if (blocks.length > 0 || isSpectrumExperiment || seqType === "CEST") {
       setCockpitSignals(null);
       return;
     }
@@ -328,7 +328,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     return () => {
       cancelled = true;
     };
-  }, [selectedScenarioKey, fa, te, tr, currentScenario]);
+  }, [selectedScenarioKey, fa, te, tr, currentScenario, blocks.length]);
 
   useEffect(() => {
     const template = currentScenario.seqType;
@@ -536,7 +536,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             </div>
 
             {/* Tissue Intensity Table */}
-            <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+            {blocks.length === 0 && cockpitSignals && <div style={{ maxHeight: "200px", overflowY: "auto" }}>
               {tissueIntensities.map((t) => {
                 const gray = Math.round(t.intensity * 255);
                 return (
@@ -552,9 +552,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   </div>
                 );
               })}
-            </div>
+            </div>}
 
-            <div className="metrics-box" style={{ marginTop: "12px" }} data-testid="cockpit-signal-metrics">
+            {blocks.length === 0 && cockpitSignals && <div className="metrics-box" style={{ marginTop: "12px" }} data-testid="cockpit-signal-metrics">
               <div className="metric">
                 <label>ΔSignal (Contrast)</label>
                 <span data-testid="cockpit-delta-signal">{deltaSignal.toFixed(3)}</span>
@@ -563,7 +563,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 <label>CNR Proxy Margin</label>
                 <span data-testid="cockpit-cnr-proxy">{cnrProxy.toFixed(1)}</span>
               </div>
-            </div>
+            </div>}
           </div>
         ) : (
           /* PHYSICS LENS: Operator Evolution & Phase Space */
@@ -743,18 +743,18 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 </>
               ) : (
                 <>
-                  <div>
+                  {blocks.length === 0 && cockpitSignals && <div>
                     <label>RF Energy ∫B1²dt</label>
                     <span>{relativeSar.toFixed(1)} a.u.</span>
-                  </div>
+                  </div>}
                   <div>
                     <label>Coherence Order k</label>
                     <span>{isGRE ? "GRE Steady State" : "EPG k=16"}</span>
                   </div>
-                  <div>
+                  {blocks.length === 0 && cockpitSignals && <div>
                     <label>Refocusing Eff</label>
                     <span>{(refocusEff * 100).toFixed(1)}%</span>
-                  </div>
+                  </div>}
                 </>
               )}
             </div>
@@ -1266,7 +1266,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76.11 · RF/G/ADC overlay</div>
+          <div className="system-info">MRQLab v0.76.12 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>
