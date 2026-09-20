@@ -100,4 +100,18 @@ describe("Wave B/D: remaining review gaps", () => {
     rerender(<SequenceIRTimeline sequence={{ name: "teaching trap", duration: 0.1, channels }} />);
     expect(screen.getByTestId("event-gx-0")).toHaveAttribute("width", "4");
   });
+
+  it("renders composed RF amplitude as a stepwise hold for its declared duration", () => {
+    const channels: SequenceIR["channels"] = [
+      { name: "rf_amp", events: [{ time: 0.02, value: 90 }, { time: 0.04, value: 0 }] },
+      { name: "gx", events: [] },
+      { name: "gy", events: [] },
+      { name: "gz", events: [] },
+      { name: "adc_gate", events: [] },
+    ];
+    render(<SequenceIRTimeline sequence={{ name: "composed RF", duration: 0.1, channels }} />);
+
+    expect(Number(screen.getByTestId("event-rf_amp-0").getAttribute("width"))).toBeCloseTo(108);
+    expect(screen.getByTestId("event-rf_amp-1")).toHaveAttribute("opacity", "0");
+  });
 });

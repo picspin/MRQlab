@@ -103,17 +103,18 @@ export function SequenceIRTimeline({
                 const h = (Math.abs(ev.value) / peak) * 14;
                 const y = ev.value >= 0 ? y0 - h : y0;
                 const isPhysicalGradient = physicalGradients && (name === "gx" || name === "gy" || name === "gz");
+                const isStepwiseHold = name === "rf_amp" || isPhysicalGradient;
                 const holdEnd = events[i + 1]?.time ?? sequence.duration;
                 const holdWidth = Math.max(0, xOf(holdEnd) - x);
-                const omitZeroHold = isPhysicalGradient && ev.value === 0;
+                const omitZeroHold = isStepwiseHold && ev.value === 0;
                 return (
                   <rect
                     key={`${name}-${i}`}
                     data-testid={`event-${eventKey}`}
                     data-value={ev.value}
-                    x={isPhysicalGradient && !omitZeroHold ? x : x - 2}
+                    x={isStepwiseHold && !omitZeroHold ? x : x - 2}
                     y={name === "adc_gate" ? y0 - 8 : omitZeroHold ? y0 - 8 : y}
-                    width={name === "adc_gate" ? 8 : isPhysicalGradient && !omitZeroHold ? holdWidth : 4}
+                    width={name === "adc_gate" ? 8 : isStepwiseHold && !omitZeroHold ? holdWidth : 4}
                     height={name === "adc_gate" ? 16 : omitZeroHold ? 16 : Math.max(2, h)}
                     fill={COLORS[name] ?? "var(--cyan)"}
                     opacity={omitZeroHold ? 0 : selected ? 1 : 0.9}
