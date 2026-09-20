@@ -244,9 +244,9 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.76.12", () => {
+  it("shows chrome v0.76.13", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.12");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.13");
   });
 
   it("keeps patched RF params on the next Lego compose", async () => {

@@ -42,6 +42,7 @@ export function SequenceIRTimeline({
   const width = 600;
   const rowH = 36;
   const height = 16 + TEACHING_CHANNELS.length * rowH;
+  const physicalGradients = sequence.metadata?.gradient_units === "mt_m";
 
   const xOf = (tSec: number) => 48 + (tSec / Math.max(sequence.duration, 1e-9)) * (width - 60);
   const t0FromX = (x: number) => Math.round(((x - 48) / (width - 60)) * Math.max(sequence.duration, 1e-9) * 10000) / 10000;
@@ -101,17 +102,21 @@ export function SequenceIRTimeline({
                 const x = xOf(ev.time);
                 const h = (Math.abs(ev.value) / peak) * 14;
                 const y = ev.value >= 0 ? y0 - h : y0;
+                const isPhysicalGradient = physicalGradients && (name === "gx" || name === "gy" || name === "gz");
+                const holdEnd = events[i + 1]?.time ?? sequence.duration;
+                const holdWidth = Math.max(0, xOf(holdEnd) - x);
+                const omitZeroHold = isPhysicalGradient && ev.value === 0;
                 return (
                   <rect
                     key={`${name}-${i}`}
                     data-testid={`event-${eventKey}`}
                     data-value={ev.value}
-                    x={x - 2}
-                    y={name === "adc_gate" ? y0 - 8 : y}
-                    width={name === "adc_gate" ? 8 : 4}
-                    height={name === "adc_gate" ? 16 : Math.max(2, h)}
+                    x={isPhysicalGradient && !omitZeroHold ? x : x - 2}
+                    y={name === "adc_gate" ? y0 - 8 : omitZeroHold ? y0 - 8 : y}
+                    width={name === "adc_gate" ? 8 : isPhysicalGradient && !omitZeroHold ? holdWidth : 4}
+                    height={name === "adc_gate" ? 16 : omitZeroHold ? 16 : Math.max(2, h)}
                     fill={COLORS[name] ?? "var(--cyan)"}
-                    opacity={selected ? 1 : 0.9}
+                    opacity={omitZeroHold ? 0 : selected ? 1 : 0.9}
                     stroke={selected ? "#fff" : "none"}
                     strokeWidth={selected ? 2 : 0}
                     style={{ cursor: "pointer" }}
