@@ -1,3 +1,5 @@
+import type { SequenceIR } from "./sequence-ir";
+
 export type WorkspaceProfile = "clinical" | "physics" | "technical";
 
 export type TopLevelRoute = "explore" | "workbench" | "labs" | "ai_lab";
@@ -46,7 +48,7 @@ export interface ExperimentGraph {
   intent?: "teaching" | "clinical_contrast" | "physics" | "custom";
   nodes?: Array<{ id: string; kind: string; label: string; parameters: Record<string, unknown> }>;
   edges?: Array<{ source: string; target: string; kind: string }>;
-  sequence: {
+  sequence: SequenceIR | {
     template: {
       ref: string;
       parameters: Record<string, any>;

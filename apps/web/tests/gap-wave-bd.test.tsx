@@ -78,4 +78,40 @@ describe("Wave B/D: remaining review gaps", () => {
     expect(screen.getByTestId("timeline-duration")).toHaveTextContent("120.0 ms");
     expect(screen.queryByText(/16-stick/i)).toBeNull();
   });
+
+  it("renders physical gradients as stepwise holds while teaching gradients stay ticks", () => {
+    const channels: SequenceIR["channels"] = [
+      { name: "rf_amp", events: [] },
+      { name: "gx", events: [{ time: 0.02, value: 20 }, { time: 0.05, value: 0 }] },
+      { name: "gy", events: [] },
+      { name: "gz", events: [] },
+      { name: "adc_gate", events: [] },
+    ];
+    const { rerender } = render(
+      <SequenceIRTimeline
+        sequence={{ name: "physical trap", duration: 0.1, metadata: { gradient_units: "mt_m" }, channels }}
+      />,
+    );
+
+    const physicalHold = screen.getByTestId("event-gx-0");
+    expect(Number(physicalHold.getAttribute("width"))).toBeCloseTo(162);
+    expect(screen.getByTestId("event-gx-1")).toHaveAttribute("opacity", "0");
+
+    rerender(<SequenceIRTimeline sequence={{ name: "teaching trap", duration: 0.1, channels }} />);
+    expect(screen.getByTestId("event-gx-0")).toHaveAttribute("width", "4");
+  });
+
+  it("renders composed RF amplitude as a stepwise hold for its declared duration", () => {
+    const channels: SequenceIR["channels"] = [
+      { name: "rf_amp", events: [{ time: 0.02, value: 90 }, { time: 0.04, value: 0 }] },
+      { name: "gx", events: [] },
+      { name: "gy", events: [] },
+      { name: "gz", events: [] },
+      { name: "adc_gate", events: [] },
+    ];
+    render(<SequenceIRTimeline sequence={{ name: "composed RF", duration: 0.1, channels }} />);
+
+    expect(Number(screen.getByTestId("event-rf_amp-0").getAttribute("width"))).toBeCloseTo(108);
+    expect(screen.getByTestId("event-rf_amp-1")).toHaveAttribute("opacity", "0");
+  });
 });

@@ -5,7 +5,7 @@ import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, isSpectrumScenario, ScenarioSpec } from "../../lib/scenarios";
 import { isCestSpectrumRecipe, scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
-import { CockpitSignalAnalysis, fetchCockpitSignals, listClinicalRecipes, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
+import { CockpitSignalAnalysis, fetchCockpitSignals, listClinicalRecipes, runExperiment, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
 import { CompareLensView } from "./CompareLensView";
@@ -188,6 +188,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         patch,
       });
       setCompiledSequence(next);
+      if (Array.isArray(next.metadata?.blocks)) {
+        setBlocks(next.metadata.blocks as SequenceBlock[]);
+      }
       setExecutionState?.("READY");
       setRunError(null);
     } catch (reason) {
@@ -245,7 +248,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     return () => { cancelled = true; };
   }, [isSpectrumExperiment, activeRecipeId]);
 
-  // Trigger Execution Plan (POST /experiments/run-from-recipe). Fail closed: never mint RESULT.
+  // Trigger Execution Plan. Composed Lego IR runs on the clinical recipe chassis; virgin/CEST stays recipe-based.
   const triggerRun = async () => {
     setIsComputing(true);
     setRunError(null);
@@ -267,12 +270,21 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         };
 
     try {
-      const tseProducts = ["signal", "echo_train", "configurations"];
-      const res = await runExperimentFromRecipe(activeRecipeId, params, isCestRecipe
-        ? { products: ["z_spectrum", "mtr_asym"] }
-        : currentScenario.seqType === "GRE"
-        ? { products: ["signal", "echo_train"] }
-        : { products: tseProducts, engineOptions: { return_configurations: true, epg_kmax: 8 } });
+      let res: ResultGraph;
+      if (!isCestRecipe && blocks.length > 0 && compiledSequence) {
+        if (!activeRecipeId) throw new Error("active clinical recipe is required for Lego RUN");
+        const recipes = await listClinicalRecipes();
+        const recipe = recipes.find((item) => item.id === activeRecipeId);
+        if (!recipe) throw new Error(`active clinical recipe not found: ${activeRecipeId}`);
+        res = await runExperiment({ ...recipe.experiment, sequence: compiledSequence });
+      } else {
+        const tseProducts = ["signal", "echo_train", "configurations"];
+        res = await runExperimentFromRecipe(activeRecipeId, params, isCestRecipe
+          ? { products: ["z_spectrum", "mtr_asym"] }
+          : currentScenario.seqType === "GRE"
+          ? { products: ["signal", "echo_train"] }
+          : { products: tseProducts, engineOptions: { return_configurations: true, epg_kmax: 8 } });
+      }
       setResultGraph(res);
       setExecutionState?.("RESULT");
     } catch (e) {
@@ -287,7 +299,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
 
   useEffect(() => {
     const seqType = currentScenario.seqType;
-    if (isSpectrumExperiment || seqType === "CEST") {
+    if (blocks.length > 0 || isSpectrumExperiment || seqType === "CEST") {
       setCockpitSignals(null);
       return;
     }
@@ -316,7 +328,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     return () => {
       cancelled = true;
     };
-  }, [selectedScenarioKey, fa, te, tr, currentScenario]);
+  }, [selectedScenarioKey, fa, te, tr, currentScenario, blocks.length]);
 
   useEffect(() => {
     const template = currentScenario.seqType;
@@ -324,6 +336,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
       setCompiledSequence(null);
       return;
     }
+    if (blocks.length > 0) return;
     let cancelled = false;
     const params: Record<string, number> = {
       te: te / 1000.0,
@@ -344,7 +357,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
     return () => {
       cancelled = true;
     };
-  }, [currentScenario.seqType, exciteFa, fa, te, tr]);
+  }, [currentScenario.seqType, exciteFa, fa, te, tr, blocks.length]);
 
   // Handle echo selection for cross-lens cursor
   const handleSelectEcho = (echoNum: number, timeMs: number) => {
@@ -523,7 +536,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             </div>
 
             {/* Tissue Intensity Table */}
-            <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+            {blocks.length === 0 && cockpitSignals && <div style={{ maxHeight: "200px", overflowY: "auto" }}>
               {tissueIntensities.map((t) => {
                 const gray = Math.round(t.intensity * 255);
                 return (
@@ -539,9 +552,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   </div>
                 );
               })}
-            </div>
+            </div>}
 
-            <div className="metrics-box" style={{ marginTop: "12px" }} data-testid="cockpit-signal-metrics">
+            {blocks.length === 0 && cockpitSignals && <div className="metrics-box" style={{ marginTop: "12px" }} data-testid="cockpit-signal-metrics">
               <div className="metric">
                 <label>ΔSignal (Contrast)</label>
                 <span data-testid="cockpit-delta-signal">{deltaSignal.toFixed(3)}</span>
@@ -550,7 +563,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 <label>CNR Proxy Margin</label>
                 <span data-testid="cockpit-cnr-proxy">{cnrProxy.toFixed(1)}</span>
               </div>
-            </div>
+            </div>}
           </div>
         ) : (
           /* PHYSICS LENS: Operator Evolution & Phase Space */
@@ -730,18 +743,18 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 </>
               ) : (
                 <>
-                  <div>
+                  {blocks.length === 0 && cockpitSignals && <div>
                     <label>RF Energy ∫B1²dt</label>
                     <span>{relativeSar.toFixed(1)} a.u.</span>
-                  </div>
+                  </div>}
                   <div>
                     <label>Coherence Order k</label>
                     <span>{isGRE ? "GRE Steady State" : "EPG k=16"}</span>
                   </div>
-                  <div>
+                  {blocks.length === 0 && cockpitSignals && <div>
                     <label>Refocusing Eff</label>
                     <span>{(refocusEff * 100).toFixed(1)}%</span>
-                  </div>
+                  </div>}
                 </>
               )}
             </div>
@@ -854,6 +867,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                           max="2.0"
                           step="0.1"
                           value={readoutWidthFactor}
+                          disabled={blocks.length > 0}
                           onChange={(e) => setReadoutWidthFactor(Number(e.target.value))}
                           style={{ width: "80px" }}
                           data-testid="readout-width-slider"
@@ -863,6 +877,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         <span style={{ marginLeft: "10px" }}>Partial Fourier:</span>
                         <select
                           value={partialFourierFrac}
+                          disabled={blocks.length > 0}
                           onChange={(e) => setPartialFourierFrac(Number(e.target.value))}
                           style={{ background: "#111", color: "var(--amber)", border: "1px solid var(--amber)", fontSize: "10px" }}
                           data-testid="partial-fourier-select"
@@ -900,8 +915,11 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                     {timelineSelection?.channel === "rf_amp" && (
                       <PulseInspector
                         key={`rf-${timelineSelection.index}`}
-                        flipAngleDeg={timelineSelection.value}
+                        flipAngleDeg={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.flip_angle_deg ?? timelineSelection.value)}
                         sliceThicknessMm={sliceThick}
+                        durationMs={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.duration_s) * 1000 || undefined}
+                        timeBandwidth={Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.time_bandwidth) || undefined}
+                        phaseDeg={(compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`${timelineSelection.channel}:${timelineSelection.index}`]?.phase_deg as number | undefined}
                         eventEditor
                         onApply={applyEventPatch}
                       />
@@ -919,7 +937,10 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                     )}
                     {timelineSelection?.channel === "adc_gate" && (
                       <div data-testid="adc-event-chip" style={{ margin: "8px", padding: "6px 10px", border: "1px solid #fb7185", fontFamily: "monospace" }}>
-                        ADC · {(timelineSelection.time * 1000).toFixed(1)} ms · value {timelineSelection.value}
+                        ADC · {(timelineSelection.time * 1000).toFixed(1)} ms · {(() => {
+                          const duration = Number((compiledSequence!.metadata?.event_overlays as Record<string, Record<string, unknown>> | undefined)?.[`adc_gate:${timelineSelection.index}`]?.duration_s);
+                          return duration > 0 ? `${(duration * 1000).toFixed(1)} ms` : `value ${timelineSelection.value}`;
+                        })()}
                       </div>
                     )}
                   </div>
@@ -1065,11 +1086,13 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         ) : profile === "clinical" ? (
           /* Clinical Controls: Slice thickness, gap, count, FOV, TR/TE */
           <>
+            {blocks.length > 0 && <div data-testid="lego-slider-seed" style={{ fontSize: "10px", color: "var(--amber)", fontFamily: "monospace" }}>seed · Lego IR</div>}
             <div className="control-group">
               <label>Matrix &amp; Voxel Size</label>
               <div className="slider-row">
                 <select
                   value={matrixSize}
+                  disabled={blocks.length > 0}
                   onChange={(e) => setMatrixSize(Number(e.target.value))}
                   style={{ background: "#111", color: "var(--cyan)", border: "1px solid #33434a", padding: "4px 8px", borderRadius: "3px", fontSize: "11px", fontWeight: 700 }}
                   data-testid="matrix-size-select"
@@ -1086,7 +1109,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Parallel Acceleration (R)</label>
               <div className="slider-row">
-                <input type="range" min="1" max="4" step="1" value={accelerationFactor} onChange={(e) => setAccelerationFactor(Number(e.target.value))} />
+                <input type="range" min="1" max="4" step="1" value={accelerationFactor} disabled={blocks.length > 0} onChange={(e) => setAccelerationFactor(Number(e.target.value))} data-testid="clinical-acceleration-slider" />
                 <span className="value-badge">R = {accelerationFactor}x</span>
               </div>
             </div>
@@ -1094,7 +1117,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Slice Thickness</label>
               <div className="slider-row">
-                <input type="range" min="1.0" max="8.0" step="0.5" value={sliceThick} onChange={(e) => setSliceThick(Number(e.target.value))} />
+                <input type="range" min="1.0" max="8.0" step="0.5" value={sliceThick} disabled={blocks.length > 0} onChange={(e) => setSliceThick(Number(e.target.value))} data-testid="clinical-slice-thickness-slider" />
                 <span className="value-badge">{sliceThick} mm</span>
               </div>
             </div>
@@ -1102,7 +1125,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Slice Gap</label>
               <div className="slider-row">
-                <input type="range" min="0.0" max="5.0" step="0.5" value={sliceGap} onChange={(e) => setSliceGap(Number(e.target.value))} />
+                <input type="range" min="0.0" max="5.0" step="0.5" value={sliceGap} disabled={blocks.length > 0} onChange={(e) => setSliceGap(Number(e.target.value))} data-testid="clinical-slice-gap-slider" />
                 <span className="value-badge">{sliceGap} mm</span>
               </div>
             </div>
@@ -1110,7 +1133,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Number of Slices</label>
               <div className="slider-row">
-                <input type="range" min="6" max="40" step="2" value={sliceCount} onChange={(e) => setSliceCount(Number(e.target.value))} />
+                <input type="range" min="6" max="40" step="2" value={sliceCount} disabled={blocks.length > 0} onChange={(e) => setSliceCount(Number(e.target.value))} data-testid="clinical-slice-count-slider" />
                 <span className="value-badge">{sliceCount}</span>
               </div>
             </div>
@@ -1118,7 +1141,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Field of View (FOV)</label>
               <div className="slider-row">
-                <input type="range" min="120" max="400" step="20" value={fov} onChange={(e) => setFov(Number(e.target.value))} />
+                <input type="range" min="120" max="400" step="20" value={fov} disabled={blocks.length > 0} onChange={(e) => setFov(Number(e.target.value))} data-testid="clinical-fov-slider" />
                 <span className="value-badge">{fov} mm</span>
               </div>
             </div>
@@ -1126,7 +1149,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Effective TE</label>
               <div className="slider-row">
-                <input type="range" min={isGRE ? 1.5 : 30} max={isGRE ? 25 : 160} step={isGRE ? 0.5 : 10} value={te} onChange={(e) => setTe(Number(e.target.value))} />
+                <input type="range" min={isGRE ? 1.5 : 30} max={isGRE ? 25 : 160} step={isGRE ? 0.5 : 10} value={te} disabled={blocks.length > 0} onChange={(e) => setTe(Number(e.target.value))} data-testid="clinical-te-slider" />
                 <span className="value-badge">{te} ms</span>
               </div>
             </div>
@@ -1140,6 +1163,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   max={isGRE ? 500 : 5000}
                   step={isGRE ? 5 : 500}
                   value={tr}
+                  disabled={blocks.length > 0}
                   onChange={(e) => setTr(Number(e.target.value))}
                   data-testid="clinical-tr-slider"
                 />
@@ -1150,6 +1174,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         ) : (
           /* Physics Controls: excitation FA, refocus FA, TE, TR, ADC BW */
           <>
+            {blocks.length > 0 && <div data-testid="lego-slider-seed" style={{ fontSize: "10px", color: "var(--amber)", fontFamily: "monospace" }}>seed · Lego IR</div>}
             <div className="control-group">
               <label>Excitation Flip Angle</label>
               <div className="slider-row">
@@ -1159,6 +1184,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   max={isGRE ? 90 : 90}
                   step={1}
                   value={exciteFa}
+                  disabled={blocks.length > 0}
                   onChange={(e) => setExciteFa(Number(e.target.value))}
                   data-testid="physics-excite-fa-slider"
                 />
@@ -1175,6 +1201,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                   max={isGRE ? 90 : 180}
                   step={isGRE ? 1 : 5}
                   value={faDeg}
+                  disabled={blocks.length > 0}
                   onChange={(e) => setFa(Number(e.target.value))}
                   data-testid="physics-refocus-fa-slider"
                 />
@@ -1185,7 +1212,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Effective TE</label>
               <div className="slider-row">
-                <input type="range" min={isGRE ? 1.5 : 30} max={isGRE ? 25 : 160} step={isGRE ? 0.5 : 10} value={te} onChange={(e) => setTe(Number(e.target.value))} />
+                <input type="range" min={isGRE ? 1.5 : 30} max={isGRE ? 25 : 160} step={isGRE ? 0.5 : 10} value={te} disabled={blocks.length > 0} onChange={(e) => setTe(Number(e.target.value))} data-testid="physics-te-slider" />
                 <span className="value-badge">{te} ms</span>
               </div>
             </div>
@@ -1193,13 +1220,18 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             <div className="control-group">
               <label>Repetition Time (TR)</label>
               <div className="slider-row">
-                <input type="range" min={isGRE ? 15 : 1000} max={isGRE ? 500 : 5000} step={isGRE ? 5 : 500} value={tr} onChange={(e) => setTr(Number(e.target.value))} />
+                <input type="range" min={isGRE ? 15 : 1000} max={isGRE ? 500 : 5000} step={isGRE ? 5 : 500} value={tr} disabled={blocks.length > 0} onChange={(e) => setTr(Number(e.target.value))} data-testid="physics-tr-slider" />
                 <span className="value-badge">{tr} ms</span>
               </div>
             </div>
 
             <div className="control-group">
-              <label>ADC Bandwidth</label>
+              <label>
+                ADC Bandwidth{" "}
+                <span data-testid="adc-bw-slider-seed" style={{ color: "var(--amber)", fontSize: "10px" }}>
+                  seed · not wired
+                </span>
+              </label>
               <div className="slider-row">
                 <input
                   type="range"
@@ -1234,7 +1266,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.75 · Lego drag</div>
+          <div className="system-info">MRQLab v0.76.14 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>

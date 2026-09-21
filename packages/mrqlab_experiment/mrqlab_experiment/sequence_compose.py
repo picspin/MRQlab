@@ -58,7 +58,10 @@ def compose_sequence(request: ComposeSequenceRequest) -> SequenceIR:
             PulseInspectRequest(duration_ms=params.duration_s * 1000, time_bandwidth=params.time_bandwidth,
                                 flip_angle_deg=params.flip_angle_deg, phase_deg=params.phase_deg)
             channel = "rf_amp"
-            channels[channel].append(Event(time=block.t0_s, value=params.flip_angle_deg))
+            channels[channel].extend((
+                Event(time=block.t0_s, value=params.flip_angle_deg),
+                Event(time=block.t0_s + params.duration_s, value=0),
+            ))
             channels["rf_phase"].append(Event(time=block.t0_s, value=params.phase_deg))
         elif block.kind.startswith("trap_"):
             params = GradientBlockParams.model_validate(block.params)
@@ -94,6 +97,17 @@ def compose_sequence(request: ComposeSequenceRequest) -> SequenceIR:
             gradient_blocks = sorted((b for b in request.blocks if b.kind == f"trap_{name}"), key=lambda b: b.t0_s)
             for index, block in enumerate(gradient_blocks):
                 overlays[f"{name}:{index}"] = GradientBlockParams.model_validate(block.params).model_dump(mode="json")
+        if name == "rf_amp":
+            rf_blocks = sorted(
+                (b for b in request.blocks if b.kind in ("excite_sinc", "refocus_sinc")),
+                key=lambda b: b.t0_s,
+            )
+            for index, block in enumerate(rf_blocks):
+                overlays[f"rf_amp:{index}"] = RfBlockParams.model_validate(block.params).model_dump(mode="json")
+        if name == "adc_gate":
+            adc_blocks = sorted((b for b in request.blocks if b.kind == "adc_gate"), key=lambda b: b.t0_s)
+            for index, block in enumerate(adc_blocks):
+                overlays[f"adc_gate:{index}"] = AdcBlockParams.model_validate(block.params).model_dump(mode="json")
     metadata = {
         "blocks": [block.model_dump(mode="json") for block in request.blocks],
         "event_overlays": overlays,

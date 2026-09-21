@@ -11,7 +11,7 @@ const oldSequence = { name: "SE", duration: .02, channels: [
 const composed = { ...oldSequence, name: "Lego sequence", channels: oldSequence.channels.map((channel) =>
   channel.name === "rf_amp" ? { ...channel, events: [{ time: 0, value: 90 }] } : channel), metadata: { blocks: [] } };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
-function PhysicsCockpit() { const { setProfile } = useWorkspace(); return <><button onClick={() => setProfile("physics")}>Physics</button><WorkbenchCockpit /></>; }
+function PhysicsCockpit() { const { setProfile } = useWorkspace(); return <><button onClick={() => setProfile("physics")}>Physics</button><button onClick={() => setProfile("clinical")}>Clinical</button><WorkbenchCockpit /></>; }
 
 describe("Wave F Lego constructor", () => {
   beforeEach(() => vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
@@ -24,6 +24,56 @@ describe("Wave F Lego constructor", () => {
   afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
   async function open() { render(<WorkspaceProvider><PhysicsCockpit /></WorkspaceProvider>); fireEvent.click(screen.getByRole("button", { name: "Physics" })); await screen.findByTestId("event-rf_amp-0"); }
 
+  it("keeps virgin Clinical geometry live, then disables it for Lego without wiring payloads", async () => {
+    render(<WorkspaceProvider><PhysicsCockpit /></WorkspaceProvider>);
+    const controls = [
+      screen.getByTestId("matrix-size-select"),
+      screen.getByTestId("clinical-slice-thickness-slider"),
+      screen.getByTestId("clinical-slice-gap-slider"),
+      screen.getByTestId("clinical-slice-count-slider"),
+      screen.getByTestId("clinical-fov-slider"),
+      screen.getByTestId("clinical-acceleration-slider"),
+    ];
+    controls.forEach((control) => expect(control).toBeEnabled());
+    fireEvent.change(controls[0], { target: { value: "384" } });
+    fireEvent.change(controls[1], { target: { value: "6" } });
+    fireEvent.change(controls[2], { target: { value: "2" } });
+    fireEvent.change(controls[3], { target: { value: "30" } });
+    fireEvent.change(controls[4], { target: { value: "300" } });
+    fireEvent.change(controls[5], { target: { value: "2" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Physics" }));
+    fireEvent.click(screen.getByTestId("edit-mode-toggle"));
+    const readoutWidth = screen.getByTestId("readout-width-slider");
+    const partialFourier = screen.getByTestId("partial-fourier-select");
+    expect(readoutWidth).toBeEnabled();
+    expect(partialFourier).toBeEnabled();
+    fireEvent.change(readoutWidth, { target: { value: "1.5" } });
+    fireEvent.change(partialFourier, { target: { value: "0.75" } });
+    fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    await waitFor(() => {
+      expect(readoutWidth).toBeDisabled();
+      expect(partialFourier).toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Clinical" }));
+    await waitFor(() => [
+      "matrix-size-select",
+      "clinical-slice-thickness-slider",
+      "clinical-slice-gap-slider",
+      "clinical-slice-count-slider",
+      "clinical-fov-slider",
+      "clinical-acceleration-slider",
+    ].forEach((testId) => expect(screen.getByTestId(testId)).toBeDisabled()));
+    expect(screen.getByTestId("lego-slider-seed")).toHaveTextContent(/seed.*Lego IR/i);
+    controls.forEach((control) => fireEvent.change(screen.getByTestId(control.getAttribute("data-testid")!), { target: { value: "128" } }));
+
+    for (const [url, init] of (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls) {
+      if (/\/sequences\/(compose|patch)|\/experiments\/run$/.test(String(url))) {
+        expect(String(init?.body)).not.toMatch(/"(?:fov|fov_mm|slice_gap|slice_count|matrix|matrix_size|acceleration(?:Factor|_factor)?|readout(?:WidthFactor|_width_factor|-width)|partial(?:FourierFrac|_fourier_frac|-fourier))"/i);
+      }
+    }
+  });
+
   it("places excite through compose with a backend block list", async () => {
     await open(); fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
     await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url, init]) => {
@@ -31,6 +81,77 @@ describe("Wave F Lego constructor", () => {
       const body = JSON.parse(String(init?.body));
       return body.blocks.length === 1 && body.blocks[0].kind === "excite_sinc" && body.channels === undefined;
     })).toBe(true));
+  });
+
+  it("stops virgin signal analysis and hides recipe metrics while Lego blocks are active", async () => {
+    await open();
+    const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
+    fireEvent.click(screen.getByRole("button", { name: "Clinical" }));
+    await waitFor(() => expect(screen.getByTestId("cockpit-delta-signal")).toBeVisible());
+    const virginSignalCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/cockpit/signals")).length;
+    expect(virginSignalCalls).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "Physics" }));
+    fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    await waitFor(() => expect(screen.queryByTestId("cockpit-delta-signal")).toBeNull());
+    expect(screen.queryByTestId("cockpit-cnr-proxy")).toBeNull();
+    await Promise.resolve();
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).includes("/cockpit/signals"))).toHaveLength(virginSignalCalls);
+  });
+
+  it("disables recipe-overlay sliders and RUNs the composed Lego SequenceIR", async () => {
+    const recipe = {
+      schema_version: "1.0", id: "brain_t2_tse", name: "Brain T2 TSE",
+      sequence: { template: { ref: "tse", parameters: {} } },
+      sample: { tissues: [] }, scanner: { b0_t: 3 }, engine: {}, readout: { products: ["signal"] },
+      constraints: {}, disturbances: [], provenance: {},
+    };
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(async (input: RequestInfo, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(oldSequence);
+      if (url.includes("/sequences/compose")) return json(composed);
+      if (url.includes("/cockpit/signals")) return json({ signals: {} });
+      if (url.includes("/clinical-recipes")) return json({ recipes: [{ id: "brain_t2_tse", experiment: recipe }] });
+      if (url.endsWith("/experiments/run")) {
+        const body = JSON.parse(String(init?.body));
+        expect(init?.method).toBe("POST");
+        expect(body.sequence.channels).toEqual(composed.channels);
+        expect(body.sequence.template).toBeUndefined();
+        return json({ schema_version: "1.0", experiment_id: recipe.id, observations: [] });
+      }
+      return json({}, 404);
+    });
+    await open();
+    fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url]) =>
+      String(url).includes("/sequences/compose"),
+    )).toBe(true));
+    const buildCount = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter(([url]) =>
+      String(url).includes("/sequences/build"),
+    ).length;
+    expect(screen.getByTestId("physics-excite-fa-slider")).toBeDisabled();
+    expect(screen.getByTestId("physics-refocus-fa-slider")).toBeDisabled();
+    expect(screen.getByTestId("physics-te-slider")).toBeDisabled();
+    expect(screen.getByTestId("physics-tr-slider")).toBeDisabled();
+    const adcBw = screen.getByTestId("physics-adc-bw-slider");
+    expect(adcBw).toBeEnabled();
+    fireEvent.change(adcBw, { target: { value: "150000" } });
+    expect(screen.getByTestId("adc-bw-slider-seed")).toHaveTextContent(/seed.*not wired/i);
+    expect(screen.getByTestId("lego-slider-seed")).toHaveTextContent(/seed/i);
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.filter(([url]) =>
+      String(url).includes("/sequences/build"),
+    )).toHaveLength(buildCount);
+    await waitFor(() => expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "90"));
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+    await waitFor(() => expect(screen.getByTestId("status-rail")).toHaveTextContent("STATUS: RESULT"));
+    const urls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.map(([url]) => String(url));
+    expect(urls.some((url) => url.endsWith("/experiments/run"))).toBe(true);
+    expect(urls.some((url) => url.includes("/experiments/run-from-recipe"))).toBe(false);
+    for (const [url, init] of (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls) {
+      if (/\/sequences\/(compose|patch)|\/experiments\/run$/.test(String(url))) {
+        expect(String(init?.body)).not.toMatch(/adc_bw|bandwidth_hz|acceleration(?:Factor|_factor)?|readout(?:WidthFactor|_width_factor|-width)|partial(?:FourierFrac|_fourier_frac|-fourier)/i);
+      }
+    }
   });
 
   it("keeps previous IR when compose returns 422", async () => {
@@ -123,8 +244,132 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.75", () => {
+  it("shows chrome v0.76.14", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.75");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.14");
+  });
+
+  it("keeps patched RF params on the next Lego compose", async () => {
+    const pulse = {
+      name: "Sinc", flip_angle_deg: 75, phase_deg: 30, duration_ms: 3, time_bandwidth: 6, slice_thickness_mm: 5,
+      waveform_time: [-1, 1], waveform_b1: [0, 1], freq_axis_khz: [-1, 1], freq_response_mag: [0, 1],
+      spatial_axis_mm: [-5, 5], slice_profile_mxy: [0, 1], epg_transition_matrix: [],
+    };
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(async (input: RequestInfo, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/sequences/compose")) {
+        const body = JSON.parse(String(init?.body));
+        const rf = body.blocks.find((block: { kind: string }) => block.kind.endsWith("sinc"));
+        return json({
+          name: "Lego sequence",
+          duration: 0.02,
+          channels: [
+            { name: "rf_amp", events: rf ? [{ time: rf.t0_s, value: rf.params.flip_angle_deg }] : [] },
+            { name: "rf_phase", events: rf ? [{ time: rf.t0_s, value: rf.params.phase_deg }] : [] },
+            { name: "gx", events: [] }, { name: "gy", events: [] }, { name: "gz", events: [] },
+            { name: "adc_gate", events: [] },
+          ],
+          metadata: { blocks: body.blocks, event_overlays: rf ? { "rf_amp:0": rf.params } : {} },
+        });
+      }
+      if (url.includes("/sequences/patch")) {
+        const body = JSON.parse(String(init?.body));
+        const patchedBlocks = (body.ir.metadata?.blocks ?? []).map((block: { kind: string; params: Record<string, number> }, index: number) =>
+          index === 0 && block.kind.endsWith("sinc") ? { ...block, params: { ...block.params, ...body.patch } } : block,
+        );
+        return json({
+          ...body.ir,
+          channels: body.ir.channels.map((channel: { name: string; events: Array<{ time: number; value: number }> }) =>
+            channel.name === "rf_amp"
+              ? { ...channel, events: [{ ...channel.events[0], value: body.patch.flip_angle_deg }] }
+              : channel.name === "rf_phase"
+                ? { ...channel, events: [{ ...channel.events[0], value: body.patch.phase_deg }] }
+                : channel,
+          ),
+          metadata: {
+            ...body.ir.metadata,
+            blocks: patchedBlocks,
+            event_overlays: { "rf_amp:0": body.patch },
+          },
+        });
+      }
+      if (url.includes("/pulse/inspect")) return json(pulse);
+      if (url.includes("/sequences/build")) return json(oldSequence);
+      if (url.includes("/cockpit/signals")) return json({ signals: {} });
+      return json({});
+    });
+    await open();
+    fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    await screen.findByTestId("event-rf_amp-0");
+    fireEvent.click(screen.getByTestId("event-rf_amp-0"));
+    fireEvent.change(screen.getByTestId("pulse-fa"), { target: { value: "75" } });
+    fireEvent.change(screen.getByTestId("pulse-phase"), { target: { value: "30" } });
+    fireEvent.change(screen.getByTestId("pulse-duration"), { target: { value: "3" } });
+    fireEvent.change(screen.getByTestId("pulse-tbw"), { target: { value: "6" } });
+    await waitFor(() => expect(screen.getByTestId("event-apply")).toBeEnabled());
+    fireEvent.click(screen.getByTestId("event-apply"));
+    await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url]) =>
+      String(url).includes("/sequences/patch"),
+    )).toBe(true));
+    fireEvent.click(screen.getByTestId("catalog-trap_gx"));
+    await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url, init]) => {
+      if (!String(url).includes("/sequences/compose")) return false;
+      const body = JSON.parse(String(init?.body));
+      return body.blocks.length === 2
+        && body.blocks[0].kind === "excite_sinc"
+        && body.blocks[0].params.flip_angle_deg === 75
+        && body.blocks[0].params.phase_deg === 30
+        && body.blocks[0].params.duration_s === 0.003
+        && body.blocks[0].params.time_bandwidth === 6
+        && body.blocks[1].kind === "trap_gx";
+    })).toBe(true));
+  });
+
+  it("keeps patched G params on the next Lego compose", async () => {
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(async (input: RequestInfo, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/sequences/compose")) {
+        const body = JSON.parse(String(init?.body));
+        const gradients = body.blocks.filter((item: { kind: string }) => item.kind.startsWith("trap_"));
+        return json({
+          name: "Lego sequence", duration: 0.02,
+          channels: [
+            { name: "rf_amp", events: [] }, { name: "rf_phase", events: [] },
+            { name: "gx", events: gradients.map((item: { t0_s: number; params: { amplitude_mt_m: number } }) => ({ time: item.t0_s, value: item.params.amplitude_mt_m })) },
+            { name: "gy", events: [] }, { name: "gz", events: [] }, { name: "adc_gate", events: [] },
+          ],
+          metadata: { gradient_units: "mt_m", blocks: body.blocks, event_overlays: gradients.length ? { "gx:0": gradients[0].params } : {} },
+        });
+      }
+      if (url.includes("/sequences/patch")) {
+        const body = JSON.parse(String(init?.body));
+        const patchedBlocks = body.ir.metadata.blocks.map((item: { kind: string; params: Record<string, number> }) =>
+          item.kind === "trap_gx" ? { ...item, params: { ...item.params, ...body.patch } } : item,
+        );
+        return json({ ...body.ir, metadata: { ...body.ir.metadata, blocks: patchedBlocks, event_overlays: { "gx:0": body.patch } } });
+      }
+      if (url.includes("/gradients/validate")) return json({ is_valid: true, violations: [], actual_slew_rate: 1, actual_amplitude: 14 });
+      if (url.includes("/sequences/build")) return json(oldSequence);
+      if (url.includes("/cockpit/signals")) return json({ signals: {} });
+      return json({});
+    });
+    await open();
+    fireEvent.click(screen.getByTestId("catalog-trap_gx"));
+    await screen.findByTestId("event-gx-0");
+    fireEvent.click(screen.getByTestId("event-gx-0"));
+    fireEvent.change(screen.getByTestId("grad-amp"), { target: { value: "14" } });
+    fireEvent.change(screen.getByTestId("grad-duration"), { target: { value: "2" } });
+    fireEvent.change(screen.getByTestId("grad-ramp"), { target: { value: "0.3" } });
+    await waitFor(() => expect(screen.getByTestId("event-apply")).toBeEnabled());
+    fireEvent.click(screen.getByTestId("event-apply"));
+    await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url]) => String(url).includes("/sequences/patch"))).toBe(true));
+    fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url, init]) => {
+      if (!String(url).includes("/sequences/compose")) return false;
+      const body = JSON.parse(String(init?.body));
+      return body.blocks.length === 2 && body.blocks[0].kind === "trap_gx"
+        && body.blocks[0].params.amplitude_mt_m === 14 && body.blocks[0].params.duration_s === 0.002
+        && body.blocks[0].params.ramp_time_s === 0.0003 && body.blocks[1].kind === "excite_sinc";
+    })).toBe(true));
   });
 });
