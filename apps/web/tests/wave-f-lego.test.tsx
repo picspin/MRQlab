@@ -154,6 +154,31 @@ describe("Wave F Lego constructor", () => {
     }
   });
 
+  it("fails closed instead of falling back to a recipe when Lego IR is missing", async () => {
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(async (input: RequestInfo) => {
+      const url = String(input);
+      if (url.includes("/sequences/build")) return json(oldSequence);
+      if (url.includes("/sequences/compose")) return json(null);
+      if (url.includes("/cockpit/signals")) return json({ signals: {} });
+      if (url.includes("/experiments/")) return json({ schema_version: "1.0", observations: [] });
+      return json({});
+    });
+    await open();
+    fireEvent.click(screen.getByTestId("catalog-excite_sinc"));
+    await waitFor(() => expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.some(([url]) =>
+      String(url).includes("/sequences/compose"),
+    )).toBe(true));
+
+    fireEvent.click(screen.getByTestId("run-experiment-btn"));
+
+    await waitFor(() => expect(screen.getByTestId("status-rail")).toHaveTextContent("STATUS: ERROR"));
+    expect(screen.getByRole("alert")).toHaveTextContent("Lego blocks present but compiled SequenceIR is missing");
+    const urls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.map(([url]) => String(url));
+    expect(urls.some((url) => url.endsWith("/experiments/run"))).toBe(false);
+    expect(urls.some((url) => url.includes("/experiments/run-from-recipe"))).toBe(false);
+    expect(screen.getByTestId("status-rail")).not.toHaveTextContent("STATUS: RESULT");
+  });
+
   it("keeps previous IR when compose returns 422", async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockImplementation(async (input: RequestInfo) => {
       const url = String(input); if (url.includes("/sequences/compose")) return json({ detail: "overlap" }, 422);
@@ -244,9 +269,9 @@ describe("Wave F Lego constructor", () => {
     expect(screen.getByTestId("event-rf_amp-0")).toHaveAttribute("data-value", "45");
   });
 
-  it("shows chrome v0.76.14", () => {
+  it("shows chrome v0.76.15", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.14");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.15");
   });
 
   it("keeps patched RF params on the next Lego compose", async () => {
