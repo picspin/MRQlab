@@ -4,6 +4,10 @@
 
 Form a hypothesis → design an MR experiment → understand state evolution → observe consequence → optimize toward a clinical/physical objective.
 
+MRQLab is a research-use-only MRI contrast and protocol engineering platform. It keeps teaching Explore and is not a scanner console, diagnostic clinical decision support system, or claim of clinical readiness.
+
+The product layers are Explore / Protocol Studio / Compute / Export / Enterprise Control Plane. Tier 0 browser preview, Tier 1 in-process NumPy through synchronous `POST /experiments/run*`, and Tier 2 local high-fidelity through new `POST /jobs` providers share `ExperimentGraph`, immutable `ResolvedExecutionPlan`, `Observation`, and provenance. Capability is not entitlement: provider capability is selected by the experiment kernel, while commercial entitlement is enforced by an execution gateway outside physics operators.
+
 The product center is an experiment, not a simulator class or sequence class:
 
 ```text
@@ -83,9 +87,9 @@ Selection is set inclusion over required capabilities. Missing capabilities fail
 | Bloch | yes | hard_rf, off_resonance, spatial_encoding, magnetization_states | SE/GRE Cartesian magnetization |
 | EPG | yes | hard_rf, configuration_states, steady_state | TSE/CPMG echo trains |
 | Spectral | yes | hard_rf, off_resonance, multi_pool, magnetization_states | Independent fat/water pools |
-| ssEPG | no | hard_rf, shaped_rf, configuration_states, spatial_encoding | Dedicated future slice-selective path |
+| ssEPG | yes | hard_rf, shaped_rf, configuration_states, spatial_encoding, slice_selective | Dedicated slice-selective path with bounded current support |
 | EPG-X | yes | hard_rf, configuration_states, exchange, multi_pool | Dedicated two-pool liquid Bloch–McConnell EPG-X engine |
-| PDG | no | hard_rf, configuration_states, spatial_encoding, off_resonance | Pathway ↔ spatial image bridge |
+| PDG | yes | hard_rf, configuration_states, spatial_encoding, off_resonance, phase_distribution | Dedicated spatial B0 pathway↔image adapter path |
 | Density matrix | no | (future MRS base) | Liouville–von Neumann propagation |
 
 ## 6. Observation/ResultGraph and provenance

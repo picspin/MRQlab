@@ -47,7 +47,7 @@ def test_http_run_rejects_teaching_ir_with_diffusion():
     ])
     graph = tse_recipe_json()
     graph["sequence"] = sequence
-    graph["tissue"]["diffusion_adc_mm2_s"] = .8e-3
+    graph["tissue"][0]["diffusion_adc_mm2_s"] = .8e-3
 
     response = client.post("/experiments/run", json=graph)
 

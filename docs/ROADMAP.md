@@ -33,6 +33,23 @@ The v0.67 Control Bank overlays saturation B1, offset span, and pulsed duty cycl
 - Optimizer plugins consuming `ObjectiveFunction` (grid / Bayesian / CMA-ES). Differentiable EPG is later.
 - Fidelity layers driven by the Reality Slider over a typed `DisturbanceStack`, with explicit assumptions and error budgets.
 
+## Protocol platform milestones
+
+### Milestone A — Clinical Contract
+
+- First vertical: Brain lesion T2/TSE.
+- Second vertical: Knee cartilage/meniscus PD/T2 TSE.
+- Dixon / TOF / CEST research are A+ candidates, not A verticals.
+- Resolve immutable, unit-explicit `ResolvedExecutionPlan` values and preserve honest UI parameter states.
+
+### Milestone B — Executable Sequence (parked)
+
+`LogicalSequenceIR → ExecutableSequenceIR → ExportIR`; frontend does not author Pulseq.
+
+### Milestone C — Licensed Local Compute (parked)
+
+New `ExecutionProvider` jobs, CPU then optional GPU, with capability separate from execution-gateway entitlement.
+
 ## Delivery
 
 After the local learning loop is stable, the static/web surface may deploy to Vercel or Cloudflare and the API to a separately bounded Python host. Codex Cloud is a development agent only; it is not runtime infrastructure, a simulator backend, or a deployment target. Real scanner hardware, MaRCoS, Red Pitaya, and acquisition services remain out of scope.
