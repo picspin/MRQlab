@@ -5,6 +5,7 @@ import { useWorkspace } from "../workspace/WorkspaceProvider";
 import { CLINICAL_SCENARIOS, isSpectrumScenario, ScenarioSpec } from "../../lib/scenarios";
 import { isCestSpectrumRecipe, scenarioKeyForRecipe } from "../../lib/explore-catalog";
 import { ResultGraph } from "../../lib/workbench-types";
+import { UNWIRED_PARAMETER_STATES } from "../../lib/parameter-honesty";
 import { CockpitSignalAnalysis, fetchCockpitSignals, listClinicalRecipes, runExperiment, runExperimentFromRecipe, saveCustomRecipe, buildSequence, patchSequence, fetchComposeSequence, SequenceBlock, SequenceBlockKind } from "../../lib/api";
 import { KSpaceReconLens } from "./KSpaceReconLens";
 import { OptimizeLensView } from "./OptimizeLensView";
@@ -864,6 +865,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                       <div style={{ display: "flex", gap: "10px", padding: "6px", background: "rgba(255,184,52,0.1)", borderBottom: "1px solid var(--amber)", fontSize: "11px", color: "var(--amber)", alignItems: "center" }}>
                         <b>✏️ SEQUENCE EDIT ACTIVE:</b>
                         <span>Readout Width:</span>
+                        <span data-testid="readout-width-state" className="parameter-state-label">
+                          {UNWIRED_PARAMETER_STATES.readout_width_factor.label}
+                        </span>
                         <input
                           type="range"
                           min="0.5"
@@ -878,6 +882,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         <span>{readoutWidthFactor.toFixed(1)}x</span>
 
                         <span style={{ marginLeft: "10px" }}>Partial Fourier:</span>
+                        <span data-testid="partial-fourier-state" className="parameter-state-label">
+                          {UNWIRED_PARAMETER_STATES.partial_fourier_fraction.label}
+                        </span>
                         <select
                           value={partialFourierFrac}
                           disabled={blocks.length > 0}
@@ -1111,6 +1118,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
 
             <div className="control-group">
               <label>Parallel Acceleration (R)</label>
+              <span data-testid="clinical-acceleration-state" className="parameter-state-label">
+                {UNWIRED_PARAMETER_STATES.acceleration_factor.label}
+              </span>
               <div className="slider-row">
                 <input type="range" min="1" max="4" step="1" value={accelerationFactor} disabled={blocks.length > 0} onChange={(e) => setAccelerationFactor(Number(e.target.value))} data-testid="clinical-acceleration-slider" />
                 <span className="value-badge">R = {accelerationFactor}x</span>
@@ -1232,7 +1242,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               <label>
                 ADC Bandwidth{" "}
                 <span data-testid="adc-bw-slider-seed" style={{ color: "var(--amber)", fontSize: "10px" }}>
-                  seed · not wired
+                  {UNWIRED_PARAMETER_STATES.adc_bandwidth_hz.label}
                 </span>
               </label>
               <div className="slider-row">
