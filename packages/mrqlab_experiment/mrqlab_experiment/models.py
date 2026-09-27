@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -6,6 +6,9 @@ from mrqlab_sequence import SequenceIR
 
 from .disturbances import DisturbanceStack
 from .objectives import ObjectiveFunction
+
+if TYPE_CHECKING:
+    from .clinical import ClinicalProtocolRecipe
 
 ActiveNodeKind = Literal["RF", "GRADIENT", "DELAY", "ADC", "READOUT", "LOOP"]
 ReservedNodeKind = Literal["PREPARATION", "EXCHANGE", "FLOW", "DIFFUSION", "INJECTION"]
@@ -124,6 +127,7 @@ class ExperimentGraph(BaseModel):
     constraints: ConstraintSet = Field(default_factory=ConstraintSet)
     disturbances: DisturbanceStack = Field(default_factory=DisturbanceStack)
     provenance: ProvenanceHints = Field(default_factory=ProvenanceHints)
+    clinical_recipe: "ClinicalProtocolRecipe | None" = None
 
     @property
     def effective_scanner(self) -> ScannerModel:
@@ -141,3 +145,8 @@ class ExperimentGraph(BaseModel):
         if any(edge.source not in ids or edge.target not in ids for edge in self.edges):
             raise ValueError("experiment edges must reference existing nodes")
         return self
+
+
+from .clinical import ClinicalProtocolRecipe
+
+ExperimentGraph.model_rebuild()

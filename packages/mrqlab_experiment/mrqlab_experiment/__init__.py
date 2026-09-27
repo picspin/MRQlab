@@ -1,5 +1,7 @@
 from .capabilities import CapabilityMismatch, StateRepresentation, select_representation
 from .compiler import compile_sequence
+from .clinical import ClinicalProtocolRecipe, ParameterState
+from .clinical_catalog import build_protocol_experiment, get_protocol_recipe, list_protocol_recipes
 from .disturbances import Disturbance, DisturbanceStack, stack_from_reality
 from .gradient import (
     DiffusionSpec,
@@ -116,6 +118,8 @@ __all__ = [
     "TissueModel",
     "ValidationReport",
     "ClinicalRecipeSpec",
+    "ClinicalProtocolRecipe",
+    "ParameterState",
     "ClinicalCNRTerm",
     "OptimizeAnalysis",
     "OptimizeGoal",
@@ -137,6 +141,9 @@ __all__ = [
     "inspect_pulse_dict",
     "evaluate_multi_tissue_contrast",
     "build_clinical_recipe",
+    "build_protocol_experiment",
+    "get_protocol_recipe",
+    "list_protocol_recipes",
     "build_preset",
     "list_clinical_recipes",
     "build_result_graph",

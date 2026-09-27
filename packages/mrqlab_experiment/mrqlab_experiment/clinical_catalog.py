@@ -273,3 +273,23 @@ def get_protocol_recipe(recipe_id: str) -> ClinicalProtocolRecipe:
         return _BY_ID[recipe_id]
     except KeyError:
         raise KeyError(f"{recipe_id!r} is not a Milestone A protocol recipe") from None
+
+
+def build_protocol_experiment(recipe_id: str):
+    from .models import TissueModel
+    from .presets import build_clinical_recipe
+
+    recipe = get_protocol_recipe(recipe_id)
+    graph = build_clinical_recipe(recipe.experiment_recipe_id).model_copy(deep=True)
+    graph.clinical_recipe = recipe
+    graph.tissue = tuple(
+        TissueModel.model_validate(item.model_dump()) for item in recipe.tissue_priors.tissues
+    )
+    graph.scanner_model = graph.scanner_model.model_copy(
+        update={
+            "b0_t": recipe.scanner_profile.b0_t,
+            "max_gradient_mt_m": recipe.scanner_profile.max_gradient_mt_m,
+            "max_slew_rate_t_m_s": recipe.scanner_profile.max_slew_rate_t_m_s,
+        }
+    )
+    return graph

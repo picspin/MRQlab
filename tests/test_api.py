@@ -264,3 +264,12 @@ def test_experiments_run_rejects_echo_train_objective_as_validation_error():
     response = client.post("/experiments/run", json=payload)
     assert response.status_code == 422
     assert "echo_train" in response.json()["detail"]
+
+
+def test_protocol_recipe_endpoint_lists_only_the_two_a_verticals():
+    response = client.get("/protocol-recipes")
+    assert response.status_code == 200
+    assert [item["id"] for item in response.json()["recipes"]] == [
+        "brain_lesion_t2_tse",
+        "knee_cartilage_meniscus_pd_t2_tse",
+    ]

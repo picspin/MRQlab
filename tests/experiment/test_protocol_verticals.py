@@ -1,5 +1,6 @@
 import pytest
 
+from mrqlab_experiment import build_protocol_experiment
 from mrqlab_experiment.clinical_catalog import get_protocol_recipe, list_protocol_recipes
 
 
@@ -29,3 +30,14 @@ def test_parked_verticals_are_not_promoted_into_the_a_catalog():
     for recipe_id in ("abdomen_dixon_gre", "angio_tof_gre", "cest_amide_z_spectrum"):
         with pytest.raises(KeyError, match="not a Milestone A protocol recipe"):
             get_protocol_recipe(recipe_id)
+
+
+def test_protocol_recipe_extends_existing_experiment_recipe():
+    graph = build_protocol_experiment("brain_lesion_t2_tse")
+    assert graph.id == "recipe:brain_t2_tse"
+    assert graph.clinical_recipe.id == "brain_lesion_t2_tse"
+    assert graph.sequence.template == "TSE"
+    assert [item.model_dump() for item in graph.tissue] == [
+        item.model_dump() for item in graph.clinical_recipe.tissue_priors.tissues
+    ]
+    assert graph.effective_scanner.b0_t == graph.clinical_recipe.scanner_profile.b0_t
