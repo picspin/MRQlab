@@ -42,7 +42,7 @@ def evaluate_multi_tissue_contrast(graph) -> dict[str, Any]:
 
     plan = plan_experiment(graph)
     sequence = compile_sequence(graph)
-    options = EngineOptions(**plan.options)
+    options = EngineOptions(**dict(plan.options))
     engine = get_engine(plan.engine)
     scanner = graph.effective_scanner
 

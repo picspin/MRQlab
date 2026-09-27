@@ -66,7 +66,7 @@ def test_provenance_representation_comes_from_plan_not_sim_meta():
 
     graph = build_preset("spin-echo", {"te": 0.02, "tr": 0.1})
     run = run_experiment(graph)
-    run.plan.representation = "spectral"
+    run.plan = run.plan.model_copy(update={"representation": "spectral"})
     run.sim_result = replace(run.sim_result, meta={**run.sim_result.meta, "engine": "bloch"})
     result = build_result_graph(run)
     assert result.observations[0].provenance.representation == "spectral"

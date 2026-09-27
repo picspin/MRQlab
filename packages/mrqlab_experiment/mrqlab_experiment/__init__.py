@@ -83,6 +83,7 @@ from .presets import (
     build_preset,
     list_clinical_recipes,
 )
+from .resolution import ResolvedExecutionPlan
 from .sequence_compose import Block, ComposeSequenceRequest, compose_sequence
 from .sequence_patch import SequencePatchRequest, patch_sequence
 
@@ -113,6 +114,7 @@ __all__ = [
     "compile_pulse",
     "ResultEdge",
     "ResultGraph",
+    "ResolvedExecutionPlan",
     "ScannerModel",
     "StateRepresentation",
     "TissueModel",
