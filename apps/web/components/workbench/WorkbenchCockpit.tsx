@@ -271,6 +271,9 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
 
     try {
       let res: ResultGraph;
+      if (!isCestRecipe && blocks.length > 0 && !compiledSequence) {
+        throw new Error("Lego blocks present but compiled SequenceIR is missing; refusing recipe fallback");
+      }
       if (!isCestRecipe && blocks.length > 0 && compiledSequence) {
         if (!activeRecipeId) throw new Error("active clinical recipe is required for Lego RUN");
         const recipes = await listClinicalRecipes();
@@ -1266,7 +1269,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
             RUN FAILED
           </div>
         ) : (
-          <div className="system-info">MRQLab v0.76.14 · RF/G/ADC overlay</div>
+          <div className="system-info">MRQLab v0.76.15 · RF/G/ADC overlay</div>
         )}
       </section>
     </div>

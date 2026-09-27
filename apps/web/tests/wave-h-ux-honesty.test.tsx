@@ -114,9 +114,9 @@ describe("Wave H UX honesty", () => {
     expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/experiments/run"))).toBe(false);
   });
 
-  it("shows chrome v0.76.14", () => {
+  it("shows chrome v0.76.15", () => {
     render(<WorkspaceProvider><WorkspaceShell>content</WorkspaceShell></WorkspaceProvider>);
-    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.14");
+    expect(screen.getByTestId("version-tag")).toHaveTextContent("v0.76.15");
   });
 
   it("awaits z_spectrum then plots backend arrays", async () => {
