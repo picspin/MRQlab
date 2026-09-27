@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from mrqlab_recon import fft_reconstruct
 
+from .clinical import ParameterState
 from .objectives import evaluate_multi_tissue_contrast, evaluate_objective
 
 ObservationKind = Literal[
@@ -30,6 +31,11 @@ _ALLOWED_PRODUCTS = frozenset(get_args(ObservationKind))
 
 class ObservationProvenance(BaseModel):
     experiment_hash: str
+    plan_fingerprint: str
+    clinical_recipe_id: str | None = None
+    scanner_profile: str | None = None
+    tissue_prior_set: str | None = None
+    parameters: tuple[ParameterState, ...] = ()
     engine: str
     representation: str
     assumptions: tuple[str, ...]
@@ -79,12 +85,18 @@ def build_result_graph(run) -> ResultGraph:
     ).hexdigest()
     meta = run.sim_result.meta
     plan = getattr(run, "plan", None)
-    representation = plan.representation if plan is not None else str(meta["engine"])
-    engine_name = str(plan.engine if plan is not None else meta["engine"])
+    if plan is None:
+        raise ValueError("KernelRun must include a ResolvedExecutionPlan")
+    engine_name = str(plan.engine)
     provenance = ObservationProvenance(
         experiment_hash=digest,
+        plan_fingerprint=plan.fingerprint,
+        clinical_recipe_id=plan.clinical_recipe_id,
+        scanner_profile=plan.scanner_profile,
+        tissue_prior_set=plan.tissue_prior_set,
+        parameters=plan.parameters,
         engine=engine_name,
-        representation=representation,
+        representation=plan.representation,
         assumptions=tuple(meta.get("assumptions", ())),
         seed=run.experiment.provenance.seed,
         n_ops=int(meta.get("n_ops", 0)),
