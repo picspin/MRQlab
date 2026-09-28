@@ -9,6 +9,8 @@ def test_adr_0007_defines_pr_ablation_gate():
         "Ablation Report",
         "Delete it in this PR",
         "one-use wrapper",
+        "dual-stack still green",
+        "lock-face",
         "Future-only stubs",
         "blocks",
     ):

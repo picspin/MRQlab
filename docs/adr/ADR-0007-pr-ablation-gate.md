@@ -23,7 +23,7 @@ record what happens.
 | Outcome | Action |
 |---|---|
 | Named lock-face test or fail-closed path breaks | Keep. Cite the test or path. |
-| Dual-stack still green | Delete it in this PR. It is not necessary. |
+| dual-stack still green | Delete it in this PR. It is not necessary. |
 | one-use wrapper that does not enforce a boundary | Delete it. |
 | Interface or config reserved only for an unspecified future | Delete it. Park the future in ROADMAP, do not land a stub. |
 
