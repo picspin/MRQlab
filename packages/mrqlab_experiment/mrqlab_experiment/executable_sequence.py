@@ -75,7 +75,7 @@ class LogicalSequenceIR(SequenceModel):
     schema_version: Literal["1.0"] = "1.0"
     id: str = Field(min_length=1)
     duration_s: float = Field(gt=0)
-    blocks: tuple[LogicalBlock, ...]
+    blocks: tuple[LogicalBlock, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
     def unique_block_ids(self):
@@ -86,9 +86,9 @@ class LogicalSequenceIR(SequenceModel):
 
 
 class ExecutableBlock(SequenceModel):
-    id: str
-    start_s: float
-    duration_s: float
+    id: str = Field(min_length=1)
+    start_s: float = Field(ge=0)
+    duration_s: float = Field(gt=0)
     rf: RfWaveform | None = None
     gradients: tuple[GradientWaveform, ...] = ()
     adc: AdcWindow | None = None
@@ -97,10 +97,10 @@ class ExecutableBlock(SequenceModel):
 
 class ExecutableSequenceIR(SequenceModel):
     schema_version: Literal["1.0"] = "1.0"
-    logical_sequence_id: str
-    scanner_profile: str
-    duration_s: float
-    blocks: tuple[ExecutableBlock, ...]
+    logical_sequence_id: str = Field(min_length=1)
+    scanner_profile: str = Field(min_length=1)
+    duration_s: float = Field(gt=0)
+    blocks: tuple[ExecutableBlock, ...] = Field(min_length=1)
     timing_adjustments: tuple[str, ...] = ()
     timing_unit: Literal["s"] = "s"
     rf_amplitude_unit: Literal["uT"] = "uT"
@@ -111,3 +111,10 @@ class ExecutableSequenceIR(SequenceModel):
     rf_ringdown_time_s: float = Field(ge=0)
     adc_dead_time_s: float = Field(ge=0)
     lowering_provenance: tuple[str, ...]
+
+    @model_validator(mode="after")
+    def unique_block_ids(self):
+        ids = [block.id for block in self.blocks]
+        if len(ids) != len(set(ids)):
+            raise ValueError("executable block ids must be unique")
+        return self

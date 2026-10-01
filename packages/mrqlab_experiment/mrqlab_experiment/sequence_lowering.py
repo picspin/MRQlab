@@ -38,6 +38,15 @@ def lower_sequence(
         start = _quantize(block.start_s, raster)
         if start != block.start_s:
             adjustments.append(f"{block.id}.start_s: {block.start_s:g} -> {start:g}")
+        required_start_rasters = []
+        if block.rf is not None:
+            required_start_rasters.append(profile.rf_raster_s)
+        if block.gradients:
+            required_start_rasters.append(profile.gradient_raster_s)
+        if block.adc is not None:
+            required_start_rasters.append(profile.adc_raster_s)
+        if any(not _exact_multiple(start, item) for item in required_start_rasters):
+            raise ValueError("block start must align to every event raster")
 
         durations = []
         if block.rf is not None:
@@ -92,11 +101,13 @@ def lower_sequence(
                 f"block {block.id!r} exceeds quantized sequence duration"
             )
         if block.rf is not None:
-            rf_guard_until = (
+            rf_duration = len(block.rf.samples_ut) * block.rf.raster_s
+            rf_guard_until = max(
+                rf_guard_until,
                 start
-                + duration
+                + rf_duration
                 + profile.rf_dead_time_s
-                + profile.rf_ringdown_time_s
+                + profile.rf_ringdown_time_s,
             )
         blocks.append(
             ExecutableBlock(
@@ -107,6 +118,10 @@ def lower_sequence(
                 gradients=block.gradients,
                 adc=block.adc,
             )
+        )
+    if sequence_duration != logical.duration_s:
+        adjustments.append(
+            f"sequence.duration_s: {logical.duration_s:g} -> {sequence_duration:g}"
         )
     return ExecutableSequenceIR(
         logical_sequence_id=logical.id,

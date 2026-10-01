@@ -5,7 +5,7 @@ import json
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .executable_sequence import AdcWindow, ExecutableSequenceIR
 
@@ -19,23 +19,23 @@ class ExportState(StrEnum):
 
 
 class ExportModel(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
 
 
 class ExportShape(ExportModel):
-    id: str
+    id: str = Field(min_length=1)
     kind: Literal["rf", "gradient"]
-    samples: tuple[float, ...]
+    samples: tuple[float, ...] = Field(min_length=1)
     phase: tuple[float, ...] = ()
-    raster_s: float
+    raster_s: float = Field(gt=0)
     axis: Literal["gx", "gy", "gz"] | None = None
     carrier_offset_hz: float | None = None
 
 
 class ExportBlock(ExportModel):
-    id: str
-    start_s: float
-    duration_s: float
+    id: str = Field(min_length=1)
+    start_s: float = Field(ge=0)
+    duration_s: float = Field(gt=0)
     rf_shape_id: str | None = None
     gradient_shape_ids: tuple[str, ...] = ()
     adc: AdcWindow | None = None
@@ -43,10 +43,28 @@ class ExportBlock(ExportModel):
 
 class ExportIR(ExportModel):
     schema_version: Literal["1.0"] = "1.0"
-    source_logical_sequence_id: str
-    scanner_profile: str
+    source_logical_sequence_id: str = Field(min_length=1)
+    scanner_profile: str = Field(min_length=1)
+    duration_s: float = Field(gt=0)
     shapes: tuple[ExportShape, ...]
-    blocks: tuple[ExportBlock, ...]
+    blocks: tuple[ExportBlock, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def references_known_shapes(self):
+        shape_ids = [shape.id for shape in self.shapes]
+        if len(shape_ids) != len(set(shape_ids)):
+            raise ValueError("export shape ids must be unique")
+        known = set(shape_ids)
+        block_ids = [block.id for block in self.blocks]
+        if len(block_ids) != len(set(block_ids)):
+            raise ValueError("export block ids must be unique")
+        for block in self.blocks:
+            references = (*block.gradient_shape_ids,)
+            if block.rf_shape_id is not None:
+                references = (block.rf_shape_id, *references)
+            if any(reference not in known for reference in references):
+                raise ValueError("export block references unknown shape")
+        return self
 
 
 class ExportAssessment(ExportModel):
@@ -119,6 +137,7 @@ def build_export_ir(sequence: ExecutableSequenceIR) -> ExportIR:
     return ExportIR(
         source_logical_sequence_id=sequence.logical_sequence_id,
         scanner_profile=sequence.scanner_profile,
+        duration_s=sequence.duration_s,
         shapes=tuple(shapes[key] for key in sorted(shapes)),
         blocks=tuple(blocks),
     )

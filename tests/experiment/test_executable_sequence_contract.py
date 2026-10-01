@@ -57,6 +57,13 @@ def test_contract_rejects_mismatched_rf_samples_and_non_finite_gradient():
         )
 
 
+def test_contract_rejects_non_finite_scalars_and_empty_executable_ids():
+    with pytest.raises(ValidationError):
+        AdcWindow(delay_s=0, dwell_s=math.inf, sample_count=1)
+    with pytest.raises(ValidationError):
+        LogicalSequenceIR(id="", duration_s=0.01, blocks=())
+
+
 @pytest.mark.parametrize(
     ("factory", "field"),
     (
