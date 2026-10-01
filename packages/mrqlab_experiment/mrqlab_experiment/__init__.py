@@ -93,8 +93,10 @@ from .presets import (
     list_clinical_recipes,
 )
 from .resolution import ResolvedExecutionPlan
+from .sequence_lowering import lower_sequence
 from .sequence_compose import Block, ComposeSequenceRequest, compose_sequence
 from .sequence_patch import SequencePatchRequest, patch_sequence
+from .sequence_lowering import lower_sequence
 
 __all__ = [
     "AdcWindow",
@@ -164,6 +166,8 @@ __all__ = [
     "list_protocol_recipes",
     "build_preset",
     "list_clinical_recipes",
+    "lower_sequence",
+    "lower_sequence",
     "build_result_graph",
     "compile_physics_ir",
     "compile_sequence",
