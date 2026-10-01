@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class SequenceModel(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
 
 def _finite(values: tuple[float, ...], label: str) -> tuple[float, ...]:
@@ -75,7 +75,7 @@ class LogicalSequenceIR(SequenceModel):
     schema_version: Literal["1.0"] = "1.0"
     id: str = Field(min_length=1)
     duration_s: float = Field(gt=0)
-    blocks: tuple[LogicalBlock, ...] = Field(min_length=1)
+    blocks: tuple[LogicalBlock, ...]
 
     @model_validator(mode="after")
     def unique_block_ids(self):
@@ -86,35 +86,18 @@ class LogicalSequenceIR(SequenceModel):
 
 
 class ExecutableBlock(SequenceModel):
-    id: str = Field(min_length=1)
-    start_s: float = Field(ge=0)
-    duration_s: float = Field(gt=0)
+    id: str
+    start_s: float
+    duration_s: float
     rf: RfWaveform | None = None
     gradients: tuple[GradientWaveform, ...] = ()
     adc: AdcWindow | None = None
-    timing_unit: Literal["s"] = "s"
 
 
 class ExecutableSequenceIR(SequenceModel):
     schema_version: Literal["1.0"] = "1.0"
-    logical_sequence_id: str = Field(min_length=1)
-    scanner_profile: str = Field(min_length=1)
-    duration_s: float = Field(gt=0)
-    blocks: tuple[ExecutableBlock, ...] = Field(min_length=1)
+    logical_sequence_id: str
+    scanner_profile: str
+    duration_s: float
+    blocks: tuple[ExecutableBlock, ...]
     timing_adjustments: tuple[str, ...] = ()
-    timing_unit: Literal["s"] = "s"
-    rf_amplitude_unit: Literal["uT"] = "uT"
-    gradient_amplitude_unit: Literal["mT/m"] = "mT/m"
-    frequency_unit: Literal["Hz"] = "Hz"
-    phase_unit: Literal["rad"] = "rad"
-    rf_dead_time_s: float = Field(ge=0)
-    rf_ringdown_time_s: float = Field(ge=0)
-    adc_dead_time_s: float = Field(ge=0)
-    lowering_provenance: tuple[str, ...]
-
-    @model_validator(mode="after")
-    def unique_block_ids(self):
-        ids = [block.id for block in self.blocks]
-        if len(ids) != len(set(ids)):
-            raise ValueError("executable block ids must be unique")
-        return self
