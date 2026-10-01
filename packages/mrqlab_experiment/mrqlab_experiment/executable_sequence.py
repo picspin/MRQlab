@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class SequenceModel(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
 
 
 def _finite(values: tuple[float, ...], label: str) -> tuple[float, ...]:
@@ -92,6 +92,7 @@ class ExecutableBlock(SequenceModel):
     rf: RfWaveform | None = None
     gradients: tuple[GradientWaveform, ...] = ()
     adc: AdcWindow | None = None
+    timing_unit: Literal["s"] = "s"
 
 
 class ExecutableSequenceIR(SequenceModel):
@@ -101,3 +102,12 @@ class ExecutableSequenceIR(SequenceModel):
     duration_s: float
     blocks: tuple[ExecutableBlock, ...]
     timing_adjustments: tuple[str, ...] = ()
+    timing_unit: Literal["s"] = "s"
+    rf_amplitude_unit: Literal["uT"] = "uT"
+    gradient_amplitude_unit: Literal["mT/m"] = "mT/m"
+    frequency_unit: Literal["Hz"] = "Hz"
+    phase_unit: Literal["rad"] = "rad"
+    rf_dead_time_s: float = Field(ge=0)
+    rf_ringdown_time_s: float = Field(ge=0)
+    adc_dead_time_s: float = Field(ge=0)
+    lowering_provenance: tuple[str, ...]

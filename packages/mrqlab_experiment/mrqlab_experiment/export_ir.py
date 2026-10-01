@@ -28,6 +28,8 @@ class ExportShape(ExportModel):
     samples: tuple[float, ...]
     phase: tuple[float, ...] = ()
     raster_s: float
+    axis: Literal["gx", "gy", "gz"] | None = None
+    carrier_offset_hz: float | None = None
 
 
 class ExportBlock(ExportModel):
@@ -57,8 +59,12 @@ def _shape_id(
     samples: tuple[float, ...],
     phase: tuple[float, ...],
     raster_s: float,
+    semantic_discriminator: str | float | None = None,
 ) -> str:
-    raw = json.dumps([kind, samples, phase, raster_s], separators=(",", ":"))
+    raw = json.dumps(
+        [kind, samples, phase, raster_s, semantic_discriminator],
+        separators=(",", ":"),
+    )
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
@@ -69,7 +75,11 @@ def build_export_ir(sequence: ExecutableSequenceIR) -> ExportIR:
         rf_id = None
         if block.rf is not None:
             rf_id = _shape_id(
-                "rf", block.rf.samples_ut, block.rf.phase_rad, block.rf.raster_s
+                "rf",
+                block.rf.samples_ut,
+                block.rf.phase_rad,
+                block.rf.raster_s,
+                block.rf.carrier_offset_hz,
             )
             shapes[rf_id] = ExportShape(
                 id=rf_id,
@@ -77,17 +87,23 @@ def build_export_ir(sequence: ExecutableSequenceIR) -> ExportIR:
                 samples=block.rf.samples_ut,
                 phase=block.rf.phase_rad,
                 raster_s=block.rf.raster_s,
+                carrier_offset_hz=block.rf.carrier_offset_hz,
             )
         gradient_ids = []
         for gradient in block.gradients:
             shape_id = _shape_id(
-                "gradient", gradient.samples_mt_m, (), gradient.raster_s
+                "gradient",
+                gradient.samples_mt_m,
+                (),
+                gradient.raster_s,
+                gradient.axis,
             )
             shapes[shape_id] = ExportShape(
                 id=shape_id,
                 kind="gradient",
                 samples=gradient.samples_mt_m,
                 raster_s=gradient.raster_s,
+                axis=gradient.axis,
             )
             gradient_ids.append(shape_id)
         blocks.append(

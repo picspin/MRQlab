@@ -55,3 +55,40 @@ def test_contract_rejects_mismatched_rf_samples_and_non_finite_gradient():
         GradientWaveform(
             axis="gx", samples_mt_m=(0, math.inf), raster_s=10e-6
         )
+
+
+@pytest.mark.parametrize(
+    ("factory", "field"),
+    (
+        (
+            lambda: RfWaveform(
+                samples_ut=(1,),
+                phase_rad=(0,),
+                raster_s=1e-6,
+                carrier_offset_hz=math.inf,
+            ),
+            "carrier_offset_hz",
+        ),
+        (
+            lambda: AdcWindow(
+                delay_s=0,
+                dwell_s=1e-6,
+                sample_count=1,
+                frequency_offset_hz=math.nan,
+            ),
+            "frequency_offset_hz",
+        ),
+        (
+            lambda: AdcWindow(
+                delay_s=0,
+                dwell_s=1e-6,
+                sample_count=1,
+                phase_offset_rad=math.inf,
+            ),
+            "phase_offset_rad",
+        ),
+    ),
+)
+def test_contract_rejects_non_finite_scalar_offsets(factory, field):
+    with pytest.raises(ValidationError, match=field):
+        factory()

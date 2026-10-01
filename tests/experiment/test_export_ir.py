@@ -2,6 +2,7 @@ from pathlib import Path
 
 from mrqlab_experiment.clinical_catalog import RESEARCH_3T
 from mrqlab_experiment.executable_sequence import (
+    GradientWaveform,
     LogicalBlock,
     LogicalSequenceIR,
     RfWaveform,
@@ -38,3 +39,59 @@ def test_frontend_and_kernel_do_not_gain_a_pulseq_adapter_in_b_core():
     assert not Path(
         "packages/mrqlab_experiment/mrqlab_experiment/pulseq_adapter.py"
     ).exists()
+
+
+def test_export_shape_identity_preserves_carrier_offset_and_gradient_axis():
+    logical = LogicalSequenceIR(
+        id="shape-semantics",
+        duration_s=0.01,
+        blocks=(
+            LogicalBlock(
+                id="rf-a",
+                start_s=0,
+                rf=RfWaveform(
+                    samples_ut=(0, 1),
+                    phase_rad=(0, 0),
+                    raster_s=1e-6,
+                    carrier_offset_hz=0,
+                ),
+            ),
+            LogicalBlock(
+                id="rf-b",
+                start_s=0.001,
+                rf=RfWaveform(
+                    samples_ut=(0, 1),
+                    phase_rad=(0, 0),
+                    raster_s=1e-6,
+                    carrier_offset_hz=100,
+                ),
+            ),
+            LogicalBlock(
+                id="gx",
+                start_s=0.002,
+                gradients=(
+                    GradientWaveform(
+                        axis="gx", samples_mt_m=(0, 1), raster_s=10e-6
+                    ),
+                ),
+            ),
+            LogicalBlock(
+                id="gy",
+                start_s=0.003,
+                gradients=(
+                    GradientWaveform(
+                        axis="gy", samples_mt_m=(0, 1), raster_s=10e-6
+                    ),
+                ),
+            ),
+        ),
+    )
+    export_ir = build_export_ir(lower_sequence(logical, RESEARCH_3T))
+    assert len(export_ir.shapes) == 4
+    assert export_ir.blocks[0].rf_shape_id != export_ir.blocks[1].rf_shape_id
+    assert {
+        shape.axis for shape in export_ir.shapes if shape.kind == "gradient"
+    } == {"gx", "gy"}
+    assert {
+        shape.carrier_offset_hz for shape in export_ir.shapes if shape.kind == "rf"
+    } == {0, 100}
