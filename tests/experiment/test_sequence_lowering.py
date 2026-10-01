@@ -98,4 +98,3 @@ def test_lowering_rejects_simultaneous_separate_block_adc_and_rf():
     ))
     with pytest.raises(ValueError, match="ADC begins before RF dead time and ringdown complete"):
         lower_sequence(logical, RESEARCH_3T)
-
