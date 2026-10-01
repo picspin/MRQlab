@@ -3,6 +3,15 @@ from .compiler import compile_sequence
 from .clinical import ClinicalProtocolRecipe, ParameterState
 from .clinical_catalog import build_protocol_experiment, get_protocol_recipe, list_protocol_recipes
 from .disturbances import Disturbance, DisturbanceStack, stack_from_reality
+from .executable_sequence import (
+    AdcWindow,
+    ExecutableBlock,
+    ExecutableSequenceIR,
+    GradientWaveform,
+    LogicalBlock,
+    LogicalSequenceIR,
+    RfWaveform,
+)
 from .gradient import (
     DiffusionSpec,
     GradientHardwareConstraints,
@@ -88,14 +97,20 @@ from .sequence_compose import Block, ComposeSequenceRequest, compose_sequence
 from .sequence_patch import SequencePatchRequest, patch_sequence
 
 __all__ = [
+    "AdcWindow",
     "CapabilityMismatch",
     "CompilerSpan",
     "Disturbance",
     "DisturbanceStack",
     "DisturbanceModel",
     "ExecutionPlan",
+    "ExecutableBlock",
+    "ExecutableSequenceIR",
     "ExperimentGraph",
     "KernelRun",
+    "GradientWaveform",
+    "LogicalBlock",
+    "LogicalSequenceIR",
     "ObjectiveConstraint",
     "ObjectiveFunction",
     "ObjectiveTerm",
@@ -107,6 +122,7 @@ __all__ = [
     "PulseDefinition",
     "PulsePropagator",
     "PulseResponse",
+    "RfWaveform",
     "HardPulsePropagator",
     "SmallTipPropagator",
     "SpatialBlochPropagator",
