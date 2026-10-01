@@ -89,3 +89,13 @@ def test_lowering_fails_when_same_block_adc_begins_during_rf_dead_time():
     ),))
     with pytest.raises(ValueError, match="ADC begins before RF dead time and ringdown complete"):
         lower_sequence(logical, RESEARCH_3T)
+
+
+def test_lowering_rejects_simultaneous_separate_block_adc_and_rf():
+    logical = LogicalSequenceIR(id="simultaneous", duration_s=.01, blocks=(
+        LogicalBlock(id="adc", start_s=0, adc=AdcWindow(delay_s=0, dwell_s=1e-6, sample_count=4)),
+        LogicalBlock(id="rf", start_s=0, rf=RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6)),
+    ))
+    with pytest.raises(ValueError, match="ADC begins before RF dead time and ringdown complete"):
+        lower_sequence(logical, RESEARCH_3T)
+

@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal, ROUND_CEILING, ROUND_HALF_UP
 
 from .clinical import ScannerProfile
-from .executable_sequence import (
-    ExecutableBlock,
-    ExecutableSequenceIR,
-    LogicalSequenceIR,
-)
+from .executable_sequence import ExecutableBlock, ExecutableSequenceIR, LogicalSequenceIR
 
 
 def _quantize(value: float, raster: float) -> float:
-    ticks = (Decimal(str(value)) / Decimal(str(raster))).quantize(
-        Decimal("1"), rounding=ROUND_HALF_UP
-    )
+    ticks = (Decimal(str(value)) / Decimal(str(raster))).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
+    return float(ticks * Decimal(str(raster)))
+
+
+def _quantize_ceil(value: float, raster: float) -> float:
+    ticks = (Decimal(str(value)) / Decimal(str(raster))).quantize(Decimal("1"), rounding=ROUND_CEILING)
     return float(ticks * Decimal(str(raster)))
 
 
@@ -21,18 +20,22 @@ def _exact_multiple(value: float, raster: float, tolerance: float = 1e-12) -> bo
     return abs(value - _quantize(value, raster)) <= tolerance
 
 
-def lower_sequence(
-    logical: LogicalSequenceIR, profile: ScannerProfile
-) -> ExecutableSequenceIR:
+def lower_sequence(logical: LogicalSequenceIR, profile: ScannerProfile) -> ExecutableSequenceIR:
+    # Pass 1: Build comprehensive RF guard intervals for all RF pulses
+    rf_guards: list[tuple[float, float]] = []
+    for block in logical.blocks:
+        if block.rf is not None:
+            r_start = _quantize(block.start_s, profile.rf_raster_s)
+            r_dur = len(block.rf.samples_ut) * block.rf.raster_s
+            r_end = r_start + r_dur + profile.rf_dead_time_s + profile.rf_ringdown_time_s
+            rf_guards.append((r_start, r_end))
+
     blocks = []
     adjustments = []
-    rf_guard_until = 0.0
+    max_block_end = 0.0
+
     for block in sorted(logical.blocks, key=lambda item: (item.start_s, item.id)):
-        raster = (
-            profile.rf_raster_s
-            if block.rf is not None
-            else profile.gradient_raster_s
-        )
+        raster = profile.rf_raster_s if block.rf is not None else profile.gradient_raster_s
         start = _quantize(block.start_s, raster)
         if start != block.start_s:
             adjustments.append(f"{block.id}.start_s: {block.start_s:g} -> {start:g}")
@@ -41,15 +44,11 @@ def lower_sequence(
         if block.rf is not None:
             if not _exact_multiple(block.rf.raster_s, profile.rf_raster_s):
                 raise ValueError("RF raster must be an exact rf_raster_s multiple")
-            rf_dur = len(block.rf.samples_ut) * block.rf.raster_s
-            durations.append(rf_dur)
-            rf_guard_until = max(rf_guard_until, start + rf_dur + profile.rf_dead_time_s + profile.rf_ringdown_time_s)
+            durations.append(len(block.rf.samples_ut) * block.rf.raster_s)
 
         for gradient in block.gradients:
             if not _exact_multiple(gradient.raster_s, profile.gradient_raster_s):
-                raise ValueError(
-                    "gradient raster must be an exact gradient_raster_s multiple"
-                )
+                raise ValueError("gradient raster must be an exact gradient_raster_s multiple")
             for sample in gradient.samples_mt_m:
                 if abs(sample) > profile.max_gradient_mt_m:
                     raise ValueError(f"gradient amplitude {sample:g} mT/m exceeds scanner limit {profile.max_gradient_mt_m:g} mT/m")
@@ -63,33 +62,31 @@ def lower_sequence(
         if block.adc is not None:
             if not _exact_multiple(block.adc.dwell_s, profile.adc_raster_s):
                 raise ValueError("ADC dwell must be an exact adc_raster_s multiple")
+            if not _exact_multiple(block.adc.delay_s, profile.adc_raster_s):
+                raise ValueError("ADC delay must be an exact adc_raster_s multiple")
             adc_start = start + block.adc.delay_s
-            if adc_start < rf_guard_until:
-                raise ValueError(
-                    "ADC begins before RF dead time and ringdown complete"
-                )
-            durations.append(
-                block.adc.delay_s
-                + block.adc.dwell_s * block.adc.sample_count
-                + profile.adc_dead_time_s
-            )
+            for rf_start, rf_end in rf_guards:
+                if adc_start >= rf_start and adc_start < rf_end:
+                    raise ValueError("ADC begins before RF dead time and ringdown complete")
+            durations.append(block.adc.delay_s + block.adc.dwell_s * block.adc.sample_count + profile.adc_dead_time_s)
+
         duration = max(durations)
         if start + duration > logical.duration_s:
             raise ValueError(f"block {block.id!r} exceeds logical sequence duration")
-        blocks.append(
-            ExecutableBlock(
-                id=block.id,
-                start_s=start,
-                duration_s=duration,
-                rf=block.rf,
-                gradients=block.gradients,
-                adc=block.adc,
-            )
-        )
+
+        max_block_end = max(max_block_end, start + duration)
+        blocks.append(ExecutableBlock(
+            id=block.id, start_s=start, duration_s=duration,
+            rf=block.rf, gradients=block.gradients, adc=block.adc,
+        ))
+
+    seq_dur = _quantize_ceil(logical.duration_s, profile.gradient_raster_s)
+    if seq_dur < max_block_end:
+        raise ValueError("quantized sequence duration cannot be smaller than block end time")
+
     return ExecutableSequenceIR(
         logical_sequence_id=logical.id,
         scanner_profile=f"{profile.id}@{profile.version}",
-        duration_s=_quantize(logical.duration_s, profile.gradient_raster_s),
-        blocks=tuple(blocks),
-        timing_adjustments=tuple(adjustments),
+        duration_s=seq_dur,
+        blocks=tuple(blocks), timing_adjustments=tuple(adjustments),
     )
