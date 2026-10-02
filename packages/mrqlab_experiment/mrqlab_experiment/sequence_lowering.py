@@ -33,31 +33,37 @@ def _raster_lcm_s(rasters: list[float]) -> float:
     return float(Decimal(lcm_int) / Decimal(scale))
 
 
+def _block_raster(block, profile: ScannerProfile) -> float:
+    rasters = []
+    if block.rf is not None:
+        rasters.append(profile.rf_raster_s)
+    if block.gradients:
+        rasters.append(profile.gradient_raster_s)
+    if block.adc is not None:
+        rasters.append(profile.adc_raster_s)
+    return _raster_lcm_s(rasters)
+
+
 def lower_sequence(logical: LogicalSequenceIR, profile: ScannerProfile) -> ExecutableSequenceIR:
-    # Pass 1: Build comprehensive RF guard intervals for all RF pulses
+    # Pass 1: derive actual quantized executable start_s for each block, and build RF guards from THAT exact start
+    block_starts: dict[str, float] = {}
     rf_guards: list[tuple[float, float]] = []
+
     for block in logical.blocks:
+        raster = _block_raster(block, profile)
+        actual_start = _quantize(block.start_s, raster)
+        block_starts[block.id] = actual_start
         if block.rf is not None:
-            r_start = _quantize(block.start_s, profile.rf_raster_s)
             r_dur = len(block.rf.samples_ut) * block.rf.raster_s
-            r_end = r_start + r_dur + profile.rf_dead_time_s + profile.rf_ringdown_time_s
-            rf_guards.append((r_start, r_end))
+            r_end = actual_start + r_dur + profile.rf_dead_time_s + profile.rf_ringdown_time_s
+            rf_guards.append((actual_start, r_end))
 
     blocks = []
     adjustments = []
     max_block_end = 0.0
 
     for block in sorted(logical.blocks, key=lambda item: (item.start_s, item.id)):
-        rasters = []
-        if block.rf is not None:
-            rasters.append(profile.rf_raster_s)
-        if block.gradients:
-            rasters.append(profile.gradient_raster_s)
-        if block.adc is not None:
-            rasters.append(profile.adc_raster_s)
-
-        raster = _raster_lcm_s(rasters)
-        start = _quantize(block.start_s, raster)
+        start = block_starts[block.id]
         if start != block.start_s:
             adjustments.append(f"{block.id}.start_s: {block.start_s:g} -> {start:g}")
 

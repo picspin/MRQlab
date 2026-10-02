@@ -119,3 +119,19 @@ def test_lowering_quantizes_mixed_rf_and_gradient_block_start_to_common_raster()
     executable = lower_sequence(logical, RESEARCH_3T)
     assert executable.blocks[0].start_s == pytest.approx(1e-5)
     assert executable.timing_adjustments == ("mixed.start_s: 6e-06 -> 1e-05",)
+
+
+def test_lowering_rejects_adc_overlapping_post_quantization_rf_guard():
+    # Mixed block at 6us quantized to 10us.
+    # RF dur = 2us (10us -> 12us), rf_dead_time_s = 100us, rf_ringdown_time_s = 30us => rf_end = 142us.
+    # Pre-quantization RF guard would have ended at 6us + 2us + 130us = 138us.
+    # An ADC at [139us, 140us) overlaps the actual 142us guard and MUST be rejected.
+    rf = RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6)
+    grad = GradientWaveform(axis="gx", samples_mt_m=(0, 1), raster_s=10e-6)
+    adc = AdcWindow(delay_s=0, dwell_s=1e-6, sample_count=1)
+    logical = LogicalSequenceIR(id="mixed-adc-overlap", duration_s=0.01, blocks=(
+        LogicalBlock(id="mixed_rf", start_s=6.0e-6, rf=rf, gradients=(grad,)),
+        LogicalBlock(id="adc_probe", start_s=139.0e-6, adc=adc),
+    ))
+    with pytest.raises(ValueError, match="ADC acquisition overlaps with RF pulse, dead time, or ringdown"):
+        lower_sequence(logical, RESEARCH_3T)
