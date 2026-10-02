@@ -53,3 +53,11 @@ def test_export_shape_preserves_gradient_axis_in_hash():
     assert len(export_ir.shapes) == 2
     shape_axes = {s.axis for s in export_ir.shapes}
     assert shape_axes == {"gx", "gy"}
+
+
+def test_export_ir_carries_total_sequence_duration_and_rf_carrier_offset():
+    rf = RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6, carrier_offset_hz=500.0)
+    logical = LogicalSequenceIR(id="export-dur", duration_s=0.02, blocks=(LogicalBlock(id="a", start_s=0, rf=rf),))
+    export_ir = build_export_ir(lower_sequence(logical, RESEARCH_3T))
+    assert export_ir.duration_s == 0.02
+    assert export_ir.shapes[0].carrier_offset_hz == 500.0

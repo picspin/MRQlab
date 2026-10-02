@@ -5,7 +5,7 @@ import json
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from .executable_sequence import AdcWindow, ExecutableSequenceIR
 
@@ -29,6 +29,7 @@ class ExportShape(ExportModel):
     samples: tuple[float, ...]
     phase: tuple[float, ...] = ()
     raster_s: float
+    carrier_offset_hz: float = 0.0
 
 
 class ExportBlock(ExportModel):
@@ -44,6 +45,7 @@ class ExportIR(ExportModel):
     schema_version: Literal["1.0"] = "1.0"
     source_logical_sequence_id: str
     scanner_profile: str
+    duration_s: float = Field(gt=0)
     shapes: tuple[ExportShape, ...]
     blocks: tuple[ExportBlock, ...]
 
@@ -59,8 +61,9 @@ def _shape_id(
     samples: tuple[float, ...],
     phase: tuple[float, ...],
     raster_s: float,
+    carrier_offset_hz: float = 0.0,
 ) -> str:
-    raw = json.dumps([kind, axis, samples, phase, raster_s], separators=(",", ":"))
+    raw = json.dumps([kind, axis, samples, phase, raster_s, carrier_offset_hz], separators=(",", ":"))
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
@@ -71,7 +74,7 @@ def build_export_ir(sequence: ExecutableSequenceIR) -> ExportIR:
         rf_id = None
         if block.rf is not None:
             rf_id = _shape_id(
-                "rf", "rf", block.rf.samples_ut, block.rf.phase_rad, block.rf.raster_s
+                "rf", "rf", block.rf.samples_ut, block.rf.phase_rad, block.rf.raster_s, block.rf.carrier_offset_hz
             )
             shapes[rf_id] = ExportShape(
                 id=rf_id,
@@ -80,11 +83,12 @@ def build_export_ir(sequence: ExecutableSequenceIR) -> ExportIR:
                 samples=block.rf.samples_ut,
                 phase=block.rf.phase_rad,
                 raster_s=block.rf.raster_s,
+                carrier_offset_hz=block.rf.carrier_offset_hz,
             )
         gradient_ids = []
         for gradient in block.gradients:
             shape_id = _shape_id(
-                "gradient", gradient.axis, gradient.samples_mt_m, (), gradient.raster_s
+                "gradient", gradient.axis, gradient.samples_mt_m, (), gradient.raster_s, 0.0
             )
             shapes[shape_id] = ExportShape(
                 id=shape_id,
@@ -92,6 +96,7 @@ def build_export_ir(sequence: ExecutableSequenceIR) -> ExportIR:
                 axis=gradient.axis,
                 samples=gradient.samples_mt_m,
                 raster_s=gradient.raster_s,
+                carrier_offset_hz=0.0,
             )
             gradient_ids.append(shape_id)
         blocks.append(
@@ -107,6 +112,7 @@ def build_export_ir(sequence: ExecutableSequenceIR) -> ExportIR:
     return ExportIR(
         source_logical_sequence_id=sequence.logical_sequence_id,
         scanner_profile=sequence.scanner_profile,
+        duration_s=sequence.duration_s,
         shapes=tuple(shapes[key] for key in sorted(shapes)),
         blocks=tuple(blocks),
     )

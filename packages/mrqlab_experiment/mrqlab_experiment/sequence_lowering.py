@@ -65,9 +65,10 @@ def lower_sequence(logical: LogicalSequenceIR, profile: ScannerProfile) -> Execu
             if not _exact_multiple(block.adc.delay_s, profile.adc_raster_s):
                 raise ValueError("ADC delay must be an exact adc_raster_s multiple")
             adc_start = start + block.adc.delay_s
+            adc_end = adc_start + block.adc.dwell_s * block.adc.sample_count
             for rf_start, rf_end in rf_guards:
-                if adc_start >= rf_start and adc_start < rf_end:
-                    raise ValueError("ADC begins before RF dead time and ringdown complete")
+                if max(adc_start, rf_start) < min(adc_end, rf_end):
+                    raise ValueError("ADC acquisition overlaps with RF pulse, dead time, or ringdown")
             durations.append(block.adc.delay_s + block.adc.dwell_s * block.adc.sample_count + profile.adc_dead_time_s)
 
         duration = max(durations)

@@ -50,7 +50,7 @@ def test_lowering_fails_when_adc_begins_inside_rf_dead_time():
         ),
     )
     with pytest.raises(
-        ValueError, match="ADC begins before RF dead time and ringdown complete"
+        ValueError, match="ADC acquisition overlaps with RF pulse"
     ):
         lower_sequence(logical, RESEARCH_3T)
 
@@ -87,7 +87,7 @@ def test_lowering_fails_when_same_block_adc_begins_during_rf_dead_time():
         rf=RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6),
         adc=AdcWindow(delay_s=1e-6, dwell_s=1e-6, sample_count=4),
     ),))
-    with pytest.raises(ValueError, match="ADC begins before RF dead time and ringdown complete"):
+    with pytest.raises(ValueError, match="ADC acquisition overlaps with RF pulse"):
         lower_sequence(logical, RESEARCH_3T)
 
 
@@ -96,5 +96,14 @@ def test_lowering_rejects_simultaneous_separate_block_adc_and_rf():
         LogicalBlock(id="adc", start_s=0, adc=AdcWindow(delay_s=0, dwell_s=1e-6, sample_count=4)),
         LogicalBlock(id="rf", start_s=0, rf=RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6)),
     ))
-    with pytest.raises(ValueError, match="ADC begins before RF dead time and ringdown complete"):
+    with pytest.raises(ValueError, match="ADC acquisition overlaps with RF pulse"):
+        lower_sequence(logical, RESEARCH_3T)
+
+
+def test_lowering_rejects_adc_starting_before_rf_and_overlapping_it():
+    logical = LogicalSequenceIR(id="pre-rf-overlap", duration_s=.01, blocks=(
+        LogicalBlock(id="adc", start_s=0, adc=AdcWindow(delay_s=0, dwell_s=1e-6, sample_count=100)),
+        LogicalBlock(id="rf", start_s=50e-6, rf=RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6)),
+    ))
+    with pytest.raises(ValueError, match="ADC acquisition overlaps with RF pulse"):
         lower_sequence(logical, RESEARCH_3T)
