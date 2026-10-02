@@ -21,15 +21,6 @@ from .export_ir import (
     assess_export,
     build_export_ir,
 )
-from .export_ir import (
-    ExportAssessment,
-    ExportBlock,
-    ExportIR,
-    ExportShape,
-    ExportState,
-    assess_export,
-    build_export_ir,
-)
 from .gradient import (
     DiffusionSpec,
     GradientHardwareConstraints,
@@ -114,7 +105,6 @@ from .resolution import ResolvedExecutionPlan
 from .sequence_lowering import lower_sequence
 from .sequence_compose import Block, ComposeSequenceRequest, compose_sequence
 from .sequence_patch import SequencePatchRequest, patch_sequence
-from .sequence_lowering import lower_sequence
 
 __all__ = [
     "AdcWindow",
@@ -131,11 +121,6 @@ __all__ = [
     "ExportState",
     "ExecutableBlock",
     "ExecutableSequenceIR",
-    "ExportAssessment",
-    "ExportBlock",
-    "ExportIR",
-    "ExportShape",
-    "ExportState",
     "ExperimentGraph",
     "KernelRun",
     "GradientWaveform",
@@ -191,14 +176,11 @@ __all__ = [
     "build_clinical_recipe",
     "assess_export",
     "build_export_ir",
-    "assess_export",
-    "build_export_ir",
     "build_protocol_experiment",
     "get_protocol_recipe",
     "list_protocol_recipes",
     "build_preset",
     "list_clinical_recipes",
-    "lower_sequence",
     "lower_sequence",
     "build_result_graph",
     "compile_physics_ir",

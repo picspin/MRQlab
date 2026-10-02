@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from decimal import Decimal, ROUND_CEILING, ROUND_HALF_UP
+from functools import reduce
+from math import gcd
 
 from .clinical import ScannerProfile
 from .executable_sequence import ExecutableBlock, ExecutableSequenceIR, LogicalSequenceIR
@@ -20,6 +22,17 @@ def _exact_multiple(value: float, raster: float, tolerance: float = 1e-12) -> bo
     return abs(value - _quantize(value, raster)) <= tolerance
 
 
+def _raster_lcm_s(rasters: list[float]) -> float:
+    if not rasters:
+        return 1e-6
+    dec_rasters = [Decimal(str(r)) for r in rasters]
+    max_places = max(-d.as_tuple().exponent for d in dec_rasters)
+    scale = 10 ** max_places
+    integers = [int(d * scale) for d in dec_rasters]
+    lcm_int = reduce(lambda a, b: (a * b) // gcd(a, b), integers)
+    return float(Decimal(lcm_int) / Decimal(scale))
+
+
 def lower_sequence(logical: LogicalSequenceIR, profile: ScannerProfile) -> ExecutableSequenceIR:
     # Pass 1: Build comprehensive RF guard intervals for all RF pulses
     rf_guards: list[tuple[float, float]] = []
@@ -35,7 +48,15 @@ def lower_sequence(logical: LogicalSequenceIR, profile: ScannerProfile) -> Execu
     max_block_end = 0.0
 
     for block in sorted(logical.blocks, key=lambda item: (item.start_s, item.id)):
-        raster = profile.rf_raster_s if block.rf is not None else profile.gradient_raster_s
+        rasters = []
+        if block.rf is not None:
+            rasters.append(profile.rf_raster_s)
+        if block.gradients:
+            rasters.append(profile.gradient_raster_s)
+        if block.adc is not None:
+            rasters.append(profile.adc_raster_s)
+
+        raster = _raster_lcm_s(rasters)
         start = _quantize(block.start_s, raster)
         if start != block.start_s:
             adjustments.append(f"{block.id}.start_s: {block.start_s:g} -> {start:g}")

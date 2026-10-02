@@ -107,3 +107,15 @@ def test_lowering_rejects_adc_starting_before_rf_and_overlapping_it():
     ))
     with pytest.raises(ValueError, match="ADC acquisition overlaps with RF pulse"):
         lower_sequence(logical, RESEARCH_3T)
+
+
+def test_lowering_quantizes_mixed_rf_and_gradient_block_start_to_common_raster():
+    # RF raster is 1us, Gradient raster is 10us. Mixed block start 6.0us rounds to 10us (1e-5).
+    rf = RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6)
+    grad = GradientWaveform(axis="gx", samples_mt_m=(0, 1), raster_s=10e-6)
+    logical = LogicalSequenceIR(id="mixed-lcm", duration_s=0.01, blocks=(
+        LogicalBlock(id="mixed", start_s=6.0e-6, rf=rf, gradients=(grad,)),
+    ))
+    executable = lower_sequence(logical, RESEARCH_3T)
+    assert executable.blocks[0].start_s == pytest.approx(1e-5)
+    assert executable.timing_adjustments == ("mixed.start_s: 6e-06 -> 1e-05",)
