@@ -54,6 +54,8 @@ Observation
 
 A compiler may emit representation spans such as `BlochSpan` and `EPGSpan`. ssEPG receives its own path rather than an EPG feature flag. See [ADR-0002](adr/ADR-0002-three-layer-ir.md).
 
+Frontend components author `LogicalSequenceIR`, never Pulseq. Lowering produces `ExecutableSequenceIR`, then adapter-neutral `ExportIR`; even `TARGET_PROFILE_VALID` always advances to `HARDWARE_REVIEW_REQUIRED`, never to a scanner-ready claim. A Pulseq adapter is a later separately reviewed wave.
+
 ## 4. Kernel responsibilities and exclusions
 
 The experiment kernel in `packages/mrqlab_experiment` owns:
@@ -147,3 +149,5 @@ Microkernel describes in-process code boundaries, not microservices. Implementat
 - `/simulate` builds an implicit experiment and calls the same service as `/experiments/run`.
 
 AI Lab is last. This wave publishes schemas only for tools over `ExperimentGraph` (`docs/agent-tools/`). No runtime agent and no network dependency are introduced. The simulator core remains offline-capable.
+
+Frontend components author `LogicalSequenceIR`, never Pulseq. Lowering produces `ExecutableSequenceIR`, then adapter-neutral `ExportIR`; even `TARGET_PROFILE_VALID` always advances to `HARDWARE_REVIEW_REQUIRED`, never to a scanner-ready claim. A Pulseq adapter is a later separately reviewed wave.
