@@ -36,3 +36,5 @@ The v0.67 Control Bank overlays saturation B1, offset span, and pulsed duty cycl
 ## Delivery
 
 After the local learning loop is stable, the static/web surface may deploy to Vercel or Cloudflare and the API to a separately bounded Python host. Codex Cloud is a development agent only; it is not runtime infrastructure, a simulator backend, or a deployment target. Real scanner hardware, MaRCoS, Red Pitaya, and acquisition services remain out of scope.
+
+- Feature PRs must ship an Ablation Report ([ADR-0007](adr/ADR-0007-pr-ablation-gate.md)): prove the new module is necessary; delete unused abstractions before merge.

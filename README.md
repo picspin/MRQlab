@@ -14,6 +14,8 @@ The product center is an experiment (`ExperimentGraph`), compiled through three 
 | [Architecture](docs/ARCHITECTURE.md) | Public experiment-kernel narrative |
 | [Physics](docs/PHYSICS.md) | Representation / operator split and capability matrix |
 | [Roadmap](docs/ROADMAP.md) | v0.1 hold line and later waves |
+| [Contributing](CONTRIBUTING.md) | One seam per PR; ablation gate |
+| [ADR-0007](docs/adr/ADR-0007-pr-ablation-gate.md) | Feature PRs must ablate new modules |
 | [Agent tool schemas](docs/agent-tools/) | Offline JSON Schema tools over `ExperimentGraph` |
 
 ## Monorepo
