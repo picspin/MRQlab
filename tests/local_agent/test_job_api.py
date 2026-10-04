@@ -59,3 +59,25 @@ def test_job_api_never_accepts_a_filesystem_path():
         headers=HEADERS,
     )
     assert response.status_code == 422
+
+
+def test_job_api_enforces_lease_concurrency_limit():
+    from mrqlab_agent.main import store
+    from mrqlab_agent.models import JobRecord
+    claims = LeaseClaims(
+        iss="mrqlab-license", aud="mrqlab-local-runtime", lease_id="l1",
+        organization_id="o1", device_id="d1", device_public_key_hash="pkh",
+        fingerprint_hash="fph", issued_at=1000, not_before=1000, expires_at=2000,
+        offline_grace_until=2100, product="pro", features=frozenset({"compute.cpu", "jobs.cancel"}),
+        limits={"max_concurrent_jobs": 1}, software={"min_version": "1.0"}, key_id="k1",
+    )
+    decision = LeaseDecision(state="active", claims=claims)
+    app.dependency_overrides[verify_lease] = lambda: decision
+
+    # Pre-occupy concurrency slot with a running job
+    store.create(JobRecord(id="busy_job", provider_id="local_cpu_numpy", plan_fingerprint="fp", status="running"))
+
+    graph = build_protocol_experiment("brain_lesion_t2_tse")
+    res = client.post("/jobs", json={"provider_id": "local_cpu_numpy", "experiment": graph.model_dump(mode="json")}, headers=HEADERS)
+    assert res.status_code == 429
+    assert "concurrent jobs reached" in res.text

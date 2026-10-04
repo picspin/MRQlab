@@ -30,9 +30,12 @@ class CpuExecutionProvider:
     def capabilities(self) -> CapabilitySet:
         return CapabilitySet(features=frozenset({"cpu.numpy", "jobs", "cancel", "artifacts"}))
 
-    def submit(self, plan) -> JobHandle:
+    def submit(self, plan, max_concurrent: int | None = None) -> JobHandle:
         job_id = str(uuid4())
-        self.store.create(JobRecord(id=job_id, provider_id=self.descriptor.id, plan_fingerprint=plan.fingerprint, status="queued"))
+        self.store.reserve_and_create(
+            JobRecord(id=job_id, provider_id=self.descriptor.id, plan_fingerprint=plan.fingerprint, status="queued"),
+            max_concurrent=max_concurrent,
+        )
         if self.executor is not None:
             self.futures[job_id] = self.executor.submit(self._run, job_id, plan)
         return JobHandle(id=job_id, provider_id=self.descriptor.id, plan_fingerprint=plan.fingerprint, status="queued")

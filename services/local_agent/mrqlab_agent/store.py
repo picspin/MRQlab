@@ -11,13 +11,20 @@ class JobStore:
         self._events = {}
         self._artifacts = {}
 
-    def create(self, job: JobRecord) -> None:
+    def reserve_and_create(self, job: JobRecord, max_concurrent: int | None = None) -> None:
         with self._lock:
+            if max_concurrent is not None:
+                active_count = sum(1 for j in self._jobs.values() if j.status in {"queued", "running"})
+                if active_count >= max_concurrent:
+                    raise RuntimeError(f"lease limit of {max_concurrent} concurrent jobs reached")
             if job.id in self._jobs:
                 raise ValueError(f"duplicate job id {job.id}")
             self._jobs[job.id] = job
             self._events[job.id] = []
             self.append(job.id, "queued")
+
+    def create(self, job: JobRecord) -> None:
+        self.reserve_and_create(job, max_concurrent=None)
 
     def get_job(self, job_id: str) -> JobRecord:
         with self._lock:

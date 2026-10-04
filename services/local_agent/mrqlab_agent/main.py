@@ -60,18 +60,16 @@ def create_job(request: JobSubmitRequest, decision=Depends(verify_lease)):
         except PermissionError as exc:
             raise HTTPException(403, str(exc)) from exc
 
-        # Check concurrency limits if defined in lease claims
-        max_concurrent = decision.claims.limits.get("max_concurrent_jobs")
-        if max_concurrent is not None:
-            active_jobs = [j for j in store._jobs.values() if j.status in {"queued", "running"}]
-            if len(active_jobs) >= max_concurrent:
-                raise HTTPException(429, f"lease limit of {max_concurrent} concurrent jobs reached")
-
         plan = plan_experiment(request.experiment)
         report = provider.validate(plan)
         if not report.valid:
             raise ValueError(report.errors[0].message)
-        return provider.submit(plan)
+
+        max_concurrent = decision.claims.limits.get("max_concurrent_jobs")
+        try:
+            return provider.submit(plan, max_concurrent=max_concurrent)
+        except RuntimeError as exc:
+            raise HTTPException(429, str(exc)) from exc
     except (KeyError, TypeError, ValueError) as exc:
         raise HTTPException(422, str(exc)) from exc
 
