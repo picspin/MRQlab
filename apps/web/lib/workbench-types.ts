@@ -26,6 +26,14 @@ export const DEFAULT_CURSORS: LensCursors = {
   selectedTissueId: null,
 };
 
+export type ParameterState = {
+  name: string;
+  value: number | string | boolean;
+  unit: string;
+  state: "authored" | "derived" | "scanner_default" | "estimated" | "visual_only" | "unsupported" | "stale";
+  source: string;
+};
+
 export interface Observation {
   id: string;
   kind: string;
@@ -33,6 +41,11 @@ export interface Observation {
   derived_from?: string[];
   provenance?: {
     experiment_hash?: string;
+    plan_fingerprint: string;
+    clinical_recipe_id?: string | null;
+    scanner_profile?: string | null;
+    tissue_prior_set?: string | null;
+    parameters: ParameterState[];
     engine?: string;
     representation?: string;
     assumptions?: string[];

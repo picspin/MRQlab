@@ -1,9 +1,6 @@
 from dataclasses import asdict, dataclass, replace
-import hashlib
-import json
-from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from mrqlab_physics import (
     BlochMcConnellPools,
@@ -19,11 +16,12 @@ from mrqlab_physics import (
 from mrqlab_sequence import SequenceIR
 from mrqlab_physics.kernel.units import GAMMA_BAR_HZ_T
 
-from .capabilities import CapabilityMismatch, EngineValidity, REPRESENTATIONS, select_representation
+from .capabilities import CapabilityMismatch, REPRESENTATIONS, select_representation
 from .compiler import compile_sequence
 from .disturbances import disturbance_requirements
 from .models import ExperimentGraph
 from .physics_ir import PhysicsIR, compile_physics_ir
+from .resolution import ResolvedExecutionPlan, fingerprint_resolved_plan, resolve_parameter_states
 
 
 class ValidationIssue(BaseModel):
@@ -37,22 +35,7 @@ class ValidationReport(BaseModel):
     warnings: tuple[ValidationIssue, ...] = ()
 
 
-class ExecutionPlan(BaseModel):
-    experiment_id: str
-    fingerprint: str = ""
-    representation: str
-    engine: str
-    validity: EngineValidity = Field(default_factory=EngineValidity)
-    required_capabilities: tuple[str, ...]
-    preferred: str | None
-    requested_observations: tuple[str, ...] = ()
-    approximations: tuple[str, ...] = ()
-    differentiable: bool = False
-    cost_estimate: float = 0.0
-    physics_status: dict[str, str] = Field(default_factory=dict)
-    stale_dependencies: dict[str, tuple[str, ...]] = Field(default_factory=dict)
-    options: dict[str, Any]
-    reasons: tuple[str, ...]
+ExecutionPlan = ResolvedExecutionPlan
 
 
 
@@ -207,11 +190,6 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     requested = EngineOptions(**graph.engine.options)
     options = replace(requested, max_work=min(requested.max_work, graph.constraints.max_work))
     
-    raw = graph.model_dump(mode="json")
-    fingerprint = hashlib.sha256(
-        json.dumps(raw, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
-
     approximations = ()
     if selected.name == "epg":
         approximations = ("hard_rf_isochromat_average", "discrete_echo_train")
@@ -250,15 +228,28 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
         "sequence": ("signal", "image", "k_trajectory", "magnetization", "configurations", "echo_train", "sar", "objective_score", "z_spectrum", "mtr_asym"),
     }
 
-    return ExecutionPlan(
+    clinical = graph.clinical_recipe
+    resolved = ResolvedExecutionPlan(
         experiment_id=graph.id,
-        fingerprint=fingerprint,
+        clinical_recipe_id=clinical.id if clinical else None,
+        experiment_snapshot=graph.model_dump(mode="json"),
         representation=selected.name,
         engine=selected.name,
         validity=selected.validity,
         required_capabilities=tuple(sorted(required)),
         preferred=preferred,
         requested_observations=graph.readout.products,
+        parameters=resolve_parameter_states(graph, sequence),
+        scanner_profile=(
+            f"{clinical.scanner_profile.id}@{clinical.scanner_profile.version}"
+            if clinical
+            else None
+        ),
+        tissue_prior_set=(
+            f"{clinical.tissue_priors.id}@{clinical.tissue_priors.version}"
+            if clinical
+            else None
+        ),
         approximations=approximations,
         differentiable=selected.validity.differentiable,
         cost_estimate=cost_estimate,
@@ -267,6 +258,7 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
         options=asdict(options),
         reasons=(*explanations, source),
     )
+    return resolved.model_copy(update={"fingerprint": fingerprint_resolved_plan(resolved)})
 
 
 def validate_experiment(graph: ExperimentGraph) -> ValidationReport:
@@ -316,7 +308,7 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
         if b0_disturbance is None:
             raise CapabilityMismatch("pdg requires an enabled b0_map disturbance")
         sequence.metadata["pdg"] = dict(b0_disturbance.parameters)
-    options = EngineOptions(**plan.options)
+    options = EngineOptions(**dict(plan.options))
     physics_ir = compile_physics_ir(sequence, plan.representation, options)
     scanner_model = graph.effective_scanner
     try:

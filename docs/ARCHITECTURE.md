@@ -4,6 +4,10 @@
 
 Form a hypothesis → design an MR experiment → understand state evolution → observe consequence → optimize toward a clinical/physical objective.
 
+MRQLab is a research-use-only MRI contrast and protocol engineering platform. It keeps teaching Explore and is not a scanner console, diagnostic clinical decision support system, or claim of clinical readiness.
+
+The product layers are Explore / Protocol Studio / Compute / Export / Enterprise Control Plane. Tier 0 browser preview, Tier 1 in-process NumPy through synchronous `POST /experiments/run*`, and Tier 2 local high-fidelity through new `POST /jobs` providers share `ExperimentGraph`, immutable `ResolvedExecutionPlan`, `Observation`, and provenance. Capability is not entitlement: provider capability is selected by the experiment kernel, while commercial entitlement is enforced by an execution gateway outside physics operators.
+
 The product center is an experiment, not a simulator class or sequence class:
 
 ```text
@@ -50,6 +54,8 @@ Observation
 
 A compiler may emit representation spans such as `BlochSpan` and `EPGSpan`. ssEPG receives its own path rather than an EPG feature flag. See [ADR-0002](adr/ADR-0002-three-layer-ir.md).
 
+Frontend components author `LogicalSequenceIR`, never Pulseq. Lowering produces `ExecutableSequenceIR`, then adapter-neutral `ExportIR`; even `TARGET_PROFILE_VALID` always advances to `HARDWARE_REVIEW_REQUIRED`, never to a scanner-ready claim. A Pulseq adapter is a later separately reviewed wave.
+
 ## 4. Kernel responsibilities and exclusions
 
 The experiment kernel in `packages/mrqlab_experiment` owns:
@@ -83,9 +89,9 @@ Selection is set inclusion over required capabilities. Missing capabilities fail
 | Bloch | yes | hard_rf, off_resonance, spatial_encoding, magnetization_states | SE/GRE Cartesian magnetization |
 | EPG | yes | hard_rf, configuration_states, steady_state | TSE/CPMG echo trains |
 | Spectral | yes | hard_rf, off_resonance, multi_pool, magnetization_states | Independent fat/water pools |
-| ssEPG | no | hard_rf, shaped_rf, configuration_states, spatial_encoding | Dedicated future slice-selective path |
+| ssEPG | yes | hard_rf, shaped_rf, configuration_states, spatial_encoding, slice_selective | Dedicated slice-selective path with bounded current support |
 | EPG-X | yes | hard_rf, configuration_states, exchange, multi_pool | Dedicated two-pool liquid Bloch–McConnell EPG-X engine |
-| PDG | no | hard_rf, configuration_states, spatial_encoding, off_resonance | Pathway ↔ spatial image bridge |
+| PDG | yes | hard_rf, configuration_states, spatial_encoding, off_resonance, phase_distribution | Dedicated spatial B0 pathway↔image adapter path |
 | Density matrix | no | (future MRS base) | Liouville–von Neumann propagation |
 
 ## 6. Observation/ResultGraph and provenance
@@ -144,6 +150,16 @@ Microkernel describes in-process code boundaries, not microservices. Implementat
 
 AI Lab is last. This wave publishes schemas only for tools over `ExperimentGraph` (`docs/agent-tools/`). No runtime agent and no network dependency are introduced. The simulator core remains offline-capable.
 
+Frontend components author `LogicalSequenceIR`, never Pulseq. Lowering produces `ExecutableSequenceIR`, then adapter-neutral `ExportIR`; even `TARGET_PROFILE_VALID` always advances to `HARDWARE_REVIEW_REQUIRED`, never to a scanner-ready claim. A Pulseq adapter is a later separately reviewed wave.
+
 ## 11. Feature PR ablation gate
 
 See [ADR-0007](adr/ADR-0007-pr-ablation-gate.md). Every product feature PR must include an Ablation Report: keep a new module only if deleting it breaks a named lock-face test or fail-closed path; delete one-use wrappers and future-only stubs before merge.
+
+## Licensed local compute boundary
+
+`POST /experiments/run` remains synchronous Tier 1 NumPy execution. Tier 2 is a separate loopback local gateway exposing `POST /jobs`, status, cancel, events, artifacts, and read-only capability discovery. CPU workers ship first; GPU remains an optional provider that fails closed until registered.
+
+Capability is not entitlement. Provider capability answers whether work can execute; an Ed25519-signed device lease answers whether it may execute. The execution gateway verifies audience, device binding, time, offline grace, feature entitlement, and limits before provider submission. Physics operators do not import licensing code.
+
+The gateway binds loopback, enforces a strict browser-origin allowlist, local pairing, CSRF checks, and opaque artifact ids. The browser receives capability and lease-state summaries only; it never receives private keys, signing keys, or long-lived API keys.

@@ -1,6 +1,26 @@
 from .capabilities import CapabilityMismatch, StateRepresentation, select_representation
 from .compiler import compile_sequence
+from .clinical import ClinicalProtocolRecipe, ParameterState
+from .clinical_catalog import build_protocol_experiment, get_protocol_recipe, list_protocol_recipes
 from .disturbances import Disturbance, DisturbanceStack, stack_from_reality
+from .executable_sequence import (
+    AdcWindow,
+    ExecutableBlock,
+    ExecutableSequenceIR,
+    GradientWaveform,
+    LogicalBlock,
+    LogicalSequenceIR,
+    RfWaveform,
+)
+from .export_ir import (
+    ExportAssessment,
+    ExportBlock,
+    ExportIR,
+    ExportShape,
+    ExportState,
+    assess_export,
+    build_export_ir,
+)
 from .gradient import (
     DiffusionSpec,
     GradientHardwareConstraints,
@@ -81,18 +101,39 @@ from .presets import (
     build_preset,
     list_clinical_recipes,
 )
+from .resolution import ResolvedExecutionPlan
+from .execution_provider import (
+    CapabilitySet,
+    ExecutionProvider,
+    InProcessNumpyProvider,
+    JobHandle,
+    ProviderDescriptor,
+    ResourceEstimate,
+)
+from .sequence_lowering import lower_sequence
 from .sequence_compose import Block, ComposeSequenceRequest, compose_sequence
 from .sequence_patch import SequencePatchRequest, patch_sequence
 
 __all__ = [
+    "AdcWindow",
     "CapabilityMismatch",
     "CompilerSpan",
     "Disturbance",
     "DisturbanceStack",
     "DisturbanceModel",
     "ExecutionPlan",
+    "ExportAssessment",
+    "ExportBlock",
+    "ExportIR",
+    "ExportShape",
+    "ExportState",
+    "ExecutableBlock",
+    "ExecutableSequenceIR",
     "ExperimentGraph",
     "KernelRun",
+    "GradientWaveform",
+    "LogicalBlock",
+    "LogicalSequenceIR",
     "ObjectiveConstraint",
     "ObjectiveFunction",
     "ObjectiveTerm",
@@ -104,6 +145,7 @@ __all__ = [
     "PulseDefinition",
     "PulsePropagator",
     "PulseResponse",
+    "RfWaveform",
     "HardPulsePropagator",
     "SmallTipPropagator",
     "SpatialBlochPropagator",
@@ -111,11 +153,20 @@ __all__ = [
     "compile_pulse",
     "ResultEdge",
     "ResultGraph",
+    "ResolvedExecutionPlan",
+    "CapabilitySet",
+    "ExecutionProvider",
+    "InProcessNumpyProvider",
+    "JobHandle",
+    "ProviderDescriptor",
+    "ResourceEstimate",
     "ScannerModel",
     "StateRepresentation",
     "TissueModel",
     "ValidationReport",
     "ClinicalRecipeSpec",
+    "ClinicalProtocolRecipe",
+    "ParameterState",
     "ClinicalCNRTerm",
     "OptimizeAnalysis",
     "OptimizeGoal",
@@ -137,8 +188,14 @@ __all__ = [
     "inspect_pulse_dict",
     "evaluate_multi_tissue_contrast",
     "build_clinical_recipe",
+    "assess_export",
+    "build_export_ir",
+    "build_protocol_experiment",
+    "get_protocol_recipe",
+    "list_protocol_recipes",
     "build_preset",
     "list_clinical_recipes",
+    "lower_sequence",
     "build_result_graph",
     "compile_physics_ir",
     "compile_sequence",

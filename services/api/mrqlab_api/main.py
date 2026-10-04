@@ -14,6 +14,7 @@ from mrqlab_experiment import (
     build_preset,
     build_result_graph,
     list_clinical_recipes,
+    list_protocol_recipes,
     run_experiment,
     validate_experiment,
 )
@@ -187,6 +188,13 @@ def clinical_recipes():
             {"id": name, "experiment": build_clinical_recipe(name).model_dump(mode="json")}
             for name in recipes
         ]
+    }
+
+
+@app.get("/protocol-recipes")
+def protocol_recipes():
+    return {
+        "recipes": [recipe.model_dump(mode="json") for recipe in list_protocol_recipes()]
     }
 
 
