@@ -46,6 +46,10 @@ The v0.67 Control Bank overlays saturation B1, offset span, and pulsed duty cycl
 
 `LogicalSequenceIR → ExecutableSequenceIR → ExportIR`; frontend does not author Pulseq.
 
+Frontend components author `LogicalSequenceIR`, never Pulseq. Lowering produces `ExecutableSequenceIR`, then adapter-neutral `ExportIR`; even `TARGET_PROFILE_VALID` always advances to `HARDWARE_REVIEW_REQUIRED`, never to a scanner-ready claim. A Pulseq adapter is a later separately reviewed wave.
+
+Frontend components author `LogicalSequenceIR`, never Pulseq. Lowering produces `ExecutableSequenceIR`, then adapter-neutral `ExportIR`; even `TARGET_PROFILE_VALID` always advances to `HARDWARE_REVIEW_REQUIRED`, never to a scanner-ready claim. A Pulseq adapter is a later separately reviewed wave.
+
 ### Milestone C — Licensed Local Compute (parked)
 
 New `ExecutionProvider` jobs, CPU then optional GPU, with capability separate from execution-gateway entitlement.
