@@ -17,11 +17,11 @@ local_security = LocalSecurity(frozenset({"https://app.mrqlab.local", "http://12
 lease_verifier: LeaseVerifier | None = None
 
 
-def require_local_security(request: Request):
-    local_security.verify(request)
+def require_local_security(request: Request, response: Response):
+    local_security.verify(request, response)
 
 
-def require_compute_entitlement(authorization: str = Header(default="")):
+def verify_lease(authorization: str = Header(default="")):
     if lease_verifier is None:
         raise HTTPException(503, "lease verifier is not configured")
     if not authorization.startswith("Lease "):
@@ -31,7 +31,6 @@ def require_compute_entitlement(authorization: str = Header(default="")):
             authorization.removeprefix("Lease "),
             wall_time=time.time(), monotonic_time=time.monotonic(),
         )
-        require_entitlement(decision, "compute.cpu")
         return decision
     except PermissionError as exc:
         raise HTTPException(403, str(exc)) from exc
@@ -39,14 +38,35 @@ def require_compute_entitlement(authorization: str = Header(default="")):
         raise HTTPException(401, str(exc)) from exc
 
 
+@app.options("/{path:path}")
+def preflight_handler(request: Request, path: str):
+    resp = Response(status_code=204)
+    local_security.handle_cors(request, resp)
+    return resp
+
+
 @app.post(
     "/jobs",
     status_code=status.HTTP_202_ACCEPTED,
-    dependencies=[Depends(require_local_security), Depends(require_compute_entitlement)],
+    dependencies=[Depends(require_local_security)],
 )
-def create_job(request: JobSubmitRequest):
+def create_job(request: JobSubmitRequest, decision=Depends(verify_lease)):
     try:
         provider = providers.get(request.provider_id)
+        # Check provider-specific entitlement (e.g. compute.gpu for local_gpu, compute.cpu for CPU)
+        required_feature = "compute.gpu" if provider.descriptor.device == "gpu" else "compute.cpu"
+        try:
+            require_entitlement(decision, required_feature)
+        except PermissionError as exc:
+            raise HTTPException(403, str(exc)) from exc
+
+        # Check concurrency limits if defined in lease claims
+        max_concurrent = decision.claims.limits.get("max_concurrent_jobs")
+        if max_concurrent is not None:
+            active_jobs = [j for j in store._jobs.values() if j.status in {"queued", "running"}]
+            if len(active_jobs) >= max_concurrent:
+                raise HTTPException(429, f"lease limit of {max_concurrent} concurrent jobs reached")
+
         plan = plan_experiment(request.experiment)
         report = provider.validate(plan)
         if not report.valid:
@@ -66,9 +86,13 @@ def get_job(job_id: str):
 
 @app.post(
     "/jobs/{job_id}/cancel",
-    dependencies=[Depends(require_local_security), Depends(require_compute_entitlement)],
+    dependencies=[Depends(require_local_security)],
 )
-def cancel_job(job_id: str):
+def cancel_job(job_id: str, decision=Depends(verify_lease)):
+    try:
+        require_entitlement(decision, "jobs.cancel")
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc)) from exc
     try:
         job = store.get_job(job_id)
         providers.get(job.provider_id).cancel(job_id)

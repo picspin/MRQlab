@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+from threading import RLock
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
@@ -19,23 +20,28 @@ def _decode(value: str) -> bytes:
 class TrustedClock:
     def __init__(self, max_rollback_s: float = 300):
         self.max_rollback_s = max_rollback_s
+        self._lock = RLock()
         self._wall = None
         self._monotonic = None
 
     def observe(self, *, wall_time: float, monotonic_time: float) -> None:
-        self._wall = wall_time
-        self._monotonic = monotonic_time
+        with self._lock:
+            self._wall = wall_time
+            self._monotonic = monotonic_time
 
     def now(self, *, wall_time: float, monotonic_time: float) -> float:
-        if self._wall is None:
-            self.observe(wall_time=wall_time, monotonic_time=monotonic_time)
-            return wall_time
-        expected = self._wall + max(0, monotonic_time - self._monotonic)
-        if wall_time < expected - self.max_rollback_s:
-            raise ValueError("wall clock rollback exceeds trusted-time tolerance")
-        current = max(wall_time, expected)
-        self.observe(wall_time=current, monotonic_time=monotonic_time)
-        return current
+        with self._lock:
+            if self._wall is None:
+                self._wall = wall_time
+                self._monotonic = monotonic_time
+                return wall_time
+            expected = self._wall + max(0, monotonic_time - self._monotonic)
+            if wall_time < expected - self.max_rollback_s:
+                raise ValueError("wall clock rollback exceeds trusted-time tolerance")
+            current = max(wall_time, expected)
+            self._wall = current
+            self._monotonic = monotonic_time
+            return current
 
 
 class LeaseVerifier:
@@ -46,10 +52,15 @@ class LeaseVerifier:
 
     def verify(self, token: str, *, wall_time: float, monotonic_time: float) -> LeaseDecision:
         try:
-            encoded_header, encoded_payload, encoded_signature = token.split(".")
+            parts = token.split(".")
+            if len(parts) != 3:
+                raise ValueError("malformed lease token")
+            encoded_header, encoded_payload, encoded_signature = parts
             header = json.loads(_decode(encoded_header))
             payload = json.loads(_decode(encoded_payload))
-        except (ValueError, json.JSONDecodeError) as exc:
+            if not isinstance(header, dict) or not isinstance(payload, dict):
+                raise ValueError("malformed lease token payload")
+        except Exception as exc:
             raise ValueError("malformed lease token") from exc
         if header.get("alg") != "EdDSA":
             raise ValueError("lease algorithm must be EdDSA")
@@ -60,9 +71,12 @@ class LeaseVerifier:
             raise ValueError(f"untrusted lease key id {kid!r}") from None
         try:
             key.verify(_decode(encoded_signature), f"{encoded_header}.{encoded_payload}".encode())
-        except InvalidSignature as exc:
+        except Exception as exc:
             raise ValueError("invalid lease signature") from exc
-        claims = LeaseClaims.model_validate(payload)
+        try:
+            claims = LeaseClaims.model_validate(payload)
+        except Exception as exc:
+            raise ValueError("malformed lease claims") from exc
         if claims.key_id != kid:
             raise ValueError("lease key id mismatch")
         if claims.iss != "mrqlab-license" or claims.aud != "mrqlab-local-runtime":

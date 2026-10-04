@@ -4,7 +4,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from mrqlab_experiment import build_protocol_experiment
-from mrqlab_agent.main import app, local_security, require_compute_entitlement
+from mrqlab_agent.main import app, local_security, verify_lease
+from mrqlab_agent.models import LeaseClaims, LeaseDecision
 
 HEADERS = {
     "origin": "https://app.mrqlab.local",
@@ -16,7 +17,15 @@ client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def entitled_request():
-    app.dependency_overrides[require_compute_entitlement] = lambda: object()
+    claims = LeaseClaims(
+        iss="mrqlab-license", aud="mrqlab-local-runtime", lease_id="l1",
+        organization_id="o1", device_id="d1", device_public_key_hash="pkh",
+        fingerprint_hash="fph", issued_at=1000, not_before=1000, expires_at=2000,
+        offline_grace_until=2100, product="pro", features=frozenset({"compute.cpu", "jobs.cancel"}),
+        limits={}, software={"min_version": "1.0"}, key_id="k1",
+    )
+    decision = LeaseDecision(state="active", claims=claims)
+    app.dependency_overrides[verify_lease] = lambda: decision
     yield
     app.dependency_overrides.clear()
 
