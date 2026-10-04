@@ -8,20 +8,42 @@ class JobStore:
     def __init__(self):
         self._lock = RLock()
         self._jobs = {}
+        self._fingerprints = {}  # (provider_id, plan_fingerprint) -> job_id
         self._events = {}
         self._artifacts = {}
 
-    def reserve_and_create(self, job: JobRecord, max_concurrent: int | None = None) -> None:
+    def get_by_fingerprint(self, provider_id: str, plan_fingerprint: str) -> JobRecord | None:
         with self._lock:
+            job_id = self._fingerprints.get((provider_id, plan_fingerprint))
+            if job_id is not None:
+                return self._jobs.get(job_id)
+            return None
+
+    def reserve_and_create(self, job: JobRecord, max_concurrent: int | None = None) -> tuple[JobRecord, bool]:
+        """
+        Atomically reserve and create a job by (provider_id, plan_fingerprint).
+        Returns (job_record, created_new: bool).
+        If an identical job already exists, returns the existing job and False.
+        """
+        with self._lock:
+            key = (job.provider_id, job.plan_fingerprint)
+            existing_id = self._fingerprints.get(key)
+            if existing_id is not None:
+                return self._jobs[existing_id], False
+
             if max_concurrent is not None:
                 active_count = sum(1 for j in self._jobs.values() if j.status in {"queued", "running"})
                 if active_count >= max_concurrent:
                     raise RuntimeError(f"lease limit of {max_concurrent} concurrent jobs reached")
+
             if job.id in self._jobs:
                 raise ValueError(f"duplicate job id {job.id}")
+
             self._jobs[job.id] = job
+            self._fingerprints[key] = job.id
             self._events[job.id] = []
             self.append(job.id, "queued")
+            return job, True
 
     def create(self, job: JobRecord) -> None:
         self.reserve_and_create(job, max_concurrent=None)

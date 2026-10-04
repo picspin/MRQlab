@@ -77,7 +77,22 @@ def test_job_api_enforces_lease_concurrency_limit():
     # Pre-occupy concurrency slot with a running job
     store.create(JobRecord(id="busy_job", provider_id="local_cpu_numpy", plan_fingerprint="fp", status="running"))
 
-    graph = build_protocol_experiment("brain_lesion_t2_tse")
+    graph = build_protocol_experiment("brain_lesion_t2_tse").model_copy(update={"id": "different_exp_id"})
     res = client.post("/jobs", json={"provider_id": "local_cpu_numpy", "experiment": graph.model_dump(mode="json")}, headers=HEADERS)
     assert res.status_code == 429
     assert "concurrent jobs reached" in res.text
+
+
+def test_job_api_is_idempotent_by_plan_fingerprint_and_provider():
+    graph = build_protocol_experiment("brain_lesion_t2_tse")
+    payload = {"provider_id": "local_cpu_numpy", "experiment": graph.model_dump(mode="json")}
+
+    res1 = client.post("/jobs", json=payload, headers=HEADERS)
+    assert res1.status_code == 202
+    job_id_1 = res1.json()["id"]
+
+    # Re-submitting the exact same experiment returns the identical job
+    res2 = client.post("/jobs", json=payload, headers=HEADERS)
+    assert res2.status_code == 202
+    job_id_2 = res2.json()["id"]
+    assert job_id_1 == job_id_2
