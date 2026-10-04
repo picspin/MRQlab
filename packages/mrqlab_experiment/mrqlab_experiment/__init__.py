@@ -102,6 +102,14 @@ from .presets import (
     list_clinical_recipes,
 )
 from .resolution import ResolvedExecutionPlan
+from .execution_provider import (
+    CapabilitySet,
+    ExecutionProvider,
+    InProcessNumpyProvider,
+    JobHandle,
+    ProviderDescriptor,
+    ResourceEstimate,
+)
 from .sequence_lowering import lower_sequence
 from .sequence_compose import Block, ComposeSequenceRequest, compose_sequence
 from .sequence_patch import SequencePatchRequest, patch_sequence
@@ -146,6 +154,12 @@ __all__ = [
     "ResultEdge",
     "ResultGraph",
     "ResolvedExecutionPlan",
+    "CapabilitySet",
+    "ExecutionProvider",
+    "InProcessNumpyProvider",
+    "JobHandle",
+    "ProviderDescriptor",
+    "ResourceEstimate",
     "ScannerModel",
     "StateRepresentation",
     "TissueModel",
