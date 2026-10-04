@@ -3,7 +3,7 @@ name = "mrqlab"
 version = "0.1.0"
 description = "From spin to pixel: a teaching MRI simulator"
 requires-python = ">=3.11"
-dependencies = ["fastapi>=0.110", "uvicorn>=0.27", "pydantic>=2", "numpy>=1.26"]
+dependencies = ["fastapi>=0.110", "uvicorn>=0.27", "pydantic>=2", "numpy>=1.26", "cryptography>=42"]
 
 [build-system]
 requires = ["setuptools>=68"]

@@ -44,3 +44,40 @@ from mrqlab_experiment.models import ExperimentGraph
 class JobSubmitRequest(AgentModel):
     provider_id: str
     experiment: ExperimentGraph
+
+
+class DeviceIdentity(AgentModel):
+    device_id: str
+    device_public_key_hash: str
+    fingerprint_hash: str
+
+
+class DeviceRegistrationRequest(AgentModel):
+    device_id: str
+    device_public_key_b64: str
+    device_public_key_hash: str
+    fingerprint_hash: str
+
+
+class LeaseClaims(AgentModel):
+    iss: str
+    aud: str
+    lease_id: str
+    organization_id: str
+    device_id: str
+    device_public_key_hash: str
+    fingerprint_hash: str
+    issued_at: float
+    not_before: float
+    expires_at: float
+    offline_grace_until: float
+    product: str
+    features: frozenset[str]
+    limits: dict[str, int]
+    software: dict[str, str | int]
+    key_id: str
+
+
+class LeaseDecision(AgentModel):
+    state: Literal["active", "offline_grace"]
+    claims: LeaseClaims
