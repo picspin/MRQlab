@@ -151,3 +151,15 @@ Microkernel describes in-process code boundaries, not microservices. Implementat
 AI Lab is last. This wave publishes schemas only for tools over `ExperimentGraph` (`docs/agent-tools/`). No runtime agent and no network dependency are introduced. The simulator core remains offline-capable.
 
 Frontend components author `LogicalSequenceIR`, never Pulseq. Lowering produces `ExecutableSequenceIR`, then adapter-neutral `ExportIR`; even `TARGET_PROFILE_VALID` always advances to `HARDWARE_REVIEW_REQUIRED`, never to a scanner-ready claim. A Pulseq adapter is a later separately reviewed wave.
+
+## 11. Feature PR ablation gate
+
+See [ADR-0007](adr/ADR-0007-pr-ablation-gate.md). Every product feature PR must include an Ablation Report: keep a new module only if deleting it breaks a named lock-face test or fail-closed path; delete one-use wrappers and future-only stubs before merge.
+
+## Licensed local compute boundary
+
+`POST /experiments/run` remains synchronous Tier 1 NumPy execution. Tier 2 is a separate loopback local gateway exposing `POST /jobs`, status, cancel, events, artifacts, and read-only capability discovery. CPU workers ship first; GPU remains an optional provider that fails closed until registered.
+
+Capability is not entitlement. Provider capability answers whether work can execute; an Ed25519-signed device lease answers whether it may execute. The execution gateway verifies audience, device binding, time, offline grace, feature entitlement, and limits before provider submission. Physics operators do not import licensing code.
+
+The gateway binds loopback, enforces a strict browser-origin allowlist, local pairing, CSRF checks, and opaque artifact ids. The browser receives capability and lease-state summaries only; it never receives private keys, signing keys, or long-lived API keys.
