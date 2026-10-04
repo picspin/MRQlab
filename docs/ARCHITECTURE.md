@@ -151,3 +151,7 @@ Microkernel describes in-process code boundaries, not microservices. Implementat
 AI Lab is last. This wave publishes schemas only for tools over `ExperimentGraph` (`docs/agent-tools/`). No runtime agent and no network dependency are introduced. The simulator core remains offline-capable.
 
 Frontend components author `LogicalSequenceIR`, never Pulseq. Lowering produces `ExecutableSequenceIR`, then adapter-neutral `ExportIR`; even `TARGET_PROFILE_VALID` always advances to `HARDWARE_REVIEW_REQUIRED`, never to a scanner-ready claim. A Pulseq adapter is a later separately reviewed wave.
+
+## 11. Feature PR ablation gate
+
+See [ADR-0007](adr/ADR-0007-pr-ablation-gate.md). Every product feature PR must include an Ablation Report: keep a new module only if deleting it breaks a named lock-face test or fail-closed path; delete one-use wrappers and future-only stubs before merge.
