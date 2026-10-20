@@ -91,7 +91,7 @@ Required semantics:
 
 - `ClinicalQuestion` identifies anatomy, research question, finding, and intended contrast mechanism. It contains no diagnosis or treatment recommendation.
 - `TissuePriorSet` names target, reference, and confounder tissue identifiers and owns their `TissueModel` priors.
-- `Target`, `Reference`, and `Confounder` are typed tissue-role references, not duplicate tissue-property containers.
+- `Target`, `Reference`, and `Confounder` are typed tissue-role references, not duplicate tissue-property containers. The typed reference is authoritative: validation requires the cited `TissuePrior.role` to be `target` for `Target`, `reference` for `Reference`, or one of `background`, `lumen`, and `contrast` for `Confounder`; disagreement must fail validation.
 - `ContrastMetric` identifies the compared tissues, metric kind, direction, and weight.
 - `RobustnessScenario` declares bounded B0, B1, motion, and relaxation perturbations. Declaring a scenario does not imply that every engine models it.
 - `AcquisitionConstraint` is a typed bound with an explicit unit and hard/soft severity.
@@ -278,7 +278,7 @@ The implementation of Ed25519 verification requires an explicitly approved produ
 
 ## 6. Immediate honesty outside this plan branch
 
-- PR #52 at `e43f19c` is the chrome v0.76.15 Lego RUN fail-closed seam. Cloud verdict is land; merging remains the human's decision. Pages remains v0.76.14 until merge and deployment.
+- PR #52 at `e43f19c` is the chrome v0.76.15 Lego RUN fail-closed seam. Cloud verdict is land; merged into main on 2026-09-27. Pages deployment status to be verified.
 - After that merge, delivery is Pages-first.
 - The optional next honesty seam is silent diffusion off when tissue ADC is empty versus composed `fov_m + epg`; it is not a v0.76.16 collection of UI nits.
 - Stop further 0.76.x slider and caption polishing.

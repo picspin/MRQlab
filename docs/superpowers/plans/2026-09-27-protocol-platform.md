@@ -267,10 +267,18 @@ class TissuePriorSet(FrozenModel):
         ids = [tissue.id for tissue in self.tissues]
         if len(ids) != len(set(ids)):
             raise ValueError("tissue ids must be unique")
-        known = set(ids)
-        for role in (*self.targets, *self.references, *self.confounders):
-            if role.tissue_id not in known:
-                raise ValueError(f"unknown tissue id {role.tissue_id!r}")
+        priors_by_id = {tissue.id: tissue for tissue in self.tissues}
+        # Typed references are authoritative; confounders use non-target/reference roles.
+        for roles, allowed in (
+            (self.targets, {"target"}),
+            (self.references, {"reference"}),
+            (self.confounders, {"background", "lumen", "contrast"}),
+        ):
+            for role in roles:
+                if role.tissue_id not in priors_by_id:
+                    raise ValueError(f"unknown tissue id {role.tissue_id!r}")
+                if priors_by_id[role.tissue_id].role not in allowed:
+                    raise ValueError(f"tissue role disagrees with typed reference for {role.tissue_id!r}")
         return self
 
 
@@ -1198,8 +1206,8 @@ The product layers are Explore / Protocol Studio / Compute / Export / Enterprise
 Change only the availability cells for the existing ssEPG and PDG rows:
 
 ```markdown
-| ssEPG | yes | hard_rf, shaped_rf, configuration_states, spatial_encoding, slice_selective | Dedicated slice-selective path with bounded current support |
-| PDG | yes | hard_rf, configuration_states, spatial_encoding, off_resonance, phase_distribution | Dedicated spatial B0 pathway↔image adapter path |
+| ssEPG | yes | hard_rf, shaped_rf, configuration_states, spatial_encoding, slice_selective | Dedicated slice-selective shaped RF / z-profile compiler path. |
+| PDG | yes | hard_rf, configuration_states, spatial_encoding, off_resonance, phase_distribution | Dedicated spatial B0 pathway↔image compiler on a phase-distribution grid. |
 ```
 
 Preserve all existing required strings including `ExperimentGraph`, `PhysicsOperator`, `StateRepresentation`, `ObjectiveFunction`, `Observation`, `Experiment IR`, `Sequence Compiler`, `Sequence IR`, `Physics Compiler`, `Physics IR`, `ONE Python process`, `packages/mrqlab_experiment`, `/experiments/run`, and `/simulate`.
@@ -3180,7 +3188,7 @@ Expected: no new files or modifications were created by Task 17; any listed path
 
 ## Immediate Honesty — Documented, Not Implemented on the Plan Branch
 
-- PR #52 `e43f19c` is chrome v0.76.15 Lego RUN fail-closed. Cloud verdict is land; merge is the human's call. Pages remains v0.76.14 until merge and deployment.
+- PR #52 `e43f19c` is chrome v0.76.15 Lego RUN fail-closed. Cloud verdict is land; merged into main on 2026-09-27. Pages deployment status to be verified.
 - After merge: Pages-first.
 - Optional next honesty seam: silent diffusion off for empty tissue ADC versus composed `fov_m + epg`.
 - That seam is not a v0.76.16 nit pack.

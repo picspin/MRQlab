@@ -33,7 +33,7 @@ Capability ≠ Entitlement. License lives in the execution gateway, **never** in
 - Fail-closed capability negotiation
 - Provenance / work cap / engine plugin seam
 - Modular monolith (one Python + Next.js) until Phase 4
-- Teaching honesty already on main (0.76.14 Pages) + PR #52 Lego fail-closed (OPEN, Cloud land) until user merges
+- Teaching honesty already on main + PR #52 Lego fail-closed (Cloud land), merged into main on 2026-09-27
 
 ## Do not do (audit §七 + existing workbench locks)
 
@@ -81,9 +81,9 @@ Capability ≠ Entitlement. License lives in the execution gateway, **never** in
 
 ## Immediate honesty (not Milestone A product)
 
-- PR #52 (`e43f19c`, chrome v0.76.15) Cloud **land** — merge is user's call; Pages still v0.76.14 until merge+deploy
+- PR #52 (`e43f19c`, chrome v0.76.15) Cloud **land** — merged into main on 2026-09-27; Pages deployment status to be verified
 - After merge: Pages-first, then optional one seam: silent diffusion on/off (tissue ADC empty vs compose fov_m+epg). Not a 0.76.16 nit pack
-- Stop 0.76.x nits (Jev subtract_now 0.80)
+- Stop 0.76.x nits
 
 ## Codex path
 
