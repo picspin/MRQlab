@@ -56,6 +56,7 @@ from .objectives import (
     evaluate_multi_tissue_contrast,
     evaluate_objective,
 )
+from .clinical_search import ClinicalSearchResult, SearchPoint, search_clinical_parameters
 from .optimizer import (
     OptimizeAnalysis,
     OptimizeGoal,
@@ -168,6 +169,9 @@ __all__ = [
     "ClinicalProtocolRecipe",
     "ParameterState",
     "ClinicalCNRTerm",
+    "ClinicalSearchResult",
+    "SearchPoint",
+    "search_clinical_parameters",
     "OptimizeAnalysis",
     "OptimizeGoal",
     "ParetoPoint",

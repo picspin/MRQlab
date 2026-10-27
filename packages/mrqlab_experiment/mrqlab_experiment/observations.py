@@ -6,6 +6,8 @@ import numpy as np
 from pydantic import BaseModel, Field
 
 from mrqlab_recon import fft_reconstruct
+from mrqlab_physics import EngineOptions
+from mrqlab_physics.kernel.scheduler import preflight_schedule
 
 from .clinical import ParameterState
 from .objectives import evaluate_multi_tissue_contrast, evaluate_objective
@@ -76,6 +78,30 @@ def _derived_from(product: str, emitted: frozenset[str]) -> tuple[str, ...]:
     if product in {"image", "objective_score", "configurations", "echo_train", "tissue_contrast"} and "signal" in emitted:
         return ("signal",)
     return ()
+
+
+def _echo_observation(run, provenance, emitted):
+    """One echo per nonempty ADC window, sampled at its declared start.
+
+    Raw signal retains all dwell samples; ADC dwell count is not echo count.
+    """
+    schedule = preflight_schedule(run.sequence, EngineOptions(**dict(run.plan.options)))
+    indices, times = [], []
+    offset = 0
+    for window in schedule.adc_windows:
+        if window.count:
+            indices.append(offset)
+            times.append(window.start)
+        offset += window.count
+    if offset != run.sim_result.signal.size:
+        raise ValueError("echo_train ADC schedule does not match simulated signal")
+    return Observation(
+        id="echo_train", kind="echo_train",
+        data=np.abs(run.sim_result.signal[indices]).tolist(),
+        axes={"echo": list(range(1, len(indices) + 1)), "time_s": times},
+        units={"value": "a.u.", "time_s": "s"},
+        derived_from=_derived_from("echo_train", emitted), provenance=provenance,
+    )
 
 
 def build_result_graph(run) -> ResultGraph:
@@ -191,14 +217,7 @@ def build_result_graph(run) -> ResultGraph:
             derived_from=_derived_from("configurations", emitted),
             provenance=provenance,
         ),
-        "echo_train": lambda emitted: Observation(
-            id="echo_train",
-            kind="echo_train",
-            data=np.abs(run.sim_result.signal).tolist(),
-            axes={"echo": list(range(1, int(run.sim_result.signal.size) + 1))},
-            derived_from=_derived_from("echo_train", emitted),
-            provenance=provenance,
-        ),
+        "echo_train": lambda emitted: _echo_observation(run, provenance, emitted),
         "tissue_contrast": lambda emitted: Observation(
             id="tissue_contrast",
             kind="tissue_contrast",
