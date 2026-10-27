@@ -6,6 +6,11 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 NonEmpty = Annotated[str, Field(min_length=1)]
+ClinicalUnit = Literal[
+    "s", "ms", "mm", "Hz", "T", "mT/m", "T/m/s", "deg",
+    "count", "pixel", "work_unit", "dimensionless",
+]
+
 ParameterStateKind = Literal[
     "authored",
     "derived",
@@ -155,14 +160,25 @@ class AcquisitionConstraint(FrozenModel):
     ]
     operator: Literal["le", "ge", "eq"]
     value: float
-    unit: NonEmpty
+    unit: ClinicalUnit
     severity: Literal["hard", "soft"]
+
+    @model_validator(mode="after")
+    def validate_metric_unit(self):
+        expected = {
+            "scan_time_s": "s", "sar_relative": "dimensionless",
+            "resolution_mm": "mm", "coverage_mm": "mm",
+            "echo_spacing_s": "s", "bandwidth_hz": "Hz",
+        }[self.metric]
+        if self.unit != expected:
+            raise ValueError(f"{self.metric} requires unit {expected!r}")
+        return self
 
 
 class ParameterState(FrozenModel):
     name: NonEmpty
     value: float | int | str | bool
-    unit: NonEmpty
+    unit: ClinicalUnit
     state: ParameterStateKind
     source: NonEmpty
 

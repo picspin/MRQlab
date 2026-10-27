@@ -39,3 +39,20 @@ def test_fingerprint_is_canonical_and_changes_with_resolved_input():
     assert plan_experiment(first).fingerprint == plan_experiment(second).fingerprint
     second.sequence.params["te"] = .02
     assert plan_experiment(first).fingerprint != plan_experiment(second).fingerprint
+
+
+@pytest.mark.parametrize("field", ["options", "physics_status", "stale_dependencies", "experiment_snapshot"])
+def test_resolved_mappings_reject_in_place_union(field):
+    plan = plan_experiment(build_protocol_experiment("brain_lesion_t2_tse"))
+    original = plan.model_dump(mode="json")
+    mapping = getattr(plan, field)
+    with pytest.raises(TypeError, match="immutable"):
+        mapping |= {"injected": True}
+    assert plan.model_dump(mode="json") == original
+
+
+def test_nested_snapshot_rejects_in_place_union():
+    plan = plan_experiment(build_protocol_experiment("brain_lesion_t2_tse"))
+    mapping = plan.experiment_snapshot["sequence"]["params"]
+    with pytest.raises(TypeError, match="immutable"):
+        mapping |= {"te": .5}
