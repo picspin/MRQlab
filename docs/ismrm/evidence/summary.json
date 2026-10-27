@@ -1,26 +1,60 @@
 {
   "brain_lesion_t2_tse": {
-    "api_plan_fingerprint": "5626baca8ef39a21af246a87dc488ae0196810d6a3289080621b1b54304934e6",
-    "diagnostic_pairs_not_objective_scores": {
-      "lesion-vs-wm": {
-        "difference_au": 0.21259380851363996,
-        "proxy_divided_by_0.05": 4.251876170272799
-      }
-    },
+    "api_plan_fingerprint": "fe7c031e661370a78c9ad17350554c1c19f41319d0456797bfe36177c95976d8",
+    "compiled_echoes": 16,
     "engine": "epg",
-    "graph_objective": null,
+    "executed_pairs": [
+      {
+        "absolute_signal_difference": 0.19321963576466195,
+        "id": "lesion-vs-wm",
+        "metric": "normalized_cnr_proxy",
+        "normalized_cnr_proxy": 3.864392715293239,
+        "reference_tissue_id": "white_matter",
+        "signal_ratio": 1.6474889850963212,
+        "target_tissue_id": "lesion",
+        "value": 3.864392715293239
+      }
+    ],
+    "graph_objective": {
+      "clinical_vector": {
+        "terms": [
+          {
+            "direction": "maximize",
+            "id": "lesion-vs-wm",
+            "metric": "normalized_cnr_proxy",
+            "reference_tissue_id": "white_matter",
+            "target_tissue_id": "lesion",
+            "target_value": null,
+            "weight": 1.0
+          }
+        ]
+      },
+      "cnr_term": null,
+      "constraints": [],
+      "kind": "clinical_vector",
+      "terms": []
+    },
     "http_run": 200,
     "http_validate": 200,
-    "legacy_contrast_difference": 0.21259380851363996,
-    "legacy_contrast_first_two_ids": [
+    "named_pair_differences": {
+      "lesion-vs-wm": {
+        "difference_au": 0.19321963576466195,
+        "proxy_divided_by_0.05": 3.864392715293239
+      }
+    },
+    "objective_score": -3.864392715293239,
+    "plan_fingerprint": "1a6a5bc8e8365830565a86d58d1a9318604d01c76a1e7ffe1c9ce5e745f5fe4c",
+    "primary_pair_difference": 0.19321963576466195,
+    "primary_pair_ids": [
       "lesion",
       "white_matter"
     ],
-    "plan_fingerprint": "f6c9532400618cbf389d4ef03908c19e38debc8708a93f7b6683f4d3a5de8fda",
     "products": [
       "signal",
       "k_trajectory",
-      "image"
+      "image",
+      "tissue_contrast",
+      "objective_score"
     ],
     "provenance": {
       "assumptions": [
@@ -29,9 +63,9 @@
       ],
       "clinical_recipe_id": "brain_lesion_t2_tse",
       "engine": "epg",
-      "estimated_work": 31347,
-      "experiment_hash": "eaf4cacac285eda2c5e78b9a9953a96f4c379cb1b868a3bdd772b6c84cd2c3d5",
-      "n_ops": 81,
+      "estimated_work": 119583,
+      "experiment_hash": "66b14d8d48f919b5a03480575db6174e21966836d9057c0f1dd684259ef6622b",
+      "n_ops": 309,
       "parameters": [
         {
           "name": "adc_bandwidth_hz",
@@ -59,7 +93,7 @@
           "source": "sequence compiler",
           "state": "derived",
           "unit": "count",
-          "value": 4
+          "value": 16
         },
         {
           "name": "matrix",
@@ -111,7 +145,7 @@
           "value": 3.0
         }
       ],
-      "plan_fingerprint": "5626baca8ef39a21af246a87dc488ae0196810d6a3289080621b1b54304934e6",
+      "plan_fingerprint": "fe7c031e661370a78c9ad17350554c1c19f41319d0456797bfe36177c95976d8",
       "representation": "epg",
       "scanner_profile": "research-3t@1.0.0",
       "seed": 0,
@@ -124,43 +158,96 @@
       "te": 0.01,
       "tr": 3.0
     },
-    "signal_first_au": 0.7618416485743083,
-    "signal_last_au": 0.6321595465178887,
-    "signal_mean_au": 0.6985212824927319,
-    "signal_samples": 8,
+    "signal_first_au": 0.7697446121730331,
+    "signal_last_au": 0.3576782376723029,
+    "signal_mean_au": 0.5275187914061746,
+    "signal_samples": 32,
     "tissue_mean_au": {
-      "csf": 0.9515348556668242,
-      "gray_matter": 0.6431584044964931,
-      "lesion": 0.7477129221048966,
-      "white_matter": 0.5351191135912566
+      "csf": 0.9254070483135637,
+      "gray_matter": 0.39462092088636885,
+      "lesion": 0.491633416094714,
+      "white_matter": 0.29841378033005206
     }
   },
   "knee_cartilage_meniscus_pd_t2_tse": {
-    "api_plan_fingerprint": "94f2306d7c13a3158813659089e5b4ea80363255e52c651a6a18b962995db085",
-    "diagnostic_pairs_not_objective_scores": {
-      "cartilage-vs-meniscus": {
-        "difference_au": 0.08684432936307107,
-        "proxy_divided_by_0.05": 1.7368865872614214
-      },
-      "tear-vs-meniscus": {
-        "difference_au": 0.30053503032217155,
-        "proxy_divided_by_0.05": 6.0107006064434305
-      }
-    },
+    "api_plan_fingerprint": "48656c04484887f62244ee7604d50a6c62b8d1796a34bd4589a378fed20875c8",
+    "compiled_echoes": 16,
     "engine": "epg",
-    "graph_objective": null,
+    "executed_pairs": [
+      {
+        "absolute_signal_difference": 0.08916895330644736,
+        "id": "tear-vs-meniscus",
+        "metric": "normalized_cnr_proxy",
+        "normalized_cnr_proxy": 1.7833790661289473,
+        "reference_tissue_id": "meniscus",
+        "signal_ratio": 37.99819284335597,
+        "target_tissue_id": "meniscal_tear",
+        "value": 1.7833790661289473
+      },
+      {
+        "absolute_signal_difference": 0.02474314246257058,
+        "id": "cartilage-vs-meniscus",
+        "metric": "absolute_signal_difference",
+        "normalized_cnr_proxy": 0.49486284925141155,
+        "reference_tissue_id": "meniscus",
+        "signal_ratio": 11.266483147275256,
+        "target_tissue_id": "cartilage",
+        "value": 0.02474314246257058
+      }
+    ],
+    "graph_objective": {
+      "clinical_vector": {
+        "terms": [
+          {
+            "direction": "maximize",
+            "id": "tear-vs-meniscus",
+            "metric": "normalized_cnr_proxy",
+            "reference_tissue_id": "meniscus",
+            "target_tissue_id": "meniscal_tear",
+            "target_value": null,
+            "weight": 1.0
+          },
+          {
+            "direction": "maximize",
+            "id": "cartilage-vs-meniscus",
+            "metric": "absolute_signal_difference",
+            "reference_tissue_id": "meniscus",
+            "target_tissue_id": "cartilage",
+            "target_value": null,
+            "weight": 0.5
+          }
+        ]
+      },
+      "cnr_term": null,
+      "constraints": [],
+      "kind": "clinical_vector",
+      "terms": []
+    },
     "http_run": 200,
     "http_validate": 200,
-    "legacy_contrast_difference": 0.21369070095910045,
-    "legacy_contrast_first_two_ids": [
-      "cartilage",
-      "meniscal_tear"
+    "named_pair_differences": {
+      "cartilage-vs-meniscus": {
+        "difference_au": 0.02474314246257058,
+        "proxy_divided_by_0.05": 0.49486284925141155
+      },
+      "tear-vs-meniscus": {
+        "difference_au": 0.08916895330644736,
+        "proxy_divided_by_0.05": 1.7833790661289473
+      }
+    },
+    "objective_score": -1.7957506373602325,
+    "plan_fingerprint": "54270038ced3422db5dd48288f3c58e15f20fb78cee0f241ea8980d4db96fe1d",
+    "primary_pair_difference": 0.08916895330644736,
+    "primary_pair_ids": [
+      "meniscal_tear",
+      "meniscus"
     ],
-    "plan_fingerprint": "3d70be6697daec184f867707d807e7023b85b8412dd1d982c2e30bac5998e7a7",
     "products": [
       "signal",
       "k_trajectory",
-      "image"
+      "image",
+      "tissue_contrast",
+      "objective_score"
     ],
     "provenance": {
       "assumptions": [
@@ -169,9 +256,9 @@
       ],
       "clinical_recipe_id": "knee_cartilage_meniscus_pd_t2_tse",
       "engine": "epg",
-      "estimated_work": 31347,
-      "experiment_hash": "1d8ccce60aaa6008712a9429d1932cbb94f04b6f15ec7f9232db3cd7200cdf54",
-      "n_ops": 81,
+      "estimated_work": 119583,
+      "experiment_hash": "e520c1d363b79e7958950f4c1e2d13e02e9a3e8839b62877b44e6b36f7b95b07",
+      "n_ops": 309,
       "parameters": [
         {
           "name": "adc_bandwidth_hz",
@@ -199,7 +286,7 @@
           "source": "sequence compiler",
           "state": "derived",
           "unit": "count",
-          "value": 4
+          "value": 16
         },
         {
           "name": "matrix",
@@ -251,7 +338,7 @@
           "value": 2.5
         }
       ],
-      "plan_fingerprint": "94f2306d7c13a3158813659089e5b4ea80363255e52c651a6a18b962995db085",
+      "plan_fingerprint": "48656c04484887f62244ee7604d50a6c62b8d1796a34bd4589a378fed20875c8",
       "representation": "epg",
       "scanner_profile": "research-3t@1.0.0",
       "seed": 0,
@@ -264,16 +351,16 @@
       "te": 0.045,
       "tr": 2.5
     },
-    "signal_first_au": 0.2350737812284624,
-    "signal_last_au": 0.026886952834096284,
-    "signal_mean_au": 0.09727116538657811,
-    "signal_samples": 8,
+    "signal_first_au": 0.39431829511810135,
+    "signal_last_au": 0.11925225909923798,
+    "signal_mean_au": 0.18028278454026994,
+    "signal_samples": 32,
     "tissue_mean_au": {
-      "cartilage": 0.09489869793812497,
-      "joint_fluid": 0.8681096399627728,
-      "marrow_fat": 0.17545277003238358,
-      "meniscal_tear": 0.3085893988972254,
-      "meniscus": 0.0080543685750539
+      "cartilage": 0.02715323188731555,
+      "joint_fluid": 0.7392174059609058,
+      "marrow_fat": 0.046749970984574674,
+      "meniscal_tear": 0.09157904273119233,
+      "meniscus": 0.0024100894247449725
     }
   }
 }

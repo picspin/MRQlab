@@ -1,14 +1,10 @@
-# Abstract draft — internal review only
+# Abstract draft — ISMRM 2027 Vancouver
 
-This draft is deliberately limited to evidence in the repository and recorded runs. It is not ready for submission: resolve the mandatory items in `readiness-audit.md` and check the selected meeting's official requirements before final editing. No priority, uniqueness, clinical efficacy, or scanner readiness claim is made.
+Software / teaching prototype scope; revised after execution repairs. Ready for author editing and portal formatting; user-owned fields and final scientific approval remain pending. No submission has been made.
 
-Title candidates (user to select):
+Title: MRQlab: Traceable MRI Experiment Contracts for Teaching-Oriented Protocol Exploration
 
-- MRQlab: Traceable MRI Experiment Contracts for Teaching-Oriented Protocol Exploration
-- Linking Clinical Intent to Provenance-Bearing MRI Simulation: A Research Software Prototype
-- Auditing Parameter Semantics in Brain and Knee TSE Teaching Experiments with MRQlab
-
-Submission year / meeting: [________]
+Submission year / meeting: ISMRM 2027 Vancouver
 
 Submission category: [________]
 
@@ -24,30 +20,27 @@ Funding / disclosures / ethics declarations: [________]
 
 ## Purpose
 
-MRI simulation can illustrate magnetization evolution, but interpreting a simulated protocol also requires knowing which tissue assumptions, parameter values, and approximations actually entered the calculation. We developed MRQlab as a research and teaching software prototype linking structured clinical intent to resolved experiment plans and provenance-bearing observations. We assessed contract integrity and examined the correspondence between declared protocol intent and executed calculations.
+MRI simulation can illustrate magnetization evolution, but interpreting a simulated protocol also requires knowing which tissue assumptions, parameter values, and approximations entered the calculation. We developed MRQlab as a research and teaching software prototype linking structured clinical intent to resolved experiment plans and provenance-bearing observations. We assessed software contract integrity and repaired discrepancies between declared protocol intent and executed calculations.
 
 ## Methods
 
-The platform represents sequences, tissue priors, scanner descriptions, objectives, and readouts in an experiment graph. A compiler and capability-selection layer connect this graph to existing Bloch or extended phase graph (EPG) propagation, rather than introducing a new propagation algorithm. Versioned clinical recipes identify target, reference, and confounding tissues. Resolved plans record parameter units, sources, approximations, and canonical fingerprints; observations retain execution provenance. We integrated unit-validation and plan-mutation fixes and ran the complete Python and web verification suites. Brain lesion T2/TSE and knee cartilage/meniscus PD/T2 TSE recipes were evaluated through the local application API. Additional forward runs separately simulated each declared tissue to inspect teaching signal differences. An existing ideal CPMG test compared EPG signals with an independent exponential T2 envelope.
+The platform represents sequences, synthetic tissue priors, scanner descriptions, objectives, and readouts in an experiment graph. Compilation and capability selection connect the graph to existing propagation methods. Clinical recipes identify target, reference, and confounding tissues; resolved plans record parameter units, sources, approximations, and canonical fingerprints. We added regression tests before repairing echo-count consumption, default named objective evaluation, reference-tissue selection, and multi-tissue extended phase graph (EPG) aggregation. Each tissue is propagated independently and complex signals are averaged with normalized weights. The teaching recipes use equal weights. Brain lesion T2/TSE and knee cartilage/meniscus PD/T2 TSE recipes were run through the local application API. Complete Python and web suites and TypeScript checks were run. An existing ideal CPMG test provides an independent exponential relaxation reference, while separate tissue runs check aggregate consistency.
 
 ## Results
 
-The integrated revision passed 400 Python tests and 82 web tests; TypeScript checking also passed. Both clinical recipe paths returned successful validation and execution responses with signal, trajectory, and illustrative image observations carrying plan provenance. Separately simulated mean signal differences were 0.212594 a.u. for lesion versus white matter, 0.300535 a.u. for meniscal tear versus meniscus, and 0.086844 a.u. for cartilage versus meniscus. These quantities were diagnostic teaching signal differences, not measured clinical CNR or executed clinical-objective scores. The audit identified mismatches: recipes declared 16 echoes through an unconsumed parameter while the compiled templates used 4 echoes; clinical objective vectors were not evaluated by the default run; and the legacy knee contrast summary compared the first two tissues rather than the declared reference pair. Thus, passing software tests did not establish complete protocol-semantic validity.
+The repaired revision passed 409 Python tests and 82 web tests; TypeScript checking passed. Both recipe paths returned successful validation and execution responses, with provenance-bearing signal, trajectory, illustrative image, named tissue contrast, and objective-score observations. Each recipe declared and executed 16 echoes, producing 32 ADC samples. Executed mean signal differences were 0.193220 a.u. for lesion versus white matter, 0.089169 a.u. for meniscal tear versus meniscus, and 0.024743 a.u. for cartilage versus meniscus. These are synthetic teaching signal differences. The objective combines declared named metrics and weights; its normalized contrast proxy uses a fixed assumed noise denominator rather than measured clinical noise. Aggregate API signals matched the complex average of independent tissue runs. Acquisition constraints and robustness scenarios remain declarations without evaluated satisfaction.
 
 ## Conclusion
 
-MRQlab demonstrates a traceable organization of teaching MRI experiments around clinical-intent contracts, resolved parameters, and observation provenance. The audit also exposes unresolved links between those contracts and numerical execution. These findings support further development of a research software prototype, while clinical protocol optimization and diagnostic benefit remain unvalidated. Current experiments use teaching gradients and idealized forward models, are not connected to a scanner, and do not establish hardware safety. Executable-sequence and licensed-local-compute milestones remain parked.
+MRQlab links teaching MRI experiment contracts to explicit numerical execution and inspectable provenance. Regression-driven repairs aligned declared echoes, named tissue comparisons, objective evaluation, and multi-tissue aggregation. Clinical protocol optimization, diagnostic benefit, and anatomical image fidelity remain unvalidated. The prototype uses teaching gradients and idealized models, is not connected to a scanner, and does not establish hardware safety; relative SAR is not W/kg. Executable-sequence and licensed-local-compute milestones remain parked.
 
-## Claim-to-evidence ledger (editorial notes, not abstract body)
+## Evidence ledger — exclude from portal abstract
 
-| Claim | Repository or run evidence | Boundary |
+| Claim | Evidence | Boundary |
 | --- | --- | --- |
-| 400 Python / 82 web and TypeScript pass | `evidence/integration-pytest.txt`, `integration-web.txt`, `integration-tsc.txt` | Test counts are not accuracy estimates or independent scientific samples |
-| Both API paths succeed and carry provenance | `*-validation.json`, `*-response.json`, `summary.json` | In-process TestClient; no browser or public service validation |
-| 0.212594 / 0.300535 / 0.086844 a.u. | `summary.json` → `diagnostic_pairs_not_objective_scores` | Rounded from separate tissue runs, not objective output or clinical CNR |
-| Declared 16 / executed 4 echoes | `*-request.json`, `*-plan.json` parameter states; `templates.py::_echo_count` | Must repair and rerun before treating recipes as intended protocols |
-| Ideal CPMG independent reference test | `evidence/targeted.txt` → `test_three_echo_cpmg_train_matches_independent_t2_envelope` | Existing analytic test passed; not validation of the complete vertical scenarios |
-| Clinical vectors not evaluated; knee mismatch | `summary.json` graph_objective and legacy pair; `objectives.py` | Results explicitly disclose this gap |
-| Clinical / hardware / B/C boundaries | `PHYSICS.md`, `ARCHITECTURE.md`, protocol platform spec; audit | Preserve in all later versions |
+| 409 Python / 82 web, TypeScript pass | `evidence/fix-pytest.txt`, `fix-web.txt`, `fix-tsc.txt` | Software tests, not independent clinical samples |
+| 16 echoes / 32 samples and named differences | `evidence/summary.json`, requests, plans, API responses | Rounded to six decimal places; synthetic priors |
+| Default vector and aggregate execution | `tests/ismrm/test_execution_gaps.py`, API responses | No constraint solver or optimization search |
+| Ideal CPMG reference | full Python suite: `test_three_echo_cpmg_train_matches_independent_t2_envelope` | Does not independently validate full vertical scenarios |
 
-Any stronger novelty claim is [待确认：系统性文献对照]. Tissue-prior literature support is [待确认：来源与适用条件]. Independent quantitative validation of the final vertical scenarios is [待确认：修复后参照实验]. Do not replace these placeholders with inferred evidence.
+No priority or superiority claim. Prior literature support, systematic comparisons, clean-environment replay and browser demonstration remain unverified and are not claimed. Final meeting format, title, metadata and figures require user review.

@@ -16,6 +16,7 @@ from fastapi.testclient import TestClient
 from mrqlab_api.main import app
 from mrqlab_experiment import build_protocol_experiment, plan_experiment
 from mrqlab_experiment.objectives import evaluate_multi_tissue_contrast
+from mrqlab_experiment.compiler import compile_sequence
 
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'docs/ismrm/evidence'
 OUT.mkdir(parents=True, exist_ok=True)
@@ -29,6 +30,8 @@ def command(*args):
 assert Path(mrqlab_experiment.__file__).resolve().is_relative_to(ROOT)
 write('environment.json', {
     'code_commit': command('git', 'rev-parse', 'HEAD'),
+    'working_tree_status': command('git', 'status', '--short'),
+    'source_sha256': {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for base in ('packages', 'services') for p in sorted((ROOT/base).rglob('*.py'))},
     'platform': platform.platform(), 'python': sys.version,
     'node': command('node', '--version'), 'npm': command('npm', '--version'),
     'python_packages': {d.metadata['Name']: d.version for d in md.distributions()},
@@ -53,7 +56,7 @@ for recipe_id in ('brain_lesion_t2_tse', 'knee_cartilage_meniscus_pd_t2_tse'):
     data = response.json()
     write(recipe_id + '-validation.json', validation.json())
     write(recipe_id + '-response.json', data)
-    # Diagnostic forward runs per tissue; these are NOT clinical ObjectiveVector evaluation.
+    # Independent per-tissue replay of the named-pair calculation.
     contrast = evaluate_multi_tissue_contrast(graph)
     signals = [np.asarray(s, dtype=complex) for s in contrast.pop('tissue_signals')]
     contrast['tissue_signals'] = [[{'real': float(v.real), 'imag': float(v.imag)} for v in s] for s in signals]
@@ -74,9 +77,12 @@ for recipe_id in ('brain_lesion_t2_tse', 'knee_cartilage_meniscus_pd_t2_tse'):
         'products': [o['kind'] for o in obs], 'signal_samples': len(magnitudes),
         'signal_first_au': float(magnitudes[0]), 'signal_mean_au': float(np.mean(magnitudes)),
         'signal_last_au': float(magnitudes[-1]), 'tissue_mean_au': means,
-        'diagnostic_pairs_not_objective_scores': pairs,
-        'legacy_contrast_first_two_ids': [t.id for t in graph.tissue[:2]],
-        'legacy_contrast_difference': contrast['contrast_difference'],
+        'named_pair_differences': pairs,
+        'executed_pairs': next(o['data']['pairs'] for o in obs if o['kind'] == 'tissue_contrast'),
+        'objective_score': next(o['data'] for o in obs if o['kind'] == 'objective_score'),
+        'compiled_echoes': compile_sequence(graph).metadata['echoes'],
+        'primary_pair_ids': [contrast['pairs'][0]['target_tissue_id'], contrast['pairs'][0]['reference_tissue_id']],
+        'primary_pair_difference': contrast['contrast_difference'],
         'graph_objective': graph.objective.model_dump() if graph.objective else None,
         'provenance': signal['provenance'],
     }

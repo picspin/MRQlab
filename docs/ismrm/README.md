@@ -1,15 +1,15 @@
 # ISMRM 本地审阅包
 
-状态：集成已验证；投稿科学论证尚有阻断项，见 [审计](readiness-audit.md)。本包不是已提交或符合某届会议格式的声明。作者、单位、类别等由用户填写；没有访问投稿门户或核对当届字数、图数、截止日期。B/C 保持 parked。
+状态：ISMRM 2027 温哥华软件 / 教学原型审阅包。四项执行阻断已修复；409 Python + 82 web 测试通过，TypeScript exit 0。摘要数值已按新代码重跑；用户仍需完成类别、作者等门户字段、图表终选和最终审阅，亲自提交。截止按用户确认：2026-10-28 23:59 UTC（北京时间 2026-10-29 07:59）。未核对门户格式或宣称已提交，B/C 保持 parked。
 
 - [摘要草稿](abstract-draft.md)
 - [图表与检查表](submission-checklist.md)
 - [实际输出摘要](evidence/summary.json)、原始请求 / 计划 / API 响应、逐组织诊断和 SVG 位于 `evidence/`
-- `evidence/integration-*.txt` 是完整集成门禁日志；`evidence/targeted.txt` 是具名测试日志。
+- `evidence/fix-*.txt` 是本轮门禁及失败复现；integration / targeted 日志仅为历史记录。
 
 ## 代码与环境
 
-基础 `3239a6594561bb9af24015f7c004d15217477f00`；生产代码集成提交 `3d699432ed3b8e54d1c98fb02840e0168fcdb021`，组合 `f678cbf` 和 `3bdc1da`。本目录随后单独提交；以 `git log -2` 查看材料提交。没有改动原始修复 worktree。
+基础 `3239a6594561bb9af24015f7c004d15217477f00`；生产代码集成提交 `3d699432ed3b8e54d1c98fb02840e0168fcdb021`，组合 `f678cbf` 和 `3bdc1da`。材料起点 `00b72e2`。本轮在新 `ismrm-fix` worktree / `ismrm/fix` 分支修复；以 `git log` 查看本轮代码与材料提交。没有改动原始修复 worktree。
 
 本地运行：macOS（完整平台见 `evidence/environment.json`），Python 3.15.0，Node v26.11.1，npm 11.20.0；Python 依赖来自主检出的现有 `.venv`，前端依赖通过被 Git 忽略的 `apps/web/node_modules` 软链接复用。`reproduce.py` 显式把本 worktree 的源码放到 sys.path 首位并断言导入路径，避免主检出的 editable install 污染结果。pytest 使用本 worktree 的 pyproject pythonpath。不要把复用依赖等同于独立重装验证。
 
@@ -17,7 +17,7 @@
 
 ## 离线复核（当前机器，已实际运行）
 
-在集成 worktree 根目录：
+在 `/Users/hilbert/work/MRQlab-worktrees/ismrm-fix` 根目录：
 
 ```bash
 PYTHON=/Users/hilbert/work/MRQlab-mainfix/.venv/bin/python \
@@ -33,9 +33,9 @@ PYTHON=/Users/hilbert/work/MRQlab-mainfix/.venv/bin/python \
   docs/ismrm/reproduce.py /private/tmp/mrqlab-ismrm-replay
 ```
 
-逐项路径为 `GET /protocol-recipes` → `build_protocol_experiment(id)` → `plan_experiment` → `POST /experiments/validate` → `POST /experiments/run` → 三类 Observation。另行执行 `evaluate_multi_tissue_contrast` 诊断每个组织；它不等于临床 ObjectiveVector 执行。
+逐项路径为 `GET /protocol-recipes` → `build_protocol_experiment(id)` → `plan_experiment` → `POST /experiments/validate` → `POST /experiments/run` → 五类 Observation（含命名组织对比与目标评分）。另行执行逐组织重放，用于核对已执行命名指标和默认等权复数聚合。
 
-API 对引擎选项填默认值并抑制未请求的快照，所以直接规划 fingerprint 与 API fingerprint 不同；两者均归档，不能把差异直接称为非确定性。脚本检查同输入直接计划 fingerprint 可重复。API provenance 带 seed=0，但并未自动含 Git commit；环境记录补上代码提交和导入路径。
+API 对引擎选项填默认值并抑制未请求的快照，所以直接规划 fingerprint 与 API fingerprint 不同；两者均归档，不能把差异直接称为非确定性。脚本检查同输入直接计划 fingerprint 可重复。API provenance 带 seed=0，但并未自动含 Git commit；环境记录补上代码提交、工作树状态、源码 SHA256 和导入路径。
 
 ## 新环境重建（命令提供，未实际联网运行）
 
@@ -47,7 +47,7 @@ npm --prefix apps/web ci
 PYTHON="$PWD/.venv/bin/python" bash docs/ismrm/verify.sh /private/tmp/mrqlab-ismrm-clean
 ```
 
-这些安装命令需要可用的包源或事先准备的 wheel/npm 缓存。本次没有执行网络安装，独立干净环境重建仍是投稿前待补项。
+这些安装命令需要可用的包源或事先准备的 wheel/npm 缓存。本次没有执行网络安装，独立干净环境重建仍未验证；本摘要仅陈述当前环境的复跑结果。
 
 ## 手动界面演示（尚未验证）
 

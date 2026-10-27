@@ -252,7 +252,34 @@
       "parameters": {}
     }
   ],
-  "objective": null,
+  "objective": {
+    "clinical_vector": {
+      "terms": [
+        {
+          "direction": "maximize",
+          "id": "tear-vs-meniscus",
+          "metric": "normalized_cnr_proxy",
+          "reference_tissue_id": "meniscus",
+          "target_tissue_id": "meniscal_tear",
+          "target_value": null,
+          "weight": 1.0
+        },
+        {
+          "direction": "maximize",
+          "id": "cartilage-vs-meniscus",
+          "metric": "absolute_signal_difference",
+          "reference_tissue_id": "meniscus",
+          "target_tissue_id": "cartilage",
+          "target_value": null,
+          "weight": 0.5
+        }
+      ]
+    },
+    "cnr_term": null,
+    "constraints": [],
+    "kind": "clinical_vector",
+    "terms": []
+  },
   "physiology": {
     "cardiac_phase": 0.0,
     "contrast_agent_concentration": 0.0,
@@ -268,7 +295,9 @@
     "products": [
       "signal",
       "k_trajectory",
-      "image"
+      "image",
+      "tissue_contrast",
+      "objective_score"
     ]
   },
   "sample": {

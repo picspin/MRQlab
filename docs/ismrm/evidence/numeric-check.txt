@@ -1,0 +1,1 @@
+PASS: every retained abstract named-pair difference matches summary.json rounded to six decimal places; both compiled and declared echo counts are 16; both have 32 ADC samples. Test counts verified from fix-pytest.txt / fix-web.txt; TypeScript exited 0.

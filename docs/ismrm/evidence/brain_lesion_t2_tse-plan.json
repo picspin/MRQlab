@@ -4,7 +4,7 @@
     "discrete_echo_train"
   ],
   "clinical_recipe_id": "brain_lesion_t2_tse",
-  "cost_estimate": 102.0,
+  "cost_estimate": 590.0,
   "differentiable": false,
   "engine": "epg",
   "experiment_id": "recipe:brain_t2_tse",
@@ -234,7 +234,25 @@
         "parameters": {}
       }
     ],
-    "objective": null,
+    "objective": {
+      "clinical_vector": {
+        "terms": [
+          {
+            "direction": "maximize",
+            "id": "lesion-vs-wm",
+            "metric": "normalized_cnr_proxy",
+            "reference_tissue_id": "white_matter",
+            "target_tissue_id": "lesion",
+            "target_value": null,
+            "weight": 1.0
+          }
+        ]
+      },
+      "cnr_term": null,
+      "constraints": [],
+      "kind": "clinical_vector",
+      "terms": []
+    },
     "physiology": {
       "cardiac_phase": 0.0,
       "contrast_agent_concentration": 0.0,
@@ -250,7 +268,9 @@
       "products": [
         "signal",
         "k_trajectory",
-        "image"
+        "image",
+        "tissue_contrast",
+        "objective_score"
       ]
     },
     "sample": {
@@ -348,7 +368,7 @@
       }
     ]
   },
-  "fingerprint": "f6c9532400618cbf389d4ef03908c19e38debc8708a93f7b6683f4d3a5de8fda",
+  "fingerprint": "1a6a5bc8e8365830565a86d58d1a9318604d01c76a1e7ffe1c9ce5e745f5fe4c",
   "options": {
     "dwell_time": 0.001,
     "epg_dk_scale": 0.001,
@@ -384,7 +404,7 @@
       "source": "sequence compiler",
       "state": "derived",
       "unit": "count",
-      "value": 4
+      "value": 16
     },
     {
       "name": "matrix",
@@ -445,7 +465,9 @@
   "requested_observations": [
     "signal",
     "k_trajectory",
-    "image"
+    "image",
+    "tissue_contrast",
+    "objective_score"
   ],
   "required_capabilities": [],
   "scanner_profile": "research-3t@1.0.0",

@@ -1,61 +1,52 @@
-# Figure plan and submission checklist
+# ISMRM 2027 Vancouver — submission checklist
 
-## Key figures and tables
+User-confirmed deadline: 2026-10-28 23:59 UTC / 2026-10-29 07:59 Beijing. Scope: software / teaching prototype. This checklist does not certify portal compliance or submission.
 
-All commands below run from the integration worktree root, using the Python environment described in README. Figures show the current audited implementation, including the echo-parameter mismatch; they must be regenerated after fixes. These are editable, local drafts, not approved publication figures.
+## Codex completed
 
-| Item | Content and source | Generation command | Current status / required caption |
-| --- | --- | --- | --- |
-| Figure 1 | Brain per-tissue diagnostic signal; `evidence/brain_lesion_t2_tse-diagnostic.json` | `$PYTHON docs/ismrm/reproduce.py` → `evidence/brain_lesion_t2_tse.svg` | Generated. ADC sample index, a.u.; idealized EPG, teaching gradients, actual 4 echoes; not lesion imaging, clinical CNR, or patient data |
-| Figure 2 | Knee per-tissue diagnostic signal; `evidence/knee_cartilage_meniscus_pd_t2_tse-diagnostic.json` | `$PYTHON docs/ismrm/reproduce.py` → `evidence/knee_cartilage_meniscus_pd_t2_tse.svg` | Generated. Separate cartilage / tear / meniscus / fluid / fat forward runs; not an anatomical reconstruction or executed ObjectiveVector |
-| Table 1 | Both scene parameters, means, named pair differences and provenance; `evidence/summary.json` and `*-plan.json` | `$PYTHON docs/ismrm/reproduce.py` regenerates source; `$PYTHON -m json.tool docs/ismrm/evidence/summary.json` displays values | Draft values in audit section 3. Final typesetting pending; keep input echo_count distinct from derived echoes and API fingerprint distinct from direct plan |
-| Figure 3 (optional) | ExperimentGraph → resolved plan → compiler / EPG → Observation provenance; `ARCHITECTURE.md`, `resolution.py`, `observations.py` | No artifact generated; manual schematic pending | Do not imply clinical objectives, robustness evaluation, B/C, scanner export or optimization are executed |
-| Figure 4 (optional) | Independent reference error / parameter sensitivity for final corrected verticals | No data or generation command yet: [待确认] | Unverified. Must design and run experiment before adding a Results panel |
+- [x] New `ismrm-fix` worktree and `ismrm/fix` branch from `00b72e2`; original worktrees preserved.
+- [x] Failure-before/pass-after regressions for all four execution blockers; logs in `evidence/fix-before.txt` and `fix-pytest.txt`.
+- [x] Consume declared echo_count; reject conflicting aliases; both recipes execute 16 echoes.
+- [x] Default complete named ObjectiveVector evaluation and score / tissue-contrast products.
+- [x] Named Knee references and all declared pairs; no first-two-tissue substitution.
+- [x] Independent EPG tissue propagation and normalized weighted complex aggregation, with independent-state and API regression checks.
+- [x] Complete gates: 409 Python + 82 web = 491 cases; 12 web files; TypeScript exit 0.
+- [x] Both API verticals rerun, requests / plans / responses / diagnostics / summary / environment / SVG regenerated.
+- [x] Abstract numerical claims replaced using the new summary; meeting filled as ISMRM 2027 Vancouver.
+- [x] Constraints and robustness explicitly remain unevaluated; no clinical optimization claim.
+- [x] Teaching gradients, no scanner, relative SAR not W/kg, synthetic priors and B/C parked retained.
+- [x] No remote Git, PR, public deployment or portal submission actions.
 
-`PYTHON=/Users/hilbert/work/MRQlab-mainfix/.venv/bin/python` for the observed environment. Full repeatable command with an alternate output directory is in README. Figure source files and generating code are retained locally. A final figure legend must explain model assumptions, sampling, units, comparisons, and the distinction between simulated signal and clinical evidence.
+## Figure options — user selects
 
-## Completed locally
+| Item | Current artifact / source | Caption boundary |
+| --- | --- | --- |
+| Brain tissue curves | `evidence/brain_lesion_t2_tse.svg` and diagnostic JSON | 16 echoes, 32 ADC samples; synthetic teaching EPG signal, a.u.; no anatomy or clinical CNR |
+| Knee tissue curves | `evidence/knee_cartilage_meniscus_pd_t2_tse.svg` and diagnostic JSON | Individual tissues; named tear / meniscus and cartilage / meniscus pairs are now evaluated by API |
+| Numeric table | `evidence/summary.json` | Values and objective scores from corrected runs; no constraint satisfaction claim |
+| Architecture schematic | Optional, not generated | Must show only validated execution scope; B/C remain parked |
 
-- [x] Dedicated integration worktree and branch from 3239a65.
-- [x] Combined fixes f678cbf and 3bdc1da in independent integration commit 3d69943.
-- [x] Full gates: 400 Python + 82 web tests; TypeScript exit 0.
-- [x] Two actual A vertical API runs, complete input / plan / output archives and source import assertion.
-- [x] Separate tissue diagnostics explicitly distinguished from clinical objective evaluation.
-- [x] Offline reproduction script, gate script, observed versions, logs and draft SVG figures.
-- [x] Limitations retained in abstract and audit; B/C stay parked.
-- [x] No push, fetch, gh, PR action, public deployment or portal submission.
+Regenerate from the fix worktree using `/Users/hilbert/work/MRQlab-mainfix/.venv/bin/python docs/ismrm/reproduce.py`. Figures remain editable drafts awaiting final selection and caption approval.
 
-## Mandatory scientific and software closure
+## User-owned fields — intentionally blank
 
-- [ ] Fix or explicitly narrow the submission's claims around echo parameter semantics; demonstrate failure-before/pass-after regression and rerun all evidence.
-- [ ] Resolve the multi-tissue EPG and named objective / reference behavior for any retained clinical-protocol claim. Declared robustness and acquisition constraints must not be reported as evaluated without actual runs.
-- [ ] Independent quantitative reference and error report for the final scenarios; distinguish ideal CPMG unit test from end-to-end scientific validation.
-- [ ] Record defensible tissue-prior sources and applicability; identify synthetic assumptions.
-- [ ] Resolve contradictory advanced-engine availability wording in existing documents without deleting safety boundaries.
-- [ ] Systematic literature / software comparison; no “first” / “only” claim without evidence.
-- [ ] Clean-environment installation and replay, separate from the verified reuse of local dependencies.
-- [ ] Freeze final code revision, environment and regenerated figure / numeric ledger together.
-
-## User-owned decisions and fields — intentionally blank
-
-- [ ] Meeting edition / submission year: [________]
-- [ ] Submission category and scope: [________]
-- [ ] Chosen title: [________]
+- [x] Meeting: ISMRM 2027 Vancouver.
+- [ ] Submission category: [________]
+- [ ] Final title: [________]
 - [ ] Authors, order, approval and contributions: [________]
 - [ ] Affiliations: [________]
-- [ ] Corresponding author / contact: [________]
+- [ ] Corresponding author and contact: [________]
 - [ ] Keywords: [________]
-- [ ] Funding, conflicts and any required ethics declarations: [________]
-- [ ] Figure selection and final graphic approval: [________]
-- [ ] Public demonstration / recording decision and approved link: [________]
-- [ ] Additional scientific validation scope: [________]
-- [ ] B/C decision if separately requested: [________] (currently parked; no unlock assumed)
+- [ ] Funding: [________]
+- [ ] Disclosures / conflicts: [________]
+- [ ] Ethics information: [________]
+- [ ] Final figure / table selection: [________]
+- [ ] Demonstration public / private / recording choice and approved link: [________]
 
-## Final checks after user choices
+## Remaining review and scope limits
 
-- [ ] Check selected meeting's official word / character / figure / anonymity / disclosure / AI-use requirements and deadline; not checked in this offline audit.
-- [ ] Browser demo and A-contract-to-UI correspondence if an interactive demo is claimed; currently unverified.
-- [ ] Match all abstract numbers against the final archived run and all figure captions against their generating commands.
-- [ ] Preserve research-use-only, teaching-gradient, no-scanner, unvalidated clinical outcomes and B/C boundaries after final edits.
-- [ ] User reviews and approves scientific interpretation and all metadata.
-- [ ] User personally performs any ISMRM portal submission. This agent does not submit.
+- [ ] User checks official category, word / character / figure / anonymity / AI-use and disclosure requirements in the portal.
+- [ ] User approves scientific interpretation and metadata, and personally submits.
+- [ ] Browser demo / public deployment only if subsequently tested and approved; currently not claimed.
+
+Independent full-scenario physical reference, prior literature support, systematic novelty comparison and clean-environment installation remain unverified. The revised abstract makes no corresponding claims; any stronger clinical or superiority narrative requires additional evidence. Existing ideal CPMG analytic testing and aggregate-consistency testing do not replace such validation. Acquisition constraints and robustness are declarations, not evaluated outcomes. B/C remain parked.

@@ -4,7 +4,7 @@
     "discrete_echo_train"
   ],
   "clinical_recipe_id": "knee_cartilage_meniscus_pd_t2_tse",
-  "cost_estimate": 102.0,
+  "cost_estimate": 590.0,
   "differentiable": false,
   "engine": "epg",
   "experiment_id": "recipe:msk_knee_tse",
@@ -262,7 +262,34 @@
         "parameters": {}
       }
     ],
-    "objective": null,
+    "objective": {
+      "clinical_vector": {
+        "terms": [
+          {
+            "direction": "maximize",
+            "id": "tear-vs-meniscus",
+            "metric": "normalized_cnr_proxy",
+            "reference_tissue_id": "meniscus",
+            "target_tissue_id": "meniscal_tear",
+            "target_value": null,
+            "weight": 1.0
+          },
+          {
+            "direction": "maximize",
+            "id": "cartilage-vs-meniscus",
+            "metric": "absolute_signal_difference",
+            "reference_tissue_id": "meniscus",
+            "target_tissue_id": "cartilage",
+            "target_value": null,
+            "weight": 0.5
+          }
+        ]
+      },
+      "cnr_term": null,
+      "constraints": [],
+      "kind": "clinical_vector",
+      "terms": []
+    },
     "physiology": {
       "cardiac_phase": 0.0,
       "contrast_agent_concentration": 0.0,
@@ -278,7 +305,9 @@
       "products": [
         "signal",
         "k_trajectory",
-        "image"
+        "image",
+        "tissue_contrast",
+        "objective_score"
       ]
     },
     "sample": {
@@ -391,7 +420,7 @@
       }
     ]
   },
-  "fingerprint": "3d70be6697daec184f867707d807e7023b85b8412dd1d982c2e30bac5998e7a7",
+  "fingerprint": "54270038ced3422db5dd48288f3c58e15f20fb78cee0f241ea8980d4db96fe1d",
   "options": {
     "dwell_time": 0.001,
     "epg_dk_scale": 0.001,
@@ -427,7 +456,7 @@
       "source": "sequence compiler",
       "state": "derived",
       "unit": "count",
-      "value": 4
+      "value": 16
     },
     {
       "name": "matrix",
@@ -488,7 +517,9 @@
   "requested_observations": [
     "signal",
     "k_trajectory",
-    "image"
+    "image",
+    "tissue_contrast",
+    "objective_score"
   ],
   "required_capabilities": [],
   "scanner_profile": "research-3t@1.0.0",

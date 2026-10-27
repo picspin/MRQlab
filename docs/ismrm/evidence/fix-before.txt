@@ -1,0 +1,88 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+__________ test_declared_echo_count_is_compiled[brain_lesion_t2_tse] ___________
+
+recipe = 'brain_lesion_t2_tse'
+
+    @pytest.mark.parametrize('recipe', IDS)
+    def test_declared_echo_count_is_compiled(recipe):
+        graph = build_protocol_experiment(recipe)
+>       assert compile_sequence(graph).metadata['echoes'] == graph.sequence.params['echo_count']
+E       assert 4 == 16
+
+tests/ismrm/test_execution_gaps.py:15: AssertionError
+___ test_declared_echo_count_is_compiled[knee_cartilage_meniscus_pd_t2_tse] ____
+
+recipe = 'knee_cartilage_meniscus_pd_t2_tse'
+
+    @pytest.mark.parametrize('recipe', IDS)
+    def test_declared_echo_count_is_compiled(recipe):
+        graph = build_protocol_experiment(recipe)
+>       assert compile_sequence(graph).metadata['echoes'] == graph.sequence.params['echo_count']
+E       assert 4 == 16
+
+tests/ismrm/test_execution_gaps.py:15: AssertionError
+_______ test_default_clinical_vector_is_executable[brain_lesion_t2_tse] ________
+
+recipe = 'brain_lesion_t2_tse'
+
+    @pytest.mark.parametrize('recipe', IDS)
+    def test_default_clinical_vector_is_executable(recipe):
+        graph = build_protocol_experiment(recipe)
+>       assert graph.objective is not None
+E       AssertionError: assert None is not None
+E        +  where None = ExperimentGraph(schema_version='1.0', id='recipe:brain_t2_tse', name='Brain T2-Weighted TSE', intent='clinical_contras...alue=62500.0, unit='Hz', state='scanner_default', source='research-3t@1.0.0'),)), experiment_recipe_id='brain_t2_tse')).objective
+
+tests/ismrm/test_execution_gaps.py:20: AssertionError
+_ test_default_clinical_vector_is_executable[knee_cartilage_meniscus_pd_t2_tse] _
+
+recipe = 'knee_cartilage_meniscus_pd_t2_tse'
+
+    @pytest.mark.parametrize('recipe', IDS)
+    def test_default_clinical_vector_is_executable(recipe):
+        graph = build_protocol_experiment(recipe)
+>       assert graph.objective is not None
+E       AssertionError: assert None is not None
+E        +  where None = ExperimentGraph(schema_version='1.0', id='recipe:msk_knee_tse', name='Knee Meniscal & Cartilage TSE', intent='clinical...alue=62500.0, unit='Hz', state='scanner_default', source='research-3t@1.0.0'),)), experiment_recipe_id='msk_knee_tse')).objective
+
+tests/ismrm/test_execution_gaps.py:20: AssertionError
+__________________ test_named_knee_pairs_ignore_tissue_order ___________________
+
+    def test_named_knee_pairs_ignore_tissue_order():
+        graph = build_protocol_experiment(IDS[1])
+        data = evaluate_multi_tissue_contrast(graph)
+        means = {t['id']: np.mean(np.abs(s)) for t,s in zip(data['tissues'], data['tissue_signals'])}
+>       assert data['contrast_difference'] == pytest.approx(abs(means['meniscal_tear'] - means['meniscus']))
+E       assert 0.21369070095910045 == 0.30053503032217155 ± 3.0e-07
+E         
+E         comparison failed
+E         Obtained: 0.21369070095910045
+E         Expected: 0.30053503032217155 ± 3.0e-07
+
+tests/ismrm/test_execution_gaps.py:28: AssertionError
+________ test_epg_ensemble_matches_independent_weighted_complex_states _________
+
+    def test_epg_ensemble_matches_independent_weighted_complex_states():
+        spins = (Isochromat(t2=.02, weight=1), Isochromat(t2=.2, weight=3, off_resonance_hz=12))
+        combined = EPGBackend(Phantom(isochromats=spins), 8)
+        separate = [EPGBackend(Phantom(t1=s.t1,t2=s.t2,proton_density=s.proton_density,off_resonance_hz=s.off_resonance_hz),8) for s in spins]
+        for op in (RfOp(t=0, alpha_rad=np.pi/2, phase_rad=0), Relax(t=0, dt=.03)):
+            combined.apply(op)
+            for b in separate: b.apply(op)
+        expected = sum(s.weight*b.observe() for s,b in zip(spins,separate))/4
+>       assert combined.observe() == pytest.approx(expected)
+E       assert -0.7408182206817179j == (0.4973901704....1e-07 ∠ ±180°
+E         
+E         comparison failed
+E         Obtained: -0.7408182206817179j
+E         Expected: (0.4973901704986941+0.3556943942189287j) ± 6.1e-07 ∠ ±180°
+
+tests/ismrm/test_execution_gaps.py:39: AssertionError
+=========================== short test summary info ============================
+FAILED tests/ismrm/test_execution_gaps.py::test_declared_echo_count_is_compiled[brain_lesion_t2_tse]
+FAILED tests/ismrm/test_execution_gaps.py::test_declared_echo_count_is_compiled[knee_cartilage_meniscus_pd_t2_tse]
+FAILED tests/ismrm/test_execution_gaps.py::test_default_clinical_vector_is_executable[brain_lesion_t2_tse]
+FAILED tests/ismrm/test_execution_gaps.py::test_default_clinical_vector_is_executable[knee_cartilage_meniscus_pd_t2_tse]
+FAILED tests/ismrm/test_execution_gaps.py::test_named_knee_pairs_ignore_tissue_order
+FAILED tests/ismrm/test_execution_gaps.py::test_epg_ensemble_matches_independent_weighted_complex_states
+6 failed in 0.10s

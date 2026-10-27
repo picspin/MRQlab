@@ -224,7 +224,25 @@
       "parameters": {}
     }
   ],
-  "objective": null,
+  "objective": {
+    "clinical_vector": {
+      "terms": [
+        {
+          "direction": "maximize",
+          "id": "lesion-vs-wm",
+          "metric": "normalized_cnr_proxy",
+          "reference_tissue_id": "white_matter",
+          "target_tissue_id": "lesion",
+          "target_value": null,
+          "weight": 1.0
+        }
+      ]
+    },
+    "cnr_term": null,
+    "constraints": [],
+    "kind": "clinical_vector",
+    "terms": []
+  },
   "physiology": {
     "cardiac_phase": 0.0,
     "contrast_agent_concentration": 0.0,
@@ -240,7 +258,9 @@
     "products": [
       "signal",
       "k_trajectory",
-      "image"
+      "image",
+      "tissue_contrast",
+      "objective_score"
     ]
   },
   "sample": {
