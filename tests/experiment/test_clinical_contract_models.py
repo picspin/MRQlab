@@ -165,3 +165,15 @@ def test_numeric_values_are_finite_and_units_are_explicit():
         )
     with pytest.raises(ValidationError):
         ParameterState(name="te", value=.1, unit="", state="authored", source="user")
+
+
+@pytest.mark.parametrize("unit", ["bananas", " ", "milliseconds"])
+def test_parameter_state_rejects_unknown_units(unit):
+    with pytest.raises(ValidationError, match="unit"):
+        ParameterState(name="te", value=.1, unit=unit, state="authored", source="user")
+
+
+@pytest.mark.parametrize("metric,unit", [("scan_time_s", "Hz"), ("resolution_mm", "s"), ("sar_relative", "bananas")])
+def test_acquisition_constraint_rejects_incompatible_units(metric, unit):
+    with pytest.raises(ValidationError, match="unit"):
+        AcquisitionConstraint(id="bad", metric=metric, operator="le", value=1, unit=unit, severity="hard")
