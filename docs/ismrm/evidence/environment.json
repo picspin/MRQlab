@@ -1,0 +1,1480 @@
+{
+  "code_commit": "3d699432ed3b8e54d1c98fb02840e0168fcdb021",
+  "node": "v26.11.1",
+  "npm": "11.20.0",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "python": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "python_packages": {
+    "Pygments": "2.21.0",
+    "annotated-doc": "0.0.5",
+    "annotated-types": "0.8.0",
+    "anyio": "4.15.1",
+    "certifi": "2026.10.19",
+    "cffi": "2.1.1",
+    "click": "8.5.0",
+    "cryptography": "50.0.2",
+    "fastapi": "0.156.8",
+    "h11": "0.16.0",
+    "httpcore": "1.0.9",
+    "httpx": "0.28.1",
+    "idna": "3.20",
+    "iniconfig": "2.3.1",
+    "mrqlab": "0.1.0",
+    "numpy": "2.5.4",
+    "opentelemetry-api": "1.45.1",
+    "packaging": "26.3",
+    "pip": "26.2.1",
+    "pluggy": "1.7.0",
+    "pycparser": "3.11",
+    "pydantic": "2.14.1",
+    "pydantic_core": "2.50.1",
+    "pytest": "9.1.1",
+    "starlette": "1.9.0",
+    "typing-inspection": "0.4.4",
+    "typing_extensions": "4.16.0",
+    "uvicorn": "0.54.0"
+  },
+  "source": "/Users/hilbert/work/MRQlab-worktrees/ismrm-integration/packages/mrqlab_experiment/mrqlab_experiment/__init__.py",
+  "web_installed": {
+    "dependencies": {
+      "@adobe/css-tools": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @adobe/css-tools@4.5.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@adobe/css-tools"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@adobe/css-tools",
+        "version": "4.5.0"
+      },
+      "@asamuzakjp/css-color": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @asamuzakjp/css-color@3.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@asamuzakjp/css-color"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@asamuzakjp/css-color",
+        "version": "3.2.0"
+      },
+      "@babel/code-frame": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @babel/code-frame@7.29.7 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@babel/code-frame"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@babel/code-frame",
+        "version": "7.29.7"
+      },
+      "@babel/helper-validator-identifier": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @babel/helper-validator-identifier@7.29.7 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@babel/helper-validator-identifier"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@babel/helper-validator-identifier",
+        "version": "7.29.7"
+      },
+      "@babel/runtime": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @babel/runtime@7.29.7 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@babel/runtime"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@babel/runtime",
+        "version": "7.29.7"
+      },
+      "@csstools/color-helpers": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @csstools/color-helpers@5.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@csstools/color-helpers"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@csstools/color-helpers",
+        "version": "5.1.0"
+      },
+      "@csstools/css-calc": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @csstools/css-calc@2.1.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@csstools/css-calc"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@csstools/css-calc",
+        "version": "2.1.4"
+      },
+      "@csstools/css-color-parser": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @csstools/css-color-parser@3.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@csstools/css-color-parser"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@csstools/css-color-parser",
+        "version": "3.1.0"
+      },
+      "@csstools/css-parser-algorithms": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @csstools/css-parser-algorithms@3.0.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@csstools/css-parser-algorithms"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@csstools/css-parser-algorithms",
+        "version": "3.0.5"
+      },
+      "@csstools/css-tokenizer": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @csstools/css-tokenizer@3.0.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@csstools/css-tokenizer"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@csstools/css-tokenizer",
+        "version": "3.0.4"
+      },
+      "@esbuild/darwin-arm64": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @esbuild/darwin-arm64@0.21.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@esbuild/darwin-arm64"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@esbuild/darwin-arm64",
+        "version": "0.21.5"
+      },
+      "@jridgewell/sourcemap-codec": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @jridgewell/sourcemap-codec@1.5.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@jridgewell/sourcemap-codec"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@jridgewell/sourcemap-codec",
+        "version": "1.5.5"
+      },
+      "@next/env": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @next/env@14.2.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@next/env"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@next/env",
+        "version": "14.2.5"
+      },
+      "@next/swc-darwin-arm64": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @next/swc-darwin-arm64@14.2.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@next/swc-darwin-arm64"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@next/swc-darwin-arm64",
+        "version": "14.2.5"
+      },
+      "@rollup/rollup-darwin-arm64": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @rollup/rollup-darwin-arm64@4.62.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@rollup/rollup-darwin-arm64"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@rollup/rollup-darwin-arm64",
+        "version": "4.62.4"
+      },
+      "@swc/counter": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @swc/counter@0.1.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@swc/counter"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@swc/counter",
+        "version": "0.1.3"
+      },
+      "@swc/helpers": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @swc/helpers@0.5.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@swc/helpers"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@swc/helpers",
+        "version": "0.5.5"
+      },
+      "@testing-library/dom": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @testing-library/dom@10.4.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@testing-library/dom"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@testing-library/dom",
+        "version": "10.4.1"
+      },
+      "@testing-library/jest-dom": {
+        "overridden": false,
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@testing-library/jest-dom",
+        "version": "6.9.1"
+      },
+      "@testing-library/react": {
+        "overridden": false,
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@testing-library/react",
+        "version": "16.3.2"
+      },
+      "@types/aria-query": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @types/aria-query@5.0.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@types/aria-query"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@types/aria-query",
+        "version": "5.0.4"
+      },
+      "@types/estree": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @types/estree@1.0.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@types/estree"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@types/estree",
+        "version": "1.0.9"
+      },
+      "@types/node": {
+        "overridden": false,
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@types/node",
+        "version": "20.19.43"
+      },
+      "@types/prop-types": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @types/prop-types@15.7.15 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@types/prop-types"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@types/prop-types",
+        "version": "15.7.15"
+      },
+      "@types/react": {
+        "overridden": false,
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@types/react",
+        "version": "18.3.31"
+      },
+      "@types/react-dom": {
+        "overridden": false,
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@types/react-dom",
+        "version": "18.3.7"
+      },
+      "@vitest/expect": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @vitest/expect@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/expect"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@vitest/expect",
+        "version": "2.1.9"
+      },
+      "@vitest/mocker": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @vitest/mocker@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/mocker"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@vitest/mocker",
+        "version": "2.1.9"
+      },
+      "@vitest/pretty-format": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @vitest/pretty-format@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/pretty-format"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@vitest/pretty-format",
+        "version": "2.1.9"
+      },
+      "@vitest/runner": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @vitest/runner@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/runner"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@vitest/runner",
+        "version": "2.1.9"
+      },
+      "@vitest/snapshot": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @vitest/snapshot@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/snapshot"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@vitest/snapshot",
+        "version": "2.1.9"
+      },
+      "@vitest/spy": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @vitest/spy@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/spy"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@vitest/spy",
+        "version": "2.1.9"
+      },
+      "@vitest/utils": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: @vitest/utils@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/utils"
+        ],
+        "resolved": "file:../../../../../../MRQlab-mainfix/apps/web/node_modules/@vitest/utils",
+        "version": "2.1.9"
+      },
+      "agent-base": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: agent-base@7.1.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/agent-base"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/agent-base",
+        "version": "7.1.4"
+      },
+      "ansi-regex": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: ansi-regex@5.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/ansi-regex"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/ansi-regex",
+        "version": "5.0.1"
+      },
+      "ansi-styles": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: ansi-styles@5.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/ansi-styles"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/ansi-styles",
+        "version": "5.2.0"
+      },
+      "aria-query": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: aria-query@5.3.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/aria-query"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/aria-query",
+        "version": "5.3.0"
+      },
+      "assertion-error": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: assertion-error@2.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/assertion-error"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/assertion-error",
+        "version": "2.0.1"
+      },
+      "asynckit": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: asynckit@0.4.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/asynckit"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/asynckit",
+        "version": "0.4.0"
+      },
+      "busboy": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: busboy@1.6.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/busboy"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/busboy",
+        "version": "1.6.0"
+      },
+      "cac": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: cac@6.7.14 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/cac"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/cac",
+        "version": "6.7.14"
+      },
+      "call-bind-apply-helpers": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: call-bind-apply-helpers@1.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/call-bind-apply-helpers"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/call-bind-apply-helpers",
+        "version": "1.0.2"
+      },
+      "caniuse-lite": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: caniuse-lite@1.0.30001809 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/caniuse-lite"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/caniuse-lite",
+        "version": "1.0.30001809"
+      },
+      "chai": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: chai@5.3.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/chai"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/chai",
+        "version": "5.3.3"
+      },
+      "check-error": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: check-error@2.1.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/check-error"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/check-error",
+        "version": "2.1.3"
+      },
+      "client-only": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: client-only@0.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/client-only"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/client-only",
+        "version": "0.0.1"
+      },
+      "combined-stream": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: combined-stream@1.0.8 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/combined-stream"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/combined-stream",
+        "version": "1.0.8"
+      },
+      "css.escape": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: css.escape@1.5.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/css.escape"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/css.escape",
+        "version": "1.5.1"
+      },
+      "cssstyle": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: cssstyle@4.6.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/cssstyle"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/cssstyle",
+        "version": "4.6.0"
+      },
+      "csstype": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: csstype@3.2.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/csstype"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/csstype",
+        "version": "3.2.3"
+      },
+      "data-urls": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: data-urls@5.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/data-urls"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/data-urls",
+        "version": "5.0.0"
+      },
+      "debug": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: debug@4.4.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/debug"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/debug",
+        "version": "4.4.3"
+      },
+      "decimal.js": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: decimal.js@10.6.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/decimal.js"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/decimal.js",
+        "version": "10.6.0"
+      },
+      "deep-eql": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: deep-eql@5.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/deep-eql"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/deep-eql",
+        "version": "5.0.2"
+      },
+      "delayed-stream": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: delayed-stream@1.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/delayed-stream"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/delayed-stream",
+        "version": "1.0.0"
+      },
+      "dequal": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: dequal@2.0.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/dequal"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/dequal",
+        "version": "2.0.3"
+      },
+      "dom-accessibility-api": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: dom-accessibility-api@0.5.16 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/dom-accessibility-api"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/dom-accessibility-api",
+        "version": "0.5.16"
+      },
+      "dunder-proto": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: dunder-proto@1.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/dunder-proto"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/dunder-proto",
+        "version": "1.0.1"
+      },
+      "entities": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: entities@6.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/entities"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/entities",
+        "version": "6.0.1"
+      },
+      "es-define-property": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: es-define-property@1.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/es-define-property"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/es-define-property",
+        "version": "1.0.1"
+      },
+      "es-errors": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: es-errors@1.3.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/es-errors"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/es-errors",
+        "version": "1.3.0"
+      },
+      "es-module-lexer": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: es-module-lexer@1.7.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/es-module-lexer"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/es-module-lexer",
+        "version": "1.7.0"
+      },
+      "es-object-atoms": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: es-object-atoms@1.1.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/es-object-atoms"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/es-object-atoms",
+        "version": "1.1.2"
+      },
+      "es-set-tostringtag": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: es-set-tostringtag@2.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/es-set-tostringtag"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/es-set-tostringtag",
+        "version": "2.1.0"
+      },
+      "esbuild": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: esbuild@0.21.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/esbuild"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/esbuild",
+        "version": "0.21.5"
+      },
+      "estree-walker": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: estree-walker@3.0.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/estree-walker"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/estree-walker",
+        "version": "3.0.3"
+      },
+      "expect-type": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: expect-type@1.4.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/expect-type"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/expect-type",
+        "version": "1.4.0"
+      },
+      "form-data": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: form-data@4.0.6 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/form-data"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/form-data",
+        "version": "4.0.6"
+      },
+      "fsevents": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: fsevents@2.3.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/fsevents"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/fsevents",
+        "version": "2.3.3"
+      },
+      "function-bind": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: function-bind@1.1.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/function-bind"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/function-bind",
+        "version": "1.1.2"
+      },
+      "get-intrinsic": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: get-intrinsic@1.3.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/get-intrinsic"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/get-intrinsic",
+        "version": "1.3.0"
+      },
+      "get-proto": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: get-proto@1.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/get-proto"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/get-proto",
+        "version": "1.0.1"
+      },
+      "gopd": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: gopd@1.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/gopd"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/gopd",
+        "version": "1.2.0"
+      },
+      "graceful-fs": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: graceful-fs@4.2.11 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/graceful-fs"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/graceful-fs",
+        "version": "4.2.11"
+      },
+      "has-symbols": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: has-symbols@1.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/has-symbols"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/has-symbols",
+        "version": "1.1.0"
+      },
+      "has-tostringtag": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: has-tostringtag@1.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/has-tostringtag"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/has-tostringtag",
+        "version": "1.0.2"
+      },
+      "hasown": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: hasown@2.0.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/hasown"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/hasown",
+        "version": "2.0.4"
+      },
+      "html-encoding-sniffer": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: html-encoding-sniffer@4.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/html-encoding-sniffer"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/html-encoding-sniffer",
+        "version": "4.0.0"
+      },
+      "http-proxy-agent": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: http-proxy-agent@7.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/http-proxy-agent"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/http-proxy-agent",
+        "version": "7.0.2"
+      },
+      "https-proxy-agent": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: https-proxy-agent@7.0.6 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/https-proxy-agent"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/https-proxy-agent",
+        "version": "7.0.6"
+      },
+      "iconv-lite": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: iconv-lite@0.6.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/iconv-lite"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/iconv-lite",
+        "version": "0.6.3"
+      },
+      "indent-string": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: indent-string@4.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/indent-string"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/indent-string",
+        "version": "4.0.0"
+      },
+      "is-potential-custom-element-name": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: is-potential-custom-element-name@1.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/is-potential-custom-element-name"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/is-potential-custom-element-name",
+        "version": "1.0.1"
+      },
+      "js-tokens": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: js-tokens@4.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/js-tokens"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/js-tokens",
+        "version": "4.0.0"
+      },
+      "jsdom": {
+        "overridden": false,
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/jsdom",
+        "version": "24.1.3"
+      },
+      "loose-envify": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: loose-envify@1.4.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/loose-envify"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/loose-envify",
+        "version": "1.4.0"
+      },
+      "loupe": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: loupe@3.2.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/loupe"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/loupe",
+        "version": "3.2.1"
+      },
+      "lru-cache": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: lru-cache@10.4.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/lru-cache"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/lru-cache",
+        "version": "10.4.3"
+      },
+      "lz-string": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: lz-string@1.5.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/lz-string"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/lz-string",
+        "version": "1.5.0"
+      },
+      "magic-string": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: magic-string@0.30.21 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/magic-string"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/magic-string",
+        "version": "0.30.21"
+      },
+      "math-intrinsics": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: math-intrinsics@1.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/math-intrinsics"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/math-intrinsics",
+        "version": "1.1.0"
+      },
+      "mime-db": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: mime-db@1.52.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/mime-db"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/mime-db",
+        "version": "1.52.0"
+      },
+      "mime-types": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: mime-types@2.1.35 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/mime-types"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/mime-types",
+        "version": "2.1.35"
+      },
+      "min-indent": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: min-indent@1.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/min-indent"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/min-indent",
+        "version": "1.0.1"
+      },
+      "ms": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: ms@2.1.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/ms"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/ms",
+        "version": "2.1.3"
+      },
+      "nanoid": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: nanoid@3.3.18 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/nanoid"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/nanoid",
+        "version": "3.3.18"
+      },
+      "next": {
+        "overridden": false,
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/next",
+        "version": "14.2.5"
+      },
+      "nwsapi": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: nwsapi@2.2.24 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/nwsapi"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/nwsapi",
+        "version": "2.2.24"
+      },
+      "parse5": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: parse5@7.3.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/parse5"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/parse5",
+        "version": "7.3.0"
+      },
+      "pathe": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: pathe@1.1.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/pathe"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/pathe",
+        "version": "1.1.2"
+      },
+      "pathval": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: pathval@2.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/pathval"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/pathval",
+        "version": "2.0.1"
+      },
+      "picocolors": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: picocolors@1.1.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/picocolors"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/picocolors",
+        "version": "1.1.1"
+      },
+      "postcss": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: postcss@8.4.31 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/postcss"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/postcss",
+        "version": "8.4.31"
+      },
+      "pretty-format": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: pretty-format@27.5.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/pretty-format"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/pretty-format",
+        "version": "27.5.1"
+      },
+      "psl": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: psl@1.15.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/psl"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/psl",
+        "version": "1.15.0"
+      },
+      "punycode": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: punycode@2.3.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/punycode"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/punycode",
+        "version": "2.3.1"
+      },
+      "querystringify": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: querystringify@2.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/querystringify"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/querystringify",
+        "version": "2.2.0"
+      },
+      "react": {
+        "overridden": false,
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/react",
+        "version": "18.3.1"
+      },
+      "react-dom": {
+        "overridden": false,
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/react-dom",
+        "version": "18.3.1"
+      },
+      "react-is": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: react-is@17.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/react-is"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/react-is",
+        "version": "17.0.2"
+      },
+      "redent": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: redent@3.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/redent"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/redent",
+        "version": "3.0.0"
+      },
+      "requires-port": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: requires-port@1.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/requires-port"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/requires-port",
+        "version": "1.0.0"
+      },
+      "rollup": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: rollup@4.62.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/rollup"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/rollup",
+        "version": "4.62.4"
+      },
+      "rrweb-cssom": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: rrweb-cssom@0.7.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/rrweb-cssom"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/rrweb-cssom",
+        "version": "0.7.1"
+      },
+      "safer-buffer": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: safer-buffer@2.1.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/safer-buffer"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/safer-buffer",
+        "version": "2.1.2"
+      },
+      "saxes": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: saxes@6.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/saxes"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/saxes",
+        "version": "6.0.0"
+      },
+      "scheduler": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: scheduler@0.23.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/scheduler"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/scheduler",
+        "version": "0.23.2"
+      },
+      "siginfo": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: siginfo@2.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/siginfo"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/siginfo",
+        "version": "2.0.0"
+      },
+      "source-map-js": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: source-map-js@1.2.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/source-map-js"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/source-map-js",
+        "version": "1.2.1"
+      },
+      "stackback": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: stackback@0.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/stackback"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/stackback",
+        "version": "0.0.2"
+      },
+      "std-env": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: std-env@3.10.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/std-env"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/std-env",
+        "version": "3.10.0"
+      },
+      "streamsearch": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: streamsearch@1.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/streamsearch"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/streamsearch",
+        "version": "1.1.0"
+      },
+      "strip-indent": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: strip-indent@3.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/strip-indent"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/strip-indent",
+        "version": "3.0.0"
+      },
+      "styled-jsx": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: styled-jsx@5.1.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/styled-jsx"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/styled-jsx",
+        "version": "5.1.1"
+      },
+      "symbol-tree": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: symbol-tree@3.2.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/symbol-tree"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/symbol-tree",
+        "version": "3.2.4"
+      },
+      "tinybench": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: tinybench@2.9.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tinybench"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/tinybench",
+        "version": "2.9.0"
+      },
+      "tinyexec": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: tinyexec@0.3.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tinyexec"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/tinyexec",
+        "version": "0.3.2"
+      },
+      "tinypool": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: tinypool@1.1.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tinypool"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/tinypool",
+        "version": "1.1.1"
+      },
+      "tinyrainbow": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: tinyrainbow@1.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tinyrainbow"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/tinyrainbow",
+        "version": "1.2.0"
+      },
+      "tinyspy": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: tinyspy@3.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tinyspy"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/tinyspy",
+        "version": "3.0.2"
+      },
+      "tough-cookie": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: tough-cookie@4.1.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tough-cookie"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/tough-cookie",
+        "version": "4.1.4"
+      },
+      "tr46": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: tr46@5.1.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tr46"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/tr46",
+        "version": "5.1.1"
+      },
+      "tslib": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: tslib@2.8.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tslib"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/tslib",
+        "version": "2.8.1"
+      },
+      "typescript": {
+        "overridden": false,
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/typescript",
+        "version": "5.9.3"
+      },
+      "undici-types": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: undici-types@6.21.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/undici-types"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/undici-types",
+        "version": "6.21.0"
+      },
+      "universalify": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: universalify@0.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/universalify"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/universalify",
+        "version": "0.2.0"
+      },
+      "url-parse": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: url-parse@1.5.10 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/url-parse"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/url-parse",
+        "version": "1.5.10"
+      },
+      "vite": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: vite@5.4.21 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/vite"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/vite",
+        "version": "5.4.21"
+      },
+      "vite-node": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: vite-node@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/vite-node"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/vite-node",
+        "version": "2.1.9"
+      },
+      "vitest": {
+        "overridden": false,
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/vitest",
+        "version": "2.1.9"
+      },
+      "w3c-xmlserializer": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: w3c-xmlserializer@5.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/w3c-xmlserializer"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/w3c-xmlserializer",
+        "version": "5.0.0"
+      },
+      "webidl-conversions": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: webidl-conversions@7.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/webidl-conversions"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/webidl-conversions",
+        "version": "7.0.0"
+      },
+      "whatwg-encoding": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: whatwg-encoding@3.1.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/whatwg-encoding"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/whatwg-encoding",
+        "version": "3.1.1"
+      },
+      "whatwg-mimetype": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: whatwg-mimetype@4.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/whatwg-mimetype"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/whatwg-mimetype",
+        "version": "4.0.0"
+      },
+      "whatwg-url": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: whatwg-url@14.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/whatwg-url"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/whatwg-url",
+        "version": "14.2.0"
+      },
+      "why-is-node-running": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: why-is-node-running@2.3.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/why-is-node-running"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/why-is-node-running",
+        "version": "2.3.0"
+      },
+      "ws": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: ws@8.21.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/ws"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/ws",
+        "version": "8.21.3"
+      },
+      "xml-name-validator": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: xml-name-validator@5.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/xml-name-validator"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/xml-name-validator",
+        "version": "5.0.0"
+      },
+      "xmlchars": {
+        "extraneous": true,
+        "overridden": false,
+        "problems": [
+          "extraneous: xmlchars@2.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/xmlchars"
+        ],
+        "resolved": "file:../../../../../MRQlab-mainfix/apps/web/node_modules/xmlchars",
+        "version": "2.2.0"
+      }
+    },
+    "name": "@mrqlab/web",
+    "problems": [
+      "extraneous: @adobe/css-tools@4.5.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@adobe/css-tools",
+      "extraneous: @asamuzakjp/css-color@3.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@asamuzakjp/css-color",
+      "extraneous: @babel/code-frame@7.29.7 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@babel/code-frame",
+      "extraneous: @babel/helper-validator-identifier@7.29.7 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@babel/helper-validator-identifier",
+      "extraneous: @babel/runtime@7.29.7 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@babel/runtime",
+      "extraneous: @csstools/color-helpers@5.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@csstools/color-helpers",
+      "extraneous: @csstools/css-calc@2.1.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@csstools/css-calc",
+      "extraneous: @csstools/css-color-parser@3.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@csstools/css-color-parser",
+      "extraneous: @csstools/css-parser-algorithms@3.0.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@csstools/css-parser-algorithms",
+      "extraneous: @csstools/css-tokenizer@3.0.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@csstools/css-tokenizer",
+      "extraneous: @esbuild/darwin-arm64@0.21.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@esbuild/darwin-arm64",
+      "extraneous: @jridgewell/sourcemap-codec@1.5.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@jridgewell/sourcemap-codec",
+      "extraneous: @next/env@14.2.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@next/env",
+      "extraneous: @next/swc-darwin-arm64@14.2.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@next/swc-darwin-arm64",
+      "extraneous: @rollup/rollup-darwin-arm64@4.62.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@rollup/rollup-darwin-arm64",
+      "extraneous: @swc/counter@0.1.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@swc/counter",
+      "extraneous: @swc/helpers@0.5.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@swc/helpers",
+      "extraneous: @testing-library/dom@10.4.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@testing-library/dom",
+      "extraneous: @types/aria-query@5.0.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@types/aria-query",
+      "extraneous: @types/estree@1.0.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@types/estree",
+      "extraneous: @types/prop-types@15.7.15 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@types/prop-types",
+      "extraneous: @vitest/expect@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/expect",
+      "extraneous: @vitest/mocker@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/mocker",
+      "extraneous: @vitest/pretty-format@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/pretty-format",
+      "extraneous: @vitest/runner@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/runner",
+      "extraneous: @vitest/snapshot@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/snapshot",
+      "extraneous: @vitest/spy@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/spy",
+      "extraneous: @vitest/utils@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/@vitest/utils",
+      "extraneous: agent-base@7.1.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/agent-base",
+      "extraneous: ansi-regex@5.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/ansi-regex",
+      "extraneous: ansi-styles@5.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/ansi-styles",
+      "extraneous: aria-query@5.3.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/aria-query",
+      "extraneous: assertion-error@2.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/assertion-error",
+      "extraneous: asynckit@0.4.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/asynckit",
+      "extraneous: busboy@1.6.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/busboy",
+      "extraneous: cac@6.7.14 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/cac",
+      "extraneous: call-bind-apply-helpers@1.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/call-bind-apply-helpers",
+      "extraneous: caniuse-lite@1.0.30001809 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/caniuse-lite",
+      "extraneous: chai@5.3.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/chai",
+      "extraneous: check-error@2.1.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/check-error",
+      "extraneous: client-only@0.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/client-only",
+      "extraneous: combined-stream@1.0.8 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/combined-stream",
+      "extraneous: css.escape@1.5.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/css.escape",
+      "extraneous: cssstyle@4.6.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/cssstyle",
+      "extraneous: csstype@3.2.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/csstype",
+      "extraneous: data-urls@5.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/data-urls",
+      "extraneous: debug@4.4.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/debug",
+      "extraneous: decimal.js@10.6.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/decimal.js",
+      "extraneous: deep-eql@5.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/deep-eql",
+      "extraneous: delayed-stream@1.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/delayed-stream",
+      "extraneous: dequal@2.0.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/dequal",
+      "extraneous: dom-accessibility-api@0.5.16 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/dom-accessibility-api",
+      "extraneous: dunder-proto@1.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/dunder-proto",
+      "extraneous: entities@6.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/entities",
+      "extraneous: es-define-property@1.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/es-define-property",
+      "extraneous: es-errors@1.3.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/es-errors",
+      "extraneous: es-module-lexer@1.7.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/es-module-lexer",
+      "extraneous: es-object-atoms@1.1.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/es-object-atoms",
+      "extraneous: es-set-tostringtag@2.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/es-set-tostringtag",
+      "extraneous: esbuild@0.21.5 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/esbuild",
+      "extraneous: estree-walker@3.0.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/estree-walker",
+      "extraneous: expect-type@1.4.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/expect-type",
+      "extraneous: form-data@4.0.6 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/form-data",
+      "extraneous: fsevents@2.3.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/fsevents",
+      "extraneous: function-bind@1.1.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/function-bind",
+      "extraneous: get-intrinsic@1.3.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/get-intrinsic",
+      "extraneous: get-proto@1.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/get-proto",
+      "extraneous: gopd@1.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/gopd",
+      "extraneous: graceful-fs@4.2.11 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/graceful-fs",
+      "extraneous: has-symbols@1.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/has-symbols",
+      "extraneous: has-tostringtag@1.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/has-tostringtag",
+      "extraneous: hasown@2.0.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/hasown",
+      "extraneous: html-encoding-sniffer@4.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/html-encoding-sniffer",
+      "extraneous: http-proxy-agent@7.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/http-proxy-agent",
+      "extraneous: https-proxy-agent@7.0.6 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/https-proxy-agent",
+      "extraneous: iconv-lite@0.6.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/iconv-lite",
+      "extraneous: indent-string@4.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/indent-string",
+      "extraneous: is-potential-custom-element-name@1.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/is-potential-custom-element-name",
+      "extraneous: js-tokens@4.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/js-tokens",
+      "extraneous: loose-envify@1.4.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/loose-envify",
+      "extraneous: loupe@3.2.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/loupe",
+      "extraneous: lru-cache@10.4.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/lru-cache",
+      "extraneous: lz-string@1.5.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/lz-string",
+      "extraneous: magic-string@0.30.21 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/magic-string",
+      "extraneous: math-intrinsics@1.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/math-intrinsics",
+      "extraneous: mime-db@1.52.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/mime-db",
+      "extraneous: mime-types@2.1.35 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/mime-types",
+      "extraneous: min-indent@1.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/min-indent",
+      "extraneous: ms@2.1.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/ms",
+      "extraneous: nanoid@3.3.18 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/nanoid",
+      "extraneous: nwsapi@2.2.24 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/nwsapi",
+      "extraneous: parse5@7.3.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/parse5",
+      "extraneous: pathe@1.1.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/pathe",
+      "extraneous: pathval@2.0.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/pathval",
+      "extraneous: picocolors@1.1.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/picocolors",
+      "extraneous: postcss@8.4.31 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/postcss",
+      "extraneous: pretty-format@27.5.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/pretty-format",
+      "extraneous: psl@1.15.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/psl",
+      "extraneous: punycode@2.3.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/punycode",
+      "extraneous: querystringify@2.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/querystringify",
+      "extraneous: react-is@17.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/react-is",
+      "extraneous: redent@3.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/redent",
+      "extraneous: requires-port@1.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/requires-port",
+      "extraneous: rollup@4.62.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/rollup",
+      "extraneous: rrweb-cssom@0.7.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/rrweb-cssom",
+      "extraneous: safer-buffer@2.1.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/safer-buffer",
+      "extraneous: saxes@6.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/saxes",
+      "extraneous: scheduler@0.23.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/scheduler",
+      "extraneous: siginfo@2.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/siginfo",
+      "extraneous: source-map-js@1.2.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/source-map-js",
+      "extraneous: stackback@0.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/stackback",
+      "extraneous: std-env@3.10.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/std-env",
+      "extraneous: streamsearch@1.1.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/streamsearch",
+      "extraneous: strip-indent@3.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/strip-indent",
+      "extraneous: styled-jsx@5.1.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/styled-jsx",
+      "extraneous: symbol-tree@3.2.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/symbol-tree",
+      "extraneous: tinybench@2.9.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tinybench",
+      "extraneous: tinyexec@0.3.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tinyexec",
+      "extraneous: tinypool@1.1.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tinypool",
+      "extraneous: tinyrainbow@1.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tinyrainbow",
+      "extraneous: tinyspy@3.0.2 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tinyspy",
+      "extraneous: tough-cookie@4.1.4 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tough-cookie",
+      "extraneous: tr46@5.1.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tr46",
+      "extraneous: tslib@2.8.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/tslib",
+      "extraneous: undici-types@6.21.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/undici-types",
+      "extraneous: universalify@0.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/universalify",
+      "extraneous: url-parse@1.5.10 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/url-parse",
+      "extraneous: vite-node@2.1.9 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/vite-node",
+      "extraneous: vite@5.4.21 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/vite",
+      "extraneous: w3c-xmlserializer@5.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/w3c-xmlserializer",
+      "extraneous: webidl-conversions@7.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/webidl-conversions",
+      "extraneous: whatwg-encoding@3.1.1 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/whatwg-encoding",
+      "extraneous: whatwg-mimetype@4.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/whatwg-mimetype",
+      "extraneous: whatwg-url@14.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/whatwg-url",
+      "extraneous: why-is-node-running@2.3.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/why-is-node-running",
+      "extraneous: ws@8.21.3 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/ws",
+      "extraneous: xml-name-validator@5.0.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/xml-name-validator",
+      "extraneous: xmlchars@2.2.0 /Users/hilbert/work/MRQlab-worktrees/ismrm-integration/apps/web/node_modules/xmlchars"
+    ]
+  }
+}

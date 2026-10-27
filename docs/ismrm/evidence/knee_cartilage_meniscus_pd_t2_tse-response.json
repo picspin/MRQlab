@@ -1,0 +1,426 @@
+{
+  "edges": [
+    {
+      "kind": "engine",
+      "source": "epg",
+      "target": "signal"
+    },
+    {
+      "kind": "engine",
+      "source": "epg",
+      "target": "k_trajectory"
+    },
+    {
+      "kind": "recon",
+      "source": "signal",
+      "target": "image"
+    }
+  ],
+  "experiment_id": "recipe:msk_knee_tse",
+  "observations": [
+    {
+      "axes": {},
+      "data": [
+        {
+          "imag": -0.2350737812284624,
+          "real": -2.8788235374490156e-17
+        },
+        {
+          "imag": -0.22926978889009916,
+          "real": -2.807745131054493e-17
+        },
+        {
+          "imag": -0.1203624843626273,
+          "real": -6.487275871971999e-18
+        },
+        {
+          "imag": -0.11739072403522559,
+          "real": -6.3271044599965355e-18
+        },
+        {
+          "imag": -0.010944101644430007,
+          "real": 2.3792181661279353e-18
+        },
+        {
+          "imag": -0.01067389081205816,
+          "real": 2.3204750603024473e-18
+        },
+        {
+          "imag": -0.027567599285626066,
+          "real": -4.999344770727339e-18
+        },
+        {
+          "imag": -0.026886952834096284,
+          "real": -4.8759105085373854e-18
+        }
+      ],
+      "derived_from": [],
+      "id": "signal",
+      "kind": "signal",
+      "provenance": {
+        "assumptions": [
+          "classic single-pool EPG",
+          "metadata-first integer dk"
+        ],
+        "clinical_recipe_id": "knee_cartilage_meniscus_pd_t2_tse",
+        "engine": "epg",
+        "estimated_work": 31347,
+        "experiment_hash": "1d8ccce60aaa6008712a9429d1932cbb94f04b6f15ec7f9232db3cd7200cdf54",
+        "n_ops": 81,
+        "parameters": [
+          {
+            "name": "adc_bandwidth_hz",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "Hz",
+            "value": 62500.0
+          },
+          {
+            "name": "b0_t",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "T",
+            "value": 3.0
+          },
+          {
+            "name": "echo_count",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "count",
+            "value": 16
+          },
+          {
+            "name": "echoes",
+            "source": "sequence compiler",
+            "state": "derived",
+            "unit": "count",
+            "value": 4
+          },
+          {
+            "name": "matrix",
+            "source": "ExperimentGraph.constraints",
+            "state": "authored",
+            "unit": "pixel",
+            "value": 32
+          },
+          {
+            "name": "max_gradient_mt_m",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "mT/m",
+            "value": 80.0
+          },
+          {
+            "name": "max_slew_rate_t_m_s",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "T/m/s",
+            "value": 200.0
+          },
+          {
+            "name": "max_work",
+            "source": "ExperimentGraph.constraints",
+            "state": "authored",
+            "unit": "work_unit",
+            "value": 2000000
+          },
+          {
+            "name": "refocusing_flip_angle",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "deg",
+            "value": 140.0
+          },
+          {
+            "name": "te",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "s",
+            "value": 0.045
+          },
+          {
+            "name": "tr",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "s",
+            "value": 2.5
+          }
+        ],
+        "plan_fingerprint": "94f2306d7c13a3158813659089e5b4ea80363255e52c651a6a18b962995db085",
+        "representation": "epg",
+        "scanner_profile": "research-3t@1.0.0",
+        "seed": 0,
+        "tissue_prior_set": "knee-pd-t2-priors@1.0.0"
+      },
+      "schema_version": "1.0",
+      "units": {
+        "value": "a.u."
+      }
+    },
+    {
+      "axes": {},
+      "data": [
+        [
+          -0.0030000000000000027,
+          0.0,
+          0.001
+        ],
+        [
+          -0.0020000000000000018,
+          0.0,
+          0.001
+        ],
+        [
+          -0.0040000000000000036,
+          0.0,
+          0.001
+        ],
+        [
+          -0.0030000000000000027,
+          0.0,
+          0.001
+        ],
+        [
+          -0.0050000000000000044,
+          0.0,
+          0.001
+        ],
+        [
+          -0.0040000000000000036,
+          0.0,
+          0.001
+        ],
+        [
+          -0.006000000000000005,
+          0.0,
+          0.001
+        ],
+        [
+          -0.0050000000000000044,
+          0.0,
+          0.001
+        ]
+      ],
+      "derived_from": [],
+      "id": "k_trajectory",
+      "kind": "k_trajectory",
+      "provenance": {
+        "assumptions": [
+          "classic single-pool EPG",
+          "metadata-first integer dk"
+        ],
+        "clinical_recipe_id": "knee_cartilage_meniscus_pd_t2_tse",
+        "engine": "epg",
+        "estimated_work": 31347,
+        "experiment_hash": "1d8ccce60aaa6008712a9429d1932cbb94f04b6f15ec7f9232db3cd7200cdf54",
+        "n_ops": 81,
+        "parameters": [
+          {
+            "name": "adc_bandwidth_hz",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "Hz",
+            "value": 62500.0
+          },
+          {
+            "name": "b0_t",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "T",
+            "value": 3.0
+          },
+          {
+            "name": "echo_count",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "count",
+            "value": 16
+          },
+          {
+            "name": "echoes",
+            "source": "sequence compiler",
+            "state": "derived",
+            "unit": "count",
+            "value": 4
+          },
+          {
+            "name": "matrix",
+            "source": "ExperimentGraph.constraints",
+            "state": "authored",
+            "unit": "pixel",
+            "value": 32
+          },
+          {
+            "name": "max_gradient_mt_m",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "mT/m",
+            "value": 80.0
+          },
+          {
+            "name": "max_slew_rate_t_m_s",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "T/m/s",
+            "value": 200.0
+          },
+          {
+            "name": "max_work",
+            "source": "ExperimentGraph.constraints",
+            "state": "authored",
+            "unit": "work_unit",
+            "value": 2000000
+          },
+          {
+            "name": "refocusing_flip_angle",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "deg",
+            "value": 140.0
+          },
+          {
+            "name": "te",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "s",
+            "value": 0.045
+          },
+          {
+            "name": "tr",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "s",
+            "value": 2.5
+          }
+        ],
+        "plan_fingerprint": "94f2306d7c13a3158813659089e5b4ea80363255e52c651a6a18b962995db085",
+        "representation": "epg",
+        "scanner_profile": "research-3t@1.0.0",
+        "seed": 0,
+        "tissue_prior_set": "knee-pd-t2-priors@1.0.0"
+      },
+      "schema_version": "1.0",
+      "units": {
+        "k": "teaching-gradient\u00b7s"
+      }
+    },
+    {
+      "axes": {},
+      "data": [
+        0.0012158262437083206,
+        0.022931758447108694,
+        0.017126916158649037,
+        0.05533771480922202,
+        0.09727116538657811,
+        0.055337714809222005,
+        0.017126916158649037,
+        0.02293175844710869
+      ],
+      "derived_from": [
+        "signal"
+      ],
+      "id": "image",
+      "kind": "image",
+      "provenance": {
+        "assumptions": [
+          "classic single-pool EPG",
+          "metadata-first integer dk"
+        ],
+        "clinical_recipe_id": "knee_cartilage_meniscus_pd_t2_tse",
+        "engine": "epg",
+        "estimated_work": 31347,
+        "experiment_hash": "1d8ccce60aaa6008712a9429d1932cbb94f04b6f15ec7f9232db3cd7200cdf54",
+        "n_ops": 81,
+        "parameters": [
+          {
+            "name": "adc_bandwidth_hz",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "Hz",
+            "value": 62500.0
+          },
+          {
+            "name": "b0_t",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "T",
+            "value": 3.0
+          },
+          {
+            "name": "echo_count",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "count",
+            "value": 16
+          },
+          {
+            "name": "echoes",
+            "source": "sequence compiler",
+            "state": "derived",
+            "unit": "count",
+            "value": 4
+          },
+          {
+            "name": "matrix",
+            "source": "ExperimentGraph.constraints",
+            "state": "authored",
+            "unit": "pixel",
+            "value": 32
+          },
+          {
+            "name": "max_gradient_mt_m",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "mT/m",
+            "value": 80.0
+          },
+          {
+            "name": "max_slew_rate_t_m_s",
+            "source": "ExperimentGraph.effective_scanner",
+            "state": "scanner_default",
+            "unit": "T/m/s",
+            "value": 200.0
+          },
+          {
+            "name": "max_work",
+            "source": "ExperimentGraph.constraints",
+            "state": "authored",
+            "unit": "work_unit",
+            "value": 2000000
+          },
+          {
+            "name": "refocusing_flip_angle",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "deg",
+            "value": 140.0
+          },
+          {
+            "name": "te",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "s",
+            "value": 0.045
+          },
+          {
+            "name": "tr",
+            "source": "ExperimentGraph.sequence.params",
+            "state": "authored",
+            "unit": "s",
+            "value": 2.5
+          }
+        ],
+        "plan_fingerprint": "94f2306d7c13a3158813659089e5b4ea80363255e52c651a6a18b962995db085",
+        "representation": "epg",
+        "scanner_profile": "research-3t@1.0.0",
+        "seed": 0,
+        "tissue_prior_set": "knee-pd-t2-priors@1.0.0"
+      },
+      "schema_version": "1.0",
+      "units": {
+        "value": "a.u."
+      }
+    }
+  ],
+  "schema_version": "1.0"
+}

@@ -1,0 +1,37 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.15.0, pytest-9.1.1, pluggy-1.7.0 -- /Users/hilbert/work/MRQlab-mainfix/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/hilbert/work/MRQlab-worktrees/ismrm-integration
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 27 items
+
+tests/experiment/test_protocol_verticals.py::test_catalog_contains_exactly_the_two_locked_verticals PASSED [  3%]
+tests/experiment/test_protocol_verticals.py::test_brain_and_knee_roles_are_clinically_explicit PASSED [  7%]
+tests/experiment/test_protocol_verticals.py::test_parked_verticals_are_not_promoted_into_the_a_catalog PASSED [ 11%]
+tests/experiment/test_protocol_verticals.py::test_protocol_recipe_extends_existing_experiment_recipe PASSED [ 14%]
+tests/experiment/test_resolved_execution_plan.py::test_protocol_plan_resolves_units_sources_and_versions PASSED [ 18%]
+tests/experiment/test_resolved_execution_plan.py::test_resolved_plan_is_deeply_immutable_and_detached_from_caller PASSED [ 22%]
+tests/experiment/test_resolved_execution_plan.py::test_fingerprint_is_canonical_and_changes_with_resolved_input PASSED [ 25%]
+tests/experiment/test_resolved_execution_plan.py::test_resolved_mappings_reject_in_place_union[options] PASSED [ 29%]
+tests/experiment/test_resolved_execution_plan.py::test_resolved_mappings_reject_in_place_union[physics_status] PASSED [ 33%]
+tests/experiment/test_resolved_execution_plan.py::test_resolved_mappings_reject_in_place_union[stale_dependencies] PASSED [ 37%]
+tests/experiment/test_resolved_execution_plan.py::test_resolved_mappings_reject_in_place_union[experiment_snapshot] PASSED [ 40%]
+tests/experiment/test_resolved_execution_plan.py::test_nested_snapshot_rejects_in_place_union PASSED [ 44%]
+tests/experiment/test_clinical_contract_models.py::test_clinical_contract_is_frozen_and_round_trips PASSED [ 48%]
+tests/experiment/test_clinical_contract_models.py::test_tissue_roles_reject_dangling_and_duplicate_ids PASSED [ 51%]
+tests/experiment/test_clinical_contract_models.py::test_tissue_roles_enforce_role_agreement PASSED [ 55%]
+tests/experiment/test_clinical_contract_models.py::test_numeric_values_are_finite_and_units_are_explicit PASSED [ 59%]
+tests/experiment/test_clinical_contract_models.py::test_parameter_state_rejects_unknown_units[bananas] PASSED [ 62%]
+tests/experiment/test_clinical_contract_models.py::test_parameter_state_rejects_unknown_units[ ] PASSED [ 66%]
+tests/experiment/test_clinical_contract_models.py::test_parameter_state_rejects_unknown_units[milliseconds] PASSED [ 70%]
+tests/experiment/test_clinical_contract_models.py::test_acquisition_constraint_rejects_incompatible_units[scan_time_s-Hz] PASSED [ 74%]
+tests/experiment/test_clinical_contract_models.py::test_acquisition_constraint_rejects_incompatible_units[resolution_mm-s] PASSED [ 77%]
+tests/experiment/test_clinical_contract_models.py::test_acquisition_constraint_rejects_incompatible_units[sar_relative-bananas] PASSED [ 81%]
+tests/experiment/test_observations.py::test_result_graph_wraps_signal_kspace_image_and_provenance PASSED [ 85%]
+tests/experiment/test_observations.py::test_every_observation_carries_resolved_plan_and_parameter_provenance PASSED [ 88%]
+tests/physics/test_epg_engine.py::test_classic_epg_refocuses_shifted_configuration PASSED [ 92%]
+tests/physics/test_epg_engine.py::test_epg_kmax_prunes_out_of_range_states_without_growth PASSED [ 96%]
+tests/physics/test_epg_engine.py::test_three_echo_cpmg_train_matches_independent_t2_envelope PASSED [100%]
+
+============================== 27 passed in 0.11s ==============================

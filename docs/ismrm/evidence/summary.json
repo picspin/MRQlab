@@ -1,0 +1,279 @@
+{
+  "brain_lesion_t2_tse": {
+    "api_plan_fingerprint": "5626baca8ef39a21af246a87dc488ae0196810d6a3289080621b1b54304934e6",
+    "diagnostic_pairs_not_objective_scores": {
+      "lesion-vs-wm": {
+        "difference_au": 0.21259380851363996,
+        "proxy_divided_by_0.05": 4.251876170272799
+      }
+    },
+    "engine": "epg",
+    "graph_objective": null,
+    "http_run": 200,
+    "http_validate": 200,
+    "legacy_contrast_difference": 0.21259380851363996,
+    "legacy_contrast_first_two_ids": [
+      "lesion",
+      "white_matter"
+    ],
+    "plan_fingerprint": "f6c9532400618cbf389d4ef03908c19e38debc8708a93f7b6683f4d3a5de8fda",
+    "products": [
+      "signal",
+      "k_trajectory",
+      "image"
+    ],
+    "provenance": {
+      "assumptions": [
+        "classic single-pool EPG",
+        "metadata-first integer dk"
+      ],
+      "clinical_recipe_id": "brain_lesion_t2_tse",
+      "engine": "epg",
+      "estimated_work": 31347,
+      "experiment_hash": "eaf4cacac285eda2c5e78b9a9953a96f4c379cb1b868a3bdd772b6c84cd2c3d5",
+      "n_ops": 81,
+      "parameters": [
+        {
+          "name": "adc_bandwidth_hz",
+          "source": "ExperimentGraph.effective_scanner",
+          "state": "scanner_default",
+          "unit": "Hz",
+          "value": 62500.0
+        },
+        {
+          "name": "b0_t",
+          "source": "ExperimentGraph.effective_scanner",
+          "state": "scanner_default",
+          "unit": "T",
+          "value": 3.0
+        },
+        {
+          "name": "echo_count",
+          "source": "ExperimentGraph.sequence.params",
+          "state": "authored",
+          "unit": "count",
+          "value": 16
+        },
+        {
+          "name": "echoes",
+          "source": "sequence compiler",
+          "state": "derived",
+          "unit": "count",
+          "value": 4
+        },
+        {
+          "name": "matrix",
+          "source": "ExperimentGraph.constraints",
+          "state": "authored",
+          "unit": "pixel",
+          "value": 32
+        },
+        {
+          "name": "max_gradient_mt_m",
+          "source": "ExperimentGraph.effective_scanner",
+          "state": "scanner_default",
+          "unit": "mT/m",
+          "value": 80.0
+        },
+        {
+          "name": "max_slew_rate_t_m_s",
+          "source": "ExperimentGraph.effective_scanner",
+          "state": "scanner_default",
+          "unit": "T/m/s",
+          "value": 200.0
+        },
+        {
+          "name": "max_work",
+          "source": "ExperimentGraph.constraints",
+          "state": "authored",
+          "unit": "work_unit",
+          "value": 2000000
+        },
+        {
+          "name": "refocusing_flip_angle",
+          "source": "ExperimentGraph.sequence.params",
+          "state": "authored",
+          "unit": "deg",
+          "value": 150.0
+        },
+        {
+          "name": "te",
+          "source": "ExperimentGraph.sequence.params",
+          "state": "authored",
+          "unit": "s",
+          "value": 0.01
+        },
+        {
+          "name": "tr",
+          "source": "ExperimentGraph.sequence.params",
+          "state": "authored",
+          "unit": "s",
+          "value": 3.0
+        }
+      ],
+      "plan_fingerprint": "5626baca8ef39a21af246a87dc488ae0196810d6a3289080621b1b54304934e6",
+      "representation": "epg",
+      "scanner_profile": "research-3t@1.0.0",
+      "seed": 0,
+      "tissue_prior_set": "brain-lesion-t2-priors@1.0.0"
+    },
+    "representation": "epg",
+    "sequence_params": {
+      "echo_count": 16,
+      "refocusing_flip_angle": 150.0,
+      "te": 0.01,
+      "tr": 3.0
+    },
+    "signal_first_au": 0.7618416485743083,
+    "signal_last_au": 0.6321595465178887,
+    "signal_mean_au": 0.6985212824927319,
+    "signal_samples": 8,
+    "tissue_mean_au": {
+      "csf": 0.9515348556668242,
+      "gray_matter": 0.6431584044964931,
+      "lesion": 0.7477129221048966,
+      "white_matter": 0.5351191135912566
+    }
+  },
+  "knee_cartilage_meniscus_pd_t2_tse": {
+    "api_plan_fingerprint": "94f2306d7c13a3158813659089e5b4ea80363255e52c651a6a18b962995db085",
+    "diagnostic_pairs_not_objective_scores": {
+      "cartilage-vs-meniscus": {
+        "difference_au": 0.08684432936307107,
+        "proxy_divided_by_0.05": 1.7368865872614214
+      },
+      "tear-vs-meniscus": {
+        "difference_au": 0.30053503032217155,
+        "proxy_divided_by_0.05": 6.0107006064434305
+      }
+    },
+    "engine": "epg",
+    "graph_objective": null,
+    "http_run": 200,
+    "http_validate": 200,
+    "legacy_contrast_difference": 0.21369070095910045,
+    "legacy_contrast_first_two_ids": [
+      "cartilage",
+      "meniscal_tear"
+    ],
+    "plan_fingerprint": "3d70be6697daec184f867707d807e7023b85b8412dd1d982c2e30bac5998e7a7",
+    "products": [
+      "signal",
+      "k_trajectory",
+      "image"
+    ],
+    "provenance": {
+      "assumptions": [
+        "classic single-pool EPG",
+        "metadata-first integer dk"
+      ],
+      "clinical_recipe_id": "knee_cartilage_meniscus_pd_t2_tse",
+      "engine": "epg",
+      "estimated_work": 31347,
+      "experiment_hash": "1d8ccce60aaa6008712a9429d1932cbb94f04b6f15ec7f9232db3cd7200cdf54",
+      "n_ops": 81,
+      "parameters": [
+        {
+          "name": "adc_bandwidth_hz",
+          "source": "ExperimentGraph.effective_scanner",
+          "state": "scanner_default",
+          "unit": "Hz",
+          "value": 62500.0
+        },
+        {
+          "name": "b0_t",
+          "source": "ExperimentGraph.effective_scanner",
+          "state": "scanner_default",
+          "unit": "T",
+          "value": 3.0
+        },
+        {
+          "name": "echo_count",
+          "source": "ExperimentGraph.sequence.params",
+          "state": "authored",
+          "unit": "count",
+          "value": 16
+        },
+        {
+          "name": "echoes",
+          "source": "sequence compiler",
+          "state": "derived",
+          "unit": "count",
+          "value": 4
+        },
+        {
+          "name": "matrix",
+          "source": "ExperimentGraph.constraints",
+          "state": "authored",
+          "unit": "pixel",
+          "value": 32
+        },
+        {
+          "name": "max_gradient_mt_m",
+          "source": "ExperimentGraph.effective_scanner",
+          "state": "scanner_default",
+          "unit": "mT/m",
+          "value": 80.0
+        },
+        {
+          "name": "max_slew_rate_t_m_s",
+          "source": "ExperimentGraph.effective_scanner",
+          "state": "scanner_default",
+          "unit": "T/m/s",
+          "value": 200.0
+        },
+        {
+          "name": "max_work",
+          "source": "ExperimentGraph.constraints",
+          "state": "authored",
+          "unit": "work_unit",
+          "value": 2000000
+        },
+        {
+          "name": "refocusing_flip_angle",
+          "source": "ExperimentGraph.sequence.params",
+          "state": "authored",
+          "unit": "deg",
+          "value": 140.0
+        },
+        {
+          "name": "te",
+          "source": "ExperimentGraph.sequence.params",
+          "state": "authored",
+          "unit": "s",
+          "value": 0.045
+        },
+        {
+          "name": "tr",
+          "source": "ExperimentGraph.sequence.params",
+          "state": "authored",
+          "unit": "s",
+          "value": 2.5
+        }
+      ],
+      "plan_fingerprint": "94f2306d7c13a3158813659089e5b4ea80363255e52c651a6a18b962995db085",
+      "representation": "epg",
+      "scanner_profile": "research-3t@1.0.0",
+      "seed": 0,
+      "tissue_prior_set": "knee-pd-t2-priors@1.0.0"
+    },
+    "representation": "epg",
+    "sequence_params": {
+      "echo_count": 16,
+      "refocusing_flip_angle": 140.0,
+      "te": 0.045,
+      "tr": 2.5
+    },
+    "signal_first_au": 0.2350737812284624,
+    "signal_last_au": 0.026886952834096284,
+    "signal_mean_au": 0.09727116538657811,
+    "signal_samples": 8,
+    "tissue_mean_au": {
+      "cartilage": 0.09489869793812497,
+      "joint_fluid": 0.8681096399627728,
+      "marrow_fat": 0.17545277003238358,
+      "meniscal_tear": 0.3085893988972254,
+      "meniscus": 0.0080543685750539
+    }
+  }
+}

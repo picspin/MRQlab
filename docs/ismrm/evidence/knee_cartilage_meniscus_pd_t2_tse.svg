@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="460" viewBox="0 0 900 460">
+<rect width="900" height="460" fill="white"/>
+<text x="30" y="28" font-family="sans-serif" font-size="18">knee_cartilage_meniscus_pd_t2_tse</text>
+<text x="30" y="52" font-family="sans-serif" font-size="14">Diagnostic forward signals (a.u.); teaching model, no clinical CNR</text>
+<path d="M60 80V360H620" fill="none" stroke="black"/>
+<text x="10" y="90">0.932</text><text x="35" y="365">0</text>
+<text x="220" y="402">ADC sample index (not effective TE)</text>
+<polyline points="60.00,293.59 140.00,295.23 220.00,326.00 300.00,326.84 380.00,356.91 460.00,356.98 540.00,352.21 620.00,352.40" fill="none" stroke="#145c9e" stroke-width="2"/>
+<text x="640" y="110" fill="#145c9e" font-family="sans-serif">cartilage</text>
+<polyline points="60.00,212.67 140.00,214.30 220.00,247.64 300.00,248.88 380.00,306.03 460.00,306.63 540.00,314.24 620.00,314.75" fill="none" stroke="#c04a23" stroke-width="2"/>
+<text x="640" y="150" fill="#c04a23" font-family="sans-serif">meniscal_tear</text>
+<polyline points="60.00,353.63 140.00,354.05 220.00,358.30 300.00,358.41 380.00,359.10 460.00,359.16 540.00,359.32 620.00,359.36" fill="none" stroke="#39834b" stroke-width="2"/>
+<text x="640" y="190" fill="#39834b" font-family="sans-serif">meniscus</text>
+<polyline points="60.00,111.87 140.00,112.03 220.00,90.00 300.00,90.18 380.00,119.70 460.00,119.86 540.00,112.61 620.00,112.77" fill="none" stroke="#8b4f9e" stroke-width="2"/>
+<text x="640" y="230" fill="#8b4f9e" font-family="sans-serif">joint_fluid</text>
+<polyline points="60.00,257.34 140.00,259.03 220.00,296.51 300.00,297.56 380.00,338.21 460.00,338.57 540.00,343.04 620.00,343.32" fill="none" stroke="#777777" stroke-width="2"/>
+<text x="640" y="270" fill="#777777" font-family="sans-serif">marrow_fat</text>
+</svg>
