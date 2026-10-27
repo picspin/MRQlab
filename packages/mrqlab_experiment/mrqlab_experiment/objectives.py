@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from mrqlab_physics import EngineOptions, Isochromat, Phantom, ScannerModel, get_engine
 from mrqlab_sequence import SequenceIR
+from .clinical import ObjectiveVector
 
 
 class ObjectiveTerm(BaseModel):
@@ -30,8 +31,9 @@ class ObjectiveConstraint(BaseModel):
 
 
 class ObjectiveFunction(BaseModel):
-    kind: Literal["null", "contrast_target", "clinical_cnr"] = "null"
+    kind: Literal["null", "contrast_target", "clinical_cnr", "clinical_vector"] = "null"
     terms: tuple[ObjectiveTerm, ...] = ()
+    clinical_vector: ObjectiveVector | None = None
     cnr_term: ClinicalCNRTerm | None = None
     constraints: tuple[ObjectiveConstraint, ...] = ()
 
@@ -72,7 +74,19 @@ def evaluate_multi_tissue_contrast(graph) -> dict[str, Any]:
         sim_res = engine.simulate(sequence, phantom, scanner, options)
         signals.append(sim_res.signal)
 
-    # Compute contrast between first two tissues
+    pairs = []
+    ids = [t["id"] for t in tissue_info]
+    if graph.clinical_recipe is not None:
+        for term in graph.clinical_recipe.objective.terms:
+            a = float(np.mean(np.abs(signals[ids.index(term.target_tissue_id)])))
+            b = float(np.mean(np.abs(signals[ids.index(term.reference_tissue_id)])))
+            difference = abs(a - b)
+            metrics = {"absolute_signal_difference": difference, "signal_ratio": a / max(1e-6, b), "normalized_cnr_proxy": difference / 0.05}
+            pairs.append({"id": term.id, "target_tissue_id": term.target_tissue_id,
+                          "reference_tissue_id": term.reference_tissue_id, **metrics,
+                          "metric": term.metric, "value": metrics[term.metric]})
+
+    # Legacy scalar keys follow the first declared named pair when available.
     if len(signals) >= 2:
         sig_a = np.mean(np.abs(signals[0]))
         sig_b = np.mean(np.abs(signals[1]))
@@ -89,7 +103,12 @@ def evaluate_multi_tissue_contrast(graph) -> dict[str, Any]:
         cnr = 0.0
         ratio = 0.0
 
+    if pairs:
+        diff = pairs[0]["absolute_signal_difference"]
+        ratio = pairs[0]["signal_ratio"]
+        cnr = pairs[0]["normalized_cnr_proxy"]
     return {
+        "pairs": pairs,
         "tissues": tissue_info,
         "tissue_signals": [s.tolist() for s in signals],
         "contrast_difference": diff,
@@ -103,6 +122,23 @@ def evaluate_multi_tissue_contrast(graph) -> dict[str, Any]:
 
 
 def evaluate_objective(objective: ObjectiveFunction, products: dict[str, object]) -> float:
+    if objective.kind == "clinical_vector":
+        if objective.clinical_vector is None:
+            raise ValueError("clinical_vector requires named terms")
+        data = products["multi_tissue_contrast"]
+        means = {t["id"]: float(np.mean(np.abs(s))) for t, s in zip(data["tissues"], data["tissue_signals"])}
+        total = 0.0
+        for term in objective.clinical_vector.terms:
+            a, b = means[term.target_tissue_id], means[term.reference_tissue_id]
+            measured = {"absolute_signal_difference": abs(a-b), "signal_ratio": a/max(1e-6,b), "normalized_cnr_proxy": abs(a-b)/0.05}[term.metric]
+            if term.direction == "target":
+                if term.target_value is None:
+                    raise ValueError("target direction requires target_value")
+                loss = (measured-term.target_value)**2
+            else:
+                loss = -measured if term.direction == "maximize" else measured
+            total += term.weight * loss
+        return float(total)
     if objective.kind == "null":
         return 0.0
     elif objective.kind == "contrast_target":

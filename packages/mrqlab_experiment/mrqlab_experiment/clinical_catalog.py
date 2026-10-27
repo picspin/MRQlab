@@ -281,6 +281,9 @@ def build_protocol_experiment(recipe_id: str):
 
     recipe = get_protocol_recipe(recipe_id)
     graph = build_clinical_recipe(recipe.experiment_recipe_id).model_copy(deep=True)
+    from .objectives import ObjectiveFunction
+    graph.objective = ObjectiveFunction(kind="clinical_vector", clinical_vector=recipe.objective)
+    graph.readout = graph.readout.model_copy(update={"products": (*graph.readout.products, "tissue_contrast", "objective_score")})
     graph.clinical_recipe = recipe
     graph.tissue = tuple(
         TissueModel.model_validate(item.model_dump()) for item in recipe.tissue_priors.tissues

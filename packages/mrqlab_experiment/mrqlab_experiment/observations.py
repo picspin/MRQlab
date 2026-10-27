@@ -171,7 +171,10 @@ def build_result_graph(run) -> ResultGraph:
             kind="objective_score",
             data=evaluate_objective(
                 run.experiment.objective,
-                {"signal": run.sim_result.signal},
+                {"signal": run.sim_result.signal, **(
+                    {"multi_tissue_contrast": evaluate_multi_tissue_contrast(run.experiment)}
+                    if run.experiment.objective.kind in {"clinical_cnr", "clinical_vector"} else {}
+                )},
             ),
             units={"value": "score"},
             derived_from=_derived_from("objective_score", emitted),

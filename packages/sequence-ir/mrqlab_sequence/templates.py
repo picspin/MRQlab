@@ -14,7 +14,9 @@ def _finite_parameter(params: dict, name: str, default: float) -> float:
 
 
 def _echo_count(params: dict, default: int) -> int:
-    value = params.get("echoes", default)
+    if "echoes" in params and "echo_count" in params and params["echoes"] != params["echo_count"]:
+        raise ValueError("echoes and echo_count must agree")
+    value = params.get("echo_count", params.get("echoes", default))
     if isinstance(value, bool) or not isinstance(value, Integral) or value <= 0:
         raise ValueError("echoes must be a strict positive integer")
     return int(value)
