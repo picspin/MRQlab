@@ -60,7 +60,15 @@ def evaluate_multi_tissue_contrast(graph) -> dict[str, Any]:
                 proton_density=t.proton_density,
                 off_resonance_hz=graph.sample.off_resonance_hz,
             )
-            sim_res = engine.simulate(sequence, phantom, scanner, options)
+            if sequence.metadata.get("research_family"):
+                from .family_execution import simulate_family
+                from dataclasses import replace
+                compartment = sequence.model_copy(deep=True)
+                compartment.metadata["blood_compartment"] = t.id == "blood"
+                phantom = replace(phantom, diffusion_adc_mm2_s=t.diffusion_adc_mm2_s)
+                sim_res = simulate_family(compartment, phantom, scanner, options)
+            else:
+                sim_res = engine.simulate(sequence, phantom, scanner, options)
             signals.append(sim_res.signal)
     else:
         # Fallback to single sample

@@ -177,7 +177,7 @@ def build_result_graph(run) -> ResultGraph:
             id="k_trajectory",
             kind="k_trajectory",
             data=run.sim_result.k_trajectory.tolist(),
-            units={"k": "teaching-gradient·s"},
+            units={"k": "cycles/m" if run.sequence.metadata.get("gradient_units") == "mt_m" else "teaching-gradient·s"},
             provenance=provenance,
         ),
         "image": lambda emitted: Observation(

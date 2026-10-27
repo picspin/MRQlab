@@ -9,7 +9,7 @@ from ..ops.types import Relax, SaturationOp
 
 
 def _state_width(phantom, scanner, options):
-    rows = 4 if phantom.magnetization_transfer is not None else 6
+    rows = 4 if phantom.magnetization_transfer is not None else (3*phantom.liquid_pools.count if phantom.liquid_pools else 6)
     return rows * (2 * options.epg_kmax + 1)
 
 
@@ -35,7 +35,7 @@ def _metadata(phantom, scanner, options, sequence):
         ):
             assumptions.append("super_lorentzian_saturation_applied")
     else:
-        assumptions = ["two-pool liquid EPG-X", "hard RF applied independently to both pools"]
+        assumptions = ["N-liquid-pool EPG-X" if phantom.liquid_pools else "two-pool liquid EPG-X", "hard RF applied independently to liquid pools"]
         if phantom.bloch_mcconnell and phantom.bloch_mcconnell.k_ab_hz > 0:
             assumptions.append("bloch_mcconnell_exchange_applied")
     return {
@@ -48,7 +48,7 @@ def _metadata(phantom, scanner, options, sequence):
 
 EPG_X_PLUGIN = EnginePlugin(
     name="epg-x",
-    description="Two-pool Bloch-McConnell or free/bound MT extended phase graph",
+    description="N-liquid-pool Bloch-McConnell or free/bound MT extended phase graph",
     state_width=_state_width,
     backend_factory=_backend,
     metadata_factory=_metadata,
@@ -60,7 +60,7 @@ EPG_X_PLUGIN = EnginePlugin(
 
 class EpgXEngine(SimulationEngine):
     name = "epg-x"
-    description = "Two-pool Bloch-McConnell or free/bound MT extended phase graph"
+    description = "N-liquid-pool Bloch-McConnell or free/bound MT extended phase graph"
     available = True
 
     def __init__(self):
@@ -70,8 +70,8 @@ class EpgXEngine(SimulationEngine):
         cest = sequence.metadata.get("cest")
         if cest is None:
             return super().simulate(sequence, phantom, scanner, options)
-        if phantom.bloch_mcconnell is None or phantom.magnetization_transfer is not None:
-            raise ValueError("CEST requires exactly two liquid Bloch-McConnell pools")
+        if (phantom.bloch_mcconnell is None and phantom.liquid_pools is None) or phantom.magnetization_transfer is not None:
+            raise ValueError("CEST requires a liquid Bloch-McConnell pool system")
         required = ("offsets_ppm", "offset_unit", "saturation_duration_s", "saturation_power_uT")
         if any(key not in cest for key in required):
             raise ValueError("CEST metadata requires offsets_ppm, offset_unit, duration, and power")
@@ -86,6 +86,10 @@ class EpgXEngine(SimulationEngine):
         mode, n_pulses, pulse, gap, elapsed, duty = validate_cest_timing(cest)
         if cest.get("reference", "unsaturated_control") != "unsaturated_control":
             raise ValueError("v0.64 CEST supports only unsaturated_control reference")
+        n = phantom.liquid_pools.count if phantom.liquid_pools else 2
+        work = (len(offsets) * (1 if mode == "cw" else 2*n_pulses-1) + 1) * (3*n+1)**3
+        if work > options.max_work:
+            raise ValueError("CEST matrix propagation exceeds max_work")
         order = np.argsort(offsets)
         offsets = offsets[order]
         offset_hz = offsets * GAMMA_BAR_HZ_T * scanner.b0_t * 1e-6
@@ -105,7 +109,7 @@ class EpgXEngine(SimulationEngine):
             raise ValueError("unsaturated CEST control Mz_ref must be finite and positive")
         z = np.clip(np.asarray(mz) / mz_ref, 0.0, 1.0 + 1e-9)
         assumptions = [
-            "two-pool liquid EPG-X", "bloch-mcconnell", "single_voxel",
+            "N-liquid-pool EPG-X" if phantom.liquid_pools else "two-pool liquid EPG-X", "bloch-mcconnell", "single_voxel",
             "cest_z_spectrum_applied",
         ]
         if mode == "pulsed":
@@ -119,6 +123,6 @@ class EpgXEngine(SimulationEngine):
                         "mode": mode, "duty_cycle": duty},
             meta={"engine": "epg-x", "assumptions": assumptions,
                   "n_ops": len(offsets) * per_offset_ops + 1,
-                  "estimated_work": (len(offsets) * per_offset_ops + 1) * 7},
+                  "estimated_work": work},
             timing={},
         )

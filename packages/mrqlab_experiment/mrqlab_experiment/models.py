@@ -30,7 +30,7 @@ class ExperimentEdge(BaseModel):
 
 
 class TemplateRef(BaseModel):
-    template: Literal["SE", "GRE", "TSE"]
+    template: Literal["SE", "GRE", "TSE", "TSE3D", "SSFP", "EPSE", "PRESS"]
     params: dict[str, float | int] = Field(default_factory=dict)
 
 

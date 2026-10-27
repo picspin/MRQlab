@@ -62,6 +62,18 @@ def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
             )
         else:
             cest_declared = isinstance(graph.sequence, SequenceIR) and graph.sequence.metadata.get("cest") is not None
+            if cest_declared and len(tissues) > 2:
+                from mrqlab_physics.models import LiquidPoolSystem
+                metadata = graph.sequence.metadata["cest"]
+                rates = metadata.get("exchange_matrix_hz")
+                if rates is None:
+                    raise ValueError("N-pool CEST requires exchange_matrix_hz (source rows, destination columns)")
+                system = LiquidPoolSystem(
+                    tuple(t.t1 for t in tissues), tuple(t.t2 for t in tissues),
+                    tuple(t.proton_density for t in tissues),
+                    tuple(t.chemical_shift_ppm*GAMMA_BAR_HZ_T*graph.effective_scanner.b0_t*1e-6 for t in tissues),
+                    tuple(tuple(row) for row in rates))
+                return Phantom(liquid_pools=system, off_resonance_hz=graph.sample.off_resonance_hz)
             if len(tissues) == 2 and (tissues[0].exchange_rate_hz > 0 or cest_declared):
                 a, b = tissues
                 k_ba = a.exchange_rate_hz * a.pool_fraction / b.pool_fraction
@@ -118,8 +130,10 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     if cest is not None:
         if graph.engine.preferred != "epg-x":
             raise CapabilityMismatch("CEST metadata requires preferred engine 'epg-x'")
-        if len(tissue_values) != 2:
-            raise CapabilityMismatch("CEST requires two liquid tissues")
+        if len(tissue_values) < 2:
+            raise CapabilityMismatch("CEST requires at least two liquid tissues")
+        if len(tissue_values) > 2:
+            _phantom_from_sample(graph)  # validate explicit N-pool matrix before execution
         if any(t.bound_pool for t in tissue_values):
             raise CapabilityMismatch("CEST does not accept bound MT pools")
         if abs(tissue_values[0].chemical_shift_ppm) > 1e-12:
@@ -139,7 +153,9 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
         raise CapabilityMismatch("pool a must be the free pool")
     if len(tissue_values) >= 2 and tissue_values[1].bound_pool and not exchange_declared:
         raise CapabilityMismatch("a bound pool requires positive exchange_rate_hz on pool a")
-    if exchange_declared:
+    if cest is not None and len(tissue_values) > 2:
+        extra = frozenset(extra | {"exchange", "multi_pool"})
+    elif exchange_declared:
         if len(tissue_values) != 2:
             raise CapabilityMismatch("positive exchange_rate_hz requires exactly two tissues")
         a, b = tissue_values
@@ -187,6 +203,8 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
             f"forced representation {graph.engine.preferred!r} cannot satisfy phase_distribution"
         )
     selected = select_representation(required, preferred)
+    if sequence.metadata.get("research_family") and selected.name != sequence.metadata["preferred_engine"]:
+        raise CapabilityMismatch("family execution requires its declared backend")
     requested = EngineOptions(**graph.engine.options)
     options = replace(requested, max_work=min(requested.max_work, graph.constraints.max_work))
     
@@ -311,6 +329,28 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
     options = EngineOptions(**dict(plan.options))
     physics_ir = compile_physics_ir(sequence, plan.representation, options)
     scanner_model = graph.effective_scanner
+    if sequence.metadata.get("research_family"):
+        from .family_execution import simulate_family
+        if isinstance(graph.tissue, tuple) and len(graph.tissue) > 1:
+            import numpy as np
+            results = []
+            for tissue in graph.tissue:
+                single = graph.model_copy(deep=True)
+                single.tissue = tissue
+                compartment_sequence = sequence.model_copy(deep=True)
+                compartment_sequence.metadata["blood_compartment"] = tissue.id == "blood"
+                results.append(simulate_family(compartment_sequence, _phantom_from_sample(single), scanner_model, options))
+            result = SimResult(signal=np.mean([r.signal for r in results], axis=0),
+                k_trajectory=results[0].k_trajectory, meta={**results[0].meta,
+                    "n_ops": sum(r.meta["n_ops"] for r in results),
+                    "estimated_work": sum(r.meta["estimated_work"] for r in results),
+                    "tissue_ids": [t.id for t in graph.tissue],
+                    "tissue_signals": [r.signal for r in results]})
+            if result.meta["estimated_work"] > options.max_work:
+                raise ValueError("combined family compartments exceed max_work")
+        else:
+            result = simulate_family(sequence, _phantom_from_sample(graph), scanner_model, options)
+        return KernelRun(graph.model_copy(deep=True), sequence, result, plan, physics_ir)
     try:
         engine = get_engine(plan.representation if plan.representation in {"hybrid", "ssepg", "pdg", "epg-x"} else plan.engine)
         result = engine.simulate(

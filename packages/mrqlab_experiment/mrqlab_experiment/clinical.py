@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 NonEmpty = Annotated[str, Field(min_length=1)]
 ClinicalUnit = Literal[
-    "s", "ms", "mm", "Hz", "T", "mT/m", "T/m/s", "deg",
+    "s", "ms", "m", "mm", "Hz", "T", "uT", "mT/m", "T/m/s", "deg",
     "count", "pixel", "work_unit", "dimensionless",
 ]
 
@@ -212,10 +212,11 @@ class ScannerProfile(FrozenModel):
 class ClinicalProtocolRecipe(FrozenModel):
     id: NonEmpty
     version: NonEmpty
-    vertical: Literal["brain_lesion_t2_tse", "knee_cartilage_meniscus_pd_t2_tse"]
+    vertical: Literal["brain_lesion_t2_tse", "knee_cartilage_meniscus_pd_t2_tse", "brain_t1_3d_tse", "vessel_wall_ssfp_darkblood", "brain_epse_dwi", "cest_multi_pool_z_spectrum", "brain_press_mrs"]
     question: ClinicalQuestion
     tissue_priors: TissuePriorSet
     objective: ObjectiveVector
+    measurement_objective: NonEmpty | None = None
     robustness: tuple[RobustnessScenario, ...]
     constraints: tuple[AcquisitionConstraint, ...]
     scanner_profile: ScannerProfile
