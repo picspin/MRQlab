@@ -8,6 +8,7 @@ import json
 import numpy as np
 from mrqlab_recon.spatial import (cartesian_acquire, cartesian_reconstruct,
     radial_acquire, radial_reconstruct, image_quality)
+from mrqlab_recon.noncartesian import radial_cgls
 from .family_recipes import build_family_recipe
 from .family_execution import adc_map
 from .kernel import run_experiment
@@ -24,7 +25,9 @@ def _hash(value):
 
 def run_spatial_imaging(chain, labels, *, encoding='cartesian', order='sequential_ky',
                         spokes=96, points=64, acceleration=1, max_samples=1000000,
-                        max_work=100000000, quality_threshold=None):
+                        max_work=100000000, quality_threshold=None, reconstruction='gridding',
+                        inverse_max_iterations=1500, inverse_tolerance=1e-12,
+                        max_memory_bytes=134217728):
     """Design -> family simulation -> acquisition -> reconstruction -> validation.
 
     labels assigns each voxel to one of two known tissue classes. Provenance
@@ -36,6 +39,8 @@ def run_spatial_imaging(chain, labels, *, encoding='cartesian', order='sequentia
                    noncartesian='brain_t1_3d_tse', cest='cest_multi_pool_z_spectrum', adc='brain_epse_dwi')
     if chain not in recipes or encoding not in {'cartesian', 'radial', 'stack_of_stars'}:
         raise ValueError('unsupported chain or encoding')
+    if reconstruction not in {'gridding', 'cgls'} or (encoding == 'cartesian' and reconstruction != 'gridding'):
+        raise ValueError('unsupported reconstruction for encoding')
     labels = np.asarray(labels)
     if labels.ndim not in (2, 3) or min(labels.shape) < 2 or not np.isin(labels, [0, 1]).all():
         raise ValueError('two-class 2D/3D label grid required')
@@ -58,7 +63,7 @@ def run_spatial_imaging(chain, labels, *, encoding='cartesian', order='sequentia
     work = count*(labels.shape[-1]*labels.shape[-2] if encoding != 'cartesian' else 1)
     if count > max_samples or work > max_work:
         raise ValueError('infeasible acquisition budget')
-    threshold = quality_threshold if quality_threshold is not None else (0.4 if encoding != 'cartesian' else 1e-10)
+    threshold = quality_threshold if quality_threshold is not None else (1e-6 if reconstruction == 'cgls' else 0.4 if encoding != 'cartesian' else 1e-10)
     if not np.isfinite(threshold) or threshold <= 0:
         raise ValueError('invalid quality threshold')
     graph = build_family_recipe(recipes[chain]); physical = []; sources = []
@@ -96,14 +101,20 @@ def run_spatial_imaging(chain, labels, *, encoding='cartesian', order='sequentia
         sources = [np.take(np.array(tissue_signals)[:, i], labels.astype(int)) for i in range(frames)]
         target = np.take(truth, labels.astype(int)) if chain == 'adc' else sources[0]
         units = 'mm2/s' if chain == 'adc' else 'relative signal'
-    reconstructions = []; acquisitions = []
+    reconstructions = []; acquisitions = []; solvers = []; total_work = work
     for source in sources:
         if encoding == 'cartesian':
             coords, samples = cartesian_acquire(source, order, acceleration)
             recon = cartesian_reconstruct(coords, samples, source.shape)
         else:
             coords, samples = radial_acquire(source, spokes, points)
-            recon = radial_reconstruct(coords, samples, source.shape)
+            if reconstruction == 'cgls':
+                recon, solver = radial_cgls(coords, samples, source.shape,
+                    max_iterations=inverse_max_iterations, tolerance=inverse_tolerance,
+                    max_work=max_work-total_work, max_memory_bytes=max_memory_bytes)
+                total_work += solver['estimated_work']; solvers.append(solver)
+            else:
+                recon = radial_reconstruct(coords, samples, source.shape)
         reconstructions.append(recon.real)
         acquisitions.append(dict(coordinates=coords.tolist(), sample_shape=list(samples.shape),
                                  samples_hash=_hash([samples.real.tolist(), samples.imag.tolist()])))
@@ -116,12 +127,15 @@ def run_spatial_imaging(chain, labels, *, encoding='cartesian', order='sequentia
     quality = image_quality(target, image, threshold)
     inputs = dict(chain=chain, labels=labels.tolist(), encoding=encoding, order=order,
                   spokes=spokes, points=points, acceleration=acceleration,
-                  max_samples=max_samples, max_work=max_work, quality_threshold=threshold)
+                  max_samples=max_samples, max_work=max_work, quality_threshold=threshold,
+                  reconstruction=reconstruction, inverse_max_iterations=inverse_max_iterations,
+                  inverse_tolerance=inverse_tolerance, max_memory_bytes=max_memory_bytes)
     return dict(clinical_question=graph.clinical_recipe.question.research_question,
                 design=graph.model_dump(mode='json'), image=image, reference=target,
                 source_images=np.array(sources), reconstructed_frames=np.array(reconstructions),
-                quality=quality, units=units, scope=SCOPE,
-                provenance=dict(version='spatial-v1', replay=inputs, input_hash=_hash(inputs),
+                quality=quality, units=units, scope=SCOPE, solvers=solvers,
+                provenance=dict(version='spatial-cgls-v1' if reconstruction == 'cgls' else 'spatial-v1', replay=inputs, input_hash=_hash(inputs),
                                 physical=physical, acquisitions=acquisitions,
-                                estimated_samples=count, estimated_work=work,
-                                approximation='linear splat with radial density weights and local weight normalization; no deapodization' if encoding != 'cartesian' else 'ideal Cartesian FFT'))
+                                estimated_samples=count, estimated_work=total_work,
+                                reconstruction=reconstruction, solvers=solvers,
+                                approximation='exact discrete Fourier model; bounded CGLS, no gain fit; small-grid reference, not NUFFT' if reconstruction == 'cgls' else 'linear splat with radial density weights and local weight normalization; no deapodization' if encoding != 'cartesian' else 'ideal Cartesian FFT'))
