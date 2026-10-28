@@ -671,3 +671,9 @@ main {
   color: #071012;
   box-shadow: 0 0 10px var(--cyan-glow);
 }
+
+/* Keep the instrument navigation usable on narrow research screens. */
+@media (max-width: 800px) {
+  .top-nav { flex-wrap: wrap; gap: 12px; }
+  .nav-routes { flex-wrap: wrap; }
+}

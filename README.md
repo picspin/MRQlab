@@ -37,6 +37,32 @@ The product center is an experiment (`ExperimentGraph`), compiled through three 
 - `GET /presets` feeds clinical-first Explore cards.
 - `POST /sequences/build`, `GET /engines`, and `GET /health` are unchanged.
 
+## Research design and replay workspace
+
+Open `/research` from the Research navigation entry with the local API running.
+This connects five research chains to editable designs, bounded simulation,
+finite candidate comparison, explicit validation and complete JSON records:
+
+| Research chain | Evidence and current fidelity |
+|---|---|
+| TSE image/PSF | Per-echo periodic EPG, complete ideal Cartesian line timeline, tissue PSFs |
+| Non-Cartesian inverse | Exact-DFT CGLS reference for small radial/stack-of-stars grids, unscaled amplitude and residual diagnostics |
+| Flow/slice/gating | Persistent spins on prescribed through-plane trajectories, finite RF/Gz, known-trigger retrospective timing |
+| Joint CEST/MT/rNOE | Coupled liquid and semisolid pools, effective upfield rNOE, named exchange-off controls |
+| MRS basis fit | Small-spin density matrix, finite RF/J coupling, complex full-readout fit and mismatch validation |
+
+`POST /research/run` and `/research/search` are separate bounded research APIs.
+A result records its exact replay request, source fingerprint, runtime, targets
+and result hash; search records retain every candidate and the selected result.
+A changed source requires the matching code anchor and a restarted API. These
+research experiments do not extend the two locked Milestone A protocols or
+unlock Milestones B/C. A selected executable candidate may fail its target.
+
+See [research workspace evidence and gaps](docs/research/research-workbench-coverage.md).
+All accuracy statements apply to declared teaching models; there is no scanner
+validation, clinical image-quality certification or clinical concentration
+calibration. The full platform goal remains subject to the documented gaps.
+
 ## Physics engines
 
 | Name | Selection | Best fit |

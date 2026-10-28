@@ -1,0 +1,262 @@
+"""Bounded research-only API; no promotion of the locked clinical catalog."""
+from hashlib import sha256
+from pathlib import Path
+import json
+import platform
+from typing import Literal, Any, Annotated
+import numpy as np
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from mrqlab_experiment.tse_imaging import run_tse_imaging
+from mrqlab_experiment.spatial_imaging import run_spatial_imaging
+from mrqlab_experiment.flow_imaging import run_flow_imaging
+from mrqlab_experiment.cest_mt_noe import run_cest_mt_noe
+from mrqlab_experiment.mrs_basis import run_mrs_basis
+
+router=APIRouter(prefix='/research',tags=['research/teaching'])
+Kind=Literal['tse','noncartesian','flow','cest','mrs']
+
+
+class StrictParameters(BaseModel):
+    model_config=ConfigDict(extra='forbid',strict=True,allow_inf_nan=False)
+
+
+T2Value=Annotated[float,Field(gt=0,le=10.)]
+TimeValue=Annotated[float,Field(ge=0,le=30.)]
+RRValue=Annotated[float,Field(gt=0,le=3.)]
+Amount=Annotated[float,Field(gt=0,le=10.)]
+Phase=Annotated[float,Field(ge=-3.15,le=3.15)]
+Shift=Annotated[float,Field(ge=-20.,le=20.)]
+
+
+class TSEParameters(StrictParameters):
+    labels: list | None=None
+    echoes: int=Field(default=4,ge=1,le=16)
+    order: Literal['linear','centric']='centric'
+    echo_spacing_s: float=Field(default=.008,ge=.006,le=.03)
+    tr_s: float=Field(default=.4,ge=.05,le=2.)
+    partitions: int | None=Field(default=None,ge=2,le=4)
+    t2_s: list[T2Value]=Field(default_factory=lambda:[.04,.12],min_length=2,max_length=2)
+    refocusing_angle: float=Field(default=180.,ge=1.,le=180.)
+    refocusing_end_angle: float=Field(default=180.,ge=1.,le=180.)
+    weighting: Literal['echo','mean']='echo'
+    max_samples: int=Field(default=4096,ge=1,le=4096)
+    max_work: int=Field(default=100000000,ge=1,le=100000000)
+    max_duration_s: float=Field(default=100.,gt=0,le=100.)
+
+
+class NoncartesianParameters(StrictParameters):
+    chain: Literal['noncartesian']='noncartesian'
+    labels: list | None=None
+    encoding: Literal['radial','stack_of_stars']='radial'
+    order: Literal['sequential_ky']='sequential_ky'
+    spokes: int=Field(default=48,ge=2,le=96)
+    points: int=Field(default=32,ge=16,le=64)
+    acceleration: Literal[1]=1
+    max_samples: int=Field(default=24576,ge=1,le=24576)
+    max_work: int=Field(default=10000000000,ge=1,le=10000000000)
+    quality_threshold: float=Field(default=1e-6,gt=0,le=1.)
+    reconstruction: Literal['gridding','cgls']='cgls'
+    inverse_max_iterations: int=Field(default=1500,ge=1,le=1500)
+    inverse_tolerance: float=Field(default=1e-12,ge=1e-14,le=.1)
+    max_memory_bytes: int=Field(default=134217728,ge=1,le=134217728)
+
+
+class FlowParameters(StrictParameters):
+    r_peaks_s: list[TimeValue]=Field(default_factory=lambda:[0.,1.2,2.4],min_length=2,max_length=10)
+    inversion_time_s: float=Field(default=.9,gt=.008,le=2.)
+    blood_velocity_m_s: float=Field(default=.025,ge=-.1,le=.1)
+    thickness_m: float=Field(default=.005,ge=.001,le=.02)
+    rf_steps: int=Field(default=128,ge=16,le=256)
+    spin_count: int=Field(default=801,ge=33,le=1601)
+    off_resonance_hz: float=Field(default=0.,ge=-500.,le=500.)
+    rr_range_s: list[RRValue]=Field(default_factory=lambda:[.5,1.5],min_length=2,max_length=2)
+    max_work: int=Field(default=10000000,ge=1,le=10000000)
+    max_duration_s: float=Field(default=10.,gt=0,le=10.)
+    blood_target_max: float=Field(default=.1,gt=0,lt=1.)
+    wall_target_min: float=Field(default=.7,gt=0,le=1.)
+
+
+class CESTParameters(StrictParameters):
+    offsets_ppm: list[float]=Field(default_factory=lambda:[-5.,-3.5,-2.,-1.,1.,2.,3.5,5.],min_length=2,max_length=16)
+    b0_t: float=Field(default=3.,ge=.5,le=7.)
+    b1_uT: float=Field(default=1.,gt=0,le=3.)
+    saturation_s: float=Field(default=1.,gt=0,le=2.)
+    mode: Literal['cw','pulsed']='cw'
+    n_pulses: int=Field(default=1,ge=1,le=20)
+    pulse_s: float=Field(default=1.,gt=0,le=2.)
+    gap_s: float=Field(default=0.,ge=0,le=1.)
+    bound_fraction: float=Field(default=.08,ge=0,le=.3)
+    bound_to_water_hz: float=Field(default=20.,ge=0,le=100.)
+    bound_t2_s: float=Field(default=12e-6,ge=1e-6,le=1e-3)
+    lineshape: Literal['super_lorentzian','gaussian']='super_lorentzian'
+    max_work: int=Field(default=100000000,ge=1,le=100000000)
+    max_duration_s: float=Field(default=300.,gt=0,le=300.)
+    target_min_amide_contrast: float=Field(default=.005,gt=0,le=1.)
+
+
+class MRSParameters(StrictParameters):
+    echo_s: float=Field(default=.03,gt=0,le=.2)
+    points: int=Field(default=512,ge=16,le=1024)
+    dwell_s: float=Field(default=.0005,ge=.0001,le=.002)
+    rf_steps: int=Field(default=64,ge=16,le=128)
+    rf_duration_s: float=Field(default=.001,ge=.0001,le=.005)
+    amounts: list[Amount]=Field(default_factory=lambda:[.02,.015,.01,.008],min_length=4,max_length=4)
+    noise_std: float=Field(default=0.,ge=0,le=.01)
+    seed: int=Field(default=7,ge=0,le=2147483647)
+    phase_rad: float=Field(default=0.,ge=-3.15,le=3.15)
+    shift_hz: float=Field(default=0.,ge=-20.,le=20.)
+    fit_phase_grid_rad: list[Phase]=Field(default_factory=lambda:[0.],min_length=1,max_length=9)
+    fit_shift_grid_hz: list[Shift]=Field(default_factory=lambda:[0.],min_length=1,max_length=9)
+    basis_j_hz: float=Field(default=7.,ge=-20.,le=20.)
+    sample_j_hz: float=Field(default=7.,ge=-20.,le=20.)
+    max_work: int=Field(default=100000000,ge=1,le=100000000)
+    target_relative_amount_error: float=Field(default=.05,gt=0,le=1.)
+
+
+SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'cest':CESTParameters,'mrs':MRSParameters}
+RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'cest':run_cest_mt_noe,'mrs':run_mrs_basis}
+
+
+class RunRequest(StrictParameters):
+    kind: Kind
+    parameters: dict[str,Any]=Field(default_factory=dict)
+    expected_source_hash: str | None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
+
+
+class SearchRequest(RunRequest):
+    candidates: list[dict[str,Any]]=Field(min_length=1,max_length=4)
+
+
+def source_hash():
+    root=Path(__file__).resolve().parents[3]
+    digest=sha256()
+    for folder in ['packages','services/api']:
+        for path in sorted((root/folder).rglob('*.py')):
+            digest.update(str(path.relative_to(root)).encode()); digest.update(path.read_bytes())
+    return digest.hexdigest()
+
+
+# Pin the source actually imported by this process. A live edit requires restart;
+# hashing newly edited files must never mislabel already loaded Python code.
+IMPORTED_SOURCE_HASH=source_hash()
+
+
+def checked_source_hash():
+    current=source_hash()
+    if current!=IMPORTED_SOURCE_HASH:
+        raise HTTPException(409,'Source changed since API startup. Restart the research API before running or replaying.')
+    return current
+
+
+def serializable(value):
+    if isinstance(value,np.ndarray): return serializable(value.tolist())
+    if isinstance(value,np.generic): return serializable(value.item())
+    if isinstance(value,complex): return dict(real=value.real,imag=value.imag)
+    if isinstance(value,dict): return {k:serializable(v) for k,v in value.items()}
+    if isinstance(value,(list,tuple)): return [serializable(v) for v in value]
+    return value
+
+
+def parameters_for(kind, parameters):
+    try:
+        parsed=SCHEMAS[kind].model_validate(parameters).model_dump(exclude_none=True)
+    except ValidationError as exc:
+        raise HTTPException(422,detail=json.loads(exc.json(include_url=False))) from exc
+    if kind in {'tse','noncartesian'}:
+        if 'labels' not in parsed:
+            y,x=np.indices((16,16)); labels=(((x-8)**2+(y-8)**2<20)|((x==3)&(y>3))).astype(int)
+            if kind=='noncartesian' and parsed['encoding']=='stack_of_stars': labels=np.stack([labels,1-labels,np.roll(labels,2,0)])
+            parsed['labels']=labels.tolist()
+        labels=parsed['labels']
+        def valid_row(row):
+            return isinstance(row,list) and 2<=len(row)<=16 and all(type(v) is int and v in (0,1) for v in row)
+        def valid_plane(plane):
+            return isinstance(plane,list) and 2<=len(plane)<=16 and all(valid_row(row) for row in plane) and len({len(row) for row in plane})==1
+        is_2d=valid_plane(labels)
+        is_3d=isinstance(labels,list) and 2<=len(labels)<=4 and all(valid_plane(plane) for plane in labels) and len({(len(plane),len(plane[0])) for plane in labels})==1
+        if not is_2d and not is_3d:
+            raise HTTPException(422,'research API labels require an integer two-class grid, <=16x16 and <=4 partitions')
+    return parsed
+
+
+def _curve(label,x,y): return dict(label=label,x=np.asarray(x).tolist(),y=np.asarray(y).real.tolist())
+
+
+def present(kind,result):
+    images=[]; curves=[]
+    if kind in {'tse','noncartesian'}:
+        for key,title in [('reference','Reference'),('image','Reconstruction')]:
+            image=np.asarray(result[key]).real
+            if image.ndim==3: image=image[len(image)//2]
+            images.append(dict(label=title,width=image.shape[1],height=image.shape[0],values=image.ravel().tolist()))
+        if kind=='tse':
+            for i,weights in enumerate(result['tissue_echo_weights']): curves.append(_curve(f'Tissue {i+1}',result['echo_times_s']*1000,weights))
+            x_label='Echo time (ms)'; y_label='Absolute EPG signal'
+        else:
+            for i,solver in enumerate(result['solvers']): curves.append(_curve(f'CGLS frame {i+1}',np.arange(len(solver['residual_history'])),solver['residual_history']))
+            x_label='Iteration'; y_label='Relative data residual'
+        validation=result['quality']
+    elif kind=='flow':
+        for tissue in ['blood','wall']:
+            curves.append(_curve(tissue,[r['gate']['readout_s'] for r in result['readouts']],
+                [r['tissues'][tissue]['mean_mz'] for r in result['readouts']]))
+        x_label='Readout time (s)'; y_label='Mean longitudinal magnetization'; validation=result['validation']
+    elif kind=='cest':
+        for name,z in result['spectra'].items(): curves.append(_curve(name,result['offsets_ppm'],z))
+        x_label='Saturation offset (ppm)'; y_label='Water Z'; validation=result['validation']
+    else:
+        freq=np.fft.fftshift(np.fft.fftfreq(len(result['signal']),result['design']['dwell_s']))
+        for name,fid in [('Sample',result['signal']),('Fitted',result['fit']['prediction'])]:
+            curves.append(_curve(name,freq,abs(np.fft.fftshift(np.fft.fft(fid)))))
+        x_label='Frequency relative to water (Hz)'; y_label='Spectrum magnitude'; validation=result['validation']
+    if kind=='tse':
+        metrics={'Image NRMSE':result['quality']['nrmse'],'PSF prediction NRMSE':result['psf_prediction_quality']['nrmse']}
+    elif kind=='noncartesian':
+        metrics={'Image NRMSE':result['quality']['nrmse']}
+        if result['solvers']: metrics.update({'Data residual':result['solvers'][0]['relative_data_residual'],'Iterations':result['solvers'][0]['iterations']})
+    elif kind=='flow': metrics={'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']}
+    elif kind=='cest': metrics=result['metrics']
+    else: metrics={'Max relative amount error':validation['max_relative_amount_error'],'Fit residual':result['fit']['relative_residual'],'Basis condition':result['fit']['basis_condition']}
+    return dict(images=images,curves=curves,x_label=x_label,y_label=y_label,validation=validation,metrics=metrics)
+
+
+def execute(request, fingerprint):
+    if request.expected_source_hash and request.expected_source_hash!=fingerprint:
+        raise HTTPException(409,'Replay source changed. Use the original source anchor to replay this record.')
+    parameters=parameters_for(request.kind,request.parameters)
+    try: result=RUNNERS[request.kind](**parameters)
+    except (ValueError,TypeError) as exc: raise HTTPException(422,detail=str(exc)) from exc
+    replay=dict(kind=request.kind,parameters=result['provenance']['replay'],expected_source_hash=fingerprint)
+    # Pure JSON is shared by the live viewport, export and replay.
+    response=serializable(dict(kind=request.kind,result=result,view=present(request.kind,result),
+        replay_request=replay,source_hash=fingerprint,runtime=dict(python=platform.python_version(),numpy=np.__version__)))
+    response['result_hash']=sha256(json.dumps(response['result'],sort_keys=True,allow_nan=False).encode()).hexdigest()
+    return response
+
+
+@router.post('/run')
+def run_research(request: RunRequest): return execute(request,checked_source_hash())
+
+
+@router.post('/search')
+def search_research(request: SearchRequest):
+    fingerprint=checked_source_hash()
+    if request.expected_source_hash and request.expected_source_hash!=fingerprint: raise HTTPException(409,'Replay source changed')
+    # Reject typos, unsafe budgets or unsupported fields before any computation.
+    for patch in request.candidates: parameters_for(request.kind,{**request.parameters,**patch})
+    points=[]
+    for patch in request.candidates:
+        try:
+            run=execute(RunRequest(kind=request.kind,parameters={**request.parameters,**patch}),fingerprint)
+            result=run['result']; loss=result.get('objective_loss',result.get('quality',{}).get('nrmse',result.get('validation',{}).get('max_relative_amount_error')))
+            points.append(dict(parameters=patch,feasible=True,loss=loss,run=run))
+        except HTTPException as exc:
+            if exc.status_code!=422: raise
+            points.append(dict(parameters=patch,feasible=False,reason=exc.detail))
+    feasible=[p for p in points if p['feasible']]
+    best=min(feasible,key=lambda p:p['loss']) if feasible else None
+    return dict(kind=request.kind,candidates=points,best=best,
+        objective='minimize declared model loss against known teaching truth/control; finite grid, no clinical optimum',
+        replay_search={**request.model_dump(), 'expected_source_hash':fingerprint},source_hash=fingerprint,
+        search_hash=sha256(json.dumps(points,sort_keys=True,allow_nan=False).encode()).hexdigest())
