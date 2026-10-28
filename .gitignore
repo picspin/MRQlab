@@ -221,3 +221,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Submission artifacts belong to their independent manuscript worktrees.
+/docs/ismrm/
