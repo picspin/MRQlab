@@ -78,13 +78,41 @@ class TissuePriorSet(FrozenModel):
 
     @model_validator(mode="after")
     def validate_roles(self):
-        ids = [tissue.id for tissue in self.tissues]
-        if len(ids) != len(set(ids)):
-            raise ValueError("tissue ids must be unique")
-        known = set(ids)
-        for role in (*self.targets, *self.references, *self.confounders):
-            if role.tissue_id not in known:
-                raise ValueError(f"unknown tissue id {role.tissue_id!r}")
+        tissue_by_id: dict[str, TissuePrior] = {}
+        for tissue in self.tissues:
+            if tissue.id in tissue_by_id:
+                raise ValueError("tissue ids must be unique")
+            tissue_by_id[tissue.id] = tissue
+
+        for target in self.targets:
+            prior = tissue_by_id.get(target.tissue_id)
+            if prior is None:
+                raise ValueError(f"unknown tissue id {target.tissue_id!r}")
+            if prior.role != "target":
+                raise ValueError(
+                    f"target role requires tissue prior role target, got {prior.role!r} for {target.tissue_id!r}"
+                )
+
+        for ref in self.references:
+            prior = tissue_by_id.get(ref.tissue_id)
+            if prior is None:
+                raise ValueError(f"unknown tissue id {ref.tissue_id!r}")
+            if prior.role != "reference":
+                raise ValueError(
+                    f"reference role requires tissue prior role reference, got {prior.role!r} for {ref.tissue_id!r}"
+                )
+
+        valid_confounder_roles = {"background", "lumen", "contrast"}
+        for conf in self.confounders:
+            prior = tissue_by_id.get(conf.tissue_id)
+            if prior is None:
+                raise ValueError(f"unknown tissue id {conf.tissue_id!r}")
+            if prior.role not in valid_confounder_roles:
+                raise ValueError(
+                    f"confounder role requires tissue prior role in {sorted(valid_confounder_roles)}, "
+                    f"got {prior.role!r} for {conf.tissue_id!r}"
+                )
+
         return self
 
 

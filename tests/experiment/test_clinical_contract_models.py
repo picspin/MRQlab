@@ -126,6 +126,33 @@ def test_tissue_roles_reject_dangling_and_duplicate_ids():
         )
 
 
+def test_tissue_roles_enforce_role_agreement():
+    base = _priors()
+    with pytest.raises(ValidationError, match=r"target role requires tissue prior role target, got 'reference'"):
+        TissuePriorSet(
+            id=base.id,
+            version=base.version,
+            tissues=base.tissues,
+            targets=(Target(tissue_id="wm", rationale="invalid target"),),
+        )
+
+    with pytest.raises(ValidationError, match=r"reference role requires tissue prior role reference, got 'target'"):
+        TissuePriorSet(
+            id=base.id,
+            version=base.version,
+            tissues=base.tissues,
+            references=(Reference(tissue_id="lesion", rationale="invalid reference"),),
+        )
+
+    with pytest.raises(ValidationError, match=r"confounder role requires tissue prior role in"):
+        TissuePriorSet(
+            id=base.id,
+            version=base.version,
+            tissues=base.tissues,
+            confounders=(Confounder(tissue_id="lesion", rationale="invalid confounder"),),
+        )
+
+
 def test_numeric_values_are_finite_and_units_are_explicit():
     with pytest.raises(ValidationError, match="finite"):
         AcquisitionConstraint(
