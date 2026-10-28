@@ -1,0 +1,207 @@
+{
+  "clinical_question": "How do semisolid MT and an effective upfield rNOE pool confound amide CEST and saturation-power choice?",
+  "design": {
+    "offsets_ppm": [
+      -5.0,
+      -3.5,
+      -2.0,
+      -1.0,
+      1.0,
+      2.0,
+      3.5,
+      5.0
+    ],
+    "b0_t": 3.0,
+    "b1_uT": 1.0,
+    "saturation_s": 1.0,
+    "mode": "cw",
+    "n_pulses": 1,
+    "pulse_s": 1.0,
+    "gap_s": 0.0,
+    "bound_fraction": 0.08,
+    "bound_to_water_hz": 20.0,
+    "bound_t2_s": 1.2e-05,
+    "lineshape": "super_lorentzian",
+    "max_work": 100000000,
+    "max_duration_s": 300.0,
+    "target_min_amide_contrast": 0.005
+  },
+  "offsets_ppm": [
+    -5.0,
+    -3.5,
+    -2.0,
+    -1.0,
+    1.0,
+    2.0,
+    3.5,
+    5.0
+  ],
+  "spectra": {
+    "full": [
+      0.7263420271303507,
+      0.6763027273991984,
+      0.5678654182935229,
+      0.30960949189148557,
+      0.27736073352499335,
+      0.44657544049648545,
+      0.6894121058333738,
+      0.787685664568117
+    ],
+    "no_amide": [
+      0.7257907196927779,
+      0.6757495581566699,
+      0.5674490900820863,
+      0.3095650466428939,
+      0.27884904947218864,
+      0.44994622526663663,
+      0.7272095497381885,
+      0.7912345431348047
+    ],
+    "no_noe": [
+      0.8147512355284389,
+      0.767847789510357,
+      0.6336342144378647,
+      0.33377787687355764,
+      0.2880603170681637,
+      0.4626811797256759,
+      0.7115869037825502,
+      0.8072767432696474
+    ],
+    "no_mt": [
+      0.8423037978615866,
+      0.794580979555094,
+      0.680393674209675,
+      0.36997841927770303,
+      0.3248705641977577,
+      0.5178933546221794,
+      0.8107626800024724,
+      0.9200616132297088
+    ]
+  },
+  "metrics": {
+    "amide_exchange_contrast": 0.037797443904814765,
+    "effective_noe_contrast": 0.09154506211115865,
+    "mt_contrast_at_amide": 0.12135057416909867,
+    "mtr_asym_3p5": -0.013109378434175367,
+    "unsaturated_water": 1.0000000000001419
+  },
+  "objective_loss": -0.037797443904814765,
+  "validation": {
+    "target_min_amide_contrast": 0.005,
+    "passed": true
+  },
+  "scope": "research/teaching homogeneous joint CEST/semisolid MT/effective rNOE; rNOE is an effective exchanging upfield pool, not microscopic cross relaxation; no scanner validation, clinical quality certification or concentration calibration; B/C parked",
+  "provenance": {
+    "version": "joint-cest-mt-noe-v1",
+    "replay": {
+      "offsets_ppm": [
+        -5.0,
+        -3.5,
+        -2.0,
+        -1.0,
+        1.0,
+        2.0,
+        3.5,
+        5.0
+      ],
+      "b0_t": 3.0,
+      "b1_uT": 1.0,
+      "saturation_s": 1.0,
+      "mode": "cw",
+      "n_pulses": 1,
+      "pulse_s": 1.0,
+      "gap_s": 0.0,
+      "bound_fraction": 0.08,
+      "bound_to_water_hz": 20.0,
+      "bound_t2_s": 1.2e-05,
+      "lineshape": "super_lorentzian",
+      "max_work": 100000000,
+      "max_duration_s": 300.0,
+      "target_min_amide_contrast": 0.005
+    },
+    "input_hash": "eb241410b9d55e8fa4920a1a5a90a55a2ebae5b2927abb10d1ee70b8f2e1193a",
+    "source_hash": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+    "states_hash": "8d3e2a9eb6234fff9dca049575d780d405c3d11fe132859fa8bfa4b2e7dc43da",
+    "liquid_system": {
+      "t1": [
+        1.5,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "t2": [
+        0.08,
+        0.02,
+        0.01,
+        0.0005
+      ],
+      "density": [
+        1.0,
+        0.003,
+        0.005,
+        0.02
+      ],
+      "offset_hz": [
+        0.0,
+        447.06352866,
+        255.46487352,
+        -447.06352866
+      ],
+      "rates": [
+        [
+          0.0,
+          0.09,
+          1.0,
+          0.3
+        ],
+        [
+          30.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          200.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          15.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "require_balance": true
+    },
+    "estimated_work": 8451520,
+    "duration_s": 33.0,
+    "rf_energy_uT2_s": 32.0,
+    "duty_cycle": 1.0,
+    "controls": {
+      "full": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "no_amide": [
+        0.0,
+        1.0,
+        1.0
+      ],
+      "no_noe": [
+        1.0,
+        0.0,
+        1.0
+      ],
+      "no_mt": [
+        1.0,
+        1.0,
+        0.0
+      ]
+    },
+    "state_convention": "Mx/My/Mz per liquid, bound Z, affine 1; equilibrium independent offsets",
+    "bound_lineshape": "super_lorentzian"
+  }
+}
