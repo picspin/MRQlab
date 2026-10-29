@@ -116,3 +116,9 @@ the Research page; the exact DFT reference remains available. See the
 [accuracy, replay and failure evidence](docs/research/fast-noncartesian-coverage.md)
 before interpreting image or residual targets. Large radial conditioning and
 noisy/coil/trajectory-calibrated reconstruction remain open research gaps.
+
+
+Research also includes **Pulsatile / causal DIR**: pressure-driven rigid-pipe
+Womersley flow, finite slice RF and causal trigger interruption. Scheduled and
+completed cycles are shown separately; default failed targets remain visible.
+See [physical assumptions, independent checks and replay](docs/research/pulsatile-causal-dir-coverage.md).

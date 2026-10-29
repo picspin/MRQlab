@@ -94,3 +94,34 @@ def test_only_fast_path_accepts_larger_grid_and_keeps_failed_image_target_visibl
     assert not data['view']['validation']['passed']
     assert not data['result']['solvers'][0]['converged']
     assert client.post('/research/run',json={'kind':'noncartesian','parameters':{**parameters,'reconstruction':'cgls'}}).status_code==422
+
+
+
+def test_pulsatile_causal_backend_replays_interrupted_preparations_and_failed_targets():
+    parameters={'r_peaks_s':[0.,.45,1.65],'observation_end_s':2.8,'radial_rings':4,'axial_spins':201}
+    response=client.post('/research/run',json={'kind':'pulsatile_flow','parameters':parameters})
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert not data['view']['validation']['passed']
+    assert len(data['result']['executions'])==2 and len(data['result']['readouts'])==1
+    assert data['result']['gates'][0]['scheduled'] and not data['result']['gates'][0]['accepted']
+    assert data['result']['provenance']['actual_hard_rf_count']==2
+    replay=client.post('/research/run',json=data['replay_request'])
+    assert replay.status_code==200,replay.text
+    assert replay.json()['result_hash']==data['result_hash']
+    absent=client.post('/research/run',json={'kind':'pulsatile_flow','parameters':{'r_peaks_s':[0.],'observation_end_s':.5}})
+    assert absent.status_code==200,absent.text
+    assert absent.json()['view']['curves']==[]
+    assert 'Blood max |Mz|' not in absent.json()['view']['metrics']
+    assert client.post('/research/run',json={'kind':'pulsatile_flow','parameters':{'radial_rings':True}}).status_code==422
+    assert client.post('/research/run',json={'kind':'pulsatile_flow','parameters':{'max_work':100}}).status_code==422
+
+
+def test_pulsatile_search_preserves_cancellation_and_prediction_failures():
+    response=client.post('/research/search',json={'kind':'pulsatile_flow','parameters':{'radial_rings':4,'axial_spins':201},'candidates':[{'inversion_time_s':.9},{'inversion_time_s':1.3}]})
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert data['candidates'][1]['run']['result']['validation']['completed_readouts']==0
+    assert not data['candidates'][1]['run']['view']['validation']['passed']
+    assert data['best']['parameters']=={'inversion_time_s':.9}
+    assert client.post('/research/search',json=data['replay_search']).json()['search_hash']==data['search_hash']

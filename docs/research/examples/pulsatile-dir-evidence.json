@@ -1,0 +1,2633 @@
+{
+  "schema": "mrqlab-pulsatile-dir-evidence-1",
+  "scope": "authored pressure waveform, rigid laminar pipe; teaching/research only; no clinical/scanner validation",
+  "sources": {
+    "files": {
+      "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+      "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+      "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+      "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+      "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+      "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+      "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+      "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+      "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+      "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+      "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+      "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+      "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+      "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+      "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+      "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+      "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+      "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+      "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+      "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+      "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+      "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "d78e9d8d5fc24fc6355b8594dc7676cae255eeef7b31d928ced90ae7b4643b06",
+      "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+      "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+      "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+      "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+      "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+      "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+      "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+      "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+      "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+      "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+      "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+      "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+      "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+      "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+      "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+      "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+      "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+      "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+      "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+      "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+      "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+      "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+      "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+      "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+      "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+      "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+      "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+      "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+      "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+      "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+      "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+      "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+      "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+      "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+      "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+      "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+      "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+      "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+      "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+      "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+      "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+      "services/api/mrqlab_api/__init__.py": "037f47825ff6d0902897e8ba0746f111c4c1a19d5a8cfd4cda370b317115698f",
+      "services/api/mrqlab_api/main.py": "826d1140337d984349d7319306b64d78d9e26e54ae73f2901970c44ff4713523",
+      "services/api/mrqlab_api/research.py": "4e1c2933cf29124f0891f4a06e4473eff4fd5bf2abad260f9a9f66500c8884dc",
+      "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+      "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+      "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+    },
+    "sha256": "94ff6beaa43622517c967c563e267155ddce3cb383c1afff59bb1d0ba8e99f41"
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "system": "Darwin",
+    "machine": "arm64",
+    "packages": {
+      "numpy": "2.5.2",
+      "pydantic": "2.13.4",
+      "fastapi": "0.141.1",
+      "uvicorn": "0.52.3",
+      "finufft": "2.5.0"
+    },
+    "blas_configuration": {
+      "Compilers": {
+        "c": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "cc"
+        },
+        "cython": {
+          "name": "cython",
+          "linker": "cython",
+          "version": "3.2.9",
+          "commands": "cython"
+        },
+        "c++": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "c++"
+        }
+      },
+      "Machine Information": {
+        "host": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        },
+        "build": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        }
+      },
+      "Build Dependencies": {
+        "blas": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        },
+        "lapack": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        }
+      },
+      "Python Information": {
+        "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+        "version": "3.12"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "NEON",
+          "NEON_FP16",
+          "NEON_VFPV4",
+          "ASIMD"
+        ],
+        "found": [
+          "ASIMDHP",
+          "ASIMDDP"
+        ],
+        "not found": [
+          "ASIMDFHM"
+        ]
+      }
+    }
+  },
+  "script_sha256": "885077138fc6fef81aa4be381f95872790c5bd6668df39a04df008bb820cab1e",
+  "independent_finite_volume": [
+    {
+      "cells": 32,
+      "relative_velocity_error": 0.0004078713038706601
+    },
+    {
+      "cells": 64,
+      "relative_velocity_error": 0.000102002414337302
+    },
+    {
+      "cells": 128,
+      "relative_velocity_error": 2.5502761546941808e-05
+    }
+  ],
+  "regular": {
+    "clinical_question": "How do pressure-driven pulsatile shear flow and causally interrupted finite slice preparations change DIR suppression?",
+    "design": {
+      "r_peaks_s": [
+        0.0,
+        1.2,
+        2.4
+      ],
+      "observation_end_s": 3.6,
+      "inversion_time_s": 0.9,
+      "trigger_latency_s": 0.003,
+      "initial_rr_s": 1.2,
+      "rr_range_s": [
+        0.5,
+        1.5
+      ],
+      "radius_m": 0.002,
+      "density_kg_m3": 1060.0,
+      "viscosity_pa_s": 0.0035,
+      "mean_gradient_pa_m": 100.0,
+      "oscillating_gradient_pa_m": 200.0,
+      "frequency_hz": 1.0,
+      "phase_rad": 0.0,
+      "thickness_m": 0.005,
+      "radial_rings": 8,
+      "axial_spins": 401,
+      "rf_steps": 128,
+      "off_resonance_hz": 0.0,
+      "blood_target_max": 0.1,
+      "wall_target_min": 0.7,
+      "max_interrupted_fraction": 0.0,
+      "max_work": 10000000,
+      "max_duration_s": 30.0
+    },
+    "gates": [
+      {
+        "trigger": 0,
+        "decision_s": 0.0,
+        "preparation_s": 0.003,
+        "readout_s": 0.903,
+        "readout_end_s": 0.909,
+        "previous_rr_s": null,
+        "rr_estimate_s": 1.2,
+        "history_rr_s": [],
+        "scheduled": true,
+        "accepted": true,
+        "rejection": null,
+        "cancelled_s": null
+      },
+      {
+        "trigger": 1,
+        "decision_s": 1.2,
+        "preparation_s": 1.2029999999999998,
+        "readout_s": 2.1029999999999998,
+        "readout_end_s": 2.1089999999999995,
+        "previous_rr_s": 1.2,
+        "rr_estimate_s": 1.2,
+        "history_rr_s": [
+          1.2
+        ],
+        "scheduled": true,
+        "accepted": true,
+        "rejection": null,
+        "cancelled_s": null
+      },
+      {
+        "trigger": 2,
+        "decision_s": 2.4,
+        "preparation_s": 2.403,
+        "readout_s": 3.303,
+        "readout_end_s": 3.3089999999999997,
+        "previous_rr_s": 1.2,
+        "rr_estimate_s": 1.2,
+        "history_rr_s": [
+          1.2,
+          1.2
+        ],
+        "scheduled": true,
+        "accepted": true,
+        "rejection": null,
+        "cancelled_s": null
+      }
+    ],
+    "executions": [
+      {
+        "gate": {
+          "trigger": 0,
+          "decision_s": 0.0,
+          "preparation_s": 0.003,
+          "readout_s": 0.903,
+          "readout_end_s": 0.909,
+          "previous_rr_s": null,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        },
+        "tissues": {
+          "blood": {
+            "mean_mz": -0.06309859986534455,
+            "signal": [
+              0.022112177170214426,
+              0.052398300662497316
+            ],
+            "geometric_incoming_fraction": 0.8993145792785572,
+            "receive_spins": 250,
+            "stage": "completed",
+            "end_s": 0.909,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "b5c3b664321714a21bbd88fddc94905bde31307fb061331f9288db44da4f249a",
+            "positions_hash": "46ec9e6bcf6e0b015d7f81ca0443f1c67c3f6c808b251fc5689405c403d65521"
+          },
+          "wall": {
+            "mean_mz": 0.6554123669890355,
+            "signal": [
+              -0.0003073727356860817,
+              -0.5877321843791491
+            ],
+            "geometric_incoming_fraction": 0.0,
+            "receive_spins": 100,
+            "stage": "completed",
+            "end_s": 0.909,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "c276e8ff9e5d5c3b6545e18651552493785cf825bab998c9930567f4bc91fecd",
+            "positions_hash": "e473b46f12ff6d8bd0b9a678baf0a5293d6b719f90c6e1aa4d925e11313e4e48"
+          }
+        },
+        "flow": {
+          "volume_flow_m3_s": 1.9818264297025593e-07,
+          "ring_radius_m": [
+            0.0005,
+            0.0008660254037844386,
+            0.001118033988749895,
+            0.0013228756555322954,
+            0.0015,
+            0.0016583123951777,
+            0.0018027756377319946,
+            0.0019364916731037087
+          ],
+          "ring_velocity_m_s": [
+            0.02560290063146101,
+            0.023739177019255722,
+            0.021423569200899013,
+            0.018639989975431405,
+            0.01537448167322261,
+            0.011615261649640989,
+            0.00735276376341839,
+            0.0025796757784360986
+          ]
+        }
+      },
+      {
+        "gate": {
+          "trigger": 1,
+          "decision_s": 1.2,
+          "preparation_s": 1.2029999999999998,
+          "readout_s": 2.1029999999999998,
+          "readout_end_s": 2.1089999999999995,
+          "previous_rr_s": 1.2,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [
+            1.2
+          ],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        },
+        "tissues": {
+          "blood": {
+            "mean_mz": 0.406226303006207,
+            "signal": [
+              -0.05647673023596881,
+              -0.34552472140910706
+            ],
+            "geometric_incoming_fraction": 0.8909088966675679,
+            "receive_spins": 250,
+            "stage": "completed",
+            "end_s": 2.1089999999999995,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "8fb811c0ce23ce17dea947bcb1e5ba4d0642e1b37eb12ece933e5b189a7c0f7f",
+            "positions_hash": "81033847ca0fd59e3ec48913fea2b43749bebbf3ee2ec985e11186a915bd27de"
+          },
+          "wall": {
+            "mean_mz": 0.5815939829866262,
+            "signal": [
+              -0.0006758200364290687,
+              -0.5037751833430963
+            ],
+            "geometric_incoming_fraction": 0.0,
+            "receive_spins": 100,
+            "stage": "completed",
+            "end_s": 2.1089999999999995,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "05daf560d2f5820dad87854c4ab3f4437667e93d30cb77aeaa23ead0fc270e1a",
+            "positions_hash": "e473b46f12ff6d8bd0b9a678baf0a5293d6b719f90c6e1aa4d925e11313e4e48"
+          }
+        },
+        "flow": {
+          "volume_flow_m3_s": 3.9328086513656035e-07,
+          "ring_radius_m": [
+            0.0005,
+            0.0008660254037844386,
+            0.001118033988749895,
+            0.0013228756555322954,
+            0.0015,
+            0.0016583123951777,
+            0.0018027756377319946,
+            0.0019364916731037087
+          ],
+          "ring_velocity_m_s": [
+            0.05667804554756749,
+            0.05001869155398121,
+            0.043026665292530394,
+            0.03573106038990663,
+            0.028162538158843932,
+            0.020353245320025554,
+            0.012336728768097657,
+            0.004147847492609163
+          ]
+        }
+      },
+      {
+        "gate": {
+          "trigger": 2,
+          "decision_s": 2.4,
+          "preparation_s": 2.403,
+          "readout_s": 3.303,
+          "readout_end_s": 3.3089999999999997,
+          "previous_rr_s": 1.2,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [
+            1.2,
+            1.2
+          ],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        },
+        "tissues": {
+          "blood": {
+            "mean_mz": 0.1707753536520608,
+            "signal": [
+              -0.01205525936118194,
+              -0.14778574352320523
+            ],
+            "geometric_incoming_fraction": 0.909738966647068,
+            "receive_spins": 251,
+            "stage": "completed",
+            "end_s": 3.3089999999999997,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "751563a420ab907ba611cba807caaa04448ff2ea854bb6cb7e47b778a3ee2e96",
+            "positions_hash": "c0eab4ea354d9c1124c48ebca09234ff3503f45ad2352d9771955bcf31dcea1d"
+          },
+          "wall": {
+            "mean_mz": 0.5775620189401616,
+            "signal": [
+              -0.0005848782845823755,
+              -0.5026968863991692
+            ],
+            "geometric_incoming_fraction": 0.0,
+            "receive_spins": 100,
+            "stage": "completed",
+            "end_s": 3.3089999999999997,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "1a5277cd2e7af9f3cb9c385a2a5e5fa1eac8eaa8860d91493030a18d26067003",
+            "positions_hash": "e473b46f12ff6d8bd0b9a678baf0a5293d6b719f90c6e1aa4d925e11313e4e48"
+          }
+        },
+        "flow": {
+          "volume_flow_m3_s": 2.929682570064805e-07,
+          "ring_radius_m": [
+            0.0005,
+            0.0008660254037844386,
+            0.001118033988749895,
+            0.0013228756555322954,
+            0.0015,
+            0.0016583123951777,
+            0.0018027756377319946,
+            0.0019364916731037087
+          ],
+          "ring_velocity_m_s": [
+            0.04644300466276392,
+            0.039255428266493725,
+            0.032314133307720164,
+            0.02565318783755411,
+            0.01930549925903516,
+            0.013302717982804062,
+            0.007675143271237297,
+            0.002451631400808287
+          ]
+        }
+      }
+    ],
+    "readouts": [
+      {
+        "gate": {
+          "trigger": 0,
+          "decision_s": 0.0,
+          "preparation_s": 0.003,
+          "readout_s": 0.903,
+          "readout_end_s": 0.909,
+          "previous_rr_s": null,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        },
+        "tissues": {
+          "blood": {
+            "mean_mz": -0.06309859986534455,
+            "signal": [
+              0.022112177170214426,
+              0.052398300662497316
+            ],
+            "geometric_incoming_fraction": 0.8993145792785572,
+            "receive_spins": 250,
+            "stage": "completed",
+            "end_s": 0.909,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "b5c3b664321714a21bbd88fddc94905bde31307fb061331f9288db44da4f249a",
+            "positions_hash": "46ec9e6bcf6e0b015d7f81ca0443f1c67c3f6c808b251fc5689405c403d65521"
+          },
+          "wall": {
+            "mean_mz": 0.6554123669890355,
+            "signal": [
+              -0.0003073727356860817,
+              -0.5877321843791491
+            ],
+            "geometric_incoming_fraction": 0.0,
+            "receive_spins": 100,
+            "stage": "completed",
+            "end_s": 0.909,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "c276e8ff9e5d5c3b6545e18651552493785cf825bab998c9930567f4bc91fecd",
+            "positions_hash": "e473b46f12ff6d8bd0b9a678baf0a5293d6b719f90c6e1aa4d925e11313e4e48"
+          }
+        },
+        "flow": {
+          "volume_flow_m3_s": 1.9818264297025593e-07,
+          "ring_radius_m": [
+            0.0005,
+            0.0008660254037844386,
+            0.001118033988749895,
+            0.0013228756555322954,
+            0.0015,
+            0.0016583123951777,
+            0.0018027756377319946,
+            0.0019364916731037087
+          ],
+          "ring_velocity_m_s": [
+            0.02560290063146101,
+            0.023739177019255722,
+            0.021423569200899013,
+            0.018639989975431405,
+            0.01537448167322261,
+            0.011615261649640989,
+            0.00735276376341839,
+            0.0025796757784360986
+          ]
+        }
+      },
+      {
+        "gate": {
+          "trigger": 1,
+          "decision_s": 1.2,
+          "preparation_s": 1.2029999999999998,
+          "readout_s": 2.1029999999999998,
+          "readout_end_s": 2.1089999999999995,
+          "previous_rr_s": 1.2,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [
+            1.2
+          ],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        },
+        "tissues": {
+          "blood": {
+            "mean_mz": 0.406226303006207,
+            "signal": [
+              -0.05647673023596881,
+              -0.34552472140910706
+            ],
+            "geometric_incoming_fraction": 0.8909088966675679,
+            "receive_spins": 250,
+            "stage": "completed",
+            "end_s": 2.1089999999999995,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "8fb811c0ce23ce17dea947bcb1e5ba4d0642e1b37eb12ece933e5b189a7c0f7f",
+            "positions_hash": "81033847ca0fd59e3ec48913fea2b43749bebbf3ee2ec985e11186a915bd27de"
+          },
+          "wall": {
+            "mean_mz": 0.5815939829866262,
+            "signal": [
+              -0.0006758200364290687,
+              -0.5037751833430963
+            ],
+            "geometric_incoming_fraction": 0.0,
+            "receive_spins": 100,
+            "stage": "completed",
+            "end_s": 2.1089999999999995,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "05daf560d2f5820dad87854c4ab3f4437667e93d30cb77aeaa23ead0fc270e1a",
+            "positions_hash": "e473b46f12ff6d8bd0b9a678baf0a5293d6b719f90c6e1aa4d925e11313e4e48"
+          }
+        },
+        "flow": {
+          "volume_flow_m3_s": 3.9328086513656035e-07,
+          "ring_radius_m": [
+            0.0005,
+            0.0008660254037844386,
+            0.001118033988749895,
+            0.0013228756555322954,
+            0.0015,
+            0.0016583123951777,
+            0.0018027756377319946,
+            0.0019364916731037087
+          ],
+          "ring_velocity_m_s": [
+            0.05667804554756749,
+            0.05001869155398121,
+            0.043026665292530394,
+            0.03573106038990663,
+            0.028162538158843932,
+            0.020353245320025554,
+            0.012336728768097657,
+            0.004147847492609163
+          ]
+        }
+      },
+      {
+        "gate": {
+          "trigger": 2,
+          "decision_s": 2.4,
+          "preparation_s": 2.403,
+          "readout_s": 3.303,
+          "readout_end_s": 3.3089999999999997,
+          "previous_rr_s": 1.2,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [
+            1.2,
+            1.2
+          ],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        },
+        "tissues": {
+          "blood": {
+            "mean_mz": 0.1707753536520608,
+            "signal": [
+              -0.01205525936118194,
+              -0.14778574352320523
+            ],
+            "geometric_incoming_fraction": 0.909738966647068,
+            "receive_spins": 251,
+            "stage": "completed",
+            "end_s": 3.3089999999999997,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "751563a420ab907ba611cba807caaa04448ff2ea854bb6cb7e47b778a3ee2e96",
+            "positions_hash": "c0eab4ea354d9c1124c48ebca09234ff3503f45ad2352d9771955bcf31dcea1d"
+          },
+          "wall": {
+            "mean_mz": 0.5775620189401616,
+            "signal": [
+              -0.0005848782845823755,
+              -0.5026968863991692
+            ],
+            "geometric_incoming_fraction": 0.0,
+            "receive_spins": 100,
+            "stage": "completed",
+            "end_s": 3.3089999999999997,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "1a5277cd2e7af9f3cb9c385a2a5e5fa1eac8eaa8860d91493030a18d26067003",
+            "positions_hash": "e473b46f12ff6d8bd0b9a678baf0a5293d6b719f90c6e1aa4d925e11313e4e48"
+          }
+        },
+        "flow": {
+          "volume_flow_m3_s": 2.929682570064805e-07,
+          "ring_radius_m": [
+            0.0005,
+            0.0008660254037844386,
+            0.001118033988749895,
+            0.0013228756555322954,
+            0.0015,
+            0.0016583123951777,
+            0.0018027756377319946,
+            0.0019364916731037087
+          ],
+          "ring_velocity_m_s": [
+            0.04644300466276392,
+            0.039255428266493725,
+            0.032314133307720164,
+            0.02565318783755411,
+            0.01930549925903516,
+            0.013302717982804062,
+            0.007675143271237297,
+            0.002451631400808287
+          ]
+        }
+      }
+    ],
+    "validation": {
+      "completed_readouts": 3,
+      "scheduled_preparations": 3,
+      "interrupted_preparations": 0,
+      "interrupted_fraction": 0.0,
+      "max_interrupted_fraction": 0.0,
+      "blood_target_max": 0.1,
+      "wall_target_min": 0.7,
+      "passed": false,
+      "max_abs_blood_mz": 0.406226303006207,
+      "min_abs_wall_mz": 0.5775620189401616
+    },
+    "objective_loss": 0.3634756273381921,
+    "objective": "mean completed blood/wall |Mz| ratio plus interrupted fraction; no-readout penalty 2 plus fraction",
+    "scope": "research/teaching periodic pressure-driven Newtonian flow in a straight rigid circular pipe; finite sinc RF/Gz and causal detected-trigger controller; fixed radial coordinates; no compliance, turbulence, diffusion, ECG detection, scanner execution or clinical certification; B/C parked",
+    "provenance": {
+      "version": "pulsatile-causal-dir-v1",
+      "replay": {
+        "r_peaks_s": [
+          0.0,
+          1.2,
+          2.4
+        ],
+        "observation_end_s": 3.6,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "radial_rings": 8,
+        "axial_spins": 401,
+        "rf_steps": 128,
+        "off_resonance_hz": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 10000000,
+        "max_duration_s": 30.0
+      },
+      "input_hash": "3703b1c93b176778824b1aed95a432fa09de04e73a2cc7a359a513db5bc0b967",
+      "source_hash": "bd826f9e36374a3914ca81a84aa8604fe6045c0af5ba2ae0ad8cd0f4d6f59a53",
+      "estimated_work": 2818629,
+      "planned_work": 2829456,
+      "duration_s": 3.6,
+      "womersley_alpha": 2.7589183026500725,
+      "reynolds_upper_bound": 147.00740792258202,
+      "total_blood_spins": 3208,
+      "total_wall_spins": 401,
+      "actual_finite_rf_energy_uT2_s": 0.36165304072981996,
+      "actual_hard_rf_count": 3,
+      "waveform_hash": "53f74e0f24e7b4ac926d41684e93063d5b93b063af88f2aca46d0cb29910a6c9",
+      "reservoir": {
+        "initial_position_hash": "22245fe723397c4b273267f7bec21ee8dc01633446bc5988935d8f02ce1d5213",
+        "quadrature_weight_hash": "558527c4f1cb74d2e5a5f9c59ce37eb35dae10b451371ef76bc48a1d10c10616",
+        "boundary": "finite no-wrap reservoir bounding all motion; area/axial volume weights; each receive ring checked"
+      },
+      "final_state_hashes": {
+        "blood": "1dfad81cc11d47716eb22d0929098c669a881344ce6231ec83620339568ac9bf",
+        "wall": "0b63e00efab5690744293d7a17a8bbdb45b41ad3a8ee139fc5c713c1ca753fc6"
+      }
+    }
+  },
+  "irregular": {
+    "clinical_question": "How do pressure-driven pulsatile shear flow and causally interrupted finite slice preparations change DIR suppression?",
+    "design": {
+      "r_peaks_s": [
+        0.0,
+        0.45,
+        1.65
+      ],
+      "observation_end_s": 2.8,
+      "inversion_time_s": 0.9,
+      "trigger_latency_s": 0.003,
+      "initial_rr_s": 1.2,
+      "rr_range_s": [
+        0.5,
+        1.5
+      ],
+      "radius_m": 0.002,
+      "density_kg_m3": 1060.0,
+      "viscosity_pa_s": 0.0035,
+      "mean_gradient_pa_m": 100.0,
+      "oscillating_gradient_pa_m": 200.0,
+      "frequency_hz": 1.0,
+      "phase_rad": 0.0,
+      "thickness_m": 0.005,
+      "radial_rings": 4,
+      "axial_spins": 201,
+      "rf_steps": 128,
+      "off_resonance_hz": 0.0,
+      "blood_target_max": 0.1,
+      "wall_target_min": 0.7,
+      "max_interrupted_fraction": 0.0,
+      "max_work": 10000000,
+      "max_duration_s": 30.0
+    },
+    "gates": [
+      {
+        "trigger": 0,
+        "decision_s": 0.0,
+        "preparation_s": 0.003,
+        "readout_s": 0.903,
+        "readout_end_s": 0.909,
+        "previous_rr_s": null,
+        "rr_estimate_s": 1.2,
+        "history_rr_s": [],
+        "scheduled": true,
+        "accepted": false,
+        "rejection": "interrupted_by_trigger",
+        "cancelled_s": 0.45
+      },
+      {
+        "trigger": 1,
+        "decision_s": 0.45,
+        "preparation_s": 0.453,
+        "readout_s": 1.353,
+        "readout_end_s": 1.359,
+        "previous_rr_s": 0.45,
+        "rr_estimate_s": 1.2,
+        "history_rr_s": [],
+        "scheduled": false,
+        "accepted": false,
+        "rejection": "previous_rr_outside_range",
+        "cancelled_s": null
+      },
+      {
+        "trigger": 2,
+        "decision_s": 1.65,
+        "preparation_s": 1.6529999999999998,
+        "readout_s": 2.553,
+        "readout_end_s": 2.5589999999999997,
+        "previous_rr_s": 1.2,
+        "rr_estimate_s": 1.2,
+        "history_rr_s": [
+          1.2
+        ],
+        "scheduled": true,
+        "accepted": true,
+        "rejection": null,
+        "cancelled_s": null
+      }
+    ],
+    "executions": [
+      {
+        "gate": {
+          "trigger": 0,
+          "decision_s": 0.0,
+          "preparation_s": 0.003,
+          "readout_s": 0.903,
+          "readout_end_s": 0.909,
+          "previous_rr_s": null,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": true,
+          "accepted": false,
+          "rejection": "interrupted_by_trigger",
+          "cancelled_s": 0.45
+        },
+        "tissues": {
+          "blood": {
+            "mean_mz": null,
+            "signal": null,
+            "geometric_incoming_fraction": null,
+            "receive_spins": null,
+            "stage": "inversion_recovery",
+            "end_s": 0.45,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.08036734238440442,
+            "state_hash": "1b5388ff2ce7690f4b87ca9fee234e973ecd592206d7c62da4acc13cb3c34d3f",
+            "positions_hash": "2c038170efabe36984953e311f48bfee447d1aec6351f5e26c2f45852454a35f"
+          },
+          "wall": {
+            "mean_mz": null,
+            "signal": null,
+            "geometric_incoming_fraction": null,
+            "receive_spins": null,
+            "stage": "inversion_recovery",
+            "end_s": 0.45,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.08036734238440442,
+            "state_hash": "ff26c2f91b2c2f7c06e87577672cb180972adbbda008bcb1e994bb08b6d0b5a7",
+            "positions_hash": "1affc09d966b5755f49fe4924f237baba870c30bafa85ab8f2e364f00caf0b67"
+          }
+        }
+      },
+      {
+        "gate": {
+          "trigger": 2,
+          "decision_s": 1.65,
+          "preparation_s": 1.6529999999999998,
+          "readout_s": 2.553,
+          "readout_end_s": 2.5589999999999997,
+          "previous_rr_s": 1.2,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [
+            1.2
+          ],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        },
+        "tissues": {
+          "blood": {
+            "mean_mz": 0.27489285577396994,
+            "signal": [
+              0.004124249483525294,
+              -0.23609019746558663
+            ],
+            "geometric_incoming_fraction": 0.927932164802745,
+            "receive_spins": 70,
+            "stage": "completed",
+            "end_s": 2.5589999999999997,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "965ea2eb14e47278c6358e6c732e6e2499c61a055eed8755e7703e3264fe1c12",
+            "positions_hash": "2e93fa56374e6c2c1bb24db83cc9a647a18a023c2caf6d08153317aa13d43286"
+          },
+          "wall": {
+            "mean_mz": 0.6891407231459522,
+            "signal": [
+              -0.0010675253152078164,
+              -0.6101855394722321
+            ],
+            "geometric_incoming_fraction": 0.0,
+            "receive_spins": 50,
+            "stage": "completed",
+            "end_s": 2.5589999999999997,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "27e407a4258f3ec78461287e96e6d2987e6f974cc768ac7eaebeea49743bccdc",
+            "positions_hash": "1affc09d966b5755f49fe4924f237baba870c30bafa85ab8f2e364f00caf0b67"
+          }
+        },
+        "flow": {
+          "volume_flow_m3_s": -8.380626300580228e-09,
+          "ring_radius_m": [
+            0.0007071067811865476,
+            0.001224744871391589,
+            0.0015811388300841897,
+            0.0018708286933869706
+          ],
+          "ring_velocity_m_s": [
+            0.0009374570488442056,
+            -0.0012068946782426357,
+            -0.0017541691853400817,
+            -0.0008923271696902918
+          ]
+        }
+      }
+    ],
+    "readouts": [
+      {
+        "gate": {
+          "trigger": 2,
+          "decision_s": 1.65,
+          "preparation_s": 1.6529999999999998,
+          "readout_s": 2.553,
+          "readout_end_s": 2.5589999999999997,
+          "previous_rr_s": 1.2,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [
+            1.2
+          ],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        },
+        "tissues": {
+          "blood": {
+            "mean_mz": 0.27489285577396994,
+            "signal": [
+              0.004124249483525294,
+              -0.23609019746558663
+            ],
+            "geometric_incoming_fraction": 0.927932164802745,
+            "receive_spins": 70,
+            "stage": "completed",
+            "end_s": 2.5589999999999997,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "965ea2eb14e47278c6358e6c732e6e2499c61a055eed8755e7703e3264fe1c12",
+            "positions_hash": "2e93fa56374e6c2c1bb24db83cc9a647a18a023c2caf6d08153317aa13d43286"
+          },
+          "wall": {
+            "mean_mz": 0.6891407231459522,
+            "signal": [
+              -0.0010675253152078164,
+              -0.6101855394722321
+            ],
+            "geometric_incoming_fraction": 0.0,
+            "receive_spins": 50,
+            "stage": "completed",
+            "end_s": 2.5589999999999997,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.12055101357660665,
+            "state_hash": "27e407a4258f3ec78461287e96e6d2987e6f974cc768ac7eaebeea49743bccdc",
+            "positions_hash": "1affc09d966b5755f49fe4924f237baba870c30bafa85ab8f2e364f00caf0b67"
+          }
+        },
+        "flow": {
+          "volume_flow_m3_s": -8.380626300580228e-09,
+          "ring_radius_m": [
+            0.0007071067811865476,
+            0.001224744871391589,
+            0.0015811388300841897,
+            0.0018708286933869706
+          ],
+          "ring_velocity_m_s": [
+            0.0009374570488442056,
+            -0.0012068946782426357,
+            -0.0017541691853400817,
+            -0.0008923271696902918
+          ]
+        }
+      }
+    ],
+    "validation": {
+      "completed_readouts": 1,
+      "scheduled_preparations": 2,
+      "interrupted_preparations": 1,
+      "interrupted_fraction": 0.5,
+      "max_interrupted_fraction": 0.0,
+      "blood_target_max": 0.1,
+      "wall_target_min": 0.7,
+      "passed": false,
+      "max_abs_blood_mz": 0.27489285577396994,
+      "min_abs_wall_mz": 0.6891407231459522
+    },
+    "objective_loss": 0.8988921950789298,
+    "objective": "mean completed blood/wall |Mz| ratio plus interrupted fraction; no-readout penalty 2 plus fraction",
+    "scope": "research/teaching periodic pressure-driven Newtonian flow in a straight rigid circular pipe; finite sinc RF/Gz and causal detected-trigger controller; fixed radial coordinates; no compliance, turbulence, diffusion, ECG detection, scanner execution or clinical certification; B/C parked",
+    "provenance": {
+      "version": "pulsatile-causal-dir-v1",
+      "replay": {
+        "r_peaks_s": [
+          0.0,
+          0.45,
+          1.65
+        ],
+        "observation_end_s": 2.8,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "radial_rings": 4,
+        "axial_spins": 201,
+        "rf_steps": 128,
+        "off_resonance_hz": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 10000000,
+        "max_duration_s": 30.0
+      },
+      "input_hash": "3a0bb91b40c972d2a9d4c424ae4be5f40566cafefa877fa7c53af94c990c6cda",
+      "source_hash": "bd826f9e36374a3914ca81a84aa8604fe6045c0af5ba2ae0ad8cd0f4d6f59a53",
+      "estimated_work": 393960,
+      "planned_work": 525615,
+      "duration_s": 2.8,
+      "womersley_alpha": 2.7589183026500725,
+      "reynolds_upper_bound": 147.00740792258202,
+      "total_blood_spins": 804,
+      "total_wall_spins": 201,
+      "actual_finite_rf_energy_uT2_s": 0.20091835596101107,
+      "actual_hard_rf_count": 2,
+      "waveform_hash": "53f74e0f24e7b4ac926d41684e93063d5b93b063af88f2aca46d0cb29910a6c9",
+      "reservoir": {
+        "initial_position_hash": "ef075440211b407d3cbe33b40464ba20be0c406570a1f8fbdadef315401768a5",
+        "quadrature_weight_hash": "f164869478fb83a5fb0cc3bd86463a26da3cd672f49d761afd6488f28f9147cd",
+        "boundary": "finite no-wrap reservoir bounding all motion; area/axial volume weights; each receive ring checked"
+      },
+      "final_state_hashes": {
+        "blood": "1cf812ec8b818e05326c66f20f9a709a91b98120d879c25252fec087ea141a0f",
+        "wall": "62b14c16f2dbfd8a8bd398be304aa1049324c196306e5edb3846810e5da5583f"
+      }
+    }
+  },
+  "no_completed_readout": {
+    "clinical_question": "How do pressure-driven pulsatile shear flow and causally interrupted finite slice preparations change DIR suppression?",
+    "design": {
+      "r_peaks_s": [
+        0.0
+      ],
+      "observation_end_s": 0.5,
+      "inversion_time_s": 0.9,
+      "trigger_latency_s": 0.003,
+      "initial_rr_s": 1.2,
+      "rr_range_s": [
+        0.5,
+        1.5
+      ],
+      "radius_m": 0.002,
+      "density_kg_m3": 1060.0,
+      "viscosity_pa_s": 0.0035,
+      "mean_gradient_pa_m": 100.0,
+      "oscillating_gradient_pa_m": 200.0,
+      "frequency_hz": 1.0,
+      "phase_rad": 0.0,
+      "thickness_m": 0.005,
+      "radial_rings": 4,
+      "axial_spins": 201,
+      "rf_steps": 128,
+      "off_resonance_hz": 0.0,
+      "blood_target_max": 0.1,
+      "wall_target_min": 0.7,
+      "max_interrupted_fraction": 0.0,
+      "max_work": 10000000,
+      "max_duration_s": 30.0
+    },
+    "gates": [
+      {
+        "trigger": 0,
+        "decision_s": 0.0,
+        "preparation_s": 0.003,
+        "readout_s": 0.903,
+        "readout_end_s": 0.909,
+        "previous_rr_s": null,
+        "rr_estimate_s": 1.2,
+        "history_rr_s": [],
+        "scheduled": true,
+        "accepted": false,
+        "rejection": "observation_ended",
+        "cancelled_s": 0.5
+      }
+    ],
+    "executions": [
+      {
+        "gate": {
+          "trigger": 0,
+          "decision_s": 0.0,
+          "preparation_s": 0.003,
+          "readout_s": 0.903,
+          "readout_end_s": 0.909,
+          "previous_rr_s": null,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": true,
+          "accepted": false,
+          "rejection": "observation_ended",
+          "cancelled_s": 0.5
+        },
+        "tissues": {
+          "blood": {
+            "mean_mz": null,
+            "signal": null,
+            "geometric_incoming_fraction": null,
+            "receive_spins": null,
+            "stage": "inversion_recovery",
+            "end_s": 0.5,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.08036734238440442,
+            "state_hash": "fb88f659a4ade56ca11359fb25f63436f4fe3edc9ccf81262756e73159054f62",
+            "positions_hash": "f3f7951f407bfc986f416358ce77223d245c6e263edd90f8eb6d0e42fcc831b7"
+          },
+          "wall": {
+            "mean_mz": null,
+            "signal": null,
+            "geometric_incoming_fraction": null,
+            "receive_spins": null,
+            "stage": "inversion_recovery",
+            "end_s": 0.5,
+            "preparation_started": true,
+            "finite_rf_energy_uT2_s": 0.08036734238440442,
+            "state_hash": "8f4ebb21baf3bd0e5fc43223f9d34068b9ac813eb197312a788f12da112cbf72",
+            "positions_hash": "1affc09d966b5755f49fe4924f237baba870c30bafa85ab8f2e364f00caf0b67"
+          }
+        }
+      }
+    ],
+    "readouts": [],
+    "validation": {
+      "completed_readouts": 0,
+      "scheduled_preparations": 1,
+      "interrupted_preparations": 1,
+      "interrupted_fraction": 1.0,
+      "max_interrupted_fraction": 0.0,
+      "blood_target_max": 0.1,
+      "wall_target_min": 0.7,
+      "passed": false
+    },
+    "objective_loss": 3.0,
+    "objective": "mean completed blood/wall |Mz| ratio plus interrupted fraction; no-readout penalty 2 plus fraction",
+    "scope": "research/teaching periodic pressure-driven Newtonian flow in a straight rigid circular pipe; finite sinc RF/Gz and causal detected-trigger controller; fixed radial coordinates; no compliance, turbulence, diffusion, ECG detection, scanner execution or clinical certification; B/C parked",
+    "provenance": {
+      "version": "pulsatile-causal-dir-v1",
+      "replay": {
+        "r_peaks_s": [
+          0.0
+        ],
+        "observation_end_s": 0.5,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "radial_rings": 4,
+        "axial_spins": 201,
+        "rf_steps": 128,
+        "off_resonance_hz": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 10000000,
+        "max_duration_s": 30.0
+      },
+      "input_hash": "8ad8d5fc60b99257850b7f6296c652819e0494b5b37deb262e912f5f3895c1e1",
+      "source_hash": "bd826f9e36374a3914ca81a84aa8604fe6045c0af5ba2ae0ad8cd0f4d6f59a53",
+      "estimated_work": 131655,
+      "planned_work": 263310,
+      "duration_s": 0.5,
+      "womersley_alpha": 2.7589183026500725,
+      "reynolds_upper_bound": 147.00740792258202,
+      "total_blood_spins": 804,
+      "total_wall_spins": 201,
+      "actual_finite_rf_energy_uT2_s": 0.08036734238440442,
+      "actual_hard_rf_count": 1,
+      "waveform_hash": "53f74e0f24e7b4ac926d41684e93063d5b93b063af88f2aca46d0cb29910a6c9",
+      "reservoir": {
+        "initial_position_hash": "8bb0d0147cfa79ca48b097c13a8de911b15f52e2396e8a05d1e4ab523b261c8d",
+        "quadrature_weight_hash": "06da428f5620a5c13f852fdc7b9d7e4213ae0cef60c0e63a836767d76e0aa5e5",
+        "boundary": "finite no-wrap reservoir bounding all motion; area/axial volume weights; each receive ring checked"
+      },
+      "final_state_hashes": {
+        "blood": "fb88f659a4ade56ca11359fb25f63436f4fe3edc9ccf81262756e73159054f62",
+        "wall": "8f4ebb21baf3bd0e5fc43223f9d34068b9ac813eb197312a788f12da112cbf72"
+      }
+    }
+  },
+  "quadrature_refinements": [
+    {
+      "clinical_question": "How do pressure-driven pulsatile shear flow and causally interrupted finite slice preparations change DIR suppression?",
+      "design": {
+        "r_peaks_s": [
+          0.0
+        ],
+        "observation_end_s": 1.2,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "radial_rings": 4,
+        "axial_spins": 201,
+        "rf_steps": 128,
+        "off_resonance_hz": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 10000000,
+        "max_duration_s": 30.0
+      },
+      "gates": [
+        {
+          "trigger": 0,
+          "decision_s": 0.0,
+          "preparation_s": 0.003,
+          "readout_s": 0.903,
+          "readout_end_s": 0.909,
+          "previous_rr_s": null,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.909,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "tissues": {
+            "blood": {
+              "mean_mz": -0.0721907236661065,
+              "signal": [
+                0.02662278681349856,
+                0.06640751629821977
+              ],
+              "geometric_incoming_fraction": 0.8969957811334166,
+              "receive_spins": 93,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12055101357660665,
+              "state_hash": "9ba936e16e770c0a534a66ec9feba4f2d7bae09e011757a89f5c8084772948fd",
+              "positions_hash": "c44be39c51e3846b98ea732a547f25b9fb072ea68269413e9b31fee1e50d5e5d"
+            },
+            "wall": {
+              "mean_mz": 0.6554343005038594,
+              "signal": [
+                -0.0006147454713721803,
+                -0.5876959559699856
+              ],
+              "geometric_incoming_fraction": 0.0,
+              "receive_spins": 50,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12055101357660665,
+              "state_hash": "7046a607ca8ecc463812f9ace0f46bb4743e0c528016950c20e1d5ba9a89b3b2",
+              "positions_hash": "1affc09d966b5755f49fe4924f237baba870c30bafa85ab8f2e364f00caf0b67"
+            }
+          },
+          "flow": {
+            "volume_flow_m3_s": 1.9818264297025593e-07,
+            "ring_radius_m": [
+              0.0007071067811865476,
+              0.001224744871391589,
+              0.0015811388300841897,
+              0.0018708286933869706
+            ],
+            "ring_velocity_m_s": [
+              0.024726437041522532,
+              0.02009119883187629,
+              0.01355723591808164,
+              0.005030411566690687
+            ]
+          }
+        }
+      ],
+      "readouts": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.909,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "tissues": {
+            "blood": {
+              "mean_mz": -0.0721907236661065,
+              "signal": [
+                0.02662278681349856,
+                0.06640751629821977
+              ],
+              "geometric_incoming_fraction": 0.8969957811334166,
+              "receive_spins": 93,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12055101357660665,
+              "state_hash": "9ba936e16e770c0a534a66ec9feba4f2d7bae09e011757a89f5c8084772948fd",
+              "positions_hash": "c44be39c51e3846b98ea732a547f25b9fb072ea68269413e9b31fee1e50d5e5d"
+            },
+            "wall": {
+              "mean_mz": 0.6554343005038594,
+              "signal": [
+                -0.0006147454713721803,
+                -0.5876959559699856
+              ],
+              "geometric_incoming_fraction": 0.0,
+              "receive_spins": 50,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12055101357660665,
+              "state_hash": "7046a607ca8ecc463812f9ace0f46bb4743e0c528016950c20e1d5ba9a89b3b2",
+              "positions_hash": "1affc09d966b5755f49fe4924f237baba870c30bafa85ab8f2e364f00caf0b67"
+            }
+          },
+          "flow": {
+            "volume_flow_m3_s": 1.9818264297025593e-07,
+            "ring_radius_m": [
+              0.0007071067811865476,
+              0.001224744871391589,
+              0.0015811388300841897,
+              0.0018708286933869706
+            ],
+            "ring_velocity_m_s": [
+              0.024726437041522532,
+              0.02009119883187629,
+              0.01355723591808164,
+              0.005030411566690687
+            ]
+          }
+        }
+      ],
+      "validation": {
+        "completed_readouts": 1,
+        "scheduled_preparations": 1,
+        "interrupted_preparations": 0,
+        "interrupted_fraction": 0.0,
+        "max_interrupted_fraction": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "passed": false,
+        "max_abs_blood_mz": 0.0721907236661065,
+        "min_abs_wall_mz": 0.6554343005038594
+      },
+      "objective_loss": 0.11014181529805582,
+      "objective": "mean completed blood/wall |Mz| ratio plus interrupted fraction; no-readout penalty 2 plus fraction",
+      "scope": "research/teaching periodic pressure-driven Newtonian flow in a straight rigid circular pipe; finite sinc RF/Gz and causal detected-trigger controller; fixed radial coordinates; no compliance, turbulence, diffusion, ECG detection, scanner execution or clinical certification; B/C parked",
+      "provenance": {
+        "version": "pulsatile-causal-dir-v1",
+        "replay": {
+          "r_peaks_s": [
+            0.0
+          ],
+          "observation_end_s": 1.2,
+          "inversion_time_s": 0.9,
+          "trigger_latency_s": 0.003,
+          "initial_rr_s": 1.2,
+          "rr_range_s": [
+            0.5,
+            1.5
+          ],
+          "radius_m": 0.002,
+          "density_kg_m3": 1060.0,
+          "viscosity_pa_s": 0.0035,
+          "mean_gradient_pa_m": 100.0,
+          "oscillating_gradient_pa_m": 200.0,
+          "frequency_hz": 1.0,
+          "phase_rad": 0.0,
+          "thickness_m": 0.005,
+          "radial_rings": 4,
+          "axial_spins": 201,
+          "rf_steps": 128,
+          "off_resonance_hz": 0.0,
+          "blood_target_max": 0.1,
+          "wall_target_min": 0.7,
+          "max_interrupted_fraction": 0.0,
+          "max_work": 10000000,
+          "max_duration_s": 30.0
+        },
+        "input_hash": "cbccb40c53cd549d1c5bf9c054e46ee91068afd4d231de3a8b1cb3ac31214076",
+        "source_hash": "bd826f9e36374a3914ca81a84aa8604fe6045c0af5ba2ae0ad8cd0f4d6f59a53",
+        "estimated_work": 262305,
+        "planned_work": 263310,
+        "duration_s": 1.2,
+        "womersley_alpha": 2.7589183026500725,
+        "reynolds_upper_bound": 147.00740792258202,
+        "total_blood_spins": 804,
+        "total_wall_spins": 201,
+        "actual_finite_rf_energy_uT2_s": 0.12055101357660665,
+        "actual_hard_rf_count": 1,
+        "waveform_hash": "53f74e0f24e7b4ac926d41684e93063d5b93b063af88f2aca46d0cb29910a6c9",
+        "reservoir": {
+          "initial_position_hash": "bbb9bfa1140edad560818a0add9b2f29b73b3a4c48cbea36b7f6df93c7548be6",
+          "quadrature_weight_hash": "281b2a826ae9a5eb2ace8f1bd4e837eba0d685a9c188246800863a8e0bfd7a6e",
+          "boundary": "finite no-wrap reservoir bounding all motion; area/axial volume weights; each receive ring checked"
+        },
+        "final_state_hashes": {
+          "blood": "1eaf09e47eb022cdfc15f2e458e81035135044d8db1a482c4af5bc16c753774d",
+          "wall": "5942cdf0f4033b3a6182a3f1f8e0116fcf8aa167f6387edd9266e1d56b9b642d"
+        }
+      }
+    },
+    {
+      "clinical_question": "How do pressure-driven pulsatile shear flow and causally interrupted finite slice preparations change DIR suppression?",
+      "design": {
+        "r_peaks_s": [
+          0.0
+        ],
+        "observation_end_s": 1.2,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "radial_rings": 8,
+        "axial_spins": 401,
+        "rf_steps": 128,
+        "off_resonance_hz": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 10000000,
+        "max_duration_s": 30.0
+      },
+      "gates": [
+        {
+          "trigger": 0,
+          "decision_s": 0.0,
+          "preparation_s": 0.003,
+          "readout_s": 0.903,
+          "readout_end_s": 0.909,
+          "previous_rr_s": null,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.909,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "tissues": {
+            "blood": {
+              "mean_mz": -0.06238564310417087,
+              "signal": [
+                0.021995060058079056,
+                0.05243582370251504
+              ],
+              "geometric_incoming_fraction": 0.8960102382564263,
+              "receive_spins": 377,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12055101357660665,
+              "state_hash": "bdf1995f76a4454fb6fe55f4a6593ada55d96ff257c1f8c82f1efa09b70e110a",
+              "positions_hash": "bb0b5ea338a21d3bb3b4647d8d7a8ebf81ed3a8a59a539e7297bffd408059252"
+            },
+            "wall": {
+              "mean_mz": 0.6554123669890355,
+              "signal": [
+                -0.0003073727356860817,
+                -0.5877321843791491
+              ],
+              "geometric_incoming_fraction": 0.0,
+              "receive_spins": 100,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12055101357660665,
+              "state_hash": "c276e8ff9e5d5c3b6545e18651552493785cf825bab998c9930567f4bc91fecd",
+              "positions_hash": "e473b46f12ff6d8bd0b9a678baf0a5293d6b719f90c6e1aa4d925e11313e4e48"
+            }
+          },
+          "flow": {
+            "volume_flow_m3_s": 1.9818264297025593e-07,
+            "ring_radius_m": [
+              0.0005,
+              0.0008660254037844386,
+              0.001118033988749895,
+              0.0013228756555322954,
+              0.0015,
+              0.0016583123951777,
+              0.0018027756377319946,
+              0.0019364916731037087
+            ],
+            "ring_velocity_m_s": [
+              0.02560290063146101,
+              0.023739177019255722,
+              0.021423569200899013,
+              0.018639989975431405,
+              0.01537448167322261,
+              0.011615261649640989,
+              0.00735276376341839,
+              0.0025796757784360986
+            ]
+          }
+        }
+      ],
+      "readouts": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.909,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "tissues": {
+            "blood": {
+              "mean_mz": -0.06238564310417087,
+              "signal": [
+                0.021995060058079056,
+                0.05243582370251504
+              ],
+              "geometric_incoming_fraction": 0.8960102382564263,
+              "receive_spins": 377,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12055101357660665,
+              "state_hash": "bdf1995f76a4454fb6fe55f4a6593ada55d96ff257c1f8c82f1efa09b70e110a",
+              "positions_hash": "bb0b5ea338a21d3bb3b4647d8d7a8ebf81ed3a8a59a539e7297bffd408059252"
+            },
+            "wall": {
+              "mean_mz": 0.6554123669890355,
+              "signal": [
+                -0.0003073727356860817,
+                -0.5877321843791491
+              ],
+              "geometric_incoming_fraction": 0.0,
+              "receive_spins": 100,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12055101357660665,
+              "state_hash": "c276e8ff9e5d5c3b6545e18651552493785cf825bab998c9930567f4bc91fecd",
+              "positions_hash": "e473b46f12ff6d8bd0b9a678baf0a5293d6b719f90c6e1aa4d925e11313e4e48"
+            }
+          },
+          "flow": {
+            "volume_flow_m3_s": 1.9818264297025593e-07,
+            "ring_radius_m": [
+              0.0005,
+              0.0008660254037844386,
+              0.001118033988749895,
+              0.0013228756555322954,
+              0.0015,
+              0.0016583123951777,
+              0.0018027756377319946,
+              0.0019364916731037087
+            ],
+            "ring_velocity_m_s": [
+              0.02560290063146101,
+              0.023739177019255722,
+              0.021423569200899013,
+              0.018639989975431405,
+              0.01537448167322261,
+              0.011615261649640989,
+              0.00735276376341839,
+              0.0025796757784360986
+            ]
+          }
+        }
+      ],
+      "validation": {
+        "completed_readouts": 1,
+        "scheduled_preparations": 1,
+        "interrupted_preparations": 0,
+        "interrupted_fraction": 0.0,
+        "max_interrupted_fraction": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "passed": false,
+        "max_abs_blood_mz": 0.06238564310417087,
+        "min_abs_wall_mz": 0.6554123669890355
+      },
+      "objective_loss": 0.09518533101651792,
+      "objective": "mean completed blood/wall |Mz| ratio plus interrupted fraction; no-readout penalty 2 plus fraction",
+      "scope": "research/teaching periodic pressure-driven Newtonian flow in a straight rigid circular pipe; finite sinc RF/Gz and causal detected-trigger controller; fixed radial coordinates; no compliance, turbulence, diffusion, ECG detection, scanner execution or clinical certification; B/C parked",
+      "provenance": {
+        "version": "pulsatile-causal-dir-v1",
+        "replay": {
+          "r_peaks_s": [
+            0.0
+          ],
+          "observation_end_s": 1.2,
+          "inversion_time_s": 0.9,
+          "trigger_latency_s": 0.003,
+          "initial_rr_s": 1.2,
+          "rr_range_s": [
+            0.5,
+            1.5
+          ],
+          "radius_m": 0.002,
+          "density_kg_m3": 1060.0,
+          "viscosity_pa_s": 0.0035,
+          "mean_gradient_pa_m": 100.0,
+          "oscillating_gradient_pa_m": 200.0,
+          "frequency_hz": 1.0,
+          "phase_rad": 0.0,
+          "thickness_m": 0.005,
+          "radial_rings": 8,
+          "axial_spins": 401,
+          "rf_steps": 128,
+          "off_resonance_hz": 0.0,
+          "blood_target_max": 0.1,
+          "wall_target_min": 0.7,
+          "max_interrupted_fraction": 0.0,
+          "max_work": 10000000,
+          "max_duration_s": 30.0
+        },
+        "input_hash": "e78573b706b9ac343ccc246513a18b3be9d49c8c1e848b7e56b20eef11747b01",
+        "source_hash": "bd826f9e36374a3914ca81a84aa8604fe6045c0af5ba2ae0ad8cd0f4d6f59a53",
+        "estimated_work": 941949,
+        "planned_work": 945558,
+        "duration_s": 1.2,
+        "womersley_alpha": 2.7589183026500725,
+        "reynolds_upper_bound": 147.00740792258202,
+        "total_blood_spins": 3208,
+        "total_wall_spins": 401,
+        "actual_finite_rf_energy_uT2_s": 0.12055101357660665,
+        "actual_hard_rf_count": 1,
+        "waveform_hash": "53f74e0f24e7b4ac926d41684e93063d5b93b063af88f2aca46d0cb29910a6c9",
+        "reservoir": {
+          "initial_position_hash": "c27000979542b2bce6a44c879f32c5921b022533839739ff26ef6f2503871161",
+          "quadrature_weight_hash": "59421a9bde85b8b15f91052d4d59835f9dc34ba59b351c76296fdf079990421f",
+          "boundary": "finite no-wrap reservoir bounding all motion; area/axial volume weights; each receive ring checked"
+        },
+        "final_state_hashes": {
+          "blood": "60783e1958ab236566a7a307f94bc312821ee7ace1d89e2a0d041e130cff8d01",
+          "wall": "a5ed3d52db0f343f01dcef63b0adb5224b7ab7d9cc1cbe17fe09fc2e3aa611c0"
+        }
+      }
+    },
+    {
+      "clinical_question": "How do pressure-driven pulsatile shear flow and causally interrupted finite slice preparations change DIR suppression?",
+      "design": {
+        "r_peaks_s": [
+          0.0
+        ],
+        "observation_end_s": 1.2,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "radial_rings": 16,
+        "axial_spins": 801,
+        "rf_steps": 256,
+        "off_resonance_hz": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 10000000,
+        "max_duration_s": 30.0
+      },
+      "gates": [
+        {
+          "trigger": 0,
+          "decision_s": 0.0,
+          "preparation_s": 0.003,
+          "readout_s": 0.903,
+          "readout_end_s": 0.909,
+          "previous_rr_s": null,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": true,
+          "accepted": true,
+          "rejection": null,
+          "cancelled_s": null
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.909,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "tissues": {
+            "blood": {
+              "mean_mz": -0.0627613922386753,
+              "signal": [
+                0.021993965814917884,
+                0.05324290027621327
+              ],
+              "geometric_incoming_fraction": 0.8950621594788144,
+              "receive_spins": 1512,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12054286178529053,
+              "state_hash": "10379ede59bb2c580186b20d0251e45aafbe830acf2b1541fd16279292883590",
+              "positions_hash": "39a6cb4eade13bf95986bec8c6c4dba4364da7d35aab0bae05a43ec944c570c9"
+            },
+            "wall": {
+              "mean_mz": 0.6554445907188151,
+              "signal": [
+                -0.00015376674562626175,
+                -0.5877809383946664
+              ],
+              "geometric_incoming_fraction": 0.0,
+              "receive_spins": 200,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12054286178529053,
+              "state_hash": "c75d9e21ebd6453f5b7b846bb552538659fa9fe9d7767769a4490471f4546cae",
+              "positions_hash": "02c77e5889e0170b3cf4fc94050d8c7eb27ed6d68ea46b5b4dc30fb2491199f4"
+            }
+          },
+          "flow": {
+            "volume_flow_m3_s": 1.9818264297025593e-07,
+            "ring_radius_m": [
+              0.0003535533905932738,
+              0.0006123724356957945,
+              0.0007905694150420948,
+              0.0009354143466934853,
+              0.0010606601717798212,
+              0.0011726039399558574,
+              0.001274754878398196,
+              0.0013693063937629153,
+              0.0014577379737113253,
+              0.001541103500742244,
+              0.0016201851746019652,
+              0.001695582495781317,
+              0.0017677669529663688,
+              0.0018371173070873836,
+              0.0019039432764659772,
+              0.001968501968502953
+            ],
+            "ring_velocity_m_s": [
+              0.02600030864699074,
+              0.025178375409838933,
+              0.0242467975587697,
+              0.02320330355769189,
+              0.02204575109554446,
+              0.02077212869267508,
+              0.019380557246293666,
+              0.01786929151445988,
+              0.01623672153807915,
+              0.014481374000396965,
+              0.01260191352349694,
+              0.010597143901324092,
+              0.008466009268769992,
+              0.00620759520637302,
+              0.003821129780202377,
+              0.0013059845165109833
+            ]
+          }
+        }
+      ],
+      "readouts": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.909,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "tissues": {
+            "blood": {
+              "mean_mz": -0.0627613922386753,
+              "signal": [
+                0.021993965814917884,
+                0.05324290027621327
+              ],
+              "geometric_incoming_fraction": 0.8950621594788144,
+              "receive_spins": 1512,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12054286178529053,
+              "state_hash": "10379ede59bb2c580186b20d0251e45aafbe830acf2b1541fd16279292883590",
+              "positions_hash": "39a6cb4eade13bf95986bec8c6c4dba4364da7d35aab0bae05a43ec944c570c9"
+            },
+            "wall": {
+              "mean_mz": 0.6554445907188151,
+              "signal": [
+                -0.00015376674562626175,
+                -0.5877809383946664
+              ],
+              "geometric_incoming_fraction": 0.0,
+              "receive_spins": 200,
+              "stage": "completed",
+              "end_s": 0.909,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12054286178529053,
+              "state_hash": "c75d9e21ebd6453f5b7b846bb552538659fa9fe9d7767769a4490471f4546cae",
+              "positions_hash": "02c77e5889e0170b3cf4fc94050d8c7eb27ed6d68ea46b5b4dc30fb2491199f4"
+            }
+          },
+          "flow": {
+            "volume_flow_m3_s": 1.9818264297025593e-07,
+            "ring_radius_m": [
+              0.0003535533905932738,
+              0.0006123724356957945,
+              0.0007905694150420948,
+              0.0009354143466934853,
+              0.0010606601717798212,
+              0.0011726039399558574,
+              0.001274754878398196,
+              0.0013693063937629153,
+              0.0014577379737113253,
+              0.001541103500742244,
+              0.0016201851746019652,
+              0.001695582495781317,
+              0.0017677669529663688,
+              0.0018371173070873836,
+              0.0019039432764659772,
+              0.001968501968502953
+            ],
+            "ring_velocity_m_s": [
+              0.02600030864699074,
+              0.025178375409838933,
+              0.0242467975587697,
+              0.02320330355769189,
+              0.02204575109554446,
+              0.02077212869267508,
+              0.019380557246293666,
+              0.01786929151445988,
+              0.01623672153807915,
+              0.014481374000396965,
+              0.01260191352349694,
+              0.010597143901324092,
+              0.008466009268769992,
+              0.00620759520637302,
+              0.003821129780202377,
+              0.0013059845165109833
+            ]
+          }
+        }
+      ],
+      "validation": {
+        "completed_readouts": 1,
+        "scheduled_preparations": 1,
+        "interrupted_preparations": 0,
+        "interrupted_fraction": 0.0,
+        "max_interrupted_fraction": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "passed": false,
+        "max_abs_blood_mz": 0.0627613922386753,
+        "min_abs_wall_mz": 0.6554445907188151
+      },
+      "objective_loss": 0.09575392508746762,
+      "objective": "mean completed blood/wall |Mz| ratio plus interrupted fraction; no-readout penalty 2 plus fraction",
+      "scope": "research/teaching periodic pressure-driven Newtonian flow in a straight rigid circular pipe; finite sinc RF/Gz and causal detected-trigger controller; fixed radial coordinates; no compliance, turbulence, diffusion, ECG detection, scanner execution or clinical certification; B/C parked",
+      "provenance": {
+        "version": "pulsatile-causal-dir-v1",
+        "replay": {
+          "r_peaks_s": [
+            0.0
+          ],
+          "observation_end_s": 1.2,
+          "inversion_time_s": 0.9,
+          "trigger_latency_s": 0.003,
+          "initial_rr_s": 1.2,
+          "rr_range_s": [
+            0.5,
+            1.5
+          ],
+          "radius_m": 0.002,
+          "density_kg_m3": 1060.0,
+          "viscosity_pa_s": 0.0035,
+          "mean_gradient_pa_m": 100.0,
+          "oscillating_gradient_pa_m": 200.0,
+          "frequency_hz": 1.0,
+          "phase_rad": 0.0,
+          "thickness_m": 0.005,
+          "radial_rings": 16,
+          "axial_spins": 801,
+          "rf_steps": 256,
+          "off_resonance_hz": 0.0,
+          "blood_target_max": 0.1,
+          "wall_target_min": 0.7,
+          "max_interrupted_fraction": 0.0,
+          "max_work": 10000000,
+          "max_duration_s": 30.0
+        },
+        "input_hash": "2b2980c58c822f1ec4e41b3c429edb430c9ca9add0d9bcc32725be092f2a0ea0",
+        "source_hash": "bd826f9e36374a3914ca81a84aa8604fe6045c0af5ba2ae0ad8cd0f4d6f59a53",
+        "estimated_work": 7039989,
+        "planned_work": 7053606,
+        "duration_s": 1.2,
+        "womersley_alpha": 2.7589183026500725,
+        "reynolds_upper_bound": 147.00740792258202,
+        "total_blood_spins": 12816,
+        "total_wall_spins": 801,
+        "actual_finite_rf_energy_uT2_s": 0.12054286178529053,
+        "actual_hard_rf_count": 1,
+        "waveform_hash": "4e6e89eeafcf6ef6da2834429b4cab873974807bd50d526fba0aafbcec9ddb09",
+        "reservoir": {
+          "initial_position_hash": "805d79abd4cc553c8331610e437e88a97eb92c00f88431a975d1beacf6b23f12",
+          "quadrature_weight_hash": "92341f93e9e5b86edde0b045214cdf9280d7b3d2b84bb14f246cbd81850c5d89",
+          "boundary": "finite no-wrap reservoir bounding all motion; area/axial volume weights; each receive ring checked"
+        },
+        "final_state_hashes": {
+          "blood": "b2f845bb41c103fa0b91d7c5d454c40dbb69beb04d5b03fb3e640f82d4410784",
+          "wall": "bfdec65c712b3b7f5ce2aac71f76e1d37564af0e84199a3e3492e1e9ce0f8670"
+        }
+      }
+    }
+  ],
+  "clipped_waveforms": [
+    {
+      "clinical_question": "How do pressure-driven pulsatile shear flow and causally interrupted finite slice preparations change DIR suppression?",
+      "design": {
+        "r_peaks_s": [
+          0.0,
+          0.006
+        ],
+        "observation_end_s": 1.9,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "radial_rings": 4,
+        "axial_spins": 201,
+        "rf_steps": 128,
+        "off_resonance_hz": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 10000000,
+        "max_duration_s": 30.0
+      },
+      "gates": [
+        {
+          "trigger": 0,
+          "decision_s": 0.0,
+          "preparation_s": 0.003,
+          "readout_s": 0.903,
+          "readout_end_s": 0.909,
+          "previous_rr_s": null,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": true,
+          "accepted": false,
+          "rejection": "interrupted_by_trigger",
+          "cancelled_s": 0.006
+        },
+        {
+          "trigger": 1,
+          "decision_s": 0.006,
+          "preparation_s": 0.009000000000000001,
+          "readout_s": 0.909,
+          "readout_end_s": 0.915,
+          "previous_rr_s": 0.006,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": false,
+          "accepted": false,
+          "rejection": "previous_rr_outside_range",
+          "cancelled_s": null
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.909,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": false,
+            "rejection": "interrupted_by_trigger",
+            "cancelled_s": 0.006
+          },
+          "tissues": {
+            "blood": {
+              "mean_mz": null,
+              "signal": null,
+              "geometric_incoming_fraction": null,
+              "receive_spins": null,
+              "stage": "selective_reinversion",
+              "end_s": 0.006,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.007449782022386721,
+              "state_hash": "b44e6177afe9fe8ec1a67d6ec78d0242bfabc035786402d6427a36f35fc88383",
+              "positions_hash": "93dd95896e0ac22fe4fe31dbc9b810d2d1e1e9bdc0adfb7e0dc7288a7ecadf13"
+            },
+            "wall": {
+              "mean_mz": null,
+              "signal": null,
+              "geometric_incoming_fraction": null,
+              "receive_spins": null,
+              "stage": "selective_reinversion",
+              "end_s": 0.006,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.007449782022386721,
+              "state_hash": "b0d6e17aaab1377070bd34b5583d4a1fd0382d0db04954fbba330c7fc6349227",
+              "positions_hash": "1affc09d966b5755f49fe4924f237baba870c30bafa85ab8f2e364f00caf0b67"
+            }
+          }
+        }
+      ],
+      "readouts": [],
+      "validation": {
+        "completed_readouts": 0,
+        "scheduled_preparations": 1,
+        "interrupted_preparations": 1,
+        "interrupted_fraction": 1.0,
+        "max_interrupted_fraction": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "passed": false
+      },
+      "objective_loss": 3.0,
+      "objective": "mean completed blood/wall |Mz| ratio plus interrupted fraction; no-readout penalty 2 plus fraction",
+      "scope": "research/teaching periodic pressure-driven Newtonian flow in a straight rigid circular pipe; finite sinc RF/Gz and causal detected-trigger controller; fixed radial coordinates; no compliance, turbulence, diffusion, ECG detection, scanner execution or clinical certification; B/C parked",
+      "provenance": {
+        "version": "pulsatile-causal-dir-v1",
+        "replay": {
+          "r_peaks_s": [
+            0.0,
+            0.006
+          ],
+          "observation_end_s": 1.9,
+          "inversion_time_s": 0.9,
+          "trigger_latency_s": 0.003,
+          "initial_rr_s": 1.2,
+          "rr_range_s": [
+            0.5,
+            1.5
+          ],
+          "radius_m": 0.002,
+          "density_kg_m3": 1060.0,
+          "viscosity_pa_s": 0.0035,
+          "mean_gradient_pa_m": 100.0,
+          "oscillating_gradient_pa_m": 200.0,
+          "frequency_hz": 1.0,
+          "phase_rad": 0.0,
+          "thickness_m": 0.005,
+          "radial_rings": 4,
+          "axial_spins": 201,
+          "rf_steps": 128,
+          "off_resonance_hz": 0.0,
+          "blood_target_max": 0.1,
+          "wall_target_min": 0.7,
+          "max_interrupted_fraction": 0.0,
+          "max_work": 10000000,
+          "max_duration_s": 30.0
+        },
+        "input_hash": "b800be1da8fbf4763d9e44cc3739302df6e2bd0858158fea37054fe65654c653",
+        "source_hash": "bd826f9e36374a3914ca81a84aa8604fe6045c0af5ba2ae0ad8cd0f4d6f59a53",
+        "estimated_work": 51255,
+        "planned_work": 263310,
+        "duration_s": 1.9,
+        "womersley_alpha": 2.7589183026500725,
+        "reynolds_upper_bound": 147.00740792258202,
+        "total_blood_spins": 804,
+        "total_wall_spins": 201,
+        "actual_finite_rf_energy_uT2_s": 0.007449782022386721,
+        "actual_hard_rf_count": 1,
+        "waveform_hash": "53f74e0f24e7b4ac926d41684e93063d5b93b063af88f2aca46d0cb29910a6c9",
+        "reservoir": {
+          "initial_position_hash": "b4d340c52b6193687e1384a822ccdbb22b662a6ee689ea09ea50cc27a505ad22",
+          "quadrature_weight_hash": "b50d4911d55883dad846f601642ccad8de7f6e8518671794035749e06813b46d",
+          "boundary": "finite no-wrap reservoir bounding all motion; area/axial volume weights; each receive ring checked"
+        },
+        "final_state_hashes": {
+          "blood": "300595b1e04996a99706e669b6219c95d0df06b686e59999a2ff73f41058d6f4",
+          "wall": "f118cc008a24dadb7a59b056fe11bae450d87e93317e5038b716ea3dec44e6cd"
+        }
+      }
+    },
+    {
+      "clinical_question": "How do pressure-driven pulsatile shear flow and causally interrupted finite slice preparations change DIR suppression?",
+      "design": {
+        "r_peaks_s": [
+          0.0,
+          0.905
+        ],
+        "observation_end_s": 1.9,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "radial_rings": 4,
+        "axial_spins": 201,
+        "rf_steps": 128,
+        "off_resonance_hz": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 10000000,
+        "max_duration_s": 30.0
+      },
+      "gates": [
+        {
+          "trigger": 0,
+          "decision_s": 0.0,
+          "preparation_s": 0.003,
+          "readout_s": 0.903,
+          "readout_end_s": 0.909,
+          "previous_rr_s": null,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": true,
+          "accepted": false,
+          "rejection": "interrupted_by_trigger",
+          "cancelled_s": 0.905
+        },
+        {
+          "trigger": 1,
+          "decision_s": 0.905,
+          "preparation_s": 0.908,
+          "readout_s": 1.808,
+          "readout_end_s": 1.814,
+          "previous_rr_s": 0.905,
+          "rr_estimate_s": 0.905,
+          "history_rr_s": [
+            0.905
+          ],
+          "scheduled": false,
+          "accepted": false,
+          "rejection": "window_exceeds_past_rr_estimate",
+          "cancelled_s": null
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.909,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": false,
+            "rejection": "interrupted_by_trigger",
+            "cancelled_s": 0.905
+          },
+          "tissues": {
+            "blood": {
+              "mean_mz": -0.07628560798147652,
+              "signal": null,
+              "geometric_incoming_fraction": 0.8963599392976331,
+              "receive_spins": 80,
+              "stage": "excitation",
+              "end_s": 0.905,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.10045917798040391,
+              "state_hash": "9a4e75dd1a15dc14014ea115e4fa80a3d856ad8b8eb911d63a487de671a768ca",
+              "positions_hash": "c7871eb90a37c38f579b31d613135e5b54e59395e4f57355b5793d57381bfc50"
+            },
+            "wall": {
+              "mean_mz": 0.6554343005038594,
+              "signal": null,
+              "geometric_incoming_fraction": 0.0,
+              "receive_spins": 50,
+              "stage": "excitation",
+              "end_s": 0.905,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.10045917798040391,
+              "state_hash": "2cdddae71b314a1e0c99613cd11a7cc82b0e45dbd6377a0836cc6f0cbe96ea03",
+              "positions_hash": "1affc09d966b5755f49fe4924f237baba870c30bafa85ab8f2e364f00caf0b67"
+            }
+          }
+        }
+      ],
+      "readouts": [],
+      "validation": {
+        "completed_readouts": 0,
+        "scheduled_preparations": 1,
+        "interrupted_preparations": 1,
+        "interrupted_fraction": 1.0,
+        "max_interrupted_fraction": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "passed": false
+      },
+      "objective_loss": 3.0,
+      "objective": "mean completed blood/wall |Mz| ratio plus interrupted fraction; no-readout penalty 2 plus fraction",
+      "scope": "research/teaching periodic pressure-driven Newtonian flow in a straight rigid circular pipe; finite sinc RF/Gz and causal detected-trigger controller; fixed radial coordinates; no compliance, turbulence, diffusion, ECG detection, scanner execution or clinical certification; B/C parked",
+      "provenance": {
+        "version": "pulsatile-causal-dir-v1",
+        "replay": {
+          "r_peaks_s": [
+            0.0,
+            0.905
+          ],
+          "observation_end_s": 1.9,
+          "inversion_time_s": 0.9,
+          "trigger_latency_s": 0.003,
+          "initial_rr_s": 1.2,
+          "rr_range_s": [
+            0.5,
+            1.5
+          ],
+          "radius_m": 0.002,
+          "density_kg_m3": 1060.0,
+          "viscosity_pa_s": 0.0035,
+          "mean_gradient_pa_m": 100.0,
+          "oscillating_gradient_pa_m": 200.0,
+          "frequency_hz": 1.0,
+          "phase_rad": 0.0,
+          "thickness_m": 0.005,
+          "radial_rings": 4,
+          "axial_spins": 201,
+          "rf_steps": 128,
+          "off_resonance_hz": 0.0,
+          "blood_target_max": 0.1,
+          "wall_target_min": 0.7,
+          "max_interrupted_fraction": 0.0,
+          "max_work": 10000000,
+          "max_duration_s": 30.0
+        },
+        "input_hash": "ea921d8ba46d222d83a628e0329dbde81ba2143071dfd74e91cfae5b85d38682",
+        "source_hash": "bd826f9e36374a3914ca81a84aa8604fe6045c0af5ba2ae0ad8cd0f4d6f59a53",
+        "estimated_work": 196980,
+        "planned_work": 263310,
+        "duration_s": 1.9,
+        "womersley_alpha": 2.7589183026500725,
+        "reynolds_upper_bound": 147.00740792258202,
+        "total_blood_spins": 804,
+        "total_wall_spins": 201,
+        "actual_finite_rf_energy_uT2_s": 0.10045917798040391,
+        "actual_hard_rf_count": 1,
+        "waveform_hash": "53f74e0f24e7b4ac926d41684e93063d5b93b063af88f2aca46d0cb29910a6c9",
+        "reservoir": {
+          "initial_position_hash": "b4d340c52b6193687e1384a822ccdbb22b662a6ee689ea09ea50cc27a505ad22",
+          "quadrature_weight_hash": "b50d4911d55883dad846f601642ccad8de7f6e8518671794035749e06813b46d",
+          "boundary": "finite no-wrap reservoir bounding all motion; area/axial volume weights; each receive ring checked"
+        },
+        "final_state_hashes": {
+          "blood": "7bc6c98da0905d9d16a3e90f24e7f30c126ff5cd6f0c80ccbea2f352c6b136e1",
+          "wall": "201cc5178b7d0eb6533aaaf5e3a9b300c75e61f35696529f07dc9db8f5db005a"
+        }
+      }
+    },
+    {
+      "clinical_question": "How do pressure-driven pulsatile shear flow and causally interrupted finite slice preparations change DIR suppression?",
+      "design": {
+        "r_peaks_s": [
+          0.0,
+          0.908
+        ],
+        "observation_end_s": 1.9,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "radial_rings": 4,
+        "axial_spins": 201,
+        "rf_steps": 128,
+        "off_resonance_hz": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 10000000,
+        "max_duration_s": 30.0
+      },
+      "gates": [
+        {
+          "trigger": 0,
+          "decision_s": 0.0,
+          "preparation_s": 0.003,
+          "readout_s": 0.903,
+          "readout_end_s": 0.909,
+          "previous_rr_s": null,
+          "rr_estimate_s": 1.2,
+          "history_rr_s": [],
+          "scheduled": true,
+          "accepted": false,
+          "rejection": "interrupted_by_trigger",
+          "cancelled_s": 0.908
+        },
+        {
+          "trigger": 1,
+          "decision_s": 0.908,
+          "preparation_s": 0.911,
+          "readout_s": 1.811,
+          "readout_end_s": 1.817,
+          "previous_rr_s": 0.908,
+          "rr_estimate_s": 0.908,
+          "history_rr_s": [
+            0.908
+          ],
+          "scheduled": false,
+          "accepted": false,
+          "rejection": "window_exceeds_past_rr_estimate",
+          "cancelled_s": null
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.909,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": false,
+            "rejection": "interrupted_by_trigger",
+            "cancelled_s": 0.908
+          },
+          "tissues": {
+            "blood": {
+              "mean_mz": -0.07628560798147652,
+              "signal": null,
+              "geometric_incoming_fraction": 0.8963599392976331,
+              "receive_spins": 80,
+              "stage": "rephaser",
+              "end_s": 0.908,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12055101357660665,
+              "state_hash": "8cb07ea5dbdf21d1b96e9a561a83474acd502a9d46b57eb43aaa979b33384d79",
+              "positions_hash": "40bb140e7e6d5cbe06bb1d19652355aaf4949a8f9aeb4f81d3a4e2719631e8f3"
+            },
+            "wall": {
+              "mean_mz": 0.6554343005038594,
+              "signal": null,
+              "geometric_incoming_fraction": 0.0,
+              "receive_spins": 50,
+              "stage": "rephaser",
+              "end_s": 0.908,
+              "preparation_started": true,
+              "finite_rf_energy_uT2_s": 0.12055101357660665,
+              "state_hash": "7dd619f76a8f28deb466a8bdd4a8885686f4006c44b7622b76b03b7eddf3e87f",
+              "positions_hash": "1affc09d966b5755f49fe4924f237baba870c30bafa85ab8f2e364f00caf0b67"
+            }
+          }
+        }
+      ],
+      "readouts": [],
+      "validation": {
+        "completed_readouts": 0,
+        "scheduled_preparations": 1,
+        "interrupted_preparations": 1,
+        "interrupted_fraction": 1.0,
+        "max_interrupted_fraction": 0.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "passed": false
+      },
+      "objective_loss": 3.0,
+      "objective": "mean completed blood/wall |Mz| ratio plus interrupted fraction; no-readout penalty 2 plus fraction",
+      "scope": "research/teaching periodic pressure-driven Newtonian flow in a straight rigid circular pipe; finite sinc RF/Gz and causal detected-trigger controller; fixed radial coordinates; no compliance, turbulence, diffusion, ECG detection, scanner execution or clinical certification; B/C parked",
+      "provenance": {
+        "version": "pulsatile-causal-dir-v1",
+        "replay": {
+          "r_peaks_s": [
+            0.0,
+            0.908
+          ],
+          "observation_end_s": 1.9,
+          "inversion_time_s": 0.9,
+          "trigger_latency_s": 0.003,
+          "initial_rr_s": 1.2,
+          "rr_range_s": [
+            0.5,
+            1.5
+          ],
+          "radius_m": 0.002,
+          "density_kg_m3": 1060.0,
+          "viscosity_pa_s": 0.0035,
+          "mean_gradient_pa_m": 100.0,
+          "oscillating_gradient_pa_m": 200.0,
+          "frequency_hz": 1.0,
+          "phase_rad": 0.0,
+          "thickness_m": 0.005,
+          "radial_rings": 4,
+          "axial_spins": 201,
+          "rf_steps": 128,
+          "off_resonance_hz": 0.0,
+          "blood_target_max": 0.1,
+          "wall_target_min": 0.7,
+          "max_interrupted_fraction": 0.0,
+          "max_work": 10000000,
+          "max_duration_s": 30.0
+        },
+        "input_hash": "9dd1660e256c90019c17f405f726e045d721d0c6aa911ca20483d8a5b9ab91a3",
+        "source_hash": "bd826f9e36374a3914ca81a84aa8604fe6045c0af5ba2ae0ad8cd0f4d6f59a53",
+        "estimated_work": 262305,
+        "planned_work": 263310,
+        "duration_s": 1.9,
+        "womersley_alpha": 2.7589183026500725,
+        "reynolds_upper_bound": 147.00740792258202,
+        "total_blood_spins": 804,
+        "total_wall_spins": 201,
+        "actual_finite_rf_energy_uT2_s": 0.12055101357660665,
+        "actual_hard_rf_count": 1,
+        "waveform_hash": "53f74e0f24e7b4ac926d41684e93063d5b93b063af88f2aca46d0cb29910a6c9",
+        "reservoir": {
+          "initial_position_hash": "b4d340c52b6193687e1384a822ccdbb22b662a6ee689ea09ea50cc27a505ad22",
+          "quadrature_weight_hash": "b50d4911d55883dad846f601642ccad8de7f6e8518671794035749e06813b46d",
+          "boundary": "finite no-wrap reservoir bounding all motion; area/axial volume weights; each receive ring checked"
+        },
+        "final_state_hashes": {
+          "blood": "b8b2f3f49eb37eea96057998a853a9422402d6e8d9e704c00d45833ae9eed72a",
+          "wall": "1297d9b3cad7450ff78f332eeebc5f5f6cd169f4ed73c4a8becd014cc349dadd"
+        }
+      }
+    }
+  ]
+}

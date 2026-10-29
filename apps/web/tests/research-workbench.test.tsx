@@ -101,3 +101,18 @@ it("submits the explicitly selected NUFFT inverse and clears stale results", asy
   fireEvent.change(screen.getByLabelText("重建方法"), { target: { value: "cgls" } });
   expect(screen.queryByText("Measured test question")).not.toBeInTheDocument();
 });
+
+
+it("shows causal scheduling separately from completed readouts", async () => {
+  const causal: ResearchRun = { ...result, kind: "pulsatile_flow", result: { ...result.result, gates: [
+    { trigger: 0, decision_s: 0, preparation_s: .003, readout_s: .903, rr_estimate_s: 1.2, scheduled: true, accepted: false, rejection: "interrupted_by_trigger", cancelled_s: .45 },
+  ] } };
+  vi.mocked(runResearch).mockResolvedValue(causal); render(<ResearchPage />);
+  fireEvent.click(screen.getByRole("button", { name: "Pulsatile / causal DIR" }));
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
+  await screen.findByText("触发决策与实际完成");
+  expect(screen.getByText("interrupted_by_trigger")).toBeInTheDocument();
+  expect(screen.getByText("已安排准备")).toBeInTheDocument();
+  expect(screen.getByText("完整读出")).toBeInTheDocument();
+  expect(vi.mocked(runResearch).mock.calls[0][0].kind).toBe("pulsatile_flow");
+});

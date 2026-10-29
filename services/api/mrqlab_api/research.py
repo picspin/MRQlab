@@ -11,11 +11,12 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from mrqlab_experiment.tse_imaging import run_tse_imaging
 from mrqlab_experiment.spatial_imaging import run_spatial_imaging
 from mrqlab_experiment.flow_imaging import run_flow_imaging
+from mrqlab_experiment.pulsatile_dir import run_pulsatile_dir
 from mrqlab_experiment.cest_mt_noe import run_cest_mt_noe
 from mrqlab_experiment.mrs_basis import run_mrs_basis
 
 router=APIRouter(prefix='/research',tags=['research/teaching'])
-Kind=Literal['tse','noncartesian','flow','cest','mrs']
+Kind=Literal['tse','noncartesian','flow','pulsatile_flow','cest','mrs']
 
 
 class StrictParameters(BaseModel):
@@ -79,6 +80,32 @@ class FlowParameters(StrictParameters):
     wall_target_min: float=Field(default=.7,gt=0,le=1.)
 
 
+class PulsatileFlowParameters(StrictParameters):
+    r_peaks_s: list[TimeValue]=Field(default_factory=lambda:[0.,1.2,2.4],min_length=1,max_length=10)
+    observation_end_s: float=Field(default=3.6,gt=0,le=10.)
+    inversion_time_s: float=Field(default=.9,gt=.008,le=2.)
+    trigger_latency_s: float=Field(default=.003,ge=0,le=.05)
+    initial_rr_s: float=Field(default=1.2,ge=.2,le=3.)
+    rr_range_s: list[RRValue]=Field(default_factory=lambda:[.5,1.5],min_length=2,max_length=2)
+    radius_m: float=Field(default=.002,ge=.0001,le=.01)
+    density_kg_m3: float=Field(default=1060.,ge=500.,le=2000.)
+    viscosity_pa_s: float=Field(default=.0035,ge=.0001,le=.1)
+    mean_gradient_pa_m: float=Field(default=100.,ge=-2000.,le=2000.)
+    oscillating_gradient_pa_m: float=Field(default=200.,ge=0,le=2000.)
+    frequency_hz: float=Field(default=1.,ge=.05,le=5.)
+    phase_rad: float=Field(default=0.,ge=-3.15,le=3.15)
+    thickness_m: float=Field(default=.005,ge=.001,le=.02)
+    radial_rings: int=Field(default=8,ge=2,le=32)
+    axial_spins: int=Field(default=401,ge=33,le=1601)
+    rf_steps: int=Field(default=128,ge=16,le=256)
+    off_resonance_hz: float=Field(default=0.,ge=-500.,le=500.)
+    blood_target_max: float=Field(default=.1,gt=0,lt=1.)
+    wall_target_min: float=Field(default=.7,gt=0,le=1.)
+    max_interrupted_fraction: float=Field(default=0.,ge=0,le=1.)
+    max_work: int=Field(default=10000000,ge=1,le=10000000)
+    max_duration_s: float=Field(default=10.,gt=0,le=10.)
+
+
 class CESTParameters(StrictParameters):
     offsets_ppm: list[float]=Field(default_factory=lambda:[-5.,-3.5,-2.,-1.,1.,2.,3.5,5.],min_length=2,max_length=16)
     b0_t: float=Field(default=3.,ge=.5,le=7.)
@@ -116,8 +143,8 @@ class MRSParameters(StrictParameters):
     target_relative_amount_error: float=Field(default=.05,gt=0,le=1.)
 
 
-SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'cest':CESTParameters,'mrs':MRSParameters}
-RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'cest':run_cest_mt_noe,'mrs':run_mrs_basis}
+SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'cest':CESTParameters,'mrs':MRSParameters}
+RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'cest':run_cest_mt_noe,'mrs':run_mrs_basis}
 
 
 class RunRequest(StrictParameters):
@@ -200,8 +227,8 @@ def present(kind,result):
             for i,solver in enumerate(result['solvers']): curves.append(_curve(f'CGLS frame {i+1}',np.arange(len(solver['residual_history'])),solver['residual_history']))
             x_label='Iteration'; y_label='Relative data residual'
         validation=result['quality']
-    elif kind=='flow':
-        for tissue in ['blood','wall']:
+    elif kind in {'flow','pulsatile_flow'}:
+        for tissue in (['blood','wall'] if result['readouts'] else []):
             curves.append(_curve(tissue,[r['gate']['readout_s'] for r in result['readouts']],
                 [r['tissues'][tissue]['mean_mz'] for r in result['readouts']]))
         x_label='Readout time (s)'; y_label='Mean longitudinal magnetization'; validation=result['validation']
@@ -218,6 +245,9 @@ def present(kind,result):
     elif kind=='noncartesian':
         metrics={'Image NRMSE':result['quality']['nrmse']}
         if result['solvers']: metrics.update({'Data residual':result['solvers'][0]['relative_data_residual'],'Iterations':result['solvers'][0]['iterations']})
+    elif kind=='pulsatile_flow':
+        metrics={'Completed readouts':validation['completed_readouts'],'Interrupted preparations':validation['interrupted_preparations'],'Interrupted fraction':validation['interrupted_fraction']}
+        if result['readouts']: metrics.update({'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']})
     elif kind=='flow': metrics={'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']}
     elif kind=='cest': metrics=result['metrics']
     else: metrics={'Max relative amount error':validation['max_relative_amount_error'],'Fit residual':result['fit']['relative_residual'],'Basis condition':result['fit']['basis_condition']}
