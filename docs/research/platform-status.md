@@ -26,7 +26,7 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 
 | Requirement | Current evidence | Status / missing evidence |
 |---|---|---|
-| Clinical question → pulse/design → physical simulation | Nine backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for these declared teaching chains; universal experiment schema and calibrated clinical priors remain incomplete |
+| Clinical question → pulse/design → physical simulation | Nine backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
 | High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators and known-two-curve echo-resolved radial TSE with independent full complex checks | Radial conditioning, noisy/coil/trajectory calibration, full echo-window physics, measured temporal priors and general T2 inference remain incomplete |
@@ -34,7 +34,7 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 | CEST MT/NOE | Effective-pool baseline plus distance/tau-derived signed Solomon pair→bridge→water relay, conditional controls and independent population/ODE checks | Full molecular multi-spin/Redfield relaxation, near-resonance generalized semisolid model and spatial joint imaging remain incomplete |
 | More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, coherence-selected 3D PRESS volume fitting with separate RF/grid/FOV checks, center/J mismatch failures | Validated molecular library, full quantum relaxation, realistic field maps, measured spectra and clinical concentration calibration remain incomplete |
 | Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Nine research entries include actual causal scheduling/completion table; native JSON download/re-import remains open, with verified CLI local delivery |
-| All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | Portable measured-TSE stage records and locked-environment CLI evidence exist; universal multi-study persistence and cross-platform replay remain incomplete |
+| All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | All nine chains and measured TSE share immutable local multi-study SQLite records, complete source/runtime-pinned CLI/API replay and lossless portable snapshots; cross-platform replay, raw attachments and derived multimodal workflows remain incomplete |
 | Submission content excluded | Inherited `docs/ismrm` matches 33 original manuscript-worktree files before project removal; original worktree and Git history retained; ignore rule prevents accidental untracked re-entry | Enforced in the current project snapshot; historical anchors intentionally remain immutable |
 | No push/PR/merge, B/C parked | Local commit chain, unchanged roadmap/locked catalog; API regression retains two A protocols | Preserved |
 
@@ -218,3 +218,37 @@ browser access. The full objective remains active; measured multimodal scientifi
 records, calibrated priors/uncertainty and the remaining physical/browser gaps
 are not replaced by this closed-model evidence. B/C stay parked; no submission
 material, push, PR, merge or production-router change was introduced.
+
+
+## Shared scientific-record stage (2026-10-30)
+
+From `2d6e8fa`, [common local scientific records](scientific-records-coverage.md)
+now persist all nine research runners/searches plus the measured TSE workflow.
+Study context, target rationale, lossless request/result snapshots, full complex
+results, every candidate, sources/runtime and five dependency-hashed stages form
+one immutable record. Background references cannot silently claim calibration.
+The original measured TSE calibration/holdout/uncertainty stages remain intact.
+
+The new `/research/records` library groups distinct physics under a study ID,
+exports/imports portable records, and separates historical target reports, content
+integrity and actual current-environment computational replay. Research and lab
+study screens can recompute, compare the expected execution hash and save.
+SQLite transaction/idempotence/concurrency/corruption checks and real CLI
+process tests supplement every-model replay and actual Node numeric roundtrip.
+The default local database lives in the project `.mrqlab/` directory and is
+ignored by Git; it is not an in-memory service or a cloud deployment.
+
+Python **828 passed**, frontend **108 passed**, TS and production build passed.
+Real HTTP/CORS saved three records under one study; after an actual API restart,
+a new process recovered and fully recomputed all three exactly, retaining the
+TSE target failure and MRS invalid candidate. An independently replayed complete
+example is committed with its plan. API lazy app export preserves compatibility
+and removes CLI double-import warnings. No existing scientific fixture was
+regenerated to falsely relabel its original source anchor.
+
+The browser host remains unavailable, so rendered browser/file-flow verification
+is still missing. Universal raw/measurement/uncertainty bindings, calibrated
+clinical translation, cross-record derived workflows and earlier physics gaps
+remain unfinished; common records do not claim those capabilities. The full goal
+remains active, B/C stay parked, and no push/PR/merge, submission import or
+production-router change occurs.

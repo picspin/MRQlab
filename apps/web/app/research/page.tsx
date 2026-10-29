@@ -5,6 +5,7 @@ import { ResearchKind, ResearchRequest, ResearchRun, ResearchSearch, STUDIES } f
 import styles from "./research.module.css";
 import Link from "next/link";
 import Measurements from "../../components/research/Measurements";
+import SaveScientificRecord from "../../components/research/SaveScientificRecord";
 
 const KINDS = Object.keys(STUDIES) as ResearchKind[];
 const format = (value: number) => Number.isInteger(value) ? String(value) : value.toPrecision(5);
@@ -92,7 +93,7 @@ export default function ResearchPage() {
   }
   return <div className={styles.workbench}>
     <header className={styles.heading}><div><h1>脉冲设计研究台</h1><p>从研究问题到设计、仿真、参数搜索、目标验证与回放。</p></div><Link className={styles.scope} href="/research/lab-study">实验测量到设计验证</Link></header>
-    <p className={styles.boundary}>不作为扫描仪验证或临床质量认证。Milestone B / C 保持 parked。</p>
+    <p className={styles.boundary}>不作为扫描仪验证或临床质量认证。Milestone B / C 保持 parked。 <Link href="/research/records">本地实验记录</Link></p>
     <nav aria-label="研究实验" className={styles.kinds}>{KINDS.map(item => <button key={item} aria-pressed={item === kind} onClick={() => choose(item)}>{STUDIES[item].title}</button>)}</nav>
     <div className={styles.instrument}>
       <section className={styles.design} aria-label="研究设计">
@@ -118,6 +119,8 @@ export default function ResearchPage() {
             <div className={styles.actions}><button disabled={busy} onClick={() => void execute("replay")}>回放此结果</button><button disabled={busy} onClick={download}>导出完整记录</button></div>
             <details><summary>设计、时序与 provenance</summary><pre>{JSON.stringify({ replay: run.replay_request, provenance: run.result.provenance, validation: run.view.validation }, null, 2)}</pre></details>
           </section></>}
+        {run && <SaveScientificRecord key={`${run.source_hash}:${search?.search_hash ?? run.result_hash}`} question={run.result.clinical_question}
+          execution={search ? { type: "search", ...search.replay_search } : { type: "run", ...run.replay_request }} expectedHash={search?.search_hash ?? run.result_hash} />}
         {search && <section className={styles.search}><h3>有限网格比较</h3><button disabled={busy} onClick={() => void execute("replay-search")}>回放候选比较</button><p>{search.objective}</p><div className={styles.scroll}><table><thead><tr><th>参数</th><th>可执行</th><th>损失</th><th>目标</th></tr></thead><tbody>{search.candidates.map((point, i) => <tr key={i}><td>{JSON.stringify(point.parameters)}</td><td>{point.feasible ? "是" : String(point.reason)}</td><td>{point.loss == null ? "—" : format(point.loss)}</td><td>{point.run ? point.run.view.validation.passed ? "通过" : "未通过" : "未运行"}</td></tr>)}</tbody></table></div></section>}
       </section>
     </div>

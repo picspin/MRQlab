@@ -1,0 +1,18 @@
+{
+  "context": {
+    "study_id": "pulse-platform-pilot",
+    "research_question": "How does TSE echo ordering change tissue contrast and spatial response?",
+    "target_rationale": "Retain the strict existing image-equivalence target and report its expected failure separately from the tissue PSF identity.",
+    "assumptions": "Authored two-tissue teaching phantom and periodic EPG; no scanner validation or clinical quality certification.",
+    "intended_use": "research",
+    "background_references": []
+  },
+  "execution": {
+    "type": "run",
+    "kind": "tse",
+    "parameters": {
+      "echoes": 4,
+      "order": "centric"
+    }
+  }
+}

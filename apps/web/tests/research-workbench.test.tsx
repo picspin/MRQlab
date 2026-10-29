@@ -22,7 +22,7 @@ it("runs backend and replays the exact request", async () => {
 });
 it("clears previous measurements after a design edit", async () => {
   vi.mocked(runResearch).mockResolvedValue(result); render(<ResearchPage />);
-  fireEvent.click(screen.getByRole("button", { name: "运行仿真" })); await screen.findByText("Measured test question");
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" })); await screen.findByText("Measured test question", { selector: "p" });
   fireEvent.change(screen.getByLabelText("回波数"), { target: { value: "8" } });
   expect(screen.queryByText("Measured test question")).not.toBeInTheDocument();
   expect((screen.getByLabelText("完整参数 JSON") as HTMLTextAreaElement).value).toContain('"echoes": 8');
@@ -96,7 +96,7 @@ it("submits the explicitly selected NUFFT inverse and clears stale results", asy
   fireEvent.click(screen.getByRole("button", { name: "Radial inverse" }));
   fireEvent.change(screen.getByLabelText("重建方法"), { target: { value: "nufft_cgls" } });
   fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
-  await screen.findByText("Measured test question");
+  await screen.findByText("Measured test question", { selector: "p" });
   expect(vi.mocked(runResearch).mock.calls[0][0]).toMatchObject({ kind: "noncartesian", parameters: { reconstruction: "nufft_cgls" } });
   fireEvent.change(screen.getByLabelText("重建方法"), { target: { value: "cgls" } });
   expect(screen.queryByText("Measured test question")).not.toBeInTheDocument();

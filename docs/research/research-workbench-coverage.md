@@ -130,3 +130,18 @@ clears it. See [model, constraints and evidence](echo-radial-tse-coverage.md).
 Full validation is **805 Python / 101 frontend**, TS/build and independent
 CLI/HTTP replay. Real browser rendering/clicking remains unverified because the
 control host was again unavailable; no native file download/import is claimed.
+
+
+## Shared local experiment library
+
+Research and measured-study outputs now expose recompute-and-save forms for a
+common immutable scientific envelope. `/research/records` groups local studies,
+retains failed candidate outcomes, imports/exports full lossless snapshots and
+separates historical target status, integrity and current computational replay.
+See [scientific-record coverage](scientific-records-coverage.md) for schema, API,
+CLI, SQLite persistence, source/runtime guards and remaining measurement gaps.
+
+Python **828 / frontend 108**, TS/build, new-process CLI and real HTTP persistence
+across an actual API restart passed. A fresh browser inventory still reports
+unavailable access; real browser clicking/visual and native file-flow checks
+remain explicitly unverified. This is research record delivery, with B/C parked.

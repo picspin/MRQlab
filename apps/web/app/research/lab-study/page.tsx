@@ -4,6 +4,7 @@ import Link from "next/link";
 import { fetchLabStudyExample, importLabEchoes, replayLabStudy, runLabStudy } from "../../../lib/api";
 import type { LabStudyRecord, LabStudyResponse, StudyInput } from "../../../lib/lab-study";
 import Measurements from "../../../components/research/Measurements";
+import SaveScientificRecord from "../../../components/research/SaveScientificRecord";
 import styles from "../research.module.css";
 const format = (n: number) => n.toPrecision(5);
 
@@ -110,6 +111,8 @@ export default function LabStudyPage() {
             <details><summary>完整记录 JSON（可复制保存）</summary><textarea aria-label="完整研究记录 JSON" readOnly rows={16} value={JSON.stringify(record, null, 2)} /></details>
             <details><summary>阶段依赖与实际阈值</summary><pre>{JSON.stringify({ stages: record.result.provenance.stages, targets: record.result.targets, validation: record.result.validation, runtime: record.runtime }, null, 2)}</pre></details>
           </section>
+          <SaveScientificRecord key={record.record_sha256} question={record.result.clinical_question.research_question}
+            execution={{ type: "measured_tse", study: record.request }} expectedHash={record.record_sha256} />
         </>}
       </section>
     </div>

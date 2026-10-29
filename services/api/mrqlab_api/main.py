@@ -440,3 +440,6 @@ def simulate(request: SimulateRequest):
 # and scanner/licensed execution milestones remain unchanged.
 from .research import router as research_router
 app.include_router(research_router)
+
+from .scientific_records import router as scientific_records_router
+app.include_router(scientific_records_router)

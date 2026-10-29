@@ -406,3 +406,31 @@ export async function importLabEchoes(request: { csv_base64: string; source_ref:
   if (!response.ok) throw new Error(`测量导入失败 (${response.status}): ${await response.text()}`);
   return response.json();
 }
+
+export async function createScientificRecord(plan: import("./scientific-records").ScientificPlan, signal?: AbortSignal): Promise<import("./scientific-records").ScientificResponse> {
+  const response = await fetch(`${BASE}/research/records`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(plan), signal });
+  if (!response.ok) throw new Error(`实验记录保存失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function listScientificRecords(studyId: string, offset: number, signal?: AbortSignal): Promise<import("./scientific-records").ScientificList> {
+  const params = new URLSearchParams({ limit: "20", offset: String(offset) });
+  if (studyId.trim()) params.set("study_id", studyId.trim());
+  const response = await fetch(`${BASE}/research/records?${params}`, { signal });
+  if (!response.ok) throw new Error(`记录列表读取失败 (${response.status})`);
+  return response.json();
+}
+export async function getScientificRecord(id: string, signal?: AbortSignal): Promise<import("./scientific-records").ScientificResponse> {
+  const response = await fetch(`${BASE}/research/records/${encodeURIComponent(id)}`, { signal });
+  if (!response.ok) throw new Error(`记录读取失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function replayScientificRecord(id: string, signal?: AbortSignal): Promise<import("./scientific-records").ScientificReplay> {
+  const response = await fetch(`${BASE}/research/records/${encodeURIComponent(id)}/replay`, { method: "POST", signal });
+  if (!response.ok) throw new Error(`完整记录回放失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function importScientificRecord(record: import("./scientific-records").ScientificRecord, signal?: AbortSignal): Promise<import("./scientific-records").ScientificResponse> {
+  const response = await fetch(`${BASE}/research/records/import`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(record), signal });
+  if (!response.ok) throw new Error(`记录导入失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}

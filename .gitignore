@@ -224,3 +224,6 @@ __marimo__/
 
 # Submission artifacts belong to their independent manuscript worktrees.
 /docs/ismrm/
+
+# Local immutable scientific execution records, separate from source/evidence fixtures.
+/.mrqlab/
