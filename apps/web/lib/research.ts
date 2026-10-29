@@ -1,11 +1,11 @@
 export interface TriggerEvent { trigger: number; decision_s: number; preparation_s: number; readout_s: number; rr_estimate_s: number; scheduled: boolean; accepted: boolean; rejection: string | null; cancelled_s: number | null; }
-export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "cest" | "cest_solomon" | "mrs" | "mrs_press";
+export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "cest" | "cest_solomon" | "mrs" | "mrs_press" | "radial_tse";
 export interface ResearchRequest { kind: ResearchKind; parameters: Record<string, unknown>; expected_source_hash?: string; }
 export interface ResearchRun {
   kind: ResearchKind;
   result: { clinical_question: string; scope: string; gates?: TriggerEvent[]; provenance: Record<string, unknown>; [key: string]: unknown };
   view: {
-    images: { label: string; width: number; height: number; values: number[] }[];
+    images: { label: string; width: number; height: number; values: number[]; scale_group?: string }[];
     curves: { label: string; x: number[]; y: number[] }[];
     x_label: string; y_label: string; validation: { passed: boolean; [key: string]: number | boolean }; metrics: Record<string, number>;
   };
@@ -33,6 +33,12 @@ export const STUDIES: Record<ResearchKind, Study> = {
     defaults: { spokes: 48, points: 32, reconstruction: "cgls", max_work: 10000000000, inverse_max_iterations: 1500 },
     fields: [{ key: "spokes", label: "径向 spoke 数", step: 2 }, { key: "inverse_max_iterations", label: "迭代上限", step: 100 }],
     candidates: [{ spokes: 2 }, { spokes: 24 }, { spokes: 48 }] },
+  radial_tse: { title: "Radial TSE / echo model", question: "逐回波幅度怎样改变径向 TSE 图像？能否在 RF 与时长限制内恢复声明回波的对比？",
+    limit: "两条已知 EPG 时间曲线，两个未知复系数图；逐 spoke 回波幅度在理想 ADC 内恒定。未估计 T2，没有真实梯度、线圈或实测校准。静态模型作为失配对照。",
+    validation: "图像与组分 NRMSE 各 ≤1e-6，数据残差 ≤1e-10，幅度 ROI 对比 ≥0.005，RF 能量代理 ≤200；仅从通过全部目标的候选中选择低 RF 设计。",
+    defaults: { echoes: 4, spokes: 96, points: 32, backend: "exact", refocusing_angle: 180, refocusing_end_angle: 180, max_work: 20000000000 },
+    fields: [{ key: "echoes", label: "回波串长度", step: 2 }, { key: "refocusing_angle", label: "起始重聚角 (°)", step: 10 }, { key: "refocusing_end_angle", label: "末次重聚角 (°)", step: 10 }],
+    candidates: [{ refocusing_angle: 180, refocusing_end_angle: 180 }, { refocusing_angle: 140, refocusing_end_angle: 110 }, { refocusing_angle: 100, refocusing_end_angle: 80 }] },
   flow: { title: "Flow / slice / gates", question: "连续流入、有限选层 RF 和心动时机如何影响血液抑制？",
     limit: "规定的一维恒速轨迹；已知触发的回顾性门控。CFD、搏动速度、前瞻门控和成像读出仍缺失。",
     validation: "所有接受周期：血液 |Mz| ≤ 0.1，壁组织 |Mz| ≥ 0.7；默认双周期设计会失败。",

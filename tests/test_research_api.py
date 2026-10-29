@@ -184,3 +184,32 @@ def test_press_pulse_search_replays_all_candidates_and_forbids_prior_or_basis_tu
     assert client.post('/research/search',json=data['replay_search']).json()['search_hash']==data['search_hash']
     for patch in [{'basis_j_hz':0.},{'grid_size':9},{'basis_mode':'center'},{'target_rf_error':1.}]:
         assert client.post('/research/search',json={'kind':'mrs_press','candidates':[patch]}).status_code==422
+
+
+def test_radial_tse_actual_echo_model_and_full_result_replay():
+    response=client.post('/research/run',json={'kind':'radial_tse'})
+    assert response.status_code==200,response.text
+    r=response.json()
+    assert r['view']['validation']['passed'] and len(r['view']['images'])==3
+    assert [i['scale_group'] for i in r['view']['images']]==['echo','echo','static_control']
+    assert r['view']['metrics']['Component NRMSE']<1e-6
+    assert r['result']['provenance']['acquisition']['backend']=='independent direct Fourier acquisition'
+    assert r['result']['samples'][0][0]['imag'] is not None
+    assert client.post('/research/run',json=r['replay_request']).json()['result_hash']==r['result_hash']
+    for patch in [{'spokes':95},{'max_work':True},{'max_work':50000000001},{'max_memory_bytes':1},{'basis_t2_s':[.04,.04]}]:
+        assert client.post('/research/run',json={'kind':'radial_tse','parameters':patch}).status_code==422
+
+
+def test_radial_tse_constrained_search_selects_only_passing_targets_and_replays_failures():
+    r=client.post('/research/search',json={'kind':'radial_tse','parameters':{'target_max_rf_energy':60.},
+        'candidates':[{'refocusing_angle':180.,'refocusing_end_angle':180.},{'refocusing_angle':140.,'refocusing_end_angle':110.}]})
+    assert r.status_code==200,r.text
+    data=r.json()
+    assert data['candidates'][0]['feasible'] and not data['candidates'][0]['run']['view']['validation']['passed']
+    assert data['best']['parameters']=={'refocusing_angle':140.,'refocusing_end_angle':110.}
+    assert client.post('/research/search',json=data['replay_search']).json()['search_hash']==data['search_hash']
+    for patch in [{'t2_s':[.03,.12]},{'basis_t2_s':[.03,.12]},{'target_image_error':1.},{'backend':'finufft'}]:
+        assert client.post('/research/search',json={'kind':'radial_tse','candidates':[patch]}).status_code==422
+    none=client.post('/research/search',json={'kind':'radial_tse','parameters':{'target_max_rf_energy':1.},'candidates':[{}]})
+    assert none.status_code==200,none.text
+    assert none.json()['best'] is None and none.json()['candidates'][0]['feasible']

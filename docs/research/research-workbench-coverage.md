@@ -116,3 +116,17 @@ HTTP/CORS and complete run/search hash replay were checked. The current browser
 control host was unavailable and Safari control timed out, so this entry's real
 browser clicking/visual inspection remains an explicit gap. Tests and a static
 build are not presented as having closed that gap or native download/re-import.
+
+
+## Ninth entry: echo-resolved radial TSE
+
+`radial_tse` exposes the physical EPG echo curve, per-spoke timeline, explicit
+exact/FINUFFT backend, complex echo-aware inverse and static-model mismatch
+control. Pulse-only design search minimizes RF cost among all-target-passing
+candidates, retaining every failure. If no candidate passes, the first executable
+failed run remains visible/exportable while `best` stays null. Editing controls
+clears it. See [model, constraints and evidence](echo-radial-tse-coverage.md).
+
+Full validation is **805 Python / 101 frontend**, TS/build and independent
+CLI/HTTP replay. Real browser rendering/clicking remains unverified because the
+control host was again unavailable; no native file download/import is claimed.

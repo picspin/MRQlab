@@ -50,10 +50,11 @@ export default function ResearchPage() {
         const expectedSearch = mode === "replay-search" ? search?.search_hash : importedSearch?.hash;
         const response = await searchResearch(searchRequest, control.signal);
         if (generation.current !== id) return;
-        setSearch(response); setRun(response.best?.run ?? null);
-        if (response.best) setParameters(JSON.stringify(response.best.run.replay_request.parameters, null, 2));
+        const displayed = response.best?.run ?? response.candidates.find(point => point.run)?.run ?? null;
+        setSearch(response); setRun(displayed);
+        if (displayed) setParameters(JSON.stringify(displayed.replay_request.parameters, null, 2));
         setImportedSearch(null); setPin(undefined); setExpectedResult(undefined);
-        setMessage(expectedSearch ? (response.search_hash === expectedSearch ? "候选比较回放一致：全部候选与选择哈希匹配。" : "候选比较回放不一致，请检查运行环境。") : response.best ? "有限网格搜索完成；所选设计的目标验证单独报告。" : "没有可执行候选。请检查预算与时序。");
+        setMessage(expectedSearch ? (response.search_hash === expectedSearch ? "候选比较回放一致：全部候选与选择哈希匹配。" : "候选比较回放不一致，请检查运行环境。") : response.best ? "有限网格搜索完成；所选设计的目标验证单独报告。" : response.candidates.some(point => point.feasible) ? "候选可执行，但没有设计通过全部目标。展示首个可执行候选。" : "没有可执行候选。请检查预算与时序。");
       } else {
         const response = await runResearch(request, control.signal);
         if (generation.current !== id) return;
@@ -70,7 +71,7 @@ export default function ResearchPage() {
     if (!file) return;
     clearWork(); const importId = generation.current;
     try {
-      if (file.size > 5000000) throw new Error("记录超过 5 MB。请导入单次研究记录。");
+      if (file.size > 64 * 1024 * 1024) throw new Error("记录超过 64 MiB。请使用本地 API/脚本回放较大的完整记录。");
       const record = JSON.parse(await file.text());
       if (generation.current !== importId) return;
       const request = record.replay_request;
@@ -97,6 +98,7 @@ export default function ResearchPage() {
       <section className={styles.design} aria-label="研究设计">
         <h2>问题与设计</h2><p>{study.question}</p>
         {kind === "noncartesian" && <label>重建方法<select aria-label="重建方法" value={field("reconstruction")} onChange={event => { try { edit(JSON.stringify({ ...parse(), reconstruction: event.target.value }, null, 2)); } catch { setError("先修正完整参数 JSON。"); } }}><option value="cgls">精确 DFT / CGLS（参考）</option><option value="nufft_cgls">FINUFFT / CGLS（需可选依赖）</option><option value="gridding">线性 gridding（近似）</option></select></label>}
+        {kind === "radial_tse" && <label>傅里叶后端<select aria-label="傅里叶后端" value={field("backend")} onChange={event => { try { edit(JSON.stringify({ ...parse(), backend: event.target.value }, null, 2)); } catch { setError("先修正完整参数 JSON。"); } }}><option value="exact">精确 DFT（参考）</option><option value="finufft">FINUFFT（需可选依赖，检查预算）</option></select></label>}
         {kind === "mrs_press" && <label>拟合基组<select aria-label="拟合基组" value={field("basis_mode")} onChange={event => { try { edit(JSON.stringify({ ...parse(), basis_mode: event.target.value }, null, 2)); } catch { setError("先修正完整参数 JSON。"); } }}><option value="volume">三维体积积分</option><option value="center">中心点（失配对照）</option></select></label>}
         {study.fields.map(input => <label key={input.key}>{input.label}<input type="number" step={input.step} value={field(input.key)} placeholder="使用模型默认值" onChange={event => update(input.key, event.target.value)} /></label>)}
         <details><summary>完整参数与自定义体模</summary><p>未提供的值使用模型默认值。可编辑 RF、组织、目标、预算与体模；服务器验证所有输入。</p><textarea aria-label="完整参数 JSON" rows={15} value={parameters} onChange={event => edit(event.target.value)} spellCheck={false} /></details>

@@ -138,3 +138,13 @@ gradient calibration, full echo-dependent non-Cartesian TSE, independent full
 large-grid acquisition validation, hard native resource containment and cross-
 platform replay tolerances. These remain gaps in the complete platform goal;
 this phase does not certify scanner or clinical reconstruction quality.
+
+
+## Echo-resolved continuation
+
+The separate [echo-radial TSE stage](echo-radial-tse-coverage.md) now retains
+per-spoke EPG echo weights and reconstructs two unknown temporal-basis images
+with paired direct/FINUFFT operators. It adds constrained pulse search and records
+model-mismatch, work-stop and RF-target failures. The mean-echo family chain
+described above remains unchanged. Full echo-window timing, measured priors,
+coils/noise/trajectory calibration and general T2 inference are still gaps.

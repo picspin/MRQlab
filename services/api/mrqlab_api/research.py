@@ -16,9 +16,10 @@ from mrqlab_experiment.cest_mt_noe import run_cest_mt_noe
 from mrqlab_experiment.cest_solomon import run_cest_solomon
 from mrqlab_experiment.mrs_basis import run_mrs_basis
 from mrqlab_experiment.mrs_press import run_press_basis
+from mrqlab_experiment.radial_tse import run_radial_tse
 
 router=APIRouter(prefix='/research',tags=['research/teaching'])
-Kind=Literal['tse','noncartesian','flow','pulsatile_flow','cest','cest_solomon','mrs','mrs_press']
+Kind=Literal['tse','noncartesian','flow','pulsatile_flow','cest','cest_solomon','mrs','mrs_press','radial_tse']
 
 
 class StrictParameters(BaseModel):
@@ -65,6 +66,35 @@ class NoncartesianParameters(StrictParameters):
     inverse_max_iterations: int=Field(default=1500,ge=1,le=1500)
     inverse_tolerance: float=Field(default=1e-12,ge=1e-14,le=.1)
     max_memory_bytes: int=Field(default=134217728,ge=1,le=134217728)
+
+
+class RadialTSEParameters(StrictParameters):
+    labels: list | None=None
+    echoes: int=Field(default=4,ge=2,le=16)
+    spokes: int=Field(default=96,ge=4,le=192)
+    points: int=Field(default=32,ge=16,le=64)
+    echo_spacing_s: float=Field(default=.008,ge=.006,le=.03)
+    tr_s: float=Field(default=.4,ge=.05,le=2.)
+    t2_s: list[T2Value]=Field(default_factory=lambda:[.04,.12],min_length=2,max_length=2)
+    basis_t2_s: list[T2Value] | None=Field(default=None,min_length=2,max_length=2)
+    refocusing_angle: float=Field(default=180.,ge=1.,le=180.)
+    refocusing_end_angle: float=Field(default=180.,ge=1.,le=180.)
+    echo_order: Literal['forward','reverse']='forward'
+    display_echo: int=Field(default=2,ge=1,le=16)
+    backend: Literal['exact','finufft']='exact'
+    inverse_max_iterations: int=Field(default=6000,ge=1,le=6000)
+    inverse_tolerance: float=Field(default=1e-10,ge=1e-13,le=.1)
+    nufft_eps: float=Field(default=1e-13,ge=1e-14,le=1e-3)
+    control_iterations: int=Field(default=1000,ge=1,le=1000)
+    component_phase_rad: list[Phase]=Field(default_factory=lambda:[0.,0.],min_length=2,max_length=2)
+    max_samples: int=Field(default=24576,ge=1,le=24576)
+    max_work: int=Field(default=20000000000,ge=1,le=50000000000)
+    max_memory_bytes: int=Field(default=134217728,ge=1,le=134217728)
+    max_duration_s: float=Field(default=100.,gt=0,le=100.)
+    target_image_error: float=Field(default=1e-6,gt=0,le=1.)
+    target_coefficient_error: float=Field(default=1e-6,gt=0,le=1.)
+    target_min_contrast: float=Field(default=.005,ge=0,le=1.)
+    target_max_rf_energy: float=Field(default=200.,gt=0,le=1000.)
 
 
 class FlowParameters(StrictParameters):
@@ -183,8 +213,8 @@ class PressMRSParameters(StrictParameters):
     target_leakage_fraction: float=Field(default=.1,gt=0,le=1.)
 
 
-SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'cest':CESTParameters,'cest_solomon':SolomonCESTParameters,'mrs':MRSParameters,'mrs_press':PressMRSParameters}
-RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'cest':run_cest_mt_noe,'cest_solomon':run_cest_solomon,'mrs':run_mrs_basis,'mrs_press':run_press_basis}
+SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'cest':CESTParameters,'cest_solomon':SolomonCESTParameters,'mrs':MRSParameters,'mrs_press':PressMRSParameters,'radial_tse':RadialTSEParameters}
+RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'cest':run_cest_mt_noe,'cest_solomon':run_cest_solomon,'mrs':run_mrs_basis,'mrs_press':run_press_basis,'radial_tse':run_radial_tse}
 
 
 class RunRequest(StrictParameters):
@@ -232,13 +262,13 @@ def parameters_for(kind, parameters):
         parsed=SCHEMAS[kind].model_validate(parameters).model_dump(exclude_none=True)
     except ValidationError as exc:
         raise HTTPException(422,detail=json.loads(exc.json(include_url=False))) from exc
-    if kind in {'tse','noncartesian'}:
+    if kind in {'tse','noncartesian','radial_tse'}:
         if 'labels' not in parsed:
             y,x=np.indices((16,16)); labels=(((x-8)**2+(y-8)**2<20)|((x==3)&(y>3))).astype(int)
             if kind=='noncartesian' and parsed['encoding']=='stack_of_stars': labels=np.stack([labels,1-labels,np.roll(labels,2,0)])
             parsed['labels']=labels.tolist()
         labels=parsed['labels']
-        grid_limit=64 if kind=='noncartesian' and parsed['reconstruction']=='nufft_cgls' else 16
+        grid_limit=(32 if parsed['backend']=='finufft' else 16) if kind=='radial_tse' else 64 if kind=='noncartesian' and parsed['reconstruction']=='nufft_cgls' else 16
         def valid_row(row):
             return isinstance(row,list) and 2<=len(row)<=grid_limit and all(type(v) is int and v in (0,1) for v in row)
         def valid_plane(plane):
@@ -246,7 +276,7 @@ def parameters_for(kind, parameters):
         is_2d=valid_plane(labels)
         is_3d=isinstance(labels,list) and 2<=len(labels)<=4 and all(valid_plane(plane) for plane in labels) and len({(len(plane),len(plane[0])) for plane in labels})==1
         if not is_2d and not is_3d:
-            raise HTTPException(422,'research API labels require an integer two-class grid, <=16x16 (NUFFT <=64x64) and <=4 partitions')
+            raise HTTPException(422,'research API labels require an integer two-class grid within the selected model/backend limit and <=4 partitions')
     return parsed
 
 
@@ -255,18 +285,24 @@ def _curve(label,x,y): return dict(label=label,x=np.asarray(x).tolist(),y=np.asa
 
 def present(kind,result):
     images=[]; curves=[]
-    if kind in {'tse','noncartesian'}:
+    if kind in {'tse','noncartesian','radial_tse'}:
         for key,title in [('reference','Reference'),('image','Reconstruction')]:
             image=np.asarray(result[key]).real
             if image.ndim==3: image=image[len(image)//2]
             images.append(dict(label=title,width=image.shape[1],height=image.shape[0],values=image.ravel().tolist()))
-        if kind=='tse':
-            for i,weights in enumerate(result['tissue_echo_weights']): curves.append(_curve(f'Tissue {i+1}',np.asarray(result['echo_times_s'])*1000,weights))
+        if kind in {'tse','radial_tse'}:
+            echo_times=result['echo_times_s'] if kind=='tse' else np.arange(1,len(result['tissue_echo_weights'][0])+1)*result['design']['echo_spacing_s']
+            for i,weights in enumerate(result['tissue_echo_weights']): curves.append(_curve(f'Tissue {i+1}',np.asarray(echo_times)*1000,weights))
             x_label='Echo time (ms)'; y_label='Absolute EPG signal'
         else:
             for i,solver in enumerate(result['solvers']): curves.append(_curve(f'CGLS frame {i+1}',np.arange(len(solver['residual_history'])),solver['residual_history']))
             x_label='Iteration'; y_label='Relative data residual'
-        validation=result['quality']
+        validation=result['quality'] if kind!='radial_tse' else result['validation']
+        if kind=='radial_tse':
+            for preview in images: preview['scale_group']='echo'
+            image=np.asarray(result['static_control']['image']).real
+            if image.ndim==3: image=image[len(image)//2]
+            images.append(dict(label='Static-model mismatch control',scale_group='static_control',width=image.shape[1],height=image.shape[0],values=image.ravel().tolist()))
     elif kind in {'flow','pulsatile_flow'}:
         for tissue in (['blood','wall'] if result['readouts'] else []):
             curves.append(_curve(tissue,[r['gate']['readout_s'] for r in result['readouts']],
@@ -286,6 +322,10 @@ def present(kind,result):
             images.append(dict(label=f'{name} localization at z=0',width=plane.shape[1],height=plane.shape[0],values=plane.ravel().tolist()))
     if kind=='tse':
         metrics={'Image NRMSE':result['quality']['nrmse'],'PSF prediction NRMSE':result['psf_prediction_quality']['nrmse']}
+    elif kind=='radial_tse':
+        metrics={'Image NRMSE':result['quality']['nrmse'],'Component NRMSE':validation['coefficient_error'],
+            'Data residual':validation['data_residual'],'ROI contrast':validation['roi_contrast'],
+            'RF energy proxy':validation['rf_energy_relative'],'Static-control NRMSE':result['static_control']['quality']['nrmse']}
     elif kind=='noncartesian':
         metrics={'Image NRMSE':result['quality']['nrmse']}
         if result['solvers']: metrics.update({'Data residual':result['solvers'][0]['relative_data_residual'],'Iterations':result['solvers'][0]['iterations']})
@@ -321,6 +361,8 @@ def run_research(request: RunRequest): return execute(request,checked_source_has
 def search_research(request: SearchRequest):
     fingerprint=checked_source_hash()
     if request.expected_source_hash and request.expected_source_hash!=fingerprint: raise HTTPException(409,'Replay source changed')
+    if request.kind=='radial_tse' and any(set(patch)-{'echoes','echo_spacing_s','tr_s','refocusing_angle','refocusing_end_angle','echo_order'} for patch in request.candidates):
+        raise HTTPException(422,'Radial TSE search varies pulse/echo schedule only; tissue priors, basis assumptions, targets and numerical resolution remain fixed.')
     if request.kind=='mrs_press' and any(set(patch)-{'echo_s','rf_duration_s'} for patch in request.candidates):
         raise HTTPException(422,'PRESS design search varies pulse timing only; basis, molecular priors and numerical resolution remain fixed.')
     if request.kind=='cest_solomon':
@@ -339,9 +381,10 @@ def search_research(request: SearchRequest):
             if exc.status_code!=422: raise
             points.append(dict(parameters=patch,feasible=False,reason=exc.detail))
     feasible=[p for p in points if p['feasible']]
-    best=min(feasible,key=lambda p:p['loss']) if feasible else None
+    eligible=[p for p in feasible if p['run']['view']['validation']['passed']] if request.kind=='radial_tse' else feasible
+    best=min(eligible,key=lambda p:p['loss']) if eligible else None
     return dict(kind=request.kind,candidates=points,best=best,
-        objective='minimize declared model loss against known teaching truth/control; finite grid, no clinical optimum',
+        objective='minimize RF energy proxy among candidates passing all declared targets; finite grid, no clinical optimum' if request.kind=='radial_tse' else 'minimize declared model loss against known teaching truth/control; finite grid, no clinical optimum',
         replay_search={**request.model_dump(), 'expected_source_hash':fingerprint},source_hash=fingerprint,
         search_hash=sha256(json.dumps(points,sort_keys=True,allow_nan=False).encode()).hexdigest())
 

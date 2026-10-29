@@ -26,14 +26,14 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 
 | Requirement | Current evidence | Status / missing evidence |
 |---|---|---|
-| Clinical question → pulse/design → physical simulation | Eight backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for these declared teaching chains; universal experiment schema and calibrated clinical priors remain incomplete |
+| Clinical question → pulse/design → physical simulation | Nine backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for these declared teaching chains; universal experiment schema and calibrated clinical priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
-| High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, independent adjoint/acquisition checks, budget and data residual diagnostics | FINUFFT matrix-free plans now available; radial conditioning, noise/coil/trajectory calibration and non-Cartesian echo-weighted TSE remain incomplete |
+| High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators and known-two-curve echo-resolved radial TSE with independent full complex checks | Radial conditioning, noisy/coil/trajectory calibration, full echo-window physics, measured temporal priors and general T2 inference remain incomplete |
 | Real flow / slice / gating | Pressure-driven Womersley shear/backflow, volume-weighted moving spins, finite RF/Gz and causal interruption with independent fluid/Bloch references | Straight rigid pipe and fixed radius only; measured calibration, general 3D/compliant flow and motion-encoded images remain incomplete |
 | CEST MT/NOE | Effective-pool baseline plus distance/tau-derived signed Solomon pair→bridge→water relay, conditional controls and independent population/ODE checks | Full molecular multi-spin/Redfield relaxation, near-resonance generalized semisolid model and spatial joint imaging remain incomplete |
 | More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, coherence-selected 3D PRESS volume fitting with separate RF/grid/FOV checks, center/J mismatch failures | Validated molecular library, full quantum relaxation, realistic field maps, measured spectra and clinical concentration calibration remain incomplete |
-| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Eight research entries include actual causal scheduling/completion table; native JSON download/re-import remains open, with verified CLI local delivery |
+| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Nine research entries include actual causal scheduling/completion table; native JSON download/re-import remains open, with verified CLI local delivery |
 | All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | Portable measured-TSE stage records and locked-environment CLI evidence exist; universal multi-study persistence and cross-platform replay remain incomplete |
 | Submission content excluded | Inherited `docs/ismrm` matches 33 original manuscript-worktree files before project removal; original worktree and Git history retained; ignore rule prevents accidental untracked re-entry | Enforced in the current project snapshot; historical anchors intentionally remain immutable |
 | No push/PR/merge, B/C parked | Local commit chain, unchanged roadmap/locked catalog; API regression retains two A protocols | Preserved |
@@ -188,3 +188,33 @@ no service or lock was altered. Validated molecular libraries, full relaxation,
 measured multimodal closure, persistent universal scientific records and earlier
 physics gaps still prevent completion of the overall goal. B/C remain parked;
 submission content is excluded; no push, PR or merge was performed.
+
+
+## Echo-resolved radial TSE stage (2026-10-30)
+
+From `92be1d2`, the [new coverage report](echo-radial-tse-coverage.md) and
+[recomputed evidence](examples/echo-radial-tse-evidence.json) connect periodic EPG
+echo curves to timed radial spokes / Cartesian kz, paired temporal-basis
+forward/adjoint operators, actual unregularized inverse and declared-echo images.
+Two unknown complex component maps use known EPG temporal priors; labels only
+generate/evaluate the sample. Lossless two-mode temporal SVD is explicit, without
+image gain fitting or a spatial reference inside the inverse. Exact DFT and
+FINUFFT remain distinct backends with independent voxel-sum checks. The shared
+EPG helper preserves Cartesian TSE behavior; original worktree anchors stay intact.
+
+The ninth research entry searches pulse/echo schedules and minimizes RF proxy
+only among candidates passing every image/component/residual/contrast/RF target.
+The 140°→110° candidate passes and reduces the RF proxy from 102 to 52.6667; the
+100°→80° candidate has an image error below 1e-6 but **fails** the separate
+component target, so is not selected. Model-mismatch/work-stop and 3D RF-limit
+failures remain available. No passing candidate means no best design, while
+complete failed-only search records can still be exported/replayed.
+
+Python **805 passed**, frontend **101 passed**, TypeScript/production build,
+independent all-case CLI recomputation and real HTTP run/search replay passed.
+An intentionally changed evidence hash was rejected. Browser clicking/visual
+inspection remains unverified: a fresh inventory still reports unavailable
+browser access. The full objective remains active; measured multimodal scientific
+records, calibrated priors/uncertainty and the remaining physical/browser gaps
+are not replaced by this closed-model evidence. B/C stay parked; no submission
+material, push, PR, merge or production-router change was introduced.

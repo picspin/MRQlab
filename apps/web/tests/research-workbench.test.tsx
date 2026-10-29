@@ -143,3 +143,40 @@ it("runs the selected PRESS mismatch control, displays convergence gates and cle
   fireEvent.change(screen.getByLabelText("拟合基组"), { target: { value: "volume" } });
   expect(screen.queryByText("Measured test question")).not.toBeInTheDocument();
 });
+
+it("uses the declared echo-aware Fourier backend and preserves all-target-failed search evidence", async () => {
+  const failed: ResearchRun = { ...result, kind: "radial_tse", view: { ...result.view,
+    validation: { passed: false, target_image_error: .000001, target_max_rf_energy: 60 } },
+    replay_request: { ...result.replay_request, kind: "radial_tse", parameters: { backend: "finufft", echoes: 4 } } };
+  vi.mocked(searchResearch).mockResolvedValue({ replay_search: { kind: "radial_tse", parameters: {}, candidates: [{}] },
+    search_hash: "c".repeat(64), best: null, candidates: [{ parameters: {}, feasible: true, loss: 102, run: failed }], objective: "RF cost among target-passing candidates" });
+  render(<ResearchPage />); fireEvent.click(screen.getByRole("button", { name: "Radial TSE / echo model" }));
+  fireEvent.change(screen.getByLabelText("傅里叶后端"), { target: { value: "finufft" } });
+  fireEvent.click(screen.getByRole("button", { name: "比较候选设计" }));
+  await screen.findByText("候选可执行，但没有设计通过全部目标。展示首个可执行候选。");
+  expect(screen.getByText("目标未通过")).toBeInTheDocument();
+  expect(screen.getByText("RF energy proxy limit")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "导出完整记录" })).toBeInTheDocument();
+  expect(vi.mocked(searchResearch).mock.calls[0][0]).toMatchObject({ kind: "radial_tse", parameters: { backend: "finufft" } });
+  fireEvent.change(screen.getByLabelText("傅里叶后端"), { target: { value: "exact" } });
+  expect(screen.queryByText("Measured test question")).not.toBeInTheDocument();
+});
+
+it("imports a complete record above 5 MB and rejects an oversized record before reading", async () => {
+  vi.mocked(runResearch).mockResolvedValue(result);
+  const raw = JSON.stringify({ ...result, retained_data: "x".repeat(5_100_000) });
+  const file = new File([raw], "full-search.json", { type: "application/json" });
+  Object.defineProperty(file, "text", { value: async () => raw });
+  render(<ResearchPage />);
+  fireEvent.change(screen.getByLabelText("导入回放记录"), { target: { files: [file] } });
+  await screen.findByText("记录已载入。运行将核对源码指纹和结果哈希。");
+  fireEvent.click(screen.getByRole("button", { name: "运行导入回放" }));
+  await screen.findByText("回放一致：结果哈希匹配。");
+  expect(vi.mocked(runResearch).mock.calls[0][0]).toEqual(result.replay_request);
+  const oversized = new File([], "oversized.json", { type: "application/json" });
+  const read = vi.fn();
+  Object.defineProperties(oversized, { size: { value: 64 * 1024 * 1024 + 1 }, text: { value: read } });
+  fireEvent.change(screen.getByLabelText("导入回放记录"), { target: { files: [oversized] } });
+  expect(await screen.findByRole("alert")).toHaveTextContent("记录超过 64 MiB");
+  expect(read).not.toHaveBeenCalled();
+});

@@ -44,6 +44,54 @@ def psf_metrics(modulation):
                 rms_radius_voxels=float(np.sqrt(np.sum(radius2*a*a)/np.sum(a*a))))
 
 
+def prepare_tse_echo_train(*, echoes, echo_spacing_s, tr_s, t2_s,
+                           refocusing_angle=180., refocusing_end_angle=180.,
+                           max_work=100000000, experiment=None):
+    """Shared periodic EPG echo centers; no spatial acquisition or mean weighting."""
+    if type(echoes) is not int or not 1 <= echoes <= 64:
+        raise ValueError('bounded integer echo count required')
+    if len(t2_s) != 2 or not np.isfinite([echo_spacing_s,tr_s,*t2_s]).all() or min(echo_spacing_s,tr_s,*t2_s)<=0:
+        raise ValueError('two finite positive T2 values and sequence timing required')
+    if type(max_work) is not int or max_work <= 0:
+        raise ValueError('positive integer EPG work budget required')
+    experiment_input = None
+    if experiment is None:
+        graph = build_family_recipe('brain_t1_3d_tse')
+    else:
+        from .models import ExperimentGraph, TemplateRef
+        validated = ExperimentGraph.model_validate(experiment)
+        experiment_input = validated.model_dump(mode='json')
+        graph = validated.model_copy(deep=True)
+        if not isinstance(graph.sequence, TemplateRef) or graph.sequence.template != 'TSE3D' or graph.engine.preferred != 'epg':
+            raise ValueError('TSE imaging requires a TSE3D EPG experiment chassis')
+        if not isinstance(graph.tissue, tuple) or len(graph.tissue) != 2 or graph.physiology is not None or graph.disturbances.items:
+            raise ValueError('two independent tissues without physiology/disturbances required')
+        if graph.sample.pools or graph.sample.isochromats or graph.sample.off_resonance_hz:
+            raise ValueError('TSE imaging chassis does not support pool/spatial/off-resonance sample overrides')
+        if any(t.flow_velocity_mps or t.exchange_rate_hz or t.bound_pool or t.diffusion_adc_mm2_s for t in graph.tissue):
+            raise ValueError('TSE imaging chassis requires independent relaxation tissues')
+    graph.sequence.params.update(te=echo_spacing_s, tr=tr_s, echoes=echoes, partitions=1,
+        refocusing_flip_angle=refocusing_angle, refocusing_end_angle=refocusing_end_angle)
+    # One sample per existing 2ms ADC gate: exact echo center, not train mean.
+    graph.engine.options.update(dwell_time=.002, epg_kmax=max(8, 2*echoes), max_work=max_work)
+    sequence = build_sequence('TSE3D', graph.sequence.params)
+    weights = []; physical = []; preparation_s = []; physical_work = 0
+    for tissue, t2 in zip(graph.tissue, t2_s):
+        tissue.t2 = t2
+        g = graph.model_copy(deep=True); g.tissue = tissue
+        result = run_experiment(g)
+        signal = np.abs(result.sim_result.signal)
+        if signal.shape != (echoes,) or not np.isfinite(signal).all() or signal.max() <= 0:
+            raise ValueError('EPG echo/ADC count mismatch or invalid signal')
+        weights.append(signal)
+        physical.append(build_result_graph(result).observations[0].provenance.model_dump(mode='json'))
+        physical_work += result.sim_result.meta['estimated_work']
+        preparation_s.append(result.sim_result.meta['preparation_duration_s'])
+    if physical_work > max_work:
+        raise ValueError('combined EPG work exceeds budget')
+    return graph,sequence,np.array(weights),physical,preparation_s,physical_work,experiment_input
+
+
 def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
                     tr_s=.4, partitions=None, t2_s=(.04, .12),
                     refocusing_angle=180., refocusing_end_angle=180.,
@@ -77,38 +125,10 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
     spatial_work = int(8*labels.size*max(1, np.ceil(np.log2(labels.size))))
     if labels.size > max_samples or spatial_work >= max_work or trains*tr_s > max_duration_s:
         raise ValueError('infeasible readout budget')
-    if experiment is None:
-        graph = build_family_recipe('brain_t1_3d_tse')
-    else:
-        from .models import ExperimentGraph, TemplateRef
-        validated = ExperimentGraph.model_validate(experiment)
-        experiment_input = validated.model_dump(mode='json')
-        graph = validated.model_copy(deep=True)
-        if not isinstance(graph.sequence, TemplateRef) or graph.sequence.template != 'TSE3D' or graph.engine.preferred != 'epg':
-            raise ValueError('TSE imaging requires a TSE3D EPG experiment chassis')
-        if not isinstance(graph.tissue, tuple) or len(graph.tissue) != 2 or graph.physiology is not None or graph.disturbances.items:
-            raise ValueError('two independent tissues without physiology/disturbances required')
-        if graph.sample.pools or graph.sample.isochromats or graph.sample.off_resonance_hz:
-            raise ValueError('TSE imaging chassis does not support pool/spatial/off-resonance sample overrides')
-        if any(t.flow_velocity_mps or t.exchange_rate_hz or t.bound_pool or t.diffusion_adc_mm2_s for t in graph.tissue):
-            raise ValueError('TSE imaging chassis requires independent relaxation tissues')
-    graph.sequence.params.update(te=echo_spacing_s, tr=tr_s, echoes=echoes, partitions=1,
-        refocusing_flip_angle=refocusing_angle, refocusing_end_angle=refocusing_end_angle)
-    # One sample per existing 2ms ADC gate: exact echo center, not train mean.
-    graph.engine.options.update(dwell_time=.002, epg_kmax=max(8, 2*echoes), max_work=max_work-spatial_work)
-    sequence = build_sequence('TSE3D', graph.sequence.params)
-    weights = []; physical = []; preparation_s = []; physical_work = 0
-    for tissue, t2 in zip(graph.tissue, t2_s):
-        tissue.t2 = t2
-        g = graph.model_copy(deep=True); g.tissue = tissue
-        result = run_experiment(g)
-        signal = np.abs(result.sim_result.signal)
-        if signal.shape != (echoes,) or not np.isfinite(signal).all() or signal.max() <= 0:
-            raise ValueError('EPG echo/ADC count mismatch or invalid signal')
-        weights.append(signal)
-        physical.append(build_result_graph(result).observations[0].provenance.model_dump(mode='json'))
-        physical_work += result.sim_result.meta['estimated_work']
-        preparation_s.append(result.sim_result.meta['preparation_duration_s'])
+    graph,sequence,weights,physical,preparation_s,physical_work,experiment_input = prepare_tse_echo_train(
+        echoes=echoes,echo_spacing_s=echo_spacing_s,tr_s=tr_s,t2_s=t2_s,
+        refocusing_angle=refocusing_angle,refocusing_end_angle=refocusing_end_angle,
+        max_work=max_work-spatial_work,experiment=experiment)
     if spatial_work+physical_work > max_work:
         raise ValueError('combined EPG and spatial work exceeds budget')
     if trains*tr_s+max(preparation_s) > max_duration_s:
