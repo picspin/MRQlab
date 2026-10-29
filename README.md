@@ -79,6 +79,14 @@ with `python -m mrqlab_api.scientific_records`. Background references are contex
 only and do not silently calibrate a model. Browser clicking/native file-flow
 verification remains a documented gap; CLI and HTTP persistence/replay are checked.
 
+A measured-TSE record can now derive a
+[radial TSE uncertainty study](docs/research/calibrated-radial-coverage.md):
+revalidate its original measurements, bind calibrated T2 by tissue/component,
+then compare pulse candidates while keeping the nominal inverse basis fixed at
+all sample uncertainty corners. The synthetic example passes nominal targets
+but fails every corner; no candidate is selected. The portable child embeds its
+unchanged parent and supports full CLI/API computational replay.
+
 See [research workspace evidence and gaps](docs/research/research-workbench-coverage.md).
 All accuracy statements apply to declared teaching models; there is no scanner
 validation, clinical image-quality certification or clinical concentration

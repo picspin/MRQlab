@@ -24,8 +24,9 @@ from mrqlab_experiment.lab_study import LabStudy, fingerprint
 from mrqlab_experiment.study_records import (
     _checked_sources, runtime_manifest, create_study_record, verify_study_record,
 )
+from mrqlab_experiment.calibrated_radial import CalibratedRadialStudy, run_calibrated_radial_study
 from .research import (
-    RunRequest, SearchRequest, checked_source_hash, execute, search_research, _lab_response,
+    RunRequest, SearchRequest, checked_source_hash, execute, search_research, _lab_response, serializable, present,
 )
 
 SCHEMA='mrqlab-scientific-record-1'
@@ -69,9 +70,16 @@ class MeasuredPlan(Strict):
     study: LabStudy
 
 
+class CalibratedRadialPlan(Strict):
+    type: Literal['calibrated_radial_tse']='calibrated_radial_tse'
+    parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
+    parent_record: dict | None=None
+    study: CalibratedRadialStudy=Field(default_factory=CalibratedRadialStudy)
+
+
 class ScientificPlan(Strict):
     context: StudyContext
-    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan,Field(discriminator='type')]
+    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | CalibratedRadialPlan,Field(discriminator='type')]
     expected_execution_hash: str | None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
 
 
@@ -131,6 +139,19 @@ def _validate_run(run, source):
     if run.get('result_hash')!=actual: raise ValueError('nested research result hash mismatch')
 
 
+
+def _parent_measurement(execution):
+    parent=execution.get('parent_record')
+    if not isinstance(parent,dict) or parent.get('record_sha256')!=execution['parent_record_sha256']:
+        raise ValueError('embedded parent identity differs from the declared record')
+    # Only a direct measured-TSE parent is accepted: no recursive derived graphs
+    # or arbitrary record types masquerading as calibrated measurement sources.
+    request=_loads(parent.get('request_json','{}'))
+    if request.get('execution',{}).get('type')!='measured_tse':
+        raise ValueError('derived radial study requires a measured_tse parent record')
+    verify_scientific_record(parent)
+    return parent,_loads(parent['payload_json'])['record']
+
 def _summary(request,payload,source):
     execution=request['execution']; mode=execution['type']
     if mode=='run':
@@ -164,16 +185,31 @@ def _summary(request,payload,source):
         points=[dict(index=p['index'],parameters=p['design'],executable=p['executed'],
             model_reported_passed=p['eligible'],reasons=p['reasons']) for p in r['candidates']]
         kind='measured_tse';execution_hash=legacy['record_sha256'];origins=[legacy['request']['dataset']['origin']]
+    elif mode=='calibrated_radial_tse':
+        parent,legacy=_parent_measurement(execution)
+        r=payload['derivation']
+        if r['parent_legacy_record_sha256']!=legacy['record_sha256']:
+            raise ValueError('derived numerical source differs from embedded parent')
+        if payload['view'] is not None: _validate_view(payload['view'])
+        kind=mode;selected=r['selected_index'];reported=r['validation']['selected_design_passed']
+        points=[dict(index=p['index'],parameters=p['design'],executable=p['executed'],
+            model_reported_passed=p['eligible'],reasons=p['reasons'],
+            validation={k:p[k] for k in ['worst_image_nrmse','worst_component_nrmse','worst_total_rf_energy'] if k in p}) for p in r['candidates']]
+        origins=[r['input_origin']];execution_hash=fingerprint(r)
     else: raise ValueError('unknown scientific execution type')
-    return dict(study_id=request['context']['study_id'],research_question=request['context']['research_question'],
+    summary=dict(study_id=request['context']['study_id'],research_question=request['context']['research_question'],
         mode=mode,kind=kind,selected_index=selected,model_reported_passed=bool(reported),
         candidate_count=len(points),candidates=points,execution_hash=execution_hash,input_origins=origins,
         background_references_applied=False,scope=SCOPE)
+    if mode=='calibrated_radial_tse': summary['parent_record_sha256']=execution['parent_record_sha256']
+    return summary
 
 
 def _stages(request,request_hash,payload_hash,summary,environment):
     values=[('question',fingerprint(request['context'])),('design_and_inputs',request_hash),
             ('source_and_runtime',fingerprint(environment)),('computed_execution',payload_hash),('reported_validation',fingerprint(summary))]
+    if request['execution']['type']=='calibrated_radial_tse':
+        values.insert(1,('parent_measurement_record',request['execution']['parent_record_sha256']))
     nodes=[]
     for name,value in values:
         parents=[nodes[-1]['sha256']] if nodes else []
@@ -182,12 +218,32 @@ def _stages(request,request_hash,payload_hash,summary,environment):
     return nodes
 
 
-def create_scientific_record(plan: ScientificPlan | dict):
-    plan=ScientificPlan.model_validate(plan)
+def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
+    plan=ScientificPlan.model_validate(plan).model_copy(deep=True)
+    if isinstance(plan.execution,CalibratedRadialPlan) and plan.execution.parent_record is None:
+        plan.execution.parent_record=(store or ScientificStore()).get(plan.execution.parent_record_sha256)
     sources=_checked_sources();api_source=checked_source_hash();runtime=runtime_manifest()
     request=plan.model_dump(mode='json');request_json=_dump(request)
     execution=plan.execution
-    if isinstance(execution,MeasuredPlan): payload=_lab_response(create_study_record(execution.study))
+    if isinstance(execution,CalibratedRadialPlan):
+        parent,legacy=_parent_measurement(request['execution'])
+        derived=run_calibrated_radial_study(legacy,execution.study)
+        preview=derived['preview_simulation']
+        # Reuse the established presenter with an explicit complex-array decoder.
+        def decode(value):
+            import numpy as np
+            if isinstance(value,dict):
+                if set(value)=={'real','imag'}: return complex(value['real'],value['imag'])
+                return {k:decode(v) for k,v in value.items()}
+            if isinstance(value,list):
+                out=[decode(v) for v in value]
+                if out and all(isinstance(v,(int,float,complex,list,np.ndarray)) for v in out):
+                    try: return np.asarray(out)
+                    except ValueError: pass
+                return out
+            return value
+        payload=serializable(dict(derivation=derived,view=present('radial_tse',decode(preview)) if preview is not None else None))
+    elif isinstance(execution,MeasuredPlan): payload=_lab_response(create_study_record(execution.study))
     elif isinstance(execution,SearchPlan): payload=search_research(SearchRequest.model_validate(execution.model_dump(exclude={'type'})))
     else: payload=execute(RunRequest.model_validate(execution.model_dump(exclude={'type'})),api_source)
     if _checked_sources()!=sources or checked_source_hash()!=api_source or runtime_manifest()!=runtime:
@@ -266,6 +322,9 @@ class ScientificStore:
         verify_scientific_record(record);raw=_dump(record);size=len(raw.encode())
         if size>MAX_BYTES: raise ValueError('scientific record exceeds 128 MiB storage limit')
         identity=record['record_sha256']
+        if record['summary']['mode']=='calibrated_radial_tse':
+            parent,_=_parent_measurement(_loads(record['request_json'])['execution'])
+            self.save(parent)
         with closing(self._connect()) as conn,conn:
             conn.execute('INSERT OR IGNORE INTO records VALUES (?,?,?,?,?,?)',
                 (identity,record['summary']['study_id'],time.time_ns(),raw,_dump({k:v for k,v in record['summary'].items() if k!='candidates'}),size))
@@ -298,7 +357,7 @@ class ScientificStore:
 
 def _response(record):
     payload=_loads(record['payload_json']);mode=record['summary']['mode']
-    if mode=='measured_tse': view=payload['view']
+    if mode in {'measured_tse','calibrated_radial_tse'}: view=payload['view']
     elif mode=='run': view=payload['view']
     else:
         selected=payload['best'] or next((p for p in payload['candidates'] if p['feasible']),None)
@@ -370,15 +429,18 @@ def main(argv=None):
     for name in ['run','verify','replay','export']:
         command=commands.add_parser(name);command.add_argument('input')
         if name!='verify': command.add_argument('--output',type=Path,required=True)
+    importer=commands.add_parser('import');importer.add_argument('input')
     commands.add_parser('list')
     args=parser.parse_args(argv)
     try:
         store=ScientificStore(args.store)
         if args.action=='list': print(_dump(store.list()));return 0
         if args.action=='verify': print(_dump(verify_scientific_record(read_portable(args.input))));return 0
+        if args.action=='import':
+            record=read_portable(args.input);store.save(record);print(_dump(verify_scientific_record(record)));return 0
         if args.output.exists(): raise ValueError('output already exists; no overwrite')
         if args.action=='export': record=store.get(args.input)
-        elif args.action=='run': record=create_scientific_record(read_portable(args.input))
+        elif args.action=='run': record=create_scientific_record(read_portable(args.input),store=store)
         else:
             record=read_portable(args.input);replay_scientific_record(record)
         store.save(record);write_portable(record,args.output)

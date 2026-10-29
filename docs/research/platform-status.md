@@ -29,7 +29,7 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 | Clinical question → pulse/design → physical simulation | Nine backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
-| High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators and known-two-curve echo-resolved radial TSE with independent full complex checks | Radial conditioning, noisy/coil/trajectory calibration, full echo-window physics, measured temporal priors and general T2 inference remain incomplete |
+| High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators and known-two-curve echo-resolved radial TSE; measured-TSE parent now supplies fixed nominal T2 priors and uncertainty stress cases | Fixed-prior stress corners fail strict targets; radial conditioning, noisy/coil/trajectory calibration, full echo-window physics and general T2 inference remain incomplete |
 | Real flow / slice / gating | Pressure-driven Womersley shear/backflow, volume-weighted moving spins, finite RF/Gz and causal interruption with independent fluid/Bloch references | Straight rigid pipe and fixed radius only; measured calibration, general 3D/compliant flow and motion-encoded images remain incomplete |
 | CEST MT/NOE | Effective-pool baseline plus distance/tau-derived signed Solomon pair→bridge→water relay, conditional controls and independent population/ODE checks | Full molecular multi-spin/Redfield relaxation, near-resonance generalized semisolid model and spatial joint imaging remain incomplete |
 | More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, coherence-selected 3D PRESS volume fitting with separate RF/grid/FOV checks, center/J mismatch failures | Validated molecular library, full quantum relaxation, realistic field maps, measured spectra and clinical concentration calibration remain incomplete |
@@ -55,9 +55,9 @@ not silently copy manuscript content into the project or disturb live worktrees.
 
 1. Finish native export/import browser verification or provide a verified
    local-file delivery path supported by the in-app browser.
-2. Unify the research experiment/measurement/result conventions into a scientific
-   record that can ingest lab measurements with units, uncertainty and provenance;
-   persist and replay the design→optimization→validation stages.
+2. Extend the shared scientific records and the measured-TSE → radial derivation
+   with raw-data archives, general unit/uncertainty conventions and measured
+   bindings for flow, CEST/NOE and MRS. Preserve failed target outcomes.
 3. Continue fidelity work in the original priority order. Report model validity,
    conditioning, independent references and failed targets without gain fitting,
    hidden calibration or a claim of clinical/scanner certification.
@@ -252,3 +252,35 @@ clinical translation, cross-record derived workflows and earlier physics gaps
 remain unfinished; common records do not claim those capabilities. The full goal
 remains active, B/C stay parked, and no push/PR/merge, submission import or
 production-router change occurs.
+
+
+## Measurement-derived radial design stage (2026-10-30)
+
+From `3fdf6fc`, a saved measured-TSE parent now supplies actual calibrated T2
+bindings to a new radial pulse-design study, after its original numerical study
+and independent holdout are revalidated. The original historical parent and its
+source/runtime are retained unchanged. This is numerical parent revalidation,
+not a claim to replay its older source/runtime envelope under new code.
+The portable child embeds the complete parent; importing it into an empty store
+retains both records and requires no external parent database for child replay.
+
+The [coverage report](calibrated-radial-coverage.md) and
+[recomputed evidence](examples/calibrated-radial-evidence.json) preserve all ten
+executed scenarios. Both 180-degree and 140-to-110-degree candidates pass nominal
+image/component targets, but each fails all four inherited T2 interval corners
+with the nominal inverse basis held fixed. Worst component NRMSE is 0.04375074
+and 0.02171317 respectively. No candidate is selected; relative RF reductions
+do not override failed targets. The derived total RF proxy includes periodic
+preparation, separate from the standalone acquisition-only field. T1/PD remain
+authored, and the supplied parent data are synthetic. Rectangular local stress
+samples are not clinical or continuous worst-case bounds.
+
+Python **842 passed**, frontend **111 passed**, TS and production build passed.
+Actual HTTP save/full replay, independent evidence recomputation, and a new CLI
+process replay in an isolated store match the entire child record. The measured
+parent pane exposes derivation and the child distinguishes nominal preview from
+the failed uncertainty study. Browser access remains unavailable, so clicking,
+visual and native file-flow checks remain open. Cross-modality calibration,
+uncertainty-aware inversion, earlier physical-fidelity and persistence gaps still
+prevent completion of the full goal. B/C remain parked; no submission import,
+push, PR, merge, router change or project-folder relocation occurred.

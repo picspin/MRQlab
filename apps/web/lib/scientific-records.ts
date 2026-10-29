@@ -1,13 +1,13 @@
 import type { ResearchRequest, ResearchSearch, ResearchRun } from "./research";
 import type { StudyInput } from "./lab-study";
-export type ScientificExecution = ({ type: "run" } & ResearchRequest) | ({ type: "search" } & ResearchSearch["replay_search"]) | { type: "measured_tse"; study: StudyInput };
+export type ScientificExecution = ({ type: "run" } & ResearchRequest) | ({ type: "search" } & ResearchSearch["replay_search"]) | { type: "measured_tse"; study: StudyInput } | { type: "calibrated_radial_tse"; parent_record_sha256: string; parent_record?: ScientificRecord; study: Record<string, unknown> };
 export interface ScientificPlan {
   context: { study_id: string; research_question: string; target_rationale: string; assumptions?: string; intended_use?: "teaching" | "research" };
   execution: ScientificExecution; expected_execution_hash?: string;
 }
 export interface ScientificSummary {
   study_id: string; research_question: string; mode: string; kind: string; selected_index: number | null;
-  model_reported_passed: boolean; candidate_count: number; input_origins: string[]; scope: string;
+  model_reported_passed: boolean; parent_record_sha256?: string; candidate_count: number; input_origins: string[]; scope: string;
   candidates?: { index: number; executable: boolean; model_reported_passed: boolean; reason?: unknown; reasons?: string[]; validation?: Record<string, unknown> }[];
 }
 export interface ScientificRecord {

@@ -214,3 +214,32 @@ def test_public_app_export_stays_compatible_without_cli_double_import():
     assert checked.returncode==0,checked.stderr
     checked=subprocess.run([sys.executable,'-m','mrqlab_api.scientific_records','--help'],capture_output=True,text=True,timeout=30)
     assert checked.returncode==0 and 'RuntimeWarning' not in checked.stderr
+
+
+def test_derived_record_api_preserves_calibration_gate_and_parent_relation(local_store):
+    client=TestClient(app);spec=build_lab_study_example().model_dump(mode='json')
+    for row in spec['dataset']['measurements']:
+        if row['split']=='holdout': row['signal_a_u']+=.1
+    source=plan();source['execution']=dict(type='measured_tse',study=spec)
+    saved=client.post('/research/records',json=source);assert saved.status_code==200,saved.text
+    parent=saved.json()['record'];child=plan()
+    child['execution']=dict(type='calibrated_radial_tse',parent_record_sha256=parent['record_sha256'],study={'candidates':[{}]})
+    response=client.post('/research/records',json=child)
+    assert response.status_code==200,response.text
+    record=response.json()['record'];assert record['summary']['parent_record_sha256']==parent['record_sha256']
+    assert not record['summary']['model_reported_passed'] and response.json()['view'] is None
+    assert local_store.list()['total']==2
+    assert client.post('/research/records/'+record['record_sha256']+'/replay').json()['computational_replay_performed']
+    child['execution']['parent_record_sha256']='0'*64
+    assert client.post('/research/records',json=child).status_code==404
+    child['execution']['parent_record_sha256']=record['record_sha256']
+    assert client.post('/research/records',json=child).status_code==422
+
+
+def test_cli_import_preserves_integrity_without_claiming_computation(record,tmp_path):
+    path=tmp_path/'record.json';write_portable(record,path);store=tmp_path/'imported.sqlite3'
+    command=[sys.executable,'-m','mrqlab_api.scientific_records','--store',str(store),'import',str(path)]
+    result=subprocess.run(command,capture_output=True,text=True,timeout=30)
+    assert result.returncode==0,result.stderr
+    assert json.loads(result.stdout)['computational_replay_performed'] is False
+    assert ScientificStore(store).get(record['record_sha256'])==record

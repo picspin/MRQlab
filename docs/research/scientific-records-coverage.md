@@ -174,3 +174,21 @@ collaboration/access controls and backup/migration policy, large streaming
 artifacts and hard resource containment, cross-platform numeric replay and actual
 browser/file-flow checks. These remain explicit parts of the unfinished goal.
 No project-folder relocation or manuscript import was performed.
+
+## Measurement-derived continuation
+
+The [next coverage report](calibrated-radial-coverage.md) adds strict execution
+type `calibrated_radial_tse` and CLI `import RECORD`. It consumes a measured-TSE
+parent, revalidates the original numerical study and holdout, binds calibrated
+T2 in seconds, and runs a budgeted radial pulse grid with a fixed nominal
+reconstruction basis at every uncertainty corner. The complete child embeds the
+unchanged historical parent; importing it also retains that parent independently.
+Its extra parent-record provenance stage does not alter earlier record formats.
+
+Both default candidates pass nominal targets and fail all four corners, so the
+master selection remains absent. Full regression is **842 Python / 111 frontend**,
+with TS/build, independent complete CLI/evidence replay, empty-store parent/child
+import and actual HTTP save/replay verified. The earlier example and historical
+parent sources were not regenerated. This closes one TSE cross-record parameter
+dependency, while the broader raw-data, uncertainty, multimodal and browser gaps
+above remain open.

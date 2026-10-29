@@ -1,13 +1,14 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { getScientificRecord, importScientificRecord, listScientificRecords, replayScientificRecord } from "../../../lib/api";
 import type { ScientificList, ScientificRecord, ScientificResponse } from "../../../lib/scientific-records";
 import Measurements from "../../../components/research/Measurements";
+import { DeriveRadialStudy, DerivedRadialEvidence } from "../../../components/research/DerivedRadialStudy";
 import styles from "../research.module.css";
 
 const EMPTY: ScientificList = { total: 0, offset: 0, limit: 20, records: [] };
-const STAGES: Record<string, string> = { question: "研究问题", design_and_inputs: "设计与输入", source_and_runtime: "源码与环境", computed_execution: "计算与候选", reported_validation: "目标验证" };
+const STAGES: Record<string, string> = { question: "研究问题", parent_measurement_record: "父测量记录", design_and_inputs: "设计与输入", source_and_runtime: "源码与环境", computed_execution: "计算与候选", reported_validation: "目标验证" };
 export default function ScientificRecordsPage() {
   const [filter, setFilter] = useState("");
   const [listing, setListing] = useState(EMPTY);
@@ -73,6 +74,7 @@ export default function ScientificRecordsPage() {
     document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   const record = response?.record;
+  const derived = useMemo(() => record?.summary.mode === "calibrated_radial_tse" ? JSON.parse(record.payload_json).derivation : null, [record?.payload_json, record?.summary.mode]);
   return <div className={styles.workbench}>
     <header className={styles.heading}><div><h1>本地实验记录</h1><p>把研究问题、设计、模型结果和验证依据保存在同一份可回放记录中。</p></div><Link className={styles.scope} href="/research">脉冲设计研究台</Link></header>
     <p className={styles.boundary}>教学 / 研究用途。历史报告、完整性检查与完整计算回放分别标注；不是扫描仪验证或临床质量认证。B/C 保持 parked。</p>
@@ -97,10 +99,17 @@ export default function ScientificRecordsPage() {
           {record.summary.mode === "search" && record.summary.selected_index === null && <p>原记录未选出设计；全部候选保留在下表。</p>}
           {record.summary.mode === "search" && response.view && <p>下方展示候选 {(record.summary.selected_index ?? record.summary.candidates?.find(point => point.executable)?.index ?? 0) + 1} 的历史测量；展示不会改变原选择。</p>}
           <p>输入来源：{record.summary.input_origins.join("、")}。背景引用不会自动用于校准。</p>
+          {record.summary.parent_record_sha256 && <button disabled={busy} onClick={() => void perform(signal => open(record.summary.parent_record_sha256!, signal))}>打开父测量记录</button>}
           <div className={styles.actions}><button disabled={busy} onClick={() => void replay()}>在当前环境完整重算</button><button disabled={busy} onClick={download}>导出完整实验记录</button></div>
           <ol className={styles.recordStages}>{record.stages.map(stage => <li key={stage.sha256}><strong>{STAGES[stage.stage] ?? stage.stage}</strong><code>{stage.sha256}</code></li>)}</ol>
           <div className={styles.scroll}><table><caption>完整候选与模型历史报告</caption><thead><tr><th>候选</th><th>计算完成</th><th>声明目标</th><th>说明</th></tr></thead><tbody>{record.summary.candidates?.map(point => <tr key={point.index}><td>{point.index + 1}{point.index === record.summary.selected_index ? "（原结果）" : ""}</td><td>{point.executable ? "是" : "否"}</td><td>{point.model_reported_passed ? "通过" : "未通过"}</td><td>{point.reasons?.join("；") ?? (point.reason ? JSON.stringify(point.reason) : "")}</td></tr>)}</tbody></table></div>
-          {response.view && <><h3>{replayed ? "重算一致的测量" : "历史记录中的测量（尚未重算）"}</h3><Measurements view={response.view} validationLabel="模型当时的目标报告" /></>}
+          {derived && <DerivedRadialEvidence evidence={derived} />}
+          {derived && response.view && <p>下图仅展示名义情景的单次逆解；是否通过不确定性验证以上方全部情景为准。</p>}
+          {response.view && <><h3>{replayed ? "重算一致的测量" : "历史记录中的测量（尚未重算）"}</h3><Measurements view={response.view} validationLabel={derived ? "仅名义情景的目标报告" : "模型当时的目标报告"} /></>}
+          {record.summary.mode === "measured_tse" && <DeriveRadialStudy key={record.record_sha256} parent={record} onCreated={async result => {
+            setResponse(result); setReplayed(false);
+            await perform(async signal => { await refresh(signal); if (!signal.aborted) setMessage("派生实验已保存；全部不确定性情景的目标结果独立报告。"); });
+          }} />}
           <section className={styles.provenance}><h3>可移交的来源与环境</h3><p>{record.summary.scope}</p><dl><dt>记录哈希</dt><dd>{record.record_sha256}</dd><dt>源码与依赖</dt><dd>{record.sources.sha256}</dd><dt>完整计算结果</dt><dd>{record.payload_sha256}</dd></dl>
             <details><summary>问题、设计与输入快照</summary><pre>{record.request_json}</pre></details><details><summary>运行环境与阶段依赖</summary><pre>{JSON.stringify({ runtime: record.runtime, stages: record.stages }, null, 2)}</pre></details>
           </section>
