@@ -1,5 +1,5 @@
 export interface TriggerEvent { trigger: number; decision_s: number; preparation_s: number; readout_s: number; rr_estimate_s: number; scheduled: boolean; accepted: boolean; rejection: string | null; cancelled_s: number | null; }
-export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "cest" | "cest_solomon" | "mrs";
+export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "cest" | "cest_solomon" | "mrs" | "mrs_press";
 export interface ResearchRequest { kind: ResearchKind; parameters: Record<string, unknown>; expected_source_hash?: string; }
 export interface ResearchRun {
   kind: ResearchKind;
@@ -57,6 +57,12 @@ export const STUDIES: Record<ResearchKind, Study> = {
     defaults: { b1_uT: 1, saturation_s: 1, distance_m: 2.5e-10, tau_c_s: 1e-8, bridge_exchange_s1: 1000 },
     fields: [{ key: "b1_uT", label: "饱和 B1 (µT)", step: .1 }, { key: "tau_c_s", label: "转动相关时间 (s)", step: 1e-9 }, { key: "bridge_exchange_s1", label: "桥接质子到水交换率 (s⁻¹)", step: 100 }],
     candidates: [{ b1_uT: .1 }, { b1_uT: 1 }, { b1_uT: 2 }] },
+  mrs_press: { title: "PRESS / volume fit", question: "有限 RF 带宽和三维选区如何改变局域频谱？中心点基组会产生多大偏差？",
+    limit: "PRESS [-1,+1,-1] 相干选择、三维复信号积分与扩展 FOV 检查。仍为教学 singlet/合成 AB、标量 T2；真实分子库、量子弛豫和扫描仪验证仍缺失。",
+    validation: "更细网格样本的信号量误差 ≤5%，拟合残差 ≤2%，RF 加密检查 ≤0.2%，网格/FOV 检查各 ≤2%，选区外功率比例 ≤10%。",
+    defaults: { echo_s: .03, rf_duration_s: .001, grid_size: 17, refine_grid: 25, basis_mode: "volume" },
+    fields: [{ key: "echo_s", label: "回波时间 (s)", step: .005 }, { key: "rf_duration_s", label: "选层 RF 时长 (s)", step: .0001 }],
+    candidates: [{ rf_duration_s: .0005 }, { rf_duration_s: .001 }, { rf_duration_s: .002 }] },
   mrs: { title: "MRS basis fit", question: "有限 RF 与 J 耦合失配怎样影响水参考相对信号量？",
     limit: "教学 singlet 与合成 AB；标量 T2。真实分子基组、完整 PRESS 空间积分和临床浓度校准仍缺失。",
     validation: "已知合成量的最大相对误差 ≤ 5%，全读出拟合残差 ≤ 2%。匹配基组恢复是闭合模型验证。",

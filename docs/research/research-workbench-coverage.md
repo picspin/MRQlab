@@ -100,3 +100,19 @@ PR, merge, submission writing or hardware execution was performed.
   was restored so a generated asset refresh is not mixed into the source anchor.
 - The staged source/report diff passes whitespace checks. No shared dependency
   installs or changes to another worktree were needed.
+
+
+## Eighth entry: PRESS volume fitting
+
+The continuing line adds `mrs_press` / **PRESS / volume fit** alongside the
+original MRS chain. The labelled basis selector exposes volume integration and
+center-point mismatch control; numerical RF/grid/FOV and leakage targets are
+visible alongside amount/fit errors. Only pulse TE and RF duration can vary in
+its API search. Full complex 3D maps remain in run/export records, with center
+z-plane magnitude previews. See [PRESS coverage](press-volume-coverage.md).
+
+Full suite: **770 Python / 99 frontend**, TS and production build passed. Actual
+HTTP/CORS and complete run/search hash replay were checked. The current browser
+control host was unavailable and Safari control timed out, so this entry's real
+browser clicking/visual inspection remains an explicit gap. Tests and a static
+build are not presented as having closed that gap or native download/re-import.

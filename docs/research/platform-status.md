@@ -26,14 +26,14 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 
 | Requirement | Current evidence | Status / missing evidence |
 |---|---|---|
-| Clinical question → pulse/design → physical simulation | Seven backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for these declared teaching chains; universal experiment schema and calibrated clinical priors remain incomplete |
+| Clinical question → pulse/design → physical simulation | Eight backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for these declared teaching chains; universal experiment schema and calibrated clinical priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
 | High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, independent adjoint/acquisition checks, budget and data residual diagnostics | FINUFFT matrix-free plans now available; radial conditioning, noise/coil/trajectory calibration and non-Cartesian echo-weighted TSE remain incomplete |
 | Real flow / slice / gating | Pressure-driven Womersley shear/backflow, volume-weighted moving spins, finite RF/Gz and causal interruption with independent fluid/Bloch references | Straight rigid pipe and fixed radius only; measured calibration, general 3D/compliant flow and motion-encoded images remain incomplete |
 | CEST MT/NOE | Effective-pool baseline plus distance/tau-derived signed Solomon pair→bridge→water relay, conditional controls and independent population/ODE checks | Full molecular multi-spin/Redfield relaxation, near-resonance generalized semisolid model and spatial joint imaging remain incomplete |
-| More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, analytic doublet check, full complex basis fitting, J-mismatch failure | Validated molecular library, full quantum relaxation, spatially converged PRESS localization and clinical concentration calibration remain incomplete |
-| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Seven research entries include actual causal scheduling/completion table; native JSON download/re-import remains open, with verified CLI local delivery |
+| More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, coherence-selected 3D PRESS volume fitting with separate RF/grid/FOV checks, center/J mismatch failures | Validated molecular library, full quantum relaxation, realistic field maps, measured spectra and clinical concentration calibration remain incomplete |
+| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Eight research entries include actual causal scheduling/completion table; native JSON download/re-import remains open, with verified CLI local delivery |
 | All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | Portable measured-TSE stage records and locked-environment CLI evidence exist; universal multi-study persistence and cross-platform replay remain incomplete |
 | Submission content excluded | Inherited `docs/ismrm` matches 33 original manuscript-worktree files before project removal; original worktree and Git history retained; ignore rule prevents accidental untracked re-entry | Enforced in the current project snapshot; historical anchors intentionally remain immutable |
 | No push/PR/merge, B/C parked | Local commit chain, unchanged roadmap/locked catalog; API regression retains two A protocols | Preserved |
@@ -156,3 +156,35 @@ Python **746 passed**, frontend **98 passed**, TypeScript and production build
 pass. Full multi-spin/Redfield coherence, near-resonance generalized MT, measured
 priors and spatial CEST/NOE remain open. The complete platform goal stays active;
 no push, PR, merge, B/C unlock or submission content was introduced.
+
+
+## Handoff continuation and PRESS localization (2026-10-30)
+
+`e1574a8` is a verification-only Claude handoff on `9664125`, not a solver
+change or NUFFT implementation. Independent historical revalidation passed
+**568 Python / 82 frontend**. Four tests were carried forward as `34e871e`
+with strict original image targets, and the missing 3D 32×32 gridding NRMSE
+**0.5425621821984188** was reproduced in both historical and current checkouts.
+The handoff's 16×16 3D stop typo is explicitly resolved as `data_residual`,
+`converged=true`. Both `.pi/` and `HANDOFF-TO-CODEX.md` remain untracked and intact.
+[Integration evidence](handoff-noncartesian-integration.md) separates that exact-DFT
+reference from the later FINUFFT feature. Original TSE/non-Cartesian worktrees
+still point to `dac373b`/`9664125`; no worktree merge or cleanup was performed.
+
+The eighth research entry now covers finite-RF PRESS [-1,+1,-1] coherence
+selection, complex 3D volume quadrature, explicit excitation rephasing and
+full-complex basis fitting. Separate spatial/RF/FOV targets and center-point /
+J-mismatch failures are preserved. Default maximum amount error is 7.85237e-5;
+center-basis mismatch error is 0.662351. The [coverage report](press-volume-coverage.md)
+and [replayable evidence](examples/press-volume-evidence.json) record physical
+assumptions, source/runtime manifests, complex-volume hashes and remaining gaps.
+
+Python **770 passed**, frontend **99 passed**, TypeScript/production build and
+independent CLI/real HTTP replay pass. Browser clicking/visual inspection of the
+new entry remains unverified because browser access was unavailable and native
+Safari control timed out. A separate UI “another app” symptom was traced to the
+Codex managed app-server's active thread writer, not to a Claude worktree lock;
+no service or lock was altered. Validated molecular libraries, full relaxation,
+measured multimodal closure, persistent universal scientific records and earlier
+physics gaps still prevent completion of the overall goal. B/C remain parked;
+submission content is excluded; no push, PR or merge was performed.

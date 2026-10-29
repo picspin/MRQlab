@@ -15,9 +15,10 @@ from mrqlab_experiment.pulsatile_dir import run_pulsatile_dir
 from mrqlab_experiment.cest_mt_noe import run_cest_mt_noe
 from mrqlab_experiment.cest_solomon import run_cest_solomon
 from mrqlab_experiment.mrs_basis import run_mrs_basis
+from mrqlab_experiment.mrs_press import run_press_basis
 
 router=APIRouter(prefix='/research',tags=['research/teaching'])
-Kind=Literal['tse','noncartesian','flow','pulsatile_flow','cest','cest_solomon','mrs']
+Kind=Literal['tse','noncartesian','flow','pulsatile_flow','cest','cest_solomon','mrs','mrs_press']
 
 
 class StrictParameters(BaseModel):
@@ -154,8 +155,36 @@ class MRSParameters(StrictParameters):
     target_relative_amount_error: float=Field(default=.05,gt=0,le=1.)
 
 
-SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'cest':CESTParameters,'cest_solomon':SolomonCESTParameters,'mrs':MRSParameters}
-RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'cest':run_cest_mt_noe,'cest_solomon':run_cest_solomon,'mrs':run_mrs_basis}
+class PressMRSParameters(StrictParameters):
+    refine_rf_steps: int=Field(default=128,ge=32,le=256)
+    target_rf_error: float=Field(default=.002,gt=0,le=1.)
+    echo_s: float=Field(default=.03,ge=.008,le=.2)
+    points: int=Field(default=256,ge=16,le=512)
+    dwell_s: float=Field(default=.0005,ge=.0001,le=.002)
+    rf_duration_s: float=Field(default=.001,ge=.0001,le=.002)
+    rf_steps: int=Field(default=64,ge=16,le=128)
+    grid_size: int=Field(default=17,ge=3,le=25)
+    refine_grid: int=Field(default=25,ge=5,le=33)
+    extended_grid: int=Field(default=39,ge=7,le=49)
+    extended_fov_scale: float=Field(default=3.,ge=1.6,le=4.)
+    thickness_m: list[float]=Field(default_factory=lambda:[.02,.02,.02],min_length=3,max_length=3)
+    fov_scale: float=Field(default=2.,ge=1.5,le=3.)
+    basis_mode: Literal['volume','center']='volume'
+    amounts: list[Amount]=Field(default_factory=lambda:[.02,.008],min_length=2,max_length=2)
+    basis_j_hz: float=Field(default=7.,ge=-20.,le=20.)
+    sample_j_hz: float=Field(default=7.,ge=-20.,le=20.)
+    noise_std: float=Field(default=0.,ge=0,le=.01)
+    seed: int=Field(default=7,ge=0,le=2147483647)
+    max_work: int=Field(default=100000000,ge=1,le=100000000)
+    max_memory_bytes: int=Field(default=134217728,ge=1,le=134217728)
+    target_relative_amount_error: float=Field(default=.05,gt=0,le=1.)
+    target_refinement_error: float=Field(default=.02,gt=0,le=1.)
+    target_fov_error: float=Field(default=.02,gt=0,le=1.)
+    target_leakage_fraction: float=Field(default=.1,gt=0,le=1.)
+
+
+SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'cest':CESTParameters,'cest_solomon':SolomonCESTParameters,'mrs':MRSParameters,'mrs_press':PressMRSParameters}
+RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'cest':run_cest_mt_noe,'cest_solomon':run_cest_solomon,'mrs':run_mrs_basis,'mrs_press':run_press_basis}
 
 
 class RunRequest(StrictParameters):
@@ -251,6 +280,10 @@ def present(kind,result):
         for name,fid in [('Sample',result['signal']),('Fitted',result['fit']['prediction'])]:
             curves.append(_curve(name,freq,abs(np.fft.fftshift(np.fft.fft(fid)))))
         x_label='Frequency relative to water (Hz)'; y_label='Spectrum magnitude'; validation=result['validation']
+    if kind=='mrs_press':
+        for name,localized in zip(result['names'],result['localization']):
+            plane=abs(localized['spatial_response'][len(localized['spatial_response'])//2])
+            images.append(dict(label=f'{name} localization at z=0',width=plane.shape[1],height=plane.shape[0],values=plane.ravel().tolist()))
     if kind=='tse':
         metrics={'Image NRMSE':result['quality']['nrmse'],'PSF prediction NRMSE':result['psf_prediction_quality']['nrmse']}
     elif kind=='noncartesian':
@@ -262,6 +295,7 @@ def present(kind,result):
     elif kind=='flow': metrics={'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']}
     elif kind in {'cest','cest_solomon'}: metrics=result['metrics']
     else: metrics={'Max relative amount error':validation['max_relative_amount_error'],'Fit residual':result['fit']['relative_residual'],'Basis condition':result['fit']['basis_condition']}
+    if kind=='mrs_press': metrics.update({'RF refinement error':validation['max_rf_error'],'Grid refinement error':validation['max_refinement_error'],'Expanded FOV error':validation['max_fov_error'],'Outside-voxel power fraction':validation['max_leakage_power_fraction']})
     return dict(images=images,curves=curves,x_label=x_label,y_label=y_label,validation=validation,metrics=metrics)
 
 
@@ -287,6 +321,8 @@ def run_research(request: RunRequest): return execute(request,checked_source_has
 def search_research(request: SearchRequest):
     fingerprint=checked_source_hash()
     if request.expected_source_hash and request.expected_source_hash!=fingerprint: raise HTTPException(409,'Replay source changed')
+    if request.kind=='mrs_press' and any(set(patch)-{'echo_s','rf_duration_s'} for patch in request.candidates):
+        raise HTTPException(422,'PRESS design search varies pulse timing only; basis, molecular priors and numerical resolution remain fixed.')
     if request.kind=='cest_solomon':
         pulse_keys={'b1_uT','saturation_s','mode','n_pulses','pulse_s','gap_s'}
         if any(set(patch)-pulse_keys for patch in request.candidates):

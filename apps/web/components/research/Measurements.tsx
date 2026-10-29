@@ -4,7 +4,7 @@ import styles from "../../app/research/research.module.css";
 
 const COLORS = ["#4fe3eb", "#ffb834", "#c7a9ef", "#f08e9a"];
 const TARGET_LABELS: Record<string, string> = {
-  threshold: "Image NRMSE target", max_interrupted_fraction: "Maximum interrupted fraction", blood_target_max: "Blood |Mz| limit", wall_target_min: "Wall |Mz| minimum",
+  threshold: "Image NRMSE target", target_rf_error: "RF refinement target", target_fit_residual: "Fit residual target", target_refinement_error: "Grid refinement target", target_fov_error: "Expanded FOV target", target_leakage_fraction: "Outside-voxel power limit", max_interrupted_fraction: "Maximum interrupted fraction", blood_target_max: "Blood |Mz| limit", wall_target_min: "Wall |Mz| minimum",
   target_min_amide_contrast: "Amide contrast target", target_min_relay_contrast: "Relay contrast target", target: "Maximum relative amount error target",
 };
 const format = (value: number) => Number.isInteger(value) ? String(value) : value.toPrecision(5);

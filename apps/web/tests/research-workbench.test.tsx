@@ -128,3 +128,18 @@ it("uses the Solomon relay model and displays signed failed contrast", async () 
   expect(screen.getByText("Relay contrast target")).toBeInTheDocument();
   expect(vi.mocked(runResearch).mock.calls[0][0].kind).toBe("cest_solomon");
 });
+
+it("runs the selected PRESS mismatch control, displays convergence gates and clears stale data", async () => {
+  const press: ResearchRun = { ...result, kind: "mrs_press", view: { ...result.view,
+    metrics: { "Max relative amount error": .66235 }, validation: { passed: false, target_rf_error: .002, target_fov_error: .02 } } };
+  vi.mocked(runResearch).mockResolvedValue(press); render(<ResearchPage />);
+  fireEvent.click(screen.getByRole("button", { name: "PRESS / volume fit" }));
+  fireEvent.change(screen.getByLabelText("拟合基组"), { target: { value: "center" } });
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
+  await screen.findByText("目标未通过");
+  expect(screen.getByText("RF refinement target")).toBeInTheDocument();
+  expect(screen.getByText("Expanded FOV target")).toBeInTheDocument();
+  expect(vi.mocked(runResearch).mock.calls[0][0]).toMatchObject({ kind: "mrs_press", parameters: { basis_mode: "center" } });
+  fireEvent.change(screen.getByLabelText("拟合基组"), { target: { value: "volume" } });
+  expect(screen.queryByText("Measured test question")).not.toBeInTheDocument();
+});

@@ -15,8 +15,9 @@ The strict original image NRMSE target **1e-6** is retained, and its failure is
 asserted. Exploratory .15/.05 comparison thresholds from the handoff are not
 promoted to evidence of high-precision recovery.
 
-The missing table cell was measured from the current source on the same label
-phantom and acquisition: 3D 32×32 gridding NRMSE **0.5425621821984188**.
+The missing table cell was measured from the current source and independently
+confirmed using the historical handoff checkout, with its own explicit PYTHONPATH
+and verified source path, on the same label phantom and acquisition: 3D 32×32 gridding NRMSE **0.5425621821984188**.
 Reproduce with:
 
 ```python
@@ -38,3 +39,11 @@ coherence-selected MRS, retaining the incomplete full-platform requirements.
 Current-line full verification after adapting the four cases: **750 Python tests
 passed** (one existing Starlette/httpx warning). Frontend source is unchanged
 from the previously verified 98-test anchor. No push/PR/merge or B/C unlock occurs; teaching/research only.
+
+The two handoff inconsistencies are resolved explicitly in this continuing
+record: the historical 16×16 3D chain stops at **data_residual**, with
+**converged=true**, as its footnote states (the table's `max_work*` was a typo).
+Historical untracked state is **both** `.pi/` and `HANDOFF-TO-CODEX.md`; neither
+is staged, removed or treated as project source. The handoff changes verification
+only: no solver, gain fit, recalibration, regularizer or reference-image change.
+Exact-DFT CGLS here is distinct from the later optional FINUFFT implementation.

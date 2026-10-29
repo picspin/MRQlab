@@ -86,3 +86,24 @@ were not edited; existing inherited `docs/ismrm` history is not new project work
 - `apps/web`: `npm test -- --cache=false`: **82 passed** (12 files).
 - `npx --no-install tsc --noEmit`: passed. Dependencies reused by ignored symlink.
 - Staged diff whitespace check: passed; only the four implementation/test/report files.
+
+## Handoff verification carried forward
+
+The two-file verification-only change `e1574a8` (parent `9664125`) was independently
+revalidated at **568 Python / 82 frontend** and adapted to the continuing project
+in `34e871e` without changing the solver. The original 1e-6 image target remains
+strict; none of the 32×32 CGLS cases below establishes that target.
+
+| Encoding | Gridding image NRMSE | CGLS image NRMSE | CGLS iterations | Stop | Data residual | Combined work |
+|---|---:|---:|---:|---|---:|---:|
+| Radial 2D 32×32 | 0.5456350016 | 0.00891436989 | 1500 | max_iterations | 8.5340e-7 | 4,731,031,552 |
+| Stack of stars 3D 32×32 | **0.5425621821984188** | 0.01049566741 | 1055 | max_work | 1.8914e-6 | 9,993,191,424 |
+
+The missing gridding cell was reproduced in both the original handoff and the
+current checkout; [commands, source boundaries and corrections](handoff-noncartesian-integration.md)
+are recorded separately. CGLS columns reproduce the handoff measurements. The
+16×16 3D stop is `data_residual` / `converged=true`, following the handoff footnote.
+The exact-DFT reference remains unregularized with no gain fit or calibration.
+The later fast NUFFT path has its own independent report and is not attributed
+to this Claude handoff. Original `.pi/` and `HANDOFF-TO-CODEX.md` stay untracked
+and intact in their historical checkout; no `git clean` was used.

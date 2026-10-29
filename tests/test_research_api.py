@@ -152,3 +152,35 @@ def test_solomon_pulse_search_preserves_failed_target_and_keeps_molecular_priors
     assert data['best']['parameters']=={'b1_uT':1.}
     assert client.post('/research/search',json={'kind':'cest_solomon','candidates':[{'tau_c_s':1e-8}]}).status_code==422
     assert client.post('/research/search',json=data['replay_search']).json()['search_hash']==data['search_hash']
+
+
+def test_press_volume_api_real_complex_maps_targets_and_source_pinned_replay():
+    response=client.post('/research/run',json={'kind':'mrs_press'})
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert data['view']['validation']['passed']
+    assert len(data['view']['images'])==2 and data['view']['images'][0]['width']==17
+    assert isinstance(data['result']['localization'][0]['spatial_response'][0][0][0]['imag'],float)
+    assert data['result']['provenance']['simulations'][0]['coherence_path']==[-1,1,-1]
+    assert data['view']['metrics']['RF refinement error']<.002
+    replay=client.post('/research/run',json=data['replay_request'])
+    assert replay.status_code==200,replay.text
+    assert replay.json()['result_hash']==data['result_hash']
+    failed=client.post('/research/run',json={'kind':'mrs_press','parameters':{'basis_mode':'center'}})
+    assert failed.status_code==200,failed.text
+    assert not failed.json()['view']['validation']['passed']
+    assert failed.json()['view']['metrics']['Max relative amount error']>.5
+    for patch in [{'refine_grid':17},{'refine_rf_steps':64},{'grid_size':True},{'max_memory_bytes':1000},{'max_work':1000}]:
+        assert client.post('/research/run',json={'kind':'mrs_press','parameters':patch}).status_code==422
+
+
+def test_press_pulse_search_replays_all_candidates_and_forbids_prior_or_basis_tuning():
+    response=client.post('/research/search',json={'kind':'mrs_press','parameters':{'echo_s':.008},
+        'candidates':[{'rf_duration_s':.002},{'rf_duration_s':.001}]})
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert not data['candidates'][0]['feasible']
+    assert data['best']['parameters']=={'rf_duration_s':.001}
+    assert client.post('/research/search',json=data['replay_search']).json()['search_hash']==data['search_hash']
+    for patch in [{'basis_j_hz':0.},{'grid_size':9},{'basis_mode':'center'},{'target_rf_error':1.}]:
+        assert client.post('/research/search',json={'kind':'mrs_press','candidates':[patch]}).status_code==422
