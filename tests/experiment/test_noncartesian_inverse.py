@@ -90,3 +90,57 @@ def test_zero_signal_and_inconsistent_samples():
     assert not np.any(image) and d['converged'] and d['stop_reason'] == 'zero_data'
     for samples in (np.zeros(1), [[complex('nan')]]):
         with pytest.raises(ValueError): op.adjoint(samples)
+
+
+# Adapted from Claude hand-off e1574a8; retain the original strict image target.
+
+def test_grid_32_stops_honestly_at_iterations_and_beats_gridding():
+    image = _make_nema_like_phantom(32)
+    xy, data = radial_acquire(image, 48, 32)
+    recovered, d = radial_cgls(xy, data, (32, 32))
+    # 1500 iterations need ~5.3 billion work < 10 billion default budget, so
+    # the default stop is iteration exhaustion; convergence is not claimed.
+    assert d['stop_reason'] == 'max_iterations' and not d['converged']
+    assert not d['gain_fit'] and d['regularization'] == 0
+    assert d['estimated_memory_bytes'] < 134217728
+    # Iteration exhaustion leaves real image error: ~0.087 NRMSE on this
+    # phantom, far outside the 16x16 1e-6 regime but still ahead of gridding.
+    assert not image_quality(image, recovered, 1e-6)['passed']
+    baseline = radial_reconstruct(xy, data, (32, 32))
+    assert np.linalg.norm(recovered-image) < np.linalg.norm(baseline-image)/2
+
+
+def test_grid_3d_32_hits_work_budget_inside_default_memory_cap():
+    image = _make_nema_like_phantom(32)
+    image = np.stack([image, .3j*np.roll(image, 2, 0), 1.2*image])
+    xy, data = radial_acquire(image, 48, 32)
+    recovered, d = radial_cgls(xy, data, (3, 32, 32), max_work=10000000000)
+    # 1500 iterations would need ~14.2 billion work > 10 billion budget, so
+    # the stop is work exhaustion; the 96.9 MiB estimate fits the 128 MiB cap.
+    assert d['stop_reason'] == 'max_work' and not d['converged']
+    assert d['estimated_work'] <= 10000000000
+    assert d['estimated_memory_bytes'] < 134217728
+    assert np.isfinite(recovered).all()
+    assert not image_quality(image, recovered, 1e-6)['passed']
+
+
+def test_memory_cap_rejects_large_3d_grid_before_solve():
+    xy, data = radial_acquire(_make_nema_like_phantom(48), 32, 32)
+    # ~228 MB estimate exceeds the 128 MiB default cap before any iteration.
+    with pytest.raises(ValueError, match='memory budget'):
+        radial_cgls(xy, data, (3, 48, 48))
+    with pytest.raises(ValueError, match='memory budget'):
+        RadialFourierOperator(xy, (3, 48, 48))
+
+
+def test_family_chain_grid_32_retains_strict_target_failure_and_replay():
+    labels = (_make_nema_like_phantom(32) > .4).astype(int)
+    r = run_spatial_imaging('noncartesian', labels, encoding='radial',
+        spokes=48, points=32, reconstruction='cgls', max_work=10000000000,
+        quality_threshold=1e-6)
+    assert not r['quality']['passed'] and r['quality']['threshold'] == 1e-6
+    assert r['solvers'][0]['stop_reason'] == 'max_iterations'
+    assert not r['solvers'][0]['converged']
+    replay = run_spatial_imaging(**r['provenance']['replay'])
+    assert replay['image'] == pytest.approx(r['image'], abs=1e-12)
+    assert replay['provenance'] == r['provenance']
