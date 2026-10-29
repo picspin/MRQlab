@@ -4,6 +4,7 @@ import styles from "../../app/research/research.module.css";
 
 const COLORS = ["#4fe3eb", "#ffb834", "#c7a9ef", "#f08e9a"];
 const TARGET_LABELS: Record<string, string> = {
+  target_velocity_rmse_m_s: "Velocity RMSE target (m/s)", target_frozen_image_error: "Complex frozen-reference NRMSE target",
   target_image_error: "Image NRMSE target", target_coefficient_error: "Component NRMSE target", target_data_residual: "Data residual target", target_min_contrast: "ROI magnitude contrast minimum", target_max_rf_energy: "RF energy proxy limit",
   threshold: "Image NRMSE target", target_rf_error: "RF refinement target", target_fit_residual: "Fit residual target", target_refinement_error: "Grid refinement target", target_fov_error: "Expanded FOV target", target_leakage_fraction: "Outside-voxel power limit", max_interrupted_fraction: "Maximum interrupted fraction", blood_target_max: "Blood |Mz| limit", wall_target_min: "Wall |Mz| minimum",
   target_min_amide_contrast: "Amide contrast target", target_min_relay_contrast: "Relay contrast target", target: "Maximum relative amount error target",
@@ -38,7 +39,7 @@ export default function Measurements({ view, validationLabel = "目标验证" }:
           })}
         </svg><figcaption>{image.label} <span>色标 {format(low)} — {format(high)}</span></figcaption>
       </figure>; })}
-      <p>{scales.size > 1 ? "参考与重建共享绝对值色标；失配对照使用单独色标，数值范围见各图。" : "图像共享绝对值色标。"}3D 显示中心层；完整体数据保留在导出记录。</p>
+      <p>{scales.size > 1 ? "按标注的物理量分组显示，同组共享色标；数值范围和单位见各图。" : "图像共享绝对值色标。"}3D 显示中心层；完整体数据保留在导出记录。</p>
     </div>}
     {curves.length > 0 && <figure className={styles.trace}>
       <svg viewBox="0 0 680 265" role="img" aria-label={`${y_label} versus ${x_label}`}>

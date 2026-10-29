@@ -180,3 +180,20 @@ it("imports a complete record above 5 MB and rejects an oversized record before 
   expect(await screen.findByRole("alert")).toHaveTextContent("记录超过 64 MiB");
   expect(read).not.toHaveBeenCalled();
 });
+
+it("shows partial EPI samples without inventing a velocity pair or completed image", async () => {
+  const partial: ResearchRun = { ...result, kind: "flow_epi", result: { ...result.result, gates: [], readout_status: [
+    { trigger: 0, encoding_sign: 1, adc_samples: 24, expected_samples: 256, completed: false, stage: "epi_readout" },
+  ] }, view: { ...result.view, images: [], curves: [], metrics: { "Completed EPI images": 0 }, validation: { passed: false, completed_encoding_pairs: 0 } },
+    replay_request: { kind: "flow_epi", parameters: { venc_m_s: .05 }, expected_source_hash: result.source_hash } };
+  vi.mocked(runResearch).mockResolvedValue(partial);
+  render(<ResearchPage />);
+  fireEvent.click(screen.getByRole("button", { name: "Flow / encoded EPI" }));
+  expect(screen.getByLabelText("流速编码 VENC (m/s)")).toHaveValue(.05);
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
+  await screen.findByText("实际 EPI 样本与编码对");
+  expect(screen.getByText("24 / 256").closest("tr")).toHaveTextContent("否");
+  expect(screen.getByText("没有完整异号编码对；未生成流速或流量测量。")).toBeInTheDocument();
+  expect(screen.getByText(/缺失 k 空间不补零生成图像/)).toBeInTheDocument();
+  expect(vi.mocked(runResearch).mock.calls[0][0]).toMatchObject({ kind: "flow_epi", parameters: { preparation: "dir", dwell_s: .00006 } });
+});

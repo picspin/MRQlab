@@ -1,9 +1,9 @@
 export interface TriggerEvent { trigger: number; decision_s: number; preparation_s: number; readout_s: number; rr_estimate_s: number; scheduled: boolean; accepted: boolean; rejection: string | null; cancelled_s: number | null; }
-export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "cest" | "cest_solomon" | "mrs" | "mrs_press" | "radial_tse";
+export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "flow_epi" | "cest" | "cest_solomon" | "mrs" | "mrs_press" | "radial_tse";
 export interface ResearchRequest { kind: ResearchKind; parameters: Record<string, unknown>; expected_source_hash?: string; }
 export interface ResearchRun {
   kind: ResearchKind;
-  result: { clinical_question: string; scope: string; gates?: TriggerEvent[]; provenance: Record<string, unknown>; [key: string]: unknown };
+  result: { clinical_question: string; scope: string; gates?: TriggerEvent[]; readout_status?: { trigger: number; encoding_sign: number; adc_samples: number; expected_samples: number; completed: boolean; stage: string }[]; provenance: Record<string, unknown>; [key: string]: unknown };
   view: {
     images: { label: string; width: number; height: number; values: number[]; scale_group?: string }[];
     curves: { label: string; x: number[]; y: number[] }[];
@@ -50,6 +50,12 @@ export const STUDIES: Record<ResearchKind, Study> = {
     validation: "完成读出中血液 |Mz| ≤ 0.1、壁 |Mz| ≥ 0.7，且中断比例 ≤ 声明上限；无完整读出直接失败。默认示例不通过目标。",
     defaults: { r_peaks_s: [0, .45, 1.65], observation_end_s: 2.8, inversion_time_s: .9, mean_gradient_pa_m: 100, oscillating_gradient_pa_m: 200, frequency_hz: 1, radial_rings: 4, axial_spins: 201 },
     fields: [{ key: "inversion_time_s", label: "反转时间 (s)", step: .05 }, { key: "mean_gradient_pa_m", label: "平均驱动压力梯度 (Pa/m)", step: 10 }, { key: "phase_rad", label: "压力波相位 (rad)", step: .1 }],
+    candidates: [{ inversion_time_s: .6 }, { inversion_time_s: .9 }, { inversion_time_s: 1.1 }] },
+  flow_epi: { title: "Flow / encoded EPI", question: "真实传播的选层准备、双极梯度与逐点 EPI 能否保留图像和流速信息？心动时刻不同会产生多大偏差？",
+    limit: "刚性管 Womersley 轴向流；固定横向体素中心，有限 RF 与逐段梯度相位，点 ADC。异号编码来自不同触发时刻；没有线圈、噪声、梯度延迟、涡流或横向输运。无 DIR 是单独对照。",
+    validation: "至少一个完整异号编码对；流速对梯度矩参考的 RMSE ≤0.002 m/s，复图像对冻结参考的 NRMSE ≤0.05，血液 |Mz| ≤0.1、壁 |Mz| ≥0.7，且无中断或参考速度超 VENC。默认示例失败，全部候选失败时不选设计。",
+    defaults: { r_peaks_s: [0, 1.2], observation_end_s: 2.4, inversion_time_s: .9, preparation: "dir", matrix_size: 16, fov_m: .012, axial_spins: 401, rf_steps: 64, dwell_s: .00006, venc_m_s: .05 },
+    fields: [{ key: "inversion_time_s", label: "反转时间 (s)", step: .05 }, { key: "venc_m_s", label: "流速编码 VENC (m/s)", step: .01 }, { key: "dwell_s", label: "EPI 采样间隔 (s)", step: .00001 }],
     candidates: [{ inversion_time_s: .6 }, { inversion_time_s: .9 }, { inversion_time_s: 1.1 }] },
   cest: { title: "CEST / MT / rNOE", question: "半固体 MT 与上场 rNOE 如何混杂 amide 信号和功率选择？",
     limit: "均匀联合池模型；rNOE 是有效交换池。微观交叉弛豫、空间成像和临床浓度校准仍缺失。",

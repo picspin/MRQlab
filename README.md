@@ -40,7 +40,7 @@ The product center is an experiment (`ExperimentGraph`), compiled through three 
 ## Research design and replay workspace
 
 Open `/research` from the Research navigation entry with the local API running.
-This connects nine research chains to editable designs, bounded simulation,
+This connects ten research chains to editable designs, bounded simulation,
 finite candidate comparison, explicit validation and complete JSON records:
 
 | Research chain | Evidence and current fidelity |
@@ -49,6 +49,7 @@ finite candidate comparison, explicit validation and complete JSON records:
 | Non-Cartesian inverse | Exact-DFT CGLS reference for small radial/stack-of-stars grids, unscaled amplitude and residual diagnostics |
 | Echo-resolved radial TSE | Known two-curve EPG temporal basis, complex inverse, separate component/image targets and constrained pulse search |
 | Pulsatile/causal DIR | Pressure-driven rigid-pipe Womersley flow, moving finite-RF spins and causal preparation interruption |
+| Flow / encoded EPI | Persistent moving spins, finite slice RF, bipolar moments, actual point-ADC k-space/images and explicit partial/aliased-pair failures |
 | Signed Solomon CEST/MT relay | Distance/tau-derived donor-to-bridge cross-relaxation, bridge-to-water exchange and signed control contrasts |
 | PRESS volume fitting | Ideal coherence-path selection, finite RF, complex 3D quadrature and independent RF/grid/FOV target checks |
 | Flow/slice/gating | Persistent spins on prescribed through-plane trajectories, finite RF/Gz, known-trigger retrospective timing |
@@ -93,6 +94,12 @@ it estimates two global T2 curves from raw center samples, checks withheld echoe
 then reconstructs unrestricted complex component maps. The synthetic 140°→110°
 candidate passes all five local scenarios; a residual-limit failure excludes the
 180° candidate. This is not voxel T2 mapping or a general noisy-data guarantee.
+
+The [flow-EPI extension](docs/research/flow-epi-coverage.md) propagates actual
+gradient phase and relaxation through the readout. It retains interrupted ADC
+prefixes and distinguishes images, complete opposite-sign pairs, gradient-moment
+references and instantaneous flow. Its default DIR targets fail; no failed-only
+search acquires an invented best design. The supplied pressure/phantom are authored.
 
 See [research workspace evidence and gaps](docs/research/research-workbench-coverage.md).
 All accuracy statements apply to declared teaching models; there is no scanner

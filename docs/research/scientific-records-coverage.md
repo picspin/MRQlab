@@ -204,3 +204,12 @@ Regression advances to **856 Python / 113 frontend**, with TS/build passing.
 Independent evidence/CLI recomputation and actual HTTP create/read/full replay
 match the complete child, retaining the failed candidate. Empty-store import
 keeps the historical parent and child as distinct immutable records.
+
+The [motion-encoded flow/EPI continuation](flow-epi-coverage.md) adds a tenth
+research kind inside existing run/search records. It preserves actual complex
+k-space, partial ADC/gradient prefixes, complete image/pair status, phase/moment
+references and failed targets. The shared record schema and historical examples
+are unchanged. Its example search has two executable failures, one physically
+infeasible gradient design and no selected result. Full CLI/HTTP computational
+replay retains that entire outcome. Regression is **881 Python / 114 frontend**
+with TS/build passing; browser/native-file checks remain open.

@@ -26,15 +26,15 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 
 | Requirement | Current evidence | Status / missing evidence |
 |---|---|---|
-| Clinical question → pulse/design → physical simulation | Nine backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
+| Clinical question → pulse/design → physical simulation | Ten backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
 | High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators and echo-resolved radial TSE; measured intervals support fixed-prior stress cases and an exact-center two-global-T2 navigator with withheld echo checks | Historical fixed-prior corners fail; one navigated candidate passes the finite noiseless stress grid while another fails its residual budget. Noisy/coil/trajectory calibration, full echo-window physics and general voxel T2 inference remain incomplete |
-| Real flow / slice / gating | Pressure-driven Womersley shear/backflow, volume-weighted moving spins, finite RF/Gz and causal interruption with independent fluid/Bloch references | Straight rigid pipe and fixed radius only; measured calibration, general 3D/compliant flow and motion-encoded images remain incomplete |
+| Real flow / slice / gating | Pressure-driven Womersley shear/backflow, finite RF/Gz, causal interruption and a new actual bipolar/EPI point-ADC image chain with partial acquisitions and independent complex Bloch/Fourier checks | Default DIR images/velocity targets fail. Straight rigid pipe/fixed transverse centers only; measured calibration, general 3D/compliant flow, calibrated phase and realistic hardware/readout remain incomplete |
 | CEST MT/NOE | Effective-pool baseline plus distance/tau-derived signed Solomon pair→bridge→water relay, conditional controls and independent population/ODE checks | Full molecular multi-spin/Redfield relaxation, near-resonance generalized semisolid model and spatial joint imaging remain incomplete |
 | More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, coherence-selected 3D PRESS volume fitting with separate RF/grid/FOV checks, center/J mismatch failures | Validated molecular library, full quantum relaxation, realistic field maps, measured spectra and clinical concentration calibration remain incomplete |
-| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Nine research entries include actual causal scheduling/completion table; native JSON download/re-import remains open, with verified CLI local delivery |
-| All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | All nine chains and measured TSE share immutable local multi-study SQLite records, complete source/runtime-pinned CLI/API replay and lossless portable snapshots; cross-platform replay, raw attachments and derived multimodal workflows remain incomplete |
+| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Ten entries include actual causal decisions, ADC completeness, image/velocity validity and failed-only searches; rendered/native JSON download/re-import remains open, with verified CLI local delivery |
+| All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | All ten chains and measured TSE share immutable local multi-study SQLite records, complete source/runtime-pinned CLI/API replay and lossless portable snapshots; cross-platform replay, raw attachments and general derived multimodal workflows remain incomplete |
 | Submission content excluded | Inherited `docs/ismrm` matches 33 original manuscript-worktree files before project removal; original worktree and Git history retained; ignore rule prevents accidental untracked re-entry | Enforced in the current project snapshot; historical anchors intentionally remain immutable |
 | No push/PR/merge, B/C parked | Local commit chain, unchanged roadmap/locked catalog; API regression retains two A protocols | Preserved |
 
@@ -318,3 +318,39 @@ propagation, broader tissue distributions/voxel mapping, full readout physics,
 measured flow/CEST/MRS closure and the earlier platform gaps remain unfinished.
 The overall goal stays active; B/C remain parked, with no submission import,
 push, PR, merge, production-router change or folder relocation.
+
+
+## Causal motion-encoded EPI stage (2026-10-30)
+
+From `71f2f4d`, the tenth research entry couples the pressure-driven axial flow
+and persistent finite-RF ensemble to actual bipolar velocity encoding, gradient-
+integrated EPI sampling and unscaled complex image reconstruction. Cell/slab
+intersection geometry determines receive weights without fitted normalization.
+Trigger interruptions retain executed state, gradient-command prefixes and raw
+ADC values; incomplete grids do not generate images, and a single image does not
+generate a flow measurement. Opposite encodings retain their separate cardiac
+times, gradient-moment reference, instantaneous reference and measured validity.
+
+The [coverage report](flow-epi-coverage.md) and
+[recomputed evidence](examples/flow-epi-evidence.json) preserve the default DIR
+velocity RMSE **0.04820858 m/s**, complex frozen-image NRMSE **0.202502** and
+failed suppression/retention targets. A steady no-DIR phase-encoding control has
+velocity RMSE **0.00024026 m/s** but still fails the combined DIR/image targets.
+The finite search retains two executable failures and one gradient-infeasible
+point; **no design is selected**. A 0.917-second interruption keeps 30/256 raw
+samples with no fabricated image/velocity. All 256 independent complex ADC
+references match within 2.59184e-14; RF/axial/ramp refinement preserves the target
+failure. The finest offline refinement explicitly exceeds the unchanged API
+work cap, with its larger budget recorded.
+
+Final validation after the receive-volume correction: Python **881 passed**,
+frontend **114 passed**, TS and production build passed. Independent full
+evidence/new-process CLI and actual HTTP create/read/import/export/full replay
+match the complete scientific search and retain every failed/infeasible point.
+The browser host remains unavailable, so rendered/visual/native-file checks
+remain open. This is authored rigid-pipe point-ADC imaging, not measured or
+general clinical flow: transverse transport, realistic gradient switching,
+coils/noise/field maps, phase calibration, clinical transfer and prior CEST/MRS
+and platform gaps remain unfinished. The overall goal remains active; B/C stay
+parked, submission materials stay excluded, and no push, PR, merge, router change
+or workspace relocation occurred.

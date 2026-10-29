@@ -1,0 +1,1922 @@
+{
+  "schema": "mrqlab-causal-flow-epi-evidence-1",
+  "sources": {
+    "files": {
+      "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+      "packages/mrqlab_experiment/mrqlab_experiment/calibrated_radial.py": "e2e11f8a1d35cce81d3d8bb57964126fa20afdd934811f683c1e4e40aa762eeb",
+      "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+      "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+      "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+      "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+      "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+      "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+      "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+      "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+      "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_epi.py": "d1d54a732ac6ff62a3a39b3d84e29f0ae38ea1157d3550f6dd8fff041b9abdb3",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+      "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+      "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+      "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_press.py": "b46158933b3ee30de8eb78877a1f3fca27b3f1da88b9632a1eda81b5872460dd",
+      "packages/mrqlab_experiment/mrqlab_experiment/navigator_radial.py": "ab9de5a46765519f58f19d3fde13b6e891752b6b9e99f5421791b28660239747",
+      "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+      "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+      "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+      "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+      "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+      "packages/mrqlab_experiment/mrqlab_experiment/radial_tse.py": "334f10c2656cd4553e0ddeb7441e49bb3019b825c3efe4291f8ac9aa5a4c9cb2",
+      "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+      "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+      "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+      "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "20f277de5ce44b6716de8ae939ecfc22ae525c91c0504a53f93236cfcab0512d",
+      "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+      "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+      "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+      "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+      "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+      "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+      "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+      "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+      "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+      "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+      "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+      "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+      "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+      "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+      "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+      "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+      "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+      "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+      "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+      "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+      "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+      "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+      "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+      "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+      "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+      "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+      "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+      "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+      "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+      "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+      "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+      "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+      "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+      "packages/recon/mrqlab_recon/echo_subspace.py": "63cfcdda8654686b3e4d07663cf8bb9e7dd732c9739223ccb3ec782f2309c5bc",
+      "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+      "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+      "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+      "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+      "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+      "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+      "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+      "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+      "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+      "services/api/mrqlab_api/__init__.py": "b7447d3f3581173624e78cdcbd56b4e1807c9883d07c56e928f2f9f65ee20efd",
+      "services/api/mrqlab_api/main.py": "dee84fa8fd8735d200be2f09765bdb0a6e98c330ed1c01af567a814cd62d8d70",
+      "services/api/mrqlab_api/research.py": "a341ce1570850b75bf458f99a91e09711ebc2f2794f973bbbc9f1b0cb2caa85e",
+      "services/api/mrqlab_api/scientific_records.py": "944aa8a39128d745fb87c9ea505cf4c78c69660f4adc6534b917af71ce1885b5",
+      "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+      "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+      "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+    },
+    "sha256": "059df60767a4f048669daf55e51c08210f6ad015d2568c6cf402750c22c471b9"
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "system": "Darwin",
+    "machine": "arm64",
+    "packages": {
+      "numpy": "2.5.2",
+      "pydantic": "2.13.4",
+      "fastapi": "0.141.1",
+      "uvicorn": "0.52.3",
+      "finufft": "2.5.0"
+    },
+    "blas_configuration": {
+      "Compilers": {
+        "c": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "cc"
+        },
+        "cython": {
+          "name": "cython",
+          "linker": "cython",
+          "version": "3.2.9",
+          "commands": "cython"
+        },
+        "c++": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "c++"
+        }
+      },
+      "Machine Information": {
+        "host": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        },
+        "build": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        }
+      },
+      "Build Dependencies": {
+        "blas": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        },
+        "lapack": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        }
+      },
+      "Python Information": {
+        "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+        "version": "3.12"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "NEON",
+          "NEON_FP16",
+          "NEON_VFPV4",
+          "ASIMD"
+        ],
+        "found": [
+          "ASIMDHP",
+          "ASIMDDP"
+        ],
+        "not found": [
+          "ASIMDFHM"
+        ]
+      }
+    }
+  },
+  "script_sha256": "4dfc16bcc9ae1267f98aa641dcd2c61f5a0cd1b99208893adca4ba559c6125e3",
+  "independent_adc": {
+    "adc_count": 256,
+    "max_absolute_complex_error": 2.5918417478740245e-14,
+    "reference": "independent constant-velocity Cartesian Bloch exponential with actual gradient moments"
+  },
+  "gradient_moments": {
+    "duration_s": 0.035999999999999824,
+    "m0_t_s_m": [
+      9.26442286059391e-23,
+      -1.6345088904047827e-21,
+      8.816207631167156e-39
+    ],
+    "delta_m1_t_s2_m": 2.3486594917442797e-07,
+    "venc_m_s": 0.05,
+    "peak_gradient_t_m": 0.034539110172709955,
+    "nominal_slew_t_m_s": 115.13036724236652
+  },
+  "cases": {
+    "regular": {
+      "replay": {
+        "r_peaks_s": [
+          0.0,
+          1.2
+        ],
+        "observation_end_s": 2.4,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "matrix_size": 16,
+        "fov_m": 0.012,
+        "axial_spins": 401,
+        "rf_steps": 64,
+        "preparation": "dir",
+        "off_resonance_hz": 0.0,
+        "dwell_s": 6e-05,
+        "venc_m_s": 0.05,
+        "ramp_steps": 8,
+        "max_gradient_t_m": 0.04,
+        "max_nominal_slew_t_m_s": 150.0,
+        "signal_floor": 1e-05,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 200000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 10.0
+      },
+      "run_sha256": "08e3d2ff69f5c0f01c27a0a750ab92fc940bcffb6c18616b3207fd9d3b160658",
+      "validation": {
+        "passed": false,
+        "completed_images": 2,
+        "completed_encoding_pairs": 1,
+        "scheduled_preparations": 2,
+        "interrupted_fraction": 0.0,
+        "max_interrupted_fraction": 0.0,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_frozen_image_error": 0.20250199823617338,
+        "max_abs_blood_mz": 0.3987091808412534,
+        "min_abs_wall_mz": 0.5815458120408074,
+        "max_velocity_rmse_m_s": 0.048208578577799775
+      },
+      "work": 72047041,
+      "planned_work": 73598911,
+      "memory": 9920512,
+      "readout_status": [
+        {
+          "trigger": 0,
+          "encoding_sign": 1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        },
+        {
+          "trigger": 1,
+          "encoding_sign": -1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        }
+      ],
+      "final_state_hashes": {
+        "blood": "c588da71f8e7a740458c5d062a343f690f890d9dbd41490b6ba122ab06139c02",
+        "wall": "4db792f76a7be9abda45ec60efe7b8b293ac4f0994eabc722a283f997e3a1654"
+      },
+      "waveform_sha256": "ee2a73f100720574a85f8bcf24afcd68aed4dec2d706fefc5dde8447e1f02c34",
+      "complete_images": [
+        {
+          "trigger": 0,
+          "image_sha256": "451229ffd389d8c720d54104975759a990a781f58ecd3dd44e0d4fae009ffccf",
+          "kspace_sha256": "a27abf721c9f1fb0944492a074773324c5441684b924fb7710ae127c6880b31a",
+          "frozen_reference_sha256": "25144d11a94e0ac97fa8eaf7196a87dd6451ff72c12adaf530922ebacad57ef7",
+          "quality": {
+            "nrmse": 0.19214732848975283,
+            "max_absolute_error": 0.11260492127413256,
+            "threshold": 0.05,
+            "passed": false
+          }
+        },
+        {
+          "trigger": 1,
+          "image_sha256": "759db60d1e38b93b900a29ef23a0b45ce8fef16f1295e5b0489d995c191d5156",
+          "kspace_sha256": "d77f1029cdd0a16f1a4a0be9fff7a77fcfd8c5badbcd93c30a6e3c0fdb7f8294",
+          "frozen_reference_sha256": "3a0cf8d7fd7908e848661d705326c270157ebe89347e8254d6c1109fe38d55d6",
+          "quality": {
+            "nrmse": 0.20250199823617338,
+            "max_absolute_error": 0.11071690755315089,
+            "threshold": 0.05,
+            "passed": false
+          }
+        }
+      ],
+      "velocity_pairs": [
+        {
+          "triggers": [
+            0,
+            1
+          ],
+          "encoding_times_s": [
+            0.9089999999999978,
+            2.10899999999999
+          ],
+          "velocity_rmse_m_s": 0.048208578577799775,
+          "observed_blood_fraction": 1.0,
+          "measured_grid_flow_m3_s": -2.5826186776974805e-07,
+          "moment_reference_grid_flow_m3_s": 3.104130028846597e-07,
+          "instantaneous_analytic_pipe_flow_m3_s": 2.9720417964710683e-08,
+          "max_abs_wall_velocity_m_s": 0.0006484361754956165,
+          "reference_exceeds_venc": false,
+          "complete_pair_sha256": "705bd1ca1e3d867b095b4193c4378aedd0ffdd09c5496bd151572856a39b030e"
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.9449999999999998,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": 1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 0.9449999999999856,
+              "actual_samples_sha256": "3dd3e0801d7e870ce3f061125a613f6a9e698f2d1787085854e29a3e37268e47",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "f0465806e7b1470b633cea60049acbe0d82675c867d11d12e86a7700d4f2ba80",
+              "positions_hash": "d9998fea6b7aeffa6df1646230bb33f3b83c83c84733bceb77eb379bd82e0fcf",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 0.9449999999999856,
+              "actual_samples_sha256": "63ba8e34aa505221a9eac768644d0ce10b4ac17f778d6e60501ae8852de9737a",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "42e3af15986f421a94c1f51ac21c756b1752c53ab8de92a8054db6061665a047",
+              "positions_hash": "e093889485e04ad14fa2282ad6c18724a852022a069307807ec06a01ef51af83",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            }
+          }
+        },
+        {
+          "gate": {
+            "trigger": 1,
+            "decision_s": 1.2,
+            "preparation_s": 1.2029999999999998,
+            "readout_s": 2.1029999999999998,
+            "readout_end_s": 2.1449999999999996,
+            "previous_rr_s": 1.2,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [
+              1.2
+            ],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": -1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 2.1449999999999423,
+              "actual_samples_sha256": "158029816d6f93188695cceefe34b16518181d385e97879440e37076fdb171b4",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "675bb6e020400a2d8ff8fd7600644bacf123540318e5a8008629b0162aecc051",
+              "positions_hash": "216646c5a7d4c3cc9667a047f1064e8651bfd8f56dff1bf451d21cf2f486c83a",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 2.1449999999999423,
+              "actual_samples_sha256": "2806633e0dc62661cf5af604f943503d117851261ae348781994af0d1874b25c",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "86d61c913bf02118cb99d27c500389b5cd777dfa2ecd23a6c3940213121dc08a",
+              "positions_hash": "e093889485e04ad14fa2282ad6c18724a852022a069307807ec06a01ef51af83",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            }
+          }
+        }
+      ]
+    },
+    "steady_no_dir": {
+      "replay": {
+        "r_peaks_s": [
+          0.0,
+          1.2
+        ],
+        "observation_end_s": 2.4,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 0.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "matrix_size": 16,
+        "fov_m": 0.012,
+        "axial_spins": 401,
+        "rf_steps": 64,
+        "preparation": "none",
+        "off_resonance_hz": 0.0,
+        "dwell_s": 6e-05,
+        "venc_m_s": 0.05,
+        "ramp_steps": 8,
+        "max_gradient_t_m": 0.04,
+        "max_nominal_slew_t_m_s": 150.0,
+        "signal_floor": 1e-05,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 200000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 10.0
+      },
+      "run_sha256": "3bce258a0e9a275ce2eea15f0e1094292ef2293ebd51f5544b9b4ac420634255",
+      "validation": {
+        "passed": false,
+        "completed_images": 2,
+        "completed_encoding_pairs": 1,
+        "scheduled_preparations": 2,
+        "interrupted_fraction": 0.0,
+        "max_interrupted_fraction": 0.0,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_frozen_image_error": 0.16799727398245023,
+        "max_abs_blood_mz": 1.0,
+        "min_abs_wall_mz": 0.7087244803884621,
+        "max_velocity_rmse_m_s": 0.00024026086945896468
+      },
+      "work": 69701191,
+      "planned_work": 73598911,
+      "memory": 9920512,
+      "readout_status": [
+        {
+          "trigger": 0,
+          "encoding_sign": 1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        },
+        {
+          "trigger": 1,
+          "encoding_sign": -1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        }
+      ],
+      "final_state_hashes": {
+        "blood": "d967c0aca164f0e6d25ea919ac11011ac646f27518878895828bda219f93db43",
+        "wall": "aaaf6ca01bedf3aef448e78f78ddd461755fe7f59e370a99e74fdc85a5b470e9"
+      },
+      "waveform_sha256": "ee2a73f100720574a85f8bcf24afcd68aed4dec2d706fefc5dde8447e1f02c34",
+      "complete_images": [
+        {
+          "trigger": 0,
+          "image_sha256": "b6358ee56273c1a84a82e0a677f60b8a262c0989505a87dde14d34fdd846e4c2",
+          "kspace_sha256": "239c537505a1717b89b2c078a33280759727c864697e285ad0a1842eaa4957c6",
+          "frozen_reference_sha256": "eb30a1e6b5a628067433de137d6c8d4678e9bd34bcac3dec1ca0362387ded0b7",
+          "quality": {
+            "nrmse": 0.16799727398245023,
+            "max_absolute_error": 0.16401595263690152,
+            "threshold": 0.05,
+            "passed": false
+          }
+        },
+        {
+          "trigger": 1,
+          "image_sha256": "80696eb6367eb86c1487391094f7d3c7ba1dd58edd28b941a8fe75e1d09a70a7",
+          "kspace_sha256": "12576a50229fa3436fe0352da9ae73a3db9ddcba62d61cc92c97af67460e23f2",
+          "frozen_reference_sha256": "f03e8c7bf16efacfbb6a194def6c334c65f437995ecd0e6dd93b33646f989a06",
+          "quality": {
+            "nrmse": 0.1584088978444792,
+            "max_absolute_error": 0.15689825487095424,
+            "threshold": 0.05,
+            "passed": false
+          }
+        }
+      ],
+      "velocity_pairs": [
+        {
+          "triggers": [
+            0,
+            1
+          ],
+          "encoding_times_s": [
+            0.9089999999999978,
+            2.10899999999999
+          ],
+          "velocity_rmse_m_s": 0.00024026086945896468,
+          "observed_blood_fraction": 1.0,
+          "measured_grid_flow_m3_s": 1.8396204083920464e-07,
+          "moment_reference_grid_flow_m3_s": 1.8381696428705125e-07,
+          "instantaneous_analytic_pipe_flow_m3_s": 1.7951958020513102e-07,
+          "max_abs_wall_velocity_m_s": 0.00026330008418501427,
+          "reference_exceeds_venc": false,
+          "complete_pair_sha256": "4d0e97ed1f5d68481075bc874cdf5766e0aee36fe1ec658e03181b8792ab7ecb"
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.9449999999999998,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": 1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 0.9449999999999856,
+              "actual_samples_sha256": "dc39d374494bf0a23d9157eeee21bed76fe2851c0675bc14cb78a9da26df3358",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "bfaed5084dfb4e3493dfab0b561fc5de945cc34a782731eeb5cfb8d00238c75d",
+              "positions_hash": "19c3bbf7762264d10a1e4cda3c6426fcb5c1e7d6d9999fa6c869089a86aba85a",
+              "finite_rf_energy_uT2_s": 0.04019455106394923
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 0.9449999999999856,
+              "actual_samples_sha256": "3f9d182de5e9d8a0f3e71b580e6d25bfc5acaf8bd38550e9a0611c4a71e99c9d",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "682634174c620ff4da39da7196d28a566eb4d5c7c8b431be8acf97e7adc21029",
+              "positions_hash": "e093889485e04ad14fa2282ad6c18724a852022a069307807ec06a01ef51af83",
+              "finite_rf_energy_uT2_s": 0.04019455106394923
+            }
+          }
+        },
+        {
+          "gate": {
+            "trigger": 1,
+            "decision_s": 1.2,
+            "preparation_s": 1.2029999999999998,
+            "readout_s": 2.1029999999999998,
+            "readout_end_s": 2.1449999999999996,
+            "previous_rr_s": 1.2,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [
+              1.2
+            ],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": -1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 2.1449999999999423,
+              "actual_samples_sha256": "667a40760d2390b35589baf432d1ce27be7d4d6783cfd8e1cd3a68d3d1846fcf",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "bce47672ad22a3015a1929fcb1800e357be2edbeed30893f1227774233e615d7",
+              "positions_hash": "ff9811f2cd3aa2138846bee2d39160a9667a3ad7fe93f438a5c9186b46b25095",
+              "finite_rf_energy_uT2_s": 0.04019455106394923
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 2.1449999999999423,
+              "actual_samples_sha256": "8971b7b59aa803bd97c36fd26f1807aadc3bf61d49dc3be7853379ea76060fd4",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "6498715b01fe9e1e4d26664a10d8bc9908f378fc893be8c894edf1b69e6f414d",
+              "positions_hash": "e093889485e04ad14fa2282ad6c18724a852022a069307807ec06a01ef51af83",
+              "finite_rf_energy_uT2_s": 0.04019455106394923
+            }
+          }
+        }
+      ]
+    },
+    "interrupted_epi": {
+      "replay": {
+        "r_peaks_s": [
+          0.0,
+          0.917
+        ],
+        "observation_end_s": 1.4,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "matrix_size": 16,
+        "fov_m": 0.012,
+        "axial_spins": 401,
+        "rf_steps": 64,
+        "preparation": "dir",
+        "off_resonance_hz": 0.0,
+        "dwell_s": 6e-05,
+        "venc_m_s": 0.05,
+        "ramp_steps": 8,
+        "max_gradient_t_m": 0.04,
+        "max_nominal_slew_t_m_s": 150.0,
+        "signal_floor": 1e-05,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 200000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 10.0
+      },
+      "run_sha256": "bcaa3da57ac14e80005ad271fdc138d409940e4fd54868820d9ca1a1250720d9",
+      "validation": {
+        "passed": false,
+        "completed_images": 0,
+        "completed_encoding_pairs": 0,
+        "scheduled_preparations": 1,
+        "interrupted_fraction": 1.0,
+        "max_interrupted_fraction": 0.0,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7
+      },
+      "work": 6730785,
+      "planned_work": 36808478,
+      "memory": 9579776,
+      "readout_status": [
+        {
+          "trigger": 0,
+          "encoding_sign": 1,
+          "adc_samples": 30,
+          "expected_samples": 256,
+          "completed": false,
+          "stage": "epi_readout"
+        }
+      ],
+      "final_state_hashes": {
+        "blood": "112931f22cea8634d595f98511e98d040b3c8cb9d35c4c1b392866ad9c1f5a02",
+        "wall": "86e87dcb03e59655d2c70b3ed53602aa0900df07eadbf8e4a0fd2a763aff7c0a"
+      },
+      "waveform_sha256": "ee2a73f100720574a85f8bcf24afcd68aed4dec2d706fefc5dde8447e1f02c34",
+      "complete_images": [],
+      "velocity_pairs": [],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.9449999999999998,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": false,
+            "rejection": "interrupted_by_trigger",
+            "cancelled_s": 0.917
+          },
+          "encoding_sign": 1,
+          "tissues": {
+            "blood": {
+              "stage": "epi_readout",
+              "end_s": 0.917,
+              "actual_samples_sha256": "087f5e0b8b1477a66337cdc5e3b0896be852124303468176813a9874033679be",
+              "actual_commands_sha256": "674c9dc0b5013b1e1c30ea27992c9dd8d00f59e2db829c1e0b7ecee532dc04a1",
+              "state_hash": "f20c69c6c3fc4b164ab4fc91d2cefd5ae6f1b7c92310d3a967421d4bc382618e",
+              "positions_hash": "90889c4533c9def71c18479b3ac1a6178cad3edb8313d72aa2671c082b2f7edc",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            },
+            "wall": {
+              "stage": "epi_readout",
+              "end_s": 0.917,
+              "actual_samples_sha256": "accb9de74bf960b3ceabf98098cbf8faddf2d56e92c6aa1b17b0208cfde55942",
+              "actual_commands_sha256": "674c9dc0b5013b1e1c30ea27992c9dd8d00f59e2db829c1e0b7ecee532dc04a1",
+              "state_hash": "8649785604c06302ca22d5c02dd4982652013e2ccdd0a97cf871db0ba695e8ac",
+              "positions_hash": "e093889485e04ad14fa2282ad6c18724a852022a069307807ec06a01ef51af83",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            }
+          }
+        }
+      ]
+    },
+    "single_image": {
+      "replay": {
+        "r_peaks_s": [
+          0.0
+        ],
+        "observation_end_s": 1.1,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "matrix_size": 16,
+        "fov_m": 0.012,
+        "axial_spins": 401,
+        "rf_steps": 64,
+        "preparation": "dir",
+        "off_resonance_hz": 0.0,
+        "dwell_s": 6e-05,
+        "venc_m_s": 0.05,
+        "ramp_steps": 8,
+        "max_gradient_t_m": 0.04,
+        "max_nominal_slew_t_m_s": 150.0,
+        "signal_floor": 1e-05,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 200000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 10.0
+      },
+      "run_sha256": "0bfe50e8631c1778d01b8f408c2682bee91b7db3861f871b20c5f76c67fccdaf",
+      "validation": {
+        "passed": false,
+        "completed_images": 1,
+        "completed_encoding_pairs": 0,
+        "scheduled_preparations": 1,
+        "interrupted_fraction": 0.0,
+        "max_interrupted_fraction": 0.0,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_frozen_image_error": 0.19215764850462771,
+        "max_abs_blood_mz": 0.1388068941970321,
+        "min_abs_wall_mz": 0.6552604714349957
+      },
+      "work": 36032543,
+      "planned_work": 36808478,
+      "memory": 9579776,
+      "readout_status": [
+        {
+          "trigger": 0,
+          "encoding_sign": 1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        }
+      ],
+      "final_state_hashes": {
+        "blood": "f6ae1c6c97b09d29b18b0d64f48868926bef1690d1d37929a77d4096260eb69e",
+        "wall": "3b49361d456dad9085a25b0f8f29ea99d62512876434a7da4413feb54b2b3395"
+      },
+      "waveform_sha256": "ee2a73f100720574a85f8bcf24afcd68aed4dec2d706fefc5dde8447e1f02c34",
+      "complete_images": [
+        {
+          "trigger": 0,
+          "image_sha256": "a19f3a753a92acc2da814e0ef9045379b3242c4b1895563f99439ec094429e64",
+          "kspace_sha256": "4dbb4db96570ac33e3fb9b0d4b8cf0fb0054e9ebf5fb66fbed4962a4ac51aecf",
+          "frozen_reference_sha256": "7aeb1db1f1dcb8ee4d54e3116018b735aad8b28707ee1c4a2bf5bd4d757dcf05",
+          "quality": {
+            "nrmse": 0.19215764850462771,
+            "max_absolute_error": 0.11260460550570642,
+            "threshold": 0.05,
+            "passed": false
+          }
+        }
+      ],
+      "velocity_pairs": [],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.9449999999999998,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": 1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 0.9449999999999856,
+              "actual_samples_sha256": "a1146253e5a5030a73d7d9e59a736c2e910ed8e233fd65059e1dbc8d40e402dc",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "301c7606485d42ede2df91c898f30d368d6e872ffc0b29fba2d364f4e390136a",
+              "positions_hash": "49af7ad246f27e67d7350ee1db63d4ca114bb32cf25d4bc7ff4976847321e938",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 0.9449999999999856,
+              "actual_samples_sha256": "63ba8e34aa505221a9eac768644d0ce10b4ac17f778d6e60501ae8852de9737a",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "42e3af15986f421a94c1f51ac21c756b1752c53ab8de92a8054db6061665a047",
+              "positions_hash": "e093889485e04ad14fa2282ad6c18724a852022a069307807ec06a01ef51af83",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            }
+          }
+        }
+      ]
+    },
+    "no_image": {
+      "replay": {
+        "r_peaks_s": [
+          0.0
+        ],
+        "observation_end_s": 0.5,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "matrix_size": 16,
+        "fov_m": 0.012,
+        "axial_spins": 401,
+        "rf_steps": 64,
+        "preparation": "dir",
+        "off_resonance_hz": 0.0,
+        "dwell_s": 6e-05,
+        "venc_m_s": 0.05,
+        "ramp_steps": 8,
+        "max_gradient_t_m": 0.04,
+        "max_nominal_slew_t_m_s": 150.0,
+        "signal_floor": 1e-05,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 200000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 10.0
+      },
+      "run_sha256": "68c1fc0e18005abd337ac31e1a17a656552dd4bca9b518b2b34c21a2783b42cb",
+      "validation": {
+        "passed": false,
+        "completed_images": 0,
+        "completed_encoding_pairs": 0,
+        "scheduled_preparations": 1,
+        "interrupted_fraction": 1.0,
+        "max_interrupted_fraction": 0.0,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7
+      },
+      "work": 1209015,
+      "planned_work": 36808478,
+      "memory": 9579776,
+      "readout_status": [
+        {
+          "trigger": 0,
+          "encoding_sign": 1,
+          "adc_samples": 0,
+          "expected_samples": 256,
+          "completed": false,
+          "stage": "inversion_recovery"
+        }
+      ],
+      "final_state_hashes": {
+        "blood": "b9f92c318bd13d02f3749bab0ec2c3da77232ad8d4f749fc9f7f1c96557ccd80",
+        "wall": "5e0a853f5bc6e5b28cee47d712db61eb8382d162e9d9500c697d8a08261d3fad"
+      },
+      "waveform_sha256": "ee2a73f100720574a85f8bcf24afcd68aed4dec2d706fefc5dde8447e1f02c34",
+      "complete_images": [],
+      "velocity_pairs": [],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.9449999999999998,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": false,
+            "rejection": "observation_ended",
+            "cancelled_s": 0.5
+          },
+          "encoding_sign": 1,
+          "tissues": {
+            "blood": {
+              "stage": "inversion_recovery",
+              "end_s": 0.5,
+              "actual_samples_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "actual_commands_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "state_hash": "b9f92c318bd13d02f3749bab0ec2c3da77232ad8d4f749fc9f7f1c96557ccd80",
+              "positions_hash": "6011cd77a43b0b812ca6e7de53873a664a9786a0e94e9dd35a207c707d4e1579",
+              "finite_rf_energy_uT2_s": 0.08038910212789846
+            },
+            "wall": {
+              "stage": "inversion_recovery",
+              "end_s": 0.5,
+              "actual_samples_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "actual_commands_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+              "state_hash": "5e0a853f5bc6e5b28cee47d712db61eb8382d162e9d9500c697d8a08261d3fad",
+              "positions_hash": "e093889485e04ad14fa2282ad6c18724a852022a069307807ec06a01ef51af83",
+              "finite_rf_energy_uT2_s": 0.08038910212789846
+            }
+          }
+        }
+      ]
+    },
+    "alias_no_dir": {
+      "replay": {
+        "r_peaks_s": [
+          0.0,
+          1.2
+        ],
+        "observation_end_s": 2.4,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 400.0,
+        "oscillating_gradient_pa_m": 0.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "matrix_size": 16,
+        "fov_m": 0.012,
+        "axial_spins": 801,
+        "rf_steps": 64,
+        "preparation": "none",
+        "off_resonance_hz": 0.0,
+        "dwell_s": 6e-05,
+        "venc_m_s": 0.05,
+        "ramp_steps": 8,
+        "max_gradient_t_m": 0.04,
+        "max_nominal_slew_t_m_s": 150.0,
+        "signal_floor": 1e-05,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 200000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 10.0
+      },
+      "run_sha256": "92068acaa9742c3e2ef2ff060cd152d7f56d85fef15acbeb9ebc2427265236fd",
+      "validation": {
+        "passed": false,
+        "completed_images": 2,
+        "completed_encoding_pairs": 1,
+        "scheduled_preparations": 2,
+        "interrupted_fraction": 0.0,
+        "max_interrupted_fraction": 0.0,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_frozen_image_error": 0.3073792822985166,
+        "max_abs_blood_mz": 0.9999999999999991,
+        "min_abs_wall_mz": 0.7087137102573274,
+        "max_velocity_rmse_m_s": 0.07202223118450608
+      },
+      "work": 139163191,
+      "planned_work": 146948911,
+      "memory": 19136512,
+      "readout_status": [
+        {
+          "trigger": 0,
+          "encoding_sign": 1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        },
+        {
+          "trigger": 1,
+          "encoding_sign": -1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        }
+      ],
+      "final_state_hashes": {
+        "blood": "421603f99c284384bf5449df1c4f84b9f8262ab91c45e3091de95c674443c1e5",
+        "wall": "e7d3382b1843250a4fac518e42a6e181c25dfbb607df16dcd4098f84f7e1c611"
+      },
+      "waveform_sha256": "ee2a73f100720574a85f8bcf24afcd68aed4dec2d706fefc5dde8447e1f02c34",
+      "complete_images": [
+        {
+          "trigger": 0,
+          "image_sha256": "0573d46a6160265e363a94aeabbce0ca76248c59e78fec09b61afc6a20c3fcc9",
+          "kspace_sha256": "b54f20244a387cfcea18248187d50d6538a4ae1d6f306c44f94755987fe5e948",
+          "frozen_reference_sha256": "512e0b4444da2f240bf765a6411d17a85c1a2df2e2978dabca1e2c8b25c70454",
+          "quality": {
+            "nrmse": 0.2782250861310843,
+            "max_absolute_error": 0.44595310398709315,
+            "threshold": 0.05,
+            "passed": false
+          }
+        },
+        {
+          "trigger": 1,
+          "image_sha256": "783db5b48c21097165d2e6e26ee42b4335e7aeca19cebca9a821cacb2f3aa41a",
+          "kspace_sha256": "ef7fab4558f1b14e1bec87e05d2007ac6424148d029429517e755c1761023851",
+          "frozen_reference_sha256": "a63a2ea91f051d7dc6240b77e9c2cec2c0595c5fbaff5aeb778a1abe7b713a3d",
+          "quality": {
+            "nrmse": 0.3073792822985166,
+            "max_absolute_error": 0.4584534079328832,
+            "threshold": 0.05,
+            "passed": false
+          }
+        }
+      ],
+      "velocity_pairs": [
+        {
+          "triggers": [
+            0,
+            1
+          ],
+          "encoding_times_s": [
+            0.9089999999999978,
+            2.10899999999999
+          ],
+          "velocity_rmse_m_s": 0.07202223118450608,
+          "observed_blood_fraction": 1.0,
+          "measured_grid_flow_m3_s": 1.1763906788877966e-07,
+          "moment_reference_grid_flow_m3_s": 7.35267857148205e-07,
+          "instantaneous_analytic_pipe_flow_m3_s": 7.180783208205241e-07,
+          "max_abs_wall_velocity_m_s": 0.0011916624019570868,
+          "reference_exceeds_venc": true,
+          "complete_pair_sha256": "b263fe48bf82fc9e677a5d69c11db9f592d4b61c681996f77dd8c2fc45fc53b4"
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.9449999999999998,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": 1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 0.9449999999999856,
+              "actual_samples_sha256": "956cd0921f6dec3cf557cec9c4d1212d2663c5f281f249b8d80fd9f7d22efa0c",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "6e7e81b2a1e9a96be1a7533473640b2f4c4cb9a84f82bb037e29ce165beaea6a",
+              "positions_hash": "70575d5fcfafb7ee90c79010350ac03266de66a9d807741981a38858026b3b84",
+              "finite_rf_energy_uT2_s": 0.04019455106394923
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 0.9449999999999856,
+              "actual_samples_sha256": "1cd455bf664584a3a550bf4af86d46839de38b3367f070f6924882bad42f3c5e",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "dc8b9247ebecbd2d2f8528bd6087c0e0043cff5bcc248efd432630210ef88aea",
+              "positions_hash": "bad48db55db51739f37217148b29886a6ef09f3e47a2dcf567c290b164e2d146",
+              "finite_rf_energy_uT2_s": 0.04019455106394923
+            }
+          }
+        },
+        {
+          "gate": {
+            "trigger": 1,
+            "decision_s": 1.2,
+            "preparation_s": 1.2029999999999998,
+            "readout_s": 2.1029999999999998,
+            "readout_end_s": 2.1449999999999996,
+            "previous_rr_s": 1.2,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [
+              1.2
+            ],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": -1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 2.1449999999999423,
+              "actual_samples_sha256": "2a3c0ca391e30ac54e604844cc105094a5bda4c5c8736be32704488b4c85f30a",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "7e2f3abecf27239a7fe88f9b8af8fbb21258244801c39bc6105fc4c15a2796ea",
+              "positions_hash": "f31ffc3f2f795c8e415afacffed8741bcab5be3bbb2136e8074dac7ea51f53f0",
+              "finite_rf_energy_uT2_s": 0.04019455106394923
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 2.1449999999999423,
+              "actual_samples_sha256": "3b0a13fffa681dbba5f78de6bde3e7db4374132ca35065c553c55dcfdea64e3b",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "934d46a1dccf53479f993e91afd284fb32a3691a57007eca9aef8a24634765ca",
+              "positions_hash": "bad48db55db51739f37217148b29886a6ef09f3e47a2dcf567c290b164e2d146",
+              "finite_rf_energy_uT2_s": 0.04019455106394923
+            }
+          }
+        }
+      ]
+    }
+  },
+  "refinements": [
+    {
+      "replay": {
+        "r_peaks_s": [
+          0.0,
+          1.2
+        ],
+        "observation_end_s": 2.4,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "matrix_size": 16,
+        "fov_m": 0.012,
+        "axial_spins": 201,
+        "rf_steps": 64,
+        "preparation": "dir",
+        "off_resonance_hz": 0.0,
+        "dwell_s": 6e-05,
+        "venc_m_s": 0.05,
+        "ramp_steps": 8,
+        "max_gradient_t_m": 0.04,
+        "max_nominal_slew_t_m_s": 150.0,
+        "signal_floor": 1e-05,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 400000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 10.0
+      },
+      "run_sha256": "164c528ddd7c10b14960a5dbf3b081914c32d07abaea289cd7694d1a286779a9",
+      "validation": {
+        "passed": false,
+        "completed_images": 2,
+        "completed_encoding_pairs": 1,
+        "scheduled_preparations": 2,
+        "interrupted_fraction": 0.0,
+        "max_interrupted_fraction": 0.0,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_frozen_image_error": 0.20221329929898807,
+        "max_abs_blood_mz": 0.3987104458063532,
+        "min_abs_wall_mz": 0.5815397127280669,
+        "max_velocity_rmse_m_s": 0.04821187072685136
+      },
+      "work": 36146041,
+      "planned_work": 36923911,
+      "memory": 5312512,
+      "readout_status": [
+        {
+          "trigger": 0,
+          "encoding_sign": 1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        },
+        {
+          "trigger": 1,
+          "encoding_sign": -1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        }
+      ],
+      "final_state_hashes": {
+        "blood": "c3f55d03684baa5a38c123de9a7cfd2816178eb0dc9953933c5732dde2b1f4d7",
+        "wall": "4d870cef750c74e0fb06198094b56d2f68b3aa33fe85de481b125815f27004e3"
+      },
+      "waveform_sha256": "ee2a73f100720574a85f8bcf24afcd68aed4dec2d706fefc5dde8447e1f02c34",
+      "complete_images": [
+        {
+          "trigger": 0,
+          "image_sha256": "14d478d8df645884d89f5bd54ca2931b5c793abe88daea2cfbd590e0edeb1f4f",
+          "kspace_sha256": "d675a0c94bdcc0f5c76e6e6cb586c097bab44af947d073ca978a8cea27ca9be0",
+          "frozen_reference_sha256": "1a02b0462dfe1739315ea352fbed7887dc000ec22f34b398d27d5751113d089b",
+          "quality": {
+            "nrmse": 0.19208681210215167,
+            "max_absolute_error": 0.11260146068848853,
+            "threshold": 0.05,
+            "passed": false
+          }
+        },
+        {
+          "trigger": 1,
+          "image_sha256": "5123625227726da7d2385a1455c2a75611c044772fa1e309397e57de63eb9aa3",
+          "kspace_sha256": "602ce5f97ea02a4820fc2969d3086bf4d0c35df1b335b9cb7d2515e6d3e109ac",
+          "frozen_reference_sha256": "70695f8394b9f6a9700f6bb69174b9d9b805a1be479bba3ff2d670255afd1072",
+          "quality": {
+            "nrmse": 0.20221329929898807,
+            "max_absolute_error": 0.11043762684395084,
+            "threshold": 0.05,
+            "passed": false
+          }
+        }
+      ],
+      "velocity_pairs": [
+        {
+          "triggers": [
+            0,
+            1
+          ],
+          "encoding_times_s": [
+            0.9089999999999978,
+            2.10899999999999
+          ],
+          "velocity_rmse_m_s": 0.04821187072685136,
+          "observed_blood_fraction": 1.0,
+          "measured_grid_flow_m3_s": -2.5829866759512774e-07,
+          "moment_reference_grid_flow_m3_s": 3.104130028846597e-07,
+          "instantaneous_analytic_pipe_flow_m3_s": 2.9720417964710683e-08,
+          "max_abs_wall_velocity_m_s": 0.0006541776366445847,
+          "reference_exceeds_venc": false,
+          "complete_pair_sha256": "6bd24d5b817e488fd2109f0a001fdfc1a5fc00d8fd2e4fadb703f91b3f287e0e"
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.9449999999999998,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": 1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 0.9449999999999856,
+              "actual_samples_sha256": "64b5e4742cc9fb4fda1368f29c102450ba4bbd25110321b70931d9ed54481206",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "b0413ca450ef4f11b5c313b140a528d0383af06a000e8bc50180cd5eacadbebe",
+              "positions_hash": "923e527ac45786869b3b6bacbceb3c6d75d5b65b9409ae0f6dc2c041452d73fa",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 0.9449999999999856,
+              "actual_samples_sha256": "abaa03ed2d061de2fa6866d9110fbb1c113d703fddc398c7a4092af805cb17d0",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "6dbe4c37831937605dbe98da9218af1bf3af5040c5af6194cb60e8899c5250dc",
+              "positions_hash": "7acf49ed329f18c77e4a31d2cc1dfd17ad6984ff15c42d182f1e542bebbb0ebf",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            }
+          }
+        },
+        {
+          "gate": {
+            "trigger": 1,
+            "decision_s": 1.2,
+            "preparation_s": 1.2029999999999998,
+            "readout_s": 2.1029999999999998,
+            "readout_end_s": 2.1449999999999996,
+            "previous_rr_s": 1.2,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [
+              1.2
+            ],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": -1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 2.1449999999999423,
+              "actual_samples_sha256": "8a82fd7137bb731b6ae2df90415467383c54727fcbfb8f63da8b5d2fcbd1ec40",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "ccc534b45adc3f27f8d3bf8ad5b5afa3964c3935ad9076338f39e324c5a14d48",
+              "positions_hash": "47d7d7ba6486fcd87e094916420ad256fcc3e4968c1146f77b9f4b99393a6dfa",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 2.1449999999999423,
+              "actual_samples_sha256": "fe50062e3168a5d6345cefce6da025f1ead5df0abcff32d8fa0a2ad6dd8f5195",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "8e5366af42aa53912bddf96e56cfc9d0e4914239221d7ebf7d8d69a9de4b42da",
+              "positions_hash": "7acf49ed329f18c77e4a31d2cc1dfd17ad6984ff15c42d182f1e542bebbb0ebf",
+              "finite_rf_energy_uT2_s": 0.12058365319184769
+            }
+          }
+        }
+      ]
+    },
+    {
+      "replay": {
+        "r_peaks_s": [
+          0.0,
+          1.2
+        ],
+        "observation_end_s": 2.4,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "matrix_size": 16,
+        "fov_m": 0.012,
+        "axial_spins": 401,
+        "rf_steps": 128,
+        "preparation": "dir",
+        "off_resonance_hz": 0.0,
+        "dwell_s": 6e-05,
+        "venc_m_s": 0.05,
+        "ramp_steps": 8,
+        "max_gradient_t_m": 0.04,
+        "max_nominal_slew_t_m_s": 150.0,
+        "signal_floor": 1e-05,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 400000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 10.0
+      },
+      "run_sha256": "d1de23559481b52950e07584f0c84d25786675129f4008d62b2461ff28eca219",
+      "validation": {
+        "passed": false,
+        "completed_images": 2,
+        "completed_encoding_pairs": 1,
+        "scheduled_preparations": 2,
+        "interrupted_fraction": 0.0,
+        "max_interrupted_fraction": 0.0,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_frozen_image_error": 0.2025080947721352,
+        "max_abs_blood_mz": 0.3987091863647507,
+        "min_abs_wall_mz": 0.5815940997161307,
+        "max_velocity_rmse_m_s": 0.04820887136323113
+      },
+      "work": 76666561,
+      "planned_work": 78218431,
+      "memory": 9920512,
+      "readout_status": [
+        {
+          "trigger": 0,
+          "encoding_sign": 1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        },
+        {
+          "trigger": 1,
+          "encoding_sign": -1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        }
+      ],
+      "final_state_hashes": {
+        "blood": "04f2e9c50e7082730cacdc54234773946ab4d393dd94351f20f9ebbceee736c0",
+        "wall": "8965d64b35895b09cc871308410c0f096e13697410e63b39f97271f8001311f8"
+      },
+      "waveform_sha256": "ee2a73f100720574a85f8bcf24afcd68aed4dec2d706fefc5dde8447e1f02c34",
+      "complete_images": [
+        {
+          "trigger": 0,
+          "image_sha256": "38a1b63d2a8c4a64314243251afad2a9081c4b995f76da43ab3089201f18cb4b",
+          "kspace_sha256": "7785e8f5dbad5d8bf41a5f42d25be92afb58d252a51ac8349c4a96f6e3ef9f9e",
+          "frozen_reference_sha256": "4bc748f6f7cb1b87d1b46448b48f29d7dd826330253657008a2c91794295757c",
+          "quality": {
+            "nrmse": 0.19214794794520226,
+            "max_absolute_error": 0.11263538763642726,
+            "threshold": 0.05,
+            "passed": false
+          }
+        },
+        {
+          "trigger": 1,
+          "image_sha256": "e58872b302f9c3643e5ad6ab42fb6e726eb08e49668c5a0d087556d9b24518af",
+          "kspace_sha256": "c0a92fb6be1ad229e89122cd4602864b3717689972979e8b18c073c38bf13e73",
+          "frozen_reference_sha256": "46ced1a738859ba04583aad659723d1200c98ab1fd0e90a40ecaf145f4ec47d1",
+          "quality": {
+            "nrmse": 0.2025080947721352,
+            "max_absolute_error": 0.11074400683600845,
+            "threshold": 0.05,
+            "passed": false
+          }
+        }
+      ],
+      "velocity_pairs": [
+        {
+          "triggers": [
+            0,
+            1
+          ],
+          "encoding_times_s": [
+            0.9090000000000049,
+            2.1090000000000186
+          ],
+          "velocity_rmse_m_s": 0.04820887136323113,
+          "observed_blood_fraction": 1.0,
+          "measured_grid_flow_m3_s": -2.5826519466296907e-07,
+          "moment_reference_grid_flow_m3_s": 3.1041300287894737e-07,
+          "instantaneous_analytic_pipe_flow_m3_s": 2.972041796469272e-08,
+          "max_abs_wall_velocity_m_s": 0.0006485372425382516,
+          "reference_exceeds_venc": false,
+          "complete_pair_sha256": "72a4e6a00c7f6311ab5aef00e0628f1acbf3d6b7fb2dcd2b44ece039d1095a28"
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.9449999999999998,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": 1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 0.9449999999999927,
+              "actual_samples_sha256": "4a10c605bed17a2f2aec684b4fe93a8f8c95d5c065a074e936c5ee6bf1eefd14",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "3c266cb9e612e54aa276d51fd91b2825bae4c93a6552e7c2f7064e448b9fb593",
+              "positions_hash": "12d87cf4d651800728263bba923168c25a902495c1257812893754a3214a06ea",
+              "finite_rf_energy_uT2_s": 0.12055101357660665
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 0.9449999999999927,
+              "actual_samples_sha256": "31d1bf0bbcb926d9aacc7b80d3589e6292a6d5a5822a7bd7d66bd994de5f6b7a",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "3f1410ca5e5c968a243e711351aaade842acdb8a269cadf8d636ded01509bbd9",
+              "positions_hash": "e093889485e04ad14fa2282ad6c18724a852022a069307807ec06a01ef51af83",
+              "finite_rf_energy_uT2_s": 0.12055101357660665
+            }
+          }
+        },
+        {
+          "gate": {
+            "trigger": 1,
+            "decision_s": 1.2,
+            "preparation_s": 1.2029999999999998,
+            "readout_s": 2.1029999999999998,
+            "readout_end_s": 2.1449999999999996,
+            "previous_rr_s": 1.2,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [
+              1.2
+            ],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": -1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 2.1449999999999707,
+              "actual_samples_sha256": "e142c1d84ffe87406dbd632ae931872b1c9beecde8bed173fce3d222669b155e",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "76f9235076a06889bec671b9fde990eb02d3cca06922f55ea2371abbda837bdc",
+              "positions_hash": "d2d55f3308c4931a574f9ee2c94776550dd5336e99f511e1fec61922fe2af2b6",
+              "finite_rf_energy_uT2_s": 0.12055101357660665
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 2.1449999999999707,
+              "actual_samples_sha256": "35c1cb9c07e71d3d6d04df2d964f0a16a6417d389e305ba86269ea23f9e340f8",
+              "actual_commands_sha256": "386df67f326eddb51285ab592eb5984068114bd01435151375dbcd5dbb3dc25a",
+              "state_hash": "0b8a1cc88dcde503bcd41b44b8708b1387527fe5ab108600fabd09a8d24690ab",
+              "positions_hash": "e093889485e04ad14fa2282ad6c18724a852022a069307807ec06a01ef51af83",
+              "finite_rf_energy_uT2_s": 0.12055101357660665
+            }
+          }
+        }
+      ]
+    },
+    {
+      "replay": {
+        "r_peaks_s": [
+          0.0,
+          1.2
+        ],
+        "observation_end_s": 2.4,
+        "inversion_time_s": 0.9,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.2,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "mean_gradient_pa_m": 100.0,
+        "oscillating_gradient_pa_m": 200.0,
+        "frequency_hz": 1.0,
+        "phase_rad": 0.0,
+        "thickness_m": 0.005,
+        "matrix_size": 16,
+        "fov_m": 0.012,
+        "axial_spins": 801,
+        "rf_steps": 128,
+        "preparation": "dir",
+        "off_resonance_hz": 0.0,
+        "dwell_s": 6e-05,
+        "venc_m_s": 0.05,
+        "ramp_steps": 16,
+        "max_gradient_t_m": 0.04,
+        "max_nominal_slew_t_m_s": 150.0,
+        "signal_floor": 1e-05,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_work": 400000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 10.0
+      },
+      "run_sha256": "8e0445601ee544a3c34691698eba635e49b281eb5e4efca3b4232ae36306079d",
+      "validation": {
+        "passed": false,
+        "completed_images": 2,
+        "completed_encoding_pairs": 1,
+        "scheduled_preparations": 2,
+        "interrupted_fraction": 0.0,
+        "max_interrupted_fraction": 0.0,
+        "target_velocity_rmse_m_s": 0.002,
+        "target_frozen_image_error": 0.05,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_frozen_image_error": 0.20258335894788582,
+        "max_abs_blood_mz": 0.3987091162623068,
+        "min_abs_wall_mz": 0.581595565128011,
+        "max_velocity_rmse_m_s": 0.048207676894477025
+      },
+      "work": 231510481,
+      "planned_work": 236917231,
+      "memory": 19423232,
+      "readout_status": [
+        {
+          "trigger": 0,
+          "encoding_sign": 1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        },
+        {
+          "trigger": 1,
+          "encoding_sign": -1,
+          "adc_samples": 256,
+          "expected_samples": 256,
+          "completed": true,
+          "stage": "completed"
+        }
+      ],
+      "final_state_hashes": {
+        "blood": "2fd9d33fae50402af5fb86bb3214507bcd5443cac19f1081088458d73220297b",
+        "wall": "b870732bcb8c5b979d0731ca26895bd4f82d3811d0caa2c98c5b424f15708ad0"
+      },
+      "waveform_sha256": "4c0b58721e8389a2a6ffb9be9f770e0ca5af58676ddb871a7a2707b9f6111d54",
+      "complete_images": [
+        {
+          "trigger": 0,
+          "image_sha256": "6c565c47213cfb5e502f1f8b83101449bdbab6a2f9d364432db0ffdd6d4e23e0",
+          "kspace_sha256": "ddfd91543d84593bd8dea8aca2f483d5ecf79c10d8a91d3a89cd5a4e9e97c4ca",
+          "frozen_reference_sha256": "58d747b37a66e611d32f8fc2090476a6a4f8657dc3f599bd9cf07f04a7e96ae7",
+          "quality": {
+            "nrmse": 0.19215666943037327,
+            "max_absolute_error": 0.11263839696347622,
+            "threshold": 0.05,
+            "passed": false
+          }
+        },
+        {
+          "trigger": 1,
+          "image_sha256": "326cb7b094a4e54eba49f828023bbd4f9e5ea2c11f24016297db321c4a1174cc",
+          "kspace_sha256": "a7f8d2a00a5be897a1f092bd315eb79cc72e3f0d5ea9530d63ee5b72c622e799",
+          "frozen_reference_sha256": "d929cdd3e35decd6ae8ea97746d768969d00fde87eb866245d7f7e49cd1af571",
+          "quality": {
+            "nrmse": 0.20258335894788582,
+            "max_absolute_error": 0.11099260958500207,
+            "threshold": 0.05,
+            "passed": false
+          }
+        }
+      ],
+      "velocity_pairs": [
+        {
+          "triggers": [
+            0,
+            1
+          ],
+          "encoding_times_s": [
+            0.9090000000000049,
+            2.1090000000000186
+          ],
+          "velocity_rmse_m_s": 0.048207676894477025,
+          "observed_blood_fraction": 1.0,
+          "measured_grid_flow_m3_s": -2.5825127117847093e-07,
+          "moment_reference_grid_flow_m3_s": 3.1041300331935125e-07,
+          "instantaneous_analytic_pipe_flow_m3_s": 2.972041796469272e-08,
+          "max_abs_wall_velocity_m_s": 0.000649285655833704,
+          "reference_exceeds_venc": false,
+          "complete_pair_sha256": "05623e54a9fdd45185851a5d40ec8dac903b567c9858b2018a33a522a0d75547"
+        }
+      ],
+      "executions": [
+        {
+          "gate": {
+            "trigger": 0,
+            "decision_s": 0.0,
+            "preparation_s": 0.003,
+            "readout_s": 0.903,
+            "readout_end_s": 0.9449999999999998,
+            "previous_rr_s": null,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": 1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 0.9449999999999572,
+              "actual_samples_sha256": "bf194891d8ae5f171cce182acde129b46cf6515b5213cab92462bf2b281bbffa",
+              "actual_commands_sha256": "928133cac075a505d5f5fcd647f04f0a0044e830083354cc57cdb07c8e563245",
+              "state_hash": "85576a8208b5a286dea4b885ffe9d8e02dbb413250af2fa264739bc30f15e99f",
+              "positions_hash": "b0aa691d49a27c58e7b8da50db68f8e292777d19a2bfa09f56f2144657621ca5",
+              "finite_rf_energy_uT2_s": 0.12055101357660665
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 0.9449999999999572,
+              "actual_samples_sha256": "44d7116e0bf4392a3e02dd47fdacdc253bd285b53f8aa62133956153aa32e4c9",
+              "actual_commands_sha256": "928133cac075a505d5f5fcd647f04f0a0044e830083354cc57cdb07c8e563245",
+              "state_hash": "c21227f218a655dfa1de0aa64f1b979caf40b26cc5df3e511f71ee7345c65ddf",
+              "positions_hash": "bad48db55db51739f37217148b29886a6ef09f3e47a2dcf567c290b164e2d146",
+              "finite_rf_energy_uT2_s": 0.12055101357660665
+            }
+          }
+        },
+        {
+          "gate": {
+            "trigger": 1,
+            "decision_s": 1.2,
+            "preparation_s": 1.2029999999999998,
+            "readout_s": 2.1029999999999998,
+            "readout_end_s": 2.1449999999999996,
+            "previous_rr_s": 1.2,
+            "rr_estimate_s": 1.2,
+            "history_rr_s": [
+              1.2
+            ],
+            "scheduled": true,
+            "accepted": true,
+            "rejection": null,
+            "cancelled_s": null
+          },
+          "encoding_sign": -1,
+          "tissues": {
+            "blood": {
+              "stage": "completed",
+              "end_s": 2.1449999999999996,
+              "actual_samples_sha256": "850004cd256d10d7d57c5600d166ff58ba8ff4893731f9671ef877dd19b44d38",
+              "actual_commands_sha256": "2e80cf0a10a64733ab5a47f37fe75c2b2b3a968b0cd0f8d55e4fe17f94f19c3e",
+              "state_hash": "23f1e2ba023256b47885eadd010268ef253292fe8f15e61a98a1502277f89b35",
+              "positions_hash": "0a17c24ed978fc3f9e626ddb2292d67ac84de271b5dbd138fabf05ba3222a2a1",
+              "finite_rf_energy_uT2_s": 0.12055101357660665
+            },
+            "wall": {
+              "stage": "completed",
+              "end_s": 2.1449999999999996,
+              "actual_samples_sha256": "626167036ec0cdbcd6aa4d6177dfb073a3bae2a9adfe10766e2e8c7666f12b90",
+              "actual_commands_sha256": "2e80cf0a10a64733ab5a47f37fe75c2b2b3a968b0cd0f8d55e4fe17f94f19c3e",
+              "state_hash": "6963a0c65ff78d17656aaf457380cabbd943ef7868612808d3830672c7736f1b",
+              "positions_hash": "bad48db55db51739f37217148b29886a6ef09f3e47a2dcf567c290b164e2d146",
+              "finite_rf_energy_uT2_s": 0.12055101357660665
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "scientific_record_sha256": "d8d102a7ebd8693c9e424c97be548418b1508b50c7b77caee3c0203717ef0e23",
+  "scientific_payload_sha256": "1b2e644ff38dc1ab45f6e192d662c2c2b78049b64ae9a36473e88c6db212c51b",
+  "search_summary": {
+    "study_id": "causal-flow-epi-pilot",
+    "research_question": "Can slice-selective DIR and causal cardiac scheduling retain complex EPI image fidelity and phase-encoded through-plane flow in an authored pulsatile pipe?",
+    "mode": "search",
+    "kind": "flow_epi",
+    "selected_index": null,
+    "model_reported_passed": false,
+    "candidate_count": 3,
+    "candidates": [
+      {
+        "index": 0,
+        "parameters": {
+          "inversion_time_s": 0.6
+        },
+        "executable": true,
+        "model_reported_passed": false,
+        "validation": {
+          "passed": false,
+          "completed_images": 2,
+          "completed_encoding_pairs": 1,
+          "scheduled_preparations": 2,
+          "interrupted_fraction": 0.0,
+          "max_interrupted_fraction": 0.0,
+          "target_velocity_rmse_m_s": 0.002,
+          "target_frozen_image_error": 0.05,
+          "blood_target_max": 0.1,
+          "wall_target_min": 0.7,
+          "max_frozen_image_error": 0.17664750861609393,
+          "max_abs_blood_mz": 0.3724064752046332,
+          "min_abs_wall_mz": 0.47213193743229764,
+          "max_velocity_rmse_m_s": 0.04875918004942368
+        }
+      },
+      {
+        "index": 1,
+        "parameters": {
+          "inversion_time_s": 0.9
+        },
+        "executable": true,
+        "model_reported_passed": false,
+        "validation": {
+          "passed": false,
+          "completed_images": 2,
+          "completed_encoding_pairs": 1,
+          "scheduled_preparations": 2,
+          "interrupted_fraction": 0.0,
+          "max_interrupted_fraction": 0.0,
+          "target_velocity_rmse_m_s": 0.002,
+          "target_frozen_image_error": 0.05,
+          "blood_target_max": 0.1,
+          "wall_target_min": 0.7,
+          "max_frozen_image_error": 0.20250199823617338,
+          "max_abs_blood_mz": 0.3987091808412534,
+          "min_abs_wall_mz": 0.5815458120408074,
+          "max_velocity_rmse_m_s": 0.048208578577799775
+        }
+      },
+      {
+        "index": 2,
+        "parameters": {
+          "dwell_s": 1e-05
+        },
+        "executable": false,
+        "model_reported_passed": false,
+        "reason": "encoding/readout nominal gradient amplitude or finite-ramp slew exceeds declared design limit"
+      }
+    ],
+    "execution_hash": "f330ca9fb392797de9c5033c8b1a363ca3c79ba48e1de4bef36f9e58843b9c4a",
+    "input_origins": [
+      "authored_model_inputs"
+    ],
+    "background_references_applied": false,
+    "scope": "teaching/research only; model targets and local replay, not scanner validation or clinical quality certification; B/C parked"
+  },
+  "scope": "teaching/research rigid Newtonian pipe; fixed transverse voxel centers, finite slice RF and exact axial phase per gradient hold, point ADC EPI; paired images may come from different cardiac times; no coils/noise/eddy currents/transverse motion/clinical or scanner certification; B/C parked"
+}

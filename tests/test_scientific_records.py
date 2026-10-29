@@ -34,8 +34,8 @@ def local_store(tmp_path,monkeypatch):
     return ScientificStore(path)
 
 
-@pytest.mark.parametrize('kind',['tse','noncartesian','flow','pulsatile_flow','cest','cest_solomon','mrs','mrs_press','radial_tse'])
-def test_all_nine_research_chains_have_common_stages_and_exact_computational_replay(kind):
+@pytest.mark.parametrize('kind',['tse','noncartesian','flow','pulsatile_flow','flow_epi','cest','cest_solomon','mrs','mrs_press','radial_tse'])
+def test_all_research_chains_have_common_stages_and_exact_computational_replay(kind):
     record=create_scientific_record(plan(kind))
     assert verify_scientific_record(record)['integrity_passed']
     assert not verify_scientific_record(record)['computational_replay_performed']

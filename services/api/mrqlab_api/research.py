@@ -17,9 +17,10 @@ from mrqlab_experiment.cest_solomon import run_cest_solomon
 from mrqlab_experiment.mrs_basis import run_mrs_basis
 from mrqlab_experiment.mrs_press import run_press_basis
 from mrqlab_experiment.radial_tse import run_radial_tse
+from mrqlab_experiment.flow_epi import run_flow_epi
 
 router=APIRouter(prefix='/research',tags=['research/teaching'])
-Kind=Literal['tse','noncartesian','flow','pulsatile_flow','cest','cest_solomon','mrs','mrs_press','radial_tse']
+Kind=Literal['tse','noncartesian','flow','pulsatile_flow','flow_epi','cest','cest_solomon','mrs','mrs_press','radial_tse']
 
 
 class StrictParameters(BaseModel):
@@ -138,6 +139,43 @@ class PulsatileFlowParameters(StrictParameters):
     max_duration_s: float=Field(default=10.,gt=0,le=10.)
 
 
+class FlowEPIParameters(StrictParameters):
+    r_peaks_s: list[TimeValue]=Field(default_factory=lambda:[0.,1.2],min_length=1,max_length=6)
+    observation_end_s: float=Field(default=2.4,gt=0,le=10.)
+    inversion_time_s: float=Field(default=.9,gt=.008,le=2.)
+    trigger_latency_s: float=Field(default=.003,ge=0,le=.05)
+    initial_rr_s: float=Field(default=1.2,ge=.2,le=3.)
+    rr_range_s: list[RRValue]=Field(default_factory=lambda:[.5,1.5],min_length=2,max_length=2)
+    radius_m: float=Field(default=.002,ge=.0005,le=.004)
+    density_kg_m3: float=Field(default=1060.,ge=500.,le=2000.)
+    viscosity_pa_s: float=Field(default=.0035,ge=.0001,le=.1)
+    mean_gradient_pa_m: float=Field(default=100.,ge=-1000.,le=1000.)
+    oscillating_gradient_pa_m: float=Field(default=200.,ge=0,le=1000.)
+    frequency_hz: float=Field(default=1.,ge=.05,le=5.)
+    phase_rad: float=Field(default=0.,ge=-3.15,le=3.15)
+    thickness_m: float=Field(default=.005,ge=.001,le=.02)
+    matrix_size: Literal[8,16]=16
+    fov_m: float=Field(default=.012,ge=.008,le=.04)
+    axial_spins: int=Field(default=401,ge=33,le=801)
+    rf_steps: int=Field(default=64,ge=16,le=128)
+    preparation: Literal['dir','none']='dir'
+    off_resonance_hz: float=Field(default=0.,ge=-500.,le=500.)
+    dwell_s: float=Field(default=.00006,ge=.00001,le=.0002)
+    venc_m_s: float=Field(default=.05,ge=.02,le=.3)
+    ramp_steps: int=Field(default=8,ge=2,le=32)
+    max_gradient_t_m: float=Field(default=.04,gt=0,le=.04)
+    max_nominal_slew_t_m_s: float=Field(default=150.,gt=0,le=150.)
+    signal_floor: float=Field(default=1e-5,gt=0,le=.1)
+    target_velocity_rmse_m_s: float=Field(default=.002,gt=0,le=.1)
+    target_frozen_image_error: float=Field(default=.05,gt=0,le=1.)
+    blood_target_max: float=Field(default=.1,gt=0,lt=1.)
+    wall_target_min: float=Field(default=.7,gt=0,le=1.)
+    max_interrupted_fraction: float=Field(default=0.,ge=0,le=1.)
+    max_work: int=Field(default=200000000,ge=1,le=200000000)
+    max_memory_bytes: int=Field(default=134217728,ge=1,le=134217728)
+    max_duration_s: float=Field(default=10.,gt=0,le=10.)
+
+
 class CESTParameters(StrictParameters):
     offsets_ppm: list[float]=Field(default_factory=lambda:[-5.,-3.5,-2.,-1.,1.,2.,3.5,5.],min_length=2,max_length=16)
     b0_t: float=Field(default=3.,ge=.5,le=7.)
@@ -213,8 +251,8 @@ class PressMRSParameters(StrictParameters):
     target_leakage_fraction: float=Field(default=.1,gt=0,le=1.)
 
 
-SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'cest':CESTParameters,'cest_solomon':SolomonCESTParameters,'mrs':MRSParameters,'mrs_press':PressMRSParameters,'radial_tse':RadialTSEParameters}
-RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'cest':run_cest_mt_noe,'cest_solomon':run_cest_solomon,'mrs':run_mrs_basis,'mrs_press':run_press_basis,'radial_tse':run_radial_tse}
+SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'flow_epi':FlowEPIParameters,'cest':CESTParameters,'cest_solomon':SolomonCESTParameters,'mrs':MRSParameters,'mrs_press':PressMRSParameters,'radial_tse':RadialTSEParameters}
+RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'flow_epi':run_flow_epi,'cest':run_cest_mt_noe,'cest_solomon':run_cest_solomon,'mrs':run_mrs_basis,'mrs_press':run_press_basis,'radial_tse':run_radial_tse}
 
 
 class RunRequest(StrictParameters):
@@ -303,6 +341,19 @@ def present(kind,result):
             image=np.asarray(result['static_control']['image']).real
             if image.ndim==3: image=image[len(image)//2]
             images.append(dict(label='Static-model mismatch control',scale_group='static_control',width=image.shape[1],height=image.shape[0],values=image.ravel().tolist()))
+    elif kind=='flow_epi':
+        if result['images']:
+            frame=result['images'][-1]
+            for title,data in [('EPI magnitude',abs(frame['image'])),('Frozen pre-EPI magnitude reference',abs(frame['frozen_reference']))]:
+                images.append(dict(label=title,scale_group='signal',width=data.shape[1],height=data.shape[0],values=data.ravel().tolist()))
+            data=np.angle(frame['image']);images.append(dict(label='EPI phase (rad)',scale_group='phase',width=data.shape[1],height=data.shape[0],values=data.ravel().tolist()))
+            for tissue in ['blood','wall']: curves.append(_curve(tissue,[f['encoding_start_s'] for f in result['images']],[f['pre_'+tissue+'_mz'] for f in result['images']]))
+        if result['velocity_pairs']:
+            pair=result['velocity_pairs'][-1]
+            for title,key,group in [('Wrapped phase velocity (m/s); use validity mask','velocity_m_s','velocity'),
+                    ('Gradient-moment flow reference (m/s)','gradient_moment_reference_m_s','velocity'),('Measured signal validity (0/1)','valid_mask','validity')]:
+                data=np.asarray(pair[key],float);images.append(dict(label=title,scale_group=group,width=data.shape[1],height=data.shape[0],values=data.ravel().tolist()))
+        x_label='Encoding start (s)';y_label='Pre-excitation volume-weighted Mz';validation=result['validation']
     elif kind in {'flow','pulsatile_flow'}:
         for tissue in (['blood','wall'] if result['readouts'] else []):
             curves.append(_curve(tissue,[r['gate']['readout_s'] for r in result['readouts']],
@@ -329,6 +380,17 @@ def present(kind,result):
     elif kind=='noncartesian':
         metrics={'Image NRMSE':result['quality']['nrmse']}
         if result['solvers']: metrics.update({'Data residual':result['solvers'][0]['relative_data_residual'],'Iterations':result['solvers'][0]['iterations']})
+    elif kind=='flow_epi':
+        metrics={'Completed EPI images':validation['completed_images'],'Complete opposite-sign pairs':validation['completed_encoding_pairs'],
+            'Interrupted fraction':validation['interrupted_fraction'],'Peak readout/encoding gradient (T/m)':result['provenance']['waveform']['peak_gradient_t_m'],
+            'Nominal readout/encoding slew (T/m/s)':result['provenance']['waveform']['nominal_slew_t_m_s']}
+        for field,title in [('max_velocity_rmse_m_s','Velocity RMSE vs moment reference (m/s)'),('max_frozen_image_error','Complex frozen-reference NRMSE'),
+                            ('max_abs_blood_mz','Blood max |Mz|'),('min_abs_wall_mz','Wall min |Mz|')]:
+            if field in validation: metrics[title]=validation[field]
+        if result['velocity_pairs']:
+            pair=result['velocity_pairs'][-1];metrics['Observed blood fraction']=pair['observed_blood_fraction']
+            if pair['measured_grid_flow_m3_s'] is not None: metrics['Measured grid flow (m3/s)']=pair['measured_grid_flow_m3_s']
+            metrics['Moment-reference grid flow (m3/s)']=pair['moment_reference_grid_flow_m3_s']
     elif kind=='pulsatile_flow':
         metrics={'Completed readouts':validation['completed_readouts'],'Interrupted preparations':validation['interrupted_preparations'],'Interrupted fraction':validation['interrupted_fraction']}
         if result['readouts']: metrics.update({'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']})
@@ -365,6 +427,8 @@ def search_research(request: SearchRequest):
         raise HTTPException(422,'Radial TSE search varies pulse/echo schedule only; tissue priors, basis assumptions, targets and numerical resolution remain fixed.')
     if request.kind=='mrs_press' and any(set(patch)-{'echo_s','rf_duration_s'} for patch in request.candidates):
         raise HTTPException(422,'PRESS design search varies pulse timing only; basis, molecular priors and numerical resolution remain fixed.')
+    if request.kind=='flow_epi' and any(set(patch)-{'inversion_time_s','venc_m_s','dwell_s'} for patch in request.candidates):
+        raise HTTPException(422,'Flow-EPI search varies timing, VENC and dwell only; pressure, preparation control, targets, quadrature and gradient limits remain fixed.')
     if request.kind=='cest_solomon':
         pulse_keys={'b1_uT','saturation_s','mode','n_pulses','pulse_s','gap_s'}
         if any(set(patch)-pulse_keys for patch in request.candidates):
@@ -381,10 +445,10 @@ def search_research(request: SearchRequest):
             if exc.status_code!=422: raise
             points.append(dict(parameters=patch,feasible=False,reason=exc.detail))
     feasible=[p for p in points if p['feasible']]
-    eligible=[p for p in feasible if p['run']['view']['validation']['passed']] if request.kind=='radial_tse' else feasible
+    eligible=[p for p in feasible if p['run']['view']['validation']['passed']] if request.kind in {'radial_tse','flow_epi'} else feasible
     best=min(eligible,key=lambda p:p['loss']) if eligible else None
     return dict(kind=request.kind,candidates=points,best=best,
-        objective='minimize RF energy proxy among candidates passing all declared targets; finite grid, no clinical optimum' if request.kind=='radial_tse' else 'minimize declared model loss against known teaching truth/control; finite grid, no clinical optimum',
+        objective='minimize RF energy proxy among candidates passing all declared targets; finite grid, no clinical optimum' if request.kind=='radial_tse' else 'minimize declared velocity+image error and interrupted fraction among candidates passing every target; finite grid, no clinical optimum' if request.kind=='flow_epi' else 'minimize declared model loss against known teaching truth/control; finite grid, no clinical optimum',
         replay_search={**request.model_dump(), 'expected_source_hash':fingerprint},source_hash=fingerprint,
         search_hash=sha256(json.dumps(points,sort_keys=True,allow_nan=False).encode()).hexdigest())
 

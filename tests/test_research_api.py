@@ -213,3 +213,40 @@ def test_radial_tse_constrained_search_selects_only_passing_targets_and_replays_
     none=client.post('/research/search',json={'kind':'radial_tse','parameters':{'target_max_rf_energy':1.},'candidates':[{}]})
     assert none.status_code==200,none.text
     assert none.json()['best'] is None and none.json()['candidates'][0]['feasible']
+
+
+def test_flow_epi_runs_actual_gradients_images_and_exact_replay():
+    response=client.post('/research/run',json={'kind':'flow_epi','parameters':{'axial_spins':201}})
+    assert response.status_code==200,response.text
+    data=response.json();r=data['result']
+    assert r['validation']['completed_images']==2 and r['validation']['completed_encoding_pairs']==1
+    assert not r['validation']['passed'] and r['readout_status'][0]['adc_samples']==256
+    assert len(data['view']['images'])==6
+    assert any('validity' in image['label'] for image in data['view']['images'])
+    assert r['provenance']['waveform']['delta_encoding_m1_t_s2_m']>0
+    assert r['executions'][0]['tissues']['blood']['samples'][0]['value'][1] is not None
+    assert client.post('/research/run',json=data['replay_request']).json()['result_hash']==data['result_hash']
+    assert len(client.get('/protocol-recipes').json()['recipes'])==2
+
+
+def test_flow_epi_partial_readout_and_missing_pair_remain_unmeasured():
+    partial=client.post('/research/run',json={'kind':'flow_epi','parameters':{'r_peaks_s':[0.,.917],'observation_end_s':1.4,'axial_spins':201}})
+    assert partial.status_code==200,partial.text
+    r=partial.json();assert not r['view']['images'] and not r['view']['curves']
+    assert 0<r['result']['readout_status'][0]['adc_samples']<256
+    assert 'Velocity RMSE vs moment reference (m/s)' not in r['view']['metrics']
+    single=client.post('/research/run',json={'kind':'flow_epi','parameters':{'r_peaks_s':[0.],'observation_end_s':1.1,'axial_spins':201}}).json()
+    assert len(single['view']['images'])==3 and single['view']['validation']['completed_encoding_pairs']==0
+    assert not single['result']['velocity_pairs']
+
+
+def test_flow_epi_search_keeps_failed_and_infeasible_points_without_best():
+    request={'kind':'flow_epi','parameters':{'axial_spins':201},'candidates':[{'inversion_time_s':.6},{'inversion_time_s':.9},{'dwell_s':.00001}]}
+    response=client.post('/research/search',json=request);assert response.status_code==200,response.text
+    r=response.json();assert r['best'] is None
+    assert r['candidates'][0]['feasible'] and r['candidates'][1]['feasible'] and not r['candidates'][2]['feasible']
+    assert client.post('/research/search',json=r['replay_search']).json()['search_hash']==r['search_hash']
+    for patch in [{'preparation':'none'},{'target_velocity_rmse_m_s':.1},{'mean_gradient_pa_m':0.},{'axial_spins':33},{'max_gradient_t_m':.1}]:
+        assert client.post('/research/search',json={'kind':'flow_epi','candidates':[patch]}).status_code==422
+    for patch in [{'matrix_size':True},{'axial_spins':1000},{'scanner_export':True},{'dwell_s':0.}]:
+        assert client.post('/research/run',json={'kind':'flow_epi','parameters':patch}).status_code==422
