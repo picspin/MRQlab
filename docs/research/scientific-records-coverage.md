@@ -192,3 +192,15 @@ import and actual HTTP save/replay verified. The earlier example and historical
 parent sources were not regenerated. This closes one TSE cross-record parameter
 dependency, while the broader raw-data, uncertainty, multimodal and browser gaps
 above remain open.
+
+The [exact-center navigator continuation](navigator-radial-coverage.md) adds
+explicit `reconstruction: "navigator_t2"` inside the same derived-study schema.
+Parent intervals, data-only global T2 estimation, withheld echo checks, full
+spatial inverse/control and every failed scenario remain in the immutable child.
+The example changes acquisition and work budgets visibly; historical fixed-prior
+records are not rewritten. A passing finite-grid candidate and a residual-stopped
+candidate remain separate from record integrity and computational replay.
+Regression advances to **856 Python / 113 frontend**, with TS/build passing.
+Independent evidence/CLI recomputation and actual HTTP create/read/full replay
+match the complete child, retaining the failed candidate. Empty-store import
+keeps the historical parent and child as distinct immutable records.

@@ -12,6 +12,7 @@ from typing import Literal
 from .lab_study import LabStudy, run_lab_study, fingerprint, json_safe
 from .study_records import verify_study_record, _checked_sources
 from .radial_tse import run_radial_tse
+from .navigator_radial import run_navigator_radial_tse
 
 
 class Strict(BaseModel):
@@ -54,6 +55,9 @@ class DerivedBudget(Strict):
 
 
 class CalibratedRadialStudy(Strict):
+    reconstruction: Literal['fixed_prior','navigator_t2']='fixed_prior'
+    navigator_max_work: int=Field(default=20000000,ge=1,le=50000000)
+    navigator_max_evaluations: int=Field(default=128,ge=8,le=512)
     candidates: list[RadialPulseCandidate]=Field(default_factory=lambda:[RadialPulseCandidate(),
         RadialPulseCandidate(refocusing_angle=140.,refocusing_end_angle=110.)],min_length=1,max_length=3)
     numerics: RadialNumerics=Field(default_factory=RadialNumerics)
@@ -77,7 +81,8 @@ def run_calibrated_radial_study(parent_record: dict, request: CalibratedRadialSt
     if [f['tissue_id'] for f in fits]!=order:
         raise ValueError('calibration tissue order does not bind labels 0/1')
     mean=[f['t2_s'] for f in fits]
-    bindings=[dict(parameter='basis_t2_s',component=i,tissue_id=f['tissue_id'],value=f['t2_s'],unit='s',
+    navigated=spec.reconstruction=='navigator_t2'
+    bindings=[dict(parameter='navigator_t2_bounds_s' if navigated else 'basis_t2_s',component=i,tissue_id=f['tissue_id'],value=f['t2_s'],unit='s',
         standard_uncertainty_s=f['t2_std_s'],stress_interval_s=f['t2_interval_s'],
         parent_calibration_sha256=fingerprint(f)) for i,f in enumerate(fits)] if applied else []
     scenarios=[dict(name='nominal',sample_t2_s=mean)] if applied else []
@@ -99,7 +104,10 @@ def run_calibrated_radial_study(parent_record: dict, request: CalibratedRadialSt
             try:
                 # Crucial: only the sample T2 changes at stress corners. Refitting
                 # the reconstruction basis to every corner would hide prior error.
-                run=run_radial_tse(parent_spec.labels,**design.model_dump(),**spec.numerics.model_dump(),
+                runner=run_navigator_radial_tse if navigated else run_radial_tse
+                navigation=dict(t2_bounds_s=[f['t2_interval_s'] for f in fits],navigator_max_work=spec.navigator_max_work,
+                    navigator_max_evaluations=spec.navigator_max_evaluations) if navigated else {}
+                run=runner(parent_spec.labels,**design.model_dump(),**spec.numerics.model_dump(),**navigation,
                     t2_s=scenario['sample_t2_s'],basis_t2_s=mean,
                     experiment=current['calibrated_experiment'],
                     max_work=cap,max_memory_bytes=budget.max_memory_bytes_per_scenario,
@@ -120,9 +128,14 @@ def run_calibrated_radial_study(parent_record: dict, request: CalibratedRadialSt
                     contrast=run['validation']['roi_contrast']>=spec.targets.min_magnitude_contrast,
                     total_rf=total_rf<=spec.targets.max_total_rf_energy,
                     duration=run['validation']['total_duration_s']<=spec.targets.max_prepared_duration_s)
+                if navigated: checks['navigator']=run['navigator_fit']['passed'] and run['navigator_reconstruction_performed']
                 row.update(executable=True,passed=all(checks.values()),checks=checks,
                     total_rf_energy_relative=total_rf,preparation_trains=prep_trains,
                     estimated_work=cost,run_hash=fingerprint(json_safe(run)),run=json_safe(run))
+                if navigated:
+                    row.update(basis_t2_s=run['navigator_fit']['t2_s'] if run['navigator_reconstruction_performed'] else mean,
+                        navigator_passed=run['navigator_fit']['passed'],
+                        navigator_holdout_residual=run['navigator_fit']['relative_holdout_residual'])
                 work+=cost
                 if scenario['name']=='nominal' and preview is None: preview=run;preview_index=index
             except ValueError as exc:
@@ -136,7 +149,7 @@ def run_calibrated_radial_study(parent_record: dict, request: CalibratedRadialSt
             entry['worst_image_nrmse']=max(r['run']['quality']['nrmse'] for r in entry['scenarios'])
             entry['worst_component_nrmse']=max(r['run']['validation']['coefficient_error'] for r in entry['scenarios'])
             entry['worst_total_rf_energy']=max(r['total_rf_energy_relative'] for r in entry['scenarios'])
-        if not entry['eligible']: entry['reasons'].append('one or more fixed-prior stress scenarios fail the declared targets')
+        if not entry['eligible']: entry['reasons'].append('one or more '+('data-navigated' if navigated else 'fixed-prior')+' stress scenarios fail the declared targets')
         points.append(entry)
     eligible=[p for p in points if p['eligible']]
     selected=min(eligible,key=lambda p:p['worst_total_rf_energy']) if eligible else None
@@ -144,7 +157,7 @@ def run_calibrated_radial_study(parent_record: dict, request: CalibratedRadialSt
         preview=selected['scenarios'][0]['run'];preview_index=selected['index']
     stages=[]
     for name,value in [('parent_numerical_revalidation',dict(expected=parent_record['result_sha256'],actual=fingerprint(current),matches=parent_same)),
-                       ('calibrated_parameter_bindings',bindings),('fixed_prior_uncertainty_search',points),
+                       ('calibrated_parameter_bindings',bindings),('data_navigated_uncertainty_search' if navigated else 'fixed_prior_uncertainty_search',points),
                        ('target_validation',dict(selected_index=selected['index'] if selected else None,complete_reserve=complete_reserve))]:
         body=dict(stage=name,value_sha256=fingerprint(value),parents=[stages[-1]['sha256']] if stages else [])
         stages.append({**body,'sha256':fingerprint(body)})
@@ -154,7 +167,8 @@ def run_calibrated_radial_study(parent_record: dict, request: CalibratedRadialSt
         parent_legacy_record_sha256=parent_record['record_sha256'],parent_sources=parent_record['sources'],
         parent_result_revalidation=dict(expected_sha256=parent_record['result_sha256'],actual_sha256=fingerprint(current),matches=parent_same,
             full_parent_record_replay=False,scope='current numerical revalidation from original measurements, not relabeling the old source/runtime record'),
-        parameter_bindings=bindings,fixed_basis_t2_s=mean if applied else None,
+        parameter_bindings=bindings,reconstruction=spec.reconstruction,
+        fixed_basis_t2_s=mean if applied and not navigated else None,nominal_basis_t2_s=mean if applied else None,
         t1_pd_priors=[dict(tissue_id=t.id,t1_s=t.t1,proton_density=t.proton_density,origin='authored_parent_prior') for t in parent_spec.experiment.tissue],
         candidates=points,selected_index=selected['index'] if selected else None,
         preview_simulation=json_safe(preview) if preview is not None else None,preview_candidate_index=preview_index,
@@ -164,5 +178,5 @@ def run_calibrated_radial_study(parent_record: dict, request: CalibratedRadialSt
         provenance=dict(stages=stages,estimated_work=work,reserved_work=reserved if complete_reserve else parent_reserve,
             planned_work=reserved,dataset_sha256=current['provenance']['dataset_sha256'],
             current_parent_result_sha256=fingerprint(current),
-            selection='minimum worst preparation+acquisition RF proxy among candidates passing all fixed-prior nominal/corner targets'),
-        scope='teaching/research measurement-derived T2 priors; T1/PD authored; local rectangular stress corners are not joint confidence or clinical bounds; no scanner validation/clinical quality certification; B/C parked')
+            selection='minimum worst preparation+acquisition RF proxy among candidates passing all '+('data-navigated' if navigated else 'fixed-prior')+' nominal/corner targets'),
+        scope='teaching/research measurement-derived T2 priors; optional two-global-T2 data navigator, not voxel mapping; T1/PD authored; local rectangular stress corners are not joint confidence or clinical bounds; no scanner validation/clinical quality certification; B/C parked')

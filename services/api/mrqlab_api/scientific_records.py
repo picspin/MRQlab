@@ -242,7 +242,11 @@ def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
                     except ValueError: pass
                 return out
             return value
-        payload=serializable(dict(derivation=derived,view=present('radial_tse',decode(preview)) if preview is not None else None))
+        view=present('radial_tse',decode(preview)) if preview is not None else None
+        if view is not None and derived.get('reconstruction')=='navigator_t2':
+            view['images'][-1]['label']='Fixed nominal-prior mismatch control (same samples)'
+            view['metrics']['Fixed-prior control NRMSE']=view['metrics'].pop('Static-control NRMSE')
+        payload=serializable(dict(derivation=derived,view=view))
     elif isinstance(execution,MeasuredPlan): payload=_lab_response(create_study_record(execution.study))
     elif isinstance(execution,SearchPlan): payload=search_research(SearchRequest.model_validate(execution.model_dump(exclude={'type'})))
     else: payload=execute(RunRequest.model_validate(execution.model_dump(exclude={'type'})),api_source)

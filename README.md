@@ -87,6 +87,13 @@ all sample uncertainty corners. The synthetic example passes nominal targets
 but fails every corner; no candidate is selected. The portable child embeds its
 unchanged parent and supports full CLI/API computational replay.
 
+The [data-navigated extension](docs/research/navigator-radial-coverage.md) explicitly
+adds six echoes and 33-point center-sampled spokes. Within the measured intervals,
+it estimates two global T2 curves from raw center samples, checks withheld echoes,
+then reconstructs unrestricted complex component maps. The synthetic 140°→110°
+candidate passes all five local scenarios; a residual-limit failure excludes the
+180° candidate. This is not voxel T2 mapping or a general noisy-data guarantee.
+
 See [research workspace evidence and gaps](docs/research/research-workbench-coverage.md).
 All accuracy statements apply to declared teaching models; there is no scanner
 validation, clinical image-quality certification or clinical concentration

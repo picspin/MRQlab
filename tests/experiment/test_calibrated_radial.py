@@ -101,6 +101,18 @@ def test_partial_failure_never_double_charges_a_scenario(parent,monkeypatch):
     assert all(not s['executable'] and 'integer train' in s['reason'] for s in r['candidates'][0]['scenarios'])
 
 
+def test_navigation_binds_measured_intervals_and_reserves_the_complete_grid(parent,monkeypatch):
+    import mrqlab_experiment.calibrated_radial as module
+    monkeypatch.setattr(module,'run_navigator_radial_tse',lambda *a,**kw:pytest.fail('insufficient shared reservation must precede every navigated inverse'))
+    r=run_calibrated_radial_study(parent,{'reconstruction':'navigator_t2','candidates':[{'echoes':6}],
+        'numerics':{'points':33,'spokes':144},'budget':{'max_work_per_scenario':50000000000,'max_total_work':1000000000}})
+    assert r['reconstruction']=='navigator_t2' and r['fixed_basis_t2_s'] is None
+    assert [b['stress_interval_s'] for b in r['parameter_bindings']]==[f['t2_interval_s'] for f in parent['result']['calibration']]
+    assert all(b['parameter']=='navigator_t2_bounds_s' for b in r['parameter_bindings'])
+    assert not r['validation']['complete_budgeted_search'] and r['preview_simulation'] is None
+    assert r['provenance']['stages'][2]['stage']=='data_navigated_uncertainty_search'
+
+
 @pytest.mark.parametrize('patch',[{'numerics':{'basis_t2_s':[.04,.12]}},{'candidates':[{'t2_s':[.04,.12]}]},
     {'budget':{'max_total_work':True}},{'targets':{'image_nrmse':0.}}])
 def test_derived_fields_and_invalid_budgets_are_not_free_overrides(patch):

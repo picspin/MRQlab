@@ -29,7 +29,7 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 | Clinical question → pulse/design → physical simulation | Nine backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
-| High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators and known-two-curve echo-resolved radial TSE; measured-TSE parent now supplies fixed nominal T2 priors and uncertainty stress cases | Fixed-prior stress corners fail strict targets; radial conditioning, noisy/coil/trajectory calibration, full echo-window physics and general T2 inference remain incomplete |
+| High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators and echo-resolved radial TSE; measured intervals support fixed-prior stress cases and an exact-center two-global-T2 navigator with withheld echo checks | Historical fixed-prior corners fail; one navigated candidate passes the finite noiseless stress grid while another fails its residual budget. Noisy/coil/trajectory calibration, full echo-window physics and general voxel T2 inference remain incomplete |
 | Real flow / slice / gating | Pressure-driven Womersley shear/backflow, volume-weighted moving spins, finite RF/Gz and causal interruption with independent fluid/Bloch references | Straight rigid pipe and fixed radius only; measured calibration, general 3D/compliant flow and motion-encoded images remain incomplete |
 | CEST MT/NOE | Effective-pool baseline plus distance/tau-derived signed Solomon pair→bridge→water relay, conditional controls and independent population/ODE checks | Full molecular multi-spin/Redfield relaxation, near-resonance generalized semisolid model and spatial joint imaging remain incomplete |
 | More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, coherence-selected 3D PRESS volume fitting with separate RF/grid/FOV checks, center/J mismatch failures | Validated molecular library, full quantum relaxation, realistic field maps, measured spectra and clinical concentration calibration remain incomplete |
@@ -284,3 +284,37 @@ visual and native file-flow checks remain open. Cross-modality calibration,
 uncertainty-aware inversion, earlier physical-fidelity and persistence gaps still
 prevent completion of the full goal. B/C remain parked; no submission import,
 push, PR, merge, router change or project-folder relocation occurred.
+
+
+## Exact-center T2 navigator stage (2026-10-30)
+
+From `5432087`, an explicit six-echo / 144-spoke / 33-point acquisition supplies
+exact k=0 data for a bounded two-global-T2 EPG fit inside the measured intervals.
+The first four echoes fit the curves; last-two echoes and alternating repeats
+validate them. The estimator and spatial CGLS receive no labels/reference/sample
+T2. Complex DC mixture coefficients are navigation nuisance parameters and never
+rescale images. The unchanged historical measured parent is numerically
+revalidated; authored T1/PD and synthetic input origin remain explicit.
+
+The [coverage report](navigator-radial-coverage.md) and
+[independently checkable evidence](examples/navigator-radial-evidence.json) preserve
+all ten runs, same-data fixed-prior controls, work/memory allowances, independent
+complex Prony references for ideal 180-degree echoes and withheld-model failures.
+The 140-to-110-degree candidate passes all five local stress cases; the 180-degree
+corner-2 stops at residual 1.14990e-10 and fails the unchanged 1e-10 data target,
+despite image/component errors below 1e-6. Its failure is retained. Selection is
+conditional on this finite noiseless two-class grid and changed acquisition,
+not a continuous robust or clinical optimum. Full-grid work is 483,664,688,904
+under an explicit reserved 501-billion / capped 600-billion planning allowance.
+
+Python **856 passed**, frontend **113 passed**, TS and production build passed.
+Independent complete evidence/CLI replay is byte-identical; isolated import
+retains the parent and child, and actual HTTP save/read/full replay matches both
+record and payload identities while retaining the failed 180-degree candidate.
+The parent-pane preset visibly loads new echoes, center sampling and budgets;
+the child labels data-estimated curves and withheld validation separately.
+Browser/native-file verification remains unavailable. Noise-aware uncertainty
+propagation, broader tissue distributions/voxel mapping, full readout physics,
+measured flow/CEST/MRS closure and the earlier platform gaps remain unfinished.
+The overall goal stays active; B/C remain parked, with no submission import,
+push, PR, merge, production-router change or folder relocation.

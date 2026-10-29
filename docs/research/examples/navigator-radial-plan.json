@@ -1,0 +1,22 @@
+{
+  "context": {
+    "study_id": "data-navigated-radial-pilot",
+    "research_question": "Can exact-center EPG navigation recover two global T2 curves and preserve the strict radial TSE targets across the measured local uncertainty stress cases?",
+    "target_rationale": "Retain 1e-6 image/component and 1e-10 data targets. Fit only the first four navigator echoes, withhold the last two echoes and interleaved repeats, and compare a fixed-prior inverse on the identical acquired samples. Select only candidates passing every scenario and total preparation plus acquisition RF limits.",
+    "assumptions": "Synthetic parent; calibrated disjoint global T2 intervals and authored T1/PD. Six echoes and 33-point center-sampled spokes are explicit acquisition changes. Navigation is not voxel T2 mapping, image gain fitting or clinical confidence coverage.",
+    "intended_use": "research"
+  },
+  "execution": {
+    "type": "calibrated_radial_tse",
+    "parent_record_sha256": "bf8102c5a1fb07660b3e36e08fbd249a4740bc65f76ea5017c798d4b91168d30",
+    "study": {
+      "reconstruction": "navigator_t2",
+      "candidates": [
+        { "echoes": 6 },
+        { "echoes": 6, "refocusing_angle": 140.0, "refocusing_end_angle": 110.0 }
+      ],
+      "numerics": { "spokes": 144, "points": 33 },
+      "budget": { "max_work_per_scenario": 50000000000, "max_total_work": 600000000000 }
+    }
+  }
+}

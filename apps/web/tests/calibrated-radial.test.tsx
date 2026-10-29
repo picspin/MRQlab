@@ -41,3 +41,28 @@ it("shows nominal success and corner failures as distinct evidence with physical
   expect(screen.getByText("1 / corner-0").closest("tr")).toHaveTextContent("未通过");
   expect(screen.getByText("40.000")).toBeInTheDocument();
 });
+
+it("loads an explicit navigator design with added echoes, a real center sample and a shared budget", async () => {
+  vi.mocked(createScientificRecord).mockResolvedValue({ record: { record_sha256: "c".repeat(64) } } as ScientificResponse);
+  render(<DeriveRadialStudy parent={parent} onCreated={vi.fn()} />);
+  fireEvent.click(screen.getByRole("button", { name: "载入中心导航示例（6 回波 / 33 点）" }));
+  const draft = JSON.parse((screen.getByLabelText("派生候选 JSON") as HTMLTextAreaElement).value);
+  expect(draft).toMatchObject({ reconstruction: "navigator_t2", numerics: { spokes: 144, points: 33 }, candidates: [{ echoes: 6 }, { echoes: 6 }], budget: { max_work_per_scenario: 50000000000, max_total_work: 600000000000 } });
+  expect(draft.targets).toBeUndefined();
+  fireEvent.change(screen.getByLabelText("派生目标依据"), { target: { value: "Independent late-echo checks and unchanged strict image/component targets." } });
+  fireEvent.click(screen.getByRole("button", { name: "计算并保存派生实验" }));
+  await vi.waitFor(() => expect(createScientificRecord).toHaveBeenCalled());
+  expect(vi.mocked(createScientificRecord).mock.calls[0][0].context.assumptions).toContain("不是逐体素 T2 图");
+});
+
+it("labels data-estimated curves and held-out navigator failure separately from image targets", () => {
+  render(<DerivedRadialEvidence evidence={{ reconstruction: "navigator_t2", parameter_bindings: [],
+    validation: { calibration_and_holdout_passed: true, parent_result_revalidated: true, calibrated_parameters_applied: true, complete_budgeted_search: true, selected_design_passed: false },
+    provenance: { estimated_work: 100, reserved_work: 200, planned_work: 200 }, candidates: [{ index: 0, scenarios: [
+      { name: "corner-0", sample_t2_s: [.0398, .119], basis_t2_s: [.0398, .119], executable: true, passed: false, navigator_passed: false, navigator_holdout_residual: .001, run: { quality: { nrmse: 1e-8 }, validation: { coefficient_error: 5e-7 } } },
+    ] }] }} />);
+  expect(screen.getByText("全部数据导航情景")).toBeInTheDocument();
+  expect(screen.getByRole("columnheader", { name: "数据估计基组 T2 (ms)" })).toBeInTheDocument();
+  expect(screen.getByText("1 / corner-0").closest("tr")).toHaveTextContent("0.0010000 / 未通过");
+  expect(screen.getByText(/只估计两类全局 T2/)).toBeInTheDocument();
+});
