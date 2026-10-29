@@ -69,3 +69,31 @@ After manuscript separation and test relocation, full validation still reports
 Python **641 passed** and frontend **90 passed** (13 files); TypeScript passes.
 The original manuscript worktree remains at `4342840` with only its pre-existing
 untracked `.DS_Store`. The current project has no tracked submission directory.
+
+
+## Measured-input TSE stage (2026-10-29)
+
+The current `lab/measurement-study` worktree extends `94f67b5` with a measured-input
+TSE pilot around existing ExperimentGraphs, independent holdout/calibration gates,
+T2-uncertainty scenario checks, reconstructed ROI contrast targets, six-stage
+provenance and portable source/runtime-pinned records. A real CLI CSV import,
+atomic save and complete computational replay are verified. The production
+browser also completed the full JSON-based study and replay. Native CSV file
+selection/import was observed; native JSON download/re-import remains open.
+
+The new [coverage report](lab-measurement-study-coverage.md) and self-contained
+[example record](examples/tse-lab-study-record.json) preserve assumptions, failed
+cases and exact inputs. The Python↔JavaScript number-serialization boundary was
+found in browser testing and fixed with explicit numeric canonicalization and a
+lossless request snapshot; real Node roundtrip replay is a regression test.
+
+This advances measured data ingestion, conditional uncertainty and local staged
+persistence for TSE. It does not complete measured-data calibration for flow,
+CEST or MRS, a universal scientific study schema, multi-study project persistence,
+or the remaining physics-fidelity requirements. The full platform goal remains
+active; B/C stay parked, submission content remains excluded, and no push/PR/merge
+was performed.
+
+Measured-input stage full verification: Python **667 passed**, frontend **95
+passed** (14 files), TypeScript and production build passed. The final example
+CSV byte hash and complete computational replay were checked after source freeze.

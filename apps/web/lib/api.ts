@@ -385,3 +385,24 @@ export async function searchResearch(request: import("./research").ResearchReque
   if (!response.ok) throw new Error(`网格搜索失败 (${response.status}): ${await response.text()}`);
   return response.json();
 }
+
+export async function fetchLabStudyExample(signal?: AbortSignal): Promise<import("./lab-study").StudyInput> {
+  const response = await fetch(`${BASE}/research/lab-study/example`, { signal });
+  if (!response.ok) throw new Error(`示例载入失败 (${response.status})`);
+  return response.json();
+}
+export async function runLabStudy(request: import("./lab-study").StudyInput, signal?: AbortSignal): Promise<import("./lab-study").LabStudyResponse> {
+  const response = await fetch(`${BASE}/research/lab-study/run`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal });
+  if (!response.ok) throw new Error(`实验研究失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function replayLabStudy(record: import("./lab-study").LabStudyRecord, signal?: AbortSignal): Promise<import("./lab-study").LabStudyResponse> {
+  const response = await fetch(`${BASE}/research/lab-study/replay`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(record), signal });
+  if (!response.ok) throw new Error(`计算回放失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function importLabEchoes(request: { csv_base64: string; source_ref: string; origin: "measured" | "synthetic"; echo_spacing_s: number; tr_s: number }, signal?: AbortSignal): Promise<Record<string, unknown>> {
+  const response = await fetch(`${BASE}/research/lab-study/import-echoes`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal });
+  if (!response.ok) throw new Error(`测量导入失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}

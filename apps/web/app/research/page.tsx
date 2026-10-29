@@ -3,66 +3,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { runResearch, searchResearch } from "../../lib/api";
 import { ResearchKind, ResearchRequest, ResearchRun, ResearchSearch, STUDIES } from "../../lib/research";
 import styles from "./research.module.css";
+import Link from "next/link";
+import Measurements from "../../components/research/Measurements";
 
 const KINDS = Object.keys(STUDIES) as ResearchKind[];
-const COLORS = ["#4fe3eb", "#ffb834", "#c7a9ef", "#f08e9a"];
-const TARGET_LABELS: Record<string, string> = {
-  threshold: "Image NRMSE target", blood_target_max: "Blood |Mz| limit", wall_target_min: "Wall |Mz| minimum",
-  target_min_amide_contrast: "Amide contrast target", target: "Maximum relative amount error target",
-};
 const format = (value: number) => Number.isInteger(value) ? String(value) : value.toPrecision(5);
-
-function Measurements({ run }: { run: ResearchRun }) {
-  const { images, curves, x_label, y_label } = run.view;
-  const pixels = images.flatMap(image => image.values);
-  const low = pixels.length ? Math.min(...pixels) : 0;
-  const high = pixels.length ? Math.max(...pixels) : 1;
-  const xs = curves.flatMap(curve => curve.x), ys = curves.flatMap(curve => curve.y);
-  const xmin = Math.min(...xs), xmax = Math.max(...xs), ymin = Math.min(0, ...ys), ymax = Math.max(...ys);
-  const sx = (x: number) => 52 + 590 * (x - xmin) / (xmax - xmin || 1);
-  const sy = (y: number) => 216 - 190 * (y - ymin) / (ymax - ymin || 1);
-  return <div className={styles.measurements}>
-    {images.length > 0 && <div className={styles.images}>
-      {images.map(image => <figure key={image.label}>
-        <svg viewBox={`0 0 ${image.width} ${image.height}`} role="img" aria-label={image.label}>
-          {image.values.map((value, i) => {
-            const intensity = (value - low) / (high - low || 1);
-            return <rect key={i} x={i % image.width} y={Math.floor(i / image.width)} width={1} height={1}
-              fill={`rgb(${Math.round(16 + 225 * intensity)},${Math.round(45 + 161 * intensity)},${Math.round(61 + 70 * intensity)})`} />;
-          })}
-        </svg><figcaption>{image.label}</figcaption>
-      </figure>)}
-      <p>共享绝对值色标 {format(low)} — {format(high)}。3D 显示中心层；完整体数据保留在导出记录。</p>
-    </div>}
-    {curves.length > 0 && <figure className={styles.trace}>
-      <svg viewBox="0 0 680 265" role="img" aria-label={`${y_label} versus ${x_label}`}>
-        <title>{y_label}</title>
-        {[0, .25, .5, .75, 1].map(t => <g key={t}>
-          <line x1={52} x2={642} y1={216 - 190*t} y2={216 - 190*t} stroke="#334b55" />
-          <text x={44} y={220 - 190*t} textAnchor="end">{format(ymin+(ymax-ymin)*t)}</text>
-        </g>)}
-        {curves.map((curve, index) => <g key={curve.label}>
-          <polyline fill="none" stroke={COLORS[index % COLORS.length]} strokeWidth={2}
-            points={curve.x.map((x, i) => `${sx(x)},${sy(curve.y[i])}`).join(" ")} />
-          {curve.x.length <= 16 && curve.x.map((x, i) => <circle key={i} cx={sx(x)} cy={sy(curve.y[i])} r={3} fill={COLORS[index % COLORS.length]} />)}
-        </g>)}
-        <text x={52} y={238}>{format(xmin)}</text><text x={642} y={238} textAnchor="end">{format(xmax)}</text>
-        <text x={347} y={260} textAnchor="middle">{x_label}</text>
-      </svg>
-      <figcaption>{y_label} <span>{curves.map((curve, i) => <b key={curve.label} style={{ color: COLORS[i % COLORS.length] }}>{curve.label}</b>)}</span></figcaption>
-    </figure>}
-    <table><caption>目标与测量</caption><tbody>
-      <tr><th scope="row">目标验证</th><td>{run.view.validation.passed ? "通过" : "未通过"}</td></tr>
-      {Object.entries(run.view.metrics).map(([key, value]) => <tr key={key}><th scope="row">{key}</th><td>{format(value)}</td></tr>)}
-      {Object.entries(run.view.validation).filter(([key, value]) => key in TARGET_LABELS && typeof value === "number").map(([key, value]) => <tr key={key}><th scope="row">{TARGET_LABELS[key]}</th><td>{format(value as number)}</td></tr>)}
-    </tbody></table>
-    <details><summary>曲线数值表</summary><div className={styles.scroll}>
-      <table><thead><tr><th>序列</th><th>{x_label}</th><th>{y_label}</th></tr></thead><tbody>
-        {curves.flatMap(curve => curve.x.map((x, i) => <tr key={`${curve.label}-${i}`}><td>{curve.label}</td><td>{format(x)}</td><td>{format(curve.y[i])}</td></tr>))}
-      </tbody></table>
-    </div></details>
-  </div>;
-}
 
 export default function ResearchPage() {
   const [kind, setKind] = useState<ResearchKind>("tse");
@@ -145,7 +90,7 @@ export default function ResearchPage() {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   return <div className={styles.workbench}>
-    <header className={styles.heading}><div><h1>脉冲设计研究台</h1><p>从研究问题到设计、仿真、参数搜索、目标验证与回放。</p></div><span className={styles.scope}>教学 / 研究仿真</span></header>
+    <header className={styles.heading}><div><h1>脉冲设计研究台</h1><p>从研究问题到设计、仿真、参数搜索、目标验证与回放。</p></div><Link className={styles.scope} href="/research/lab-study">实验测量到设计验证</Link></header>
     <p className={styles.boundary}>不作为扫描仪验证或临床质量认证。Milestone B / C 保持 parked。</p>
     <nav aria-label="研究实验" className={styles.kinds}>{KINDS.map(item => <button key={item} aria-pressed={item === kind} onClick={() => choose(item)}>{STUDIES[item].title}</button>)}</nav>
     <div className={styles.instrument}>
@@ -163,7 +108,7 @@ export default function ResearchPage() {
         <p role="status" className={styles.status}>{message || (busy ? "后端正在执行物理模型与验证…" : "")}</p>
         {error && <p role="alert" className={styles.error}>{error}</p>}
         {!run && !busy && !error && <div className={styles.empty}><h3>先定义实验，再观察信号。</h3><p>运行后显示后端实测图像或频谱、验证结果和可回放记录。更改设计会清除旧结果。</p></div>}
-        {run && <><p className={styles.question}>{run.result.clinical_question}</p><Measurements run={run} />
+        {run && <><p className={styles.question}>{run.result.clinical_question}</p><Measurements view={run.view} />
           <section className={styles.provenance}><h3>验证与回放记录</h3><p>{run.result.scope}</p><dl><dt>源码指纹</dt><dd>{run.source_hash}</dd><dt>结果哈希</dt><dd>{run.result_hash}</dd><dt>运行环境</dt><dd>Python {run.runtime.python} / NumPy {run.runtime.numpy}</dd></dl>
             <div className={styles.actions}><button disabled={busy} onClick={() => void execute("replay")}>回放此结果</button><button disabled={busy} onClick={download}>导出完整记录</button></div>
             <details><summary>设计、时序与 provenance</summary><pre>{JSON.stringify({ replay: run.replay_request, provenance: run.result.provenance, validation: run.view.validation }, null, 2)}</pre></details>

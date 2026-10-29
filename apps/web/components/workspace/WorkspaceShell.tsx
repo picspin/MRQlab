@@ -23,13 +23,13 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
           <Link href="/" className="nav-item">
             EXPLORE
           </Link>
-          <Link href="/workbench" className={pathname === "/research" ? "nav-item" : "nav-item active"}>
+          <Link href="/workbench" className={pathname?.startsWith("/research") ? "nav-item" : "nav-item active"}>
             WORKBENCH
           </Link>
           <Link href="/labs" className="nav-item">
             LABS
           </Link>
-          <Link href="/research" className={pathname === "/research" ? "nav-item active" : "nav-item"}>RESEARCH</Link>
+          <Link href="/research" className={pathname?.startsWith("/research") ? "nav-item active" : "nav-item"}>RESEARCH</Link>
           <button
             onClick={() => setShowAiModal(true)}
             className="nav-item"

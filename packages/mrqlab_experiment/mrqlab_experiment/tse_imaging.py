@@ -48,7 +48,7 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
                     tr_s=.4, partitions=None, t2_s=(.04, .12),
                     refocusing_angle=180., refocusing_end_angle=180.,
                     weighting='echo', max_samples=1000000, max_work=100000000,
-                    max_duration_s=10000.):
+                    max_duration_s=10000., experiment=None):
     """Design -> periodic EPG -> timed full Cartesian readout -> image/PSF.
 
     Contiguous segments of linear/centric ky traversal form trains; kz is centric.
@@ -77,7 +77,21 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
     spatial_work = int(8*labels.size*max(1, np.ceil(np.log2(labels.size))))
     if labels.size > max_samples or spatial_work >= max_work or trains*tr_s > max_duration_s:
         raise ValueError('infeasible readout budget')
-    graph = build_family_recipe('brain_t1_3d_tse')
+    if experiment is None:
+        graph = build_family_recipe('brain_t1_3d_tse')
+    else:
+        from .models import ExperimentGraph, TemplateRef
+        validated = ExperimentGraph.model_validate(experiment)
+        experiment_input = validated.model_dump(mode='json')
+        graph = validated.model_copy(deep=True)
+        if not isinstance(graph.sequence, TemplateRef) or graph.sequence.template != 'TSE3D' or graph.engine.preferred != 'epg':
+            raise ValueError('TSE imaging requires a TSE3D EPG experiment chassis')
+        if not isinstance(graph.tissue, tuple) or len(graph.tissue) != 2 or graph.physiology is not None or graph.disturbances.items:
+            raise ValueError('two independent tissues without physiology/disturbances required')
+        if graph.sample.pools or graph.sample.isochromats or graph.sample.off_resonance_hz:
+            raise ValueError('TSE imaging chassis does not support pool/spatial/off-resonance sample overrides')
+        if any(t.flow_velocity_mps or t.exchange_rate_hz or t.bound_pool or t.diffusion_adc_mm2_s for t in graph.tissue):
+            raise ValueError('TSE imaging chassis requires independent relaxation tissues')
     graph.sequence.params.update(te=echo_spacing_s, tr=tr_s, echoes=echoes, partitions=1,
         refocusing_flip_angle=refocusing_angle, refocusing_end_angle=refocusing_end_angle)
     # One sample per existing 2ms ADC gate: exact echo center, not train mean.
@@ -133,7 +147,9 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
         tr_s=tr_s, partitions=partitions, t2_s=list(t2_s), refocusing_angle=refocusing_angle,
         refocusing_end_angle=refocusing_end_angle, weighting=weighting,
         max_samples=max_samples, max_work=max_work, max_duration_s=max_duration_s)
-    return dict(clinical_question='How do T2, echo ordering and train length alter tissue contrast and spatial resolution?',
+    if experiment is not None: inputs['experiment'] = experiment_input
+    question = graph.clinical_recipe.question.research_question if experiment is not None and graph.clinical_recipe else 'How do T2, echo ordering and train length alter tissue contrast and spatial resolution?'
+    return dict(clinical_question=question,
         design=graph.model_dump(mode='json'), timeline=timeline, echo_times_s=np.arange(1, echoes+1)*echo_spacing_s,
         tissue_echo_weights=weights, modulation=modulation, psfs=psfs, image=image, reference=reference,
         quality=image_quality(reference, image, 1e-10),

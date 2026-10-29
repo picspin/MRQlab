@@ -2,6 +2,7 @@
 from hashlib import sha256
 from pathlib import Path
 import json
+import base64
 import platform
 from typing import Literal, Any, Annotated
 import numpy as np
@@ -191,7 +192,7 @@ def present(kind,result):
             if image.ndim==3: image=image[len(image)//2]
             images.append(dict(label=title,width=image.shape[1],height=image.shape[0],values=image.ravel().tolist()))
         if kind=='tse':
-            for i,weights in enumerate(result['tissue_echo_weights']): curves.append(_curve(f'Tissue {i+1}',result['echo_times_s']*1000,weights))
+            for i,weights in enumerate(result['tissue_echo_weights']): curves.append(_curve(f'Tissue {i+1}',np.asarray(result['echo_times_s'])*1000,weights))
             x_label='Echo time (ms)'; y_label='Absolute EPG signal'
         else:
             for i,solver in enumerate(result['solvers']): curves.append(_curve(f'CGLS frame {i+1}',np.arange(len(solver['residual_history'])),solver['residual_history']))
@@ -260,3 +261,56 @@ def search_research(request: SearchRequest):
         objective='minimize declared model loss against known teaching truth/control; finite grid, no clinical optimum',
         replay_search={**request.model_dump(), 'expected_source_hash':fingerprint},source_hash=fingerprint,
         search_hash=sha256(json.dumps(points,sort_keys=True,allow_nan=False).encode()).hexdigest())
+
+
+# Measured study records wrap existing ExperimentGraphs; they are not a new
+# scanner export or licensed-compute path.
+from mrqlab_experiment.lab_study import LabStudy, build_lab_study_example, import_echo_csv
+from mrqlab_experiment.study_records import create_study_record, replay_study_record
+
+
+class EchoCSVRequest(StrictParameters):
+    csv_base64: str=Field(min_length=1,max_length=1333340)
+    source_ref: str=Field(min_length=1,max_length=1024)
+    origin: Literal['synthetic','measured']
+    echo_spacing_s: float=Field(default=.008,ge=.000001,le=10.)
+    tr_s: float=Field(default=.4,ge=.000001,le=10.)
+
+
+@router.get('/lab-study/example')
+def lab_study_example():
+    return build_lab_study_example().model_dump(mode='json')
+
+
+@router.post('/lab-study/import-echoes')
+def lab_study_import(request: EchoCSVRequest):
+    try:
+        dataset=import_echo_csv(base64.b64decode(request.csv_base64,validate=True),source_ref=request.source_ref,
+            origin=request.origin,echo_spacing_s=request.echo_spacing_s,tr_s=request.tr_s)
+    except ValueError as exc: raise HTTPException(422,str(exc)) from exc
+    return dataset.model_dump(mode='json')
+
+
+def _lab_response(record):
+    simulation=record['result']['selected_simulation']
+    def decode(value):
+        if isinstance(value,dict):
+            if set(value)=={'real','imag'}: return complex(value['real'],value['imag'])
+            return {k:decode(v) for k,v in value.items()}
+        if isinstance(value,list): return [decode(v) for v in value]
+        return value
+    return dict(record=record,view=present('tse',decode(simulation)) if simulation is not None else None)
+
+
+@router.post('/lab-study/run')
+def run_measured_study(request: LabStudy):
+    checked_source_hash()
+    try: return _lab_response(create_study_record(request))
+    except ValueError as exc: raise HTTPException(422,str(exc)) from exc
+
+
+@router.post('/lab-study/replay')
+def replay_measured_study(record: dict):
+    checked_source_hash()
+    try: return _lab_response(replay_study_record(record))
+    except ValueError as exc: raise HTTPException(409,str(exc)) from exc

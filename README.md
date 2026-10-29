@@ -51,6 +51,13 @@ finite candidate comparison, explicit validation and complete JSON records:
 | Joint CEST/MT/rNOE | Coupled liquid and semisolid pools, effective upfield rNOE, named exchange-off controls |
 | MRS basis fit | Small-spin density matrix, finite RF/J coupling, complex full-readout fit and mismatch validation |
 
+The [measured-input TSE study](docs/research/lab-measurement-study-coverage.md)
+is available at `/research/lab-study`: explicit-origin CSV → T2 calibration →
+independent acquisition holdout → EPG/image/PSF candidate comparison at uncertainty
+corners → target validation → atomic local-file record and full computational
+replay. Only T2 is calibrated; T1/PD and clinical transfer remain authored or
+unvalidated. Its included example is clearly synthetic.
+
 `POST /research/run` and `/research/search` are separate bounded research APIs.
 A result records its exact replay request, source fingerprint, runtime, targets
 and result hash; search records retain every candidate and the selected result.
