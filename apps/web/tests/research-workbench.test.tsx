@@ -116,3 +116,15 @@ it("shows causal scheduling separately from completed readouts", async () => {
   expect(screen.getByText("完整读出")).toBeInTheDocument();
   expect(vi.mocked(runResearch).mock.calls[0][0].kind).toBe("pulsatile_flow");
 });
+
+it("uses the Solomon relay model and displays signed failed contrast", async () => {
+  const signed: ResearchRun = { ...result, kind: "cest_solomon", view: { ...result.view, metrics: { relayed_noe_contrast: -.0012 }, validation: { passed: false, target_min_relay_contrast: .005 } } };
+  vi.mocked(runResearch).mockResolvedValue(signed); render(<ResearchPage />);
+  fireEvent.click(screen.getByRole("button", { name: "CEST / Solomon relay" }));
+  expect(screen.getByLabelText("转动相关时间 (s)")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
+  await screen.findByText("目标未通过");
+  expect(screen.getByText("-0.0012000")).toBeInTheDocument();
+  expect(screen.getByText("Relay contrast target")).toBeInTheDocument();
+  expect(vi.mocked(runResearch).mock.calls[0][0].kind).toBe("cest_solomon");
+});

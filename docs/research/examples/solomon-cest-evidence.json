@@ -1,0 +1,3539 @@
+{
+  "schema": "mrqlab-solomon-relay-evidence-1",
+  "scope": "teaching/research; synthetic one-to-one proton pair, no scanner/clinical or molecular-cohort validation",
+  "sources": {
+    "files": {
+      "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+      "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+      "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+      "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+      "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+      "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+      "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+      "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+      "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+      "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+      "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+      "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+      "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+      "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+      "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+      "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+      "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+      "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+      "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+      "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+      "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+      "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "d78e9d8d5fc24fc6355b8594dc7676cae255eeef7b31d928ced90ae7b4643b06",
+      "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+      "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+      "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+      "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+      "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+      "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+      "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+      "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+      "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+      "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+      "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+      "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+      "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+      "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+      "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+      "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+      "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+      "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+      "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+      "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+      "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+      "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+      "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+      "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+      "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+      "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+      "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+      "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+      "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+      "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+      "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+      "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+      "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+      "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+      "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+      "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+      "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+      "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+      "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+      "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+      "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+      "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+      "services/api/mrqlab_api/__init__.py": "037f47825ff6d0902897e8ba0746f111c4c1a19d5a8cfd4cda370b317115698f",
+      "services/api/mrqlab_api/main.py": "826d1140337d984349d7319306b64d78d9e26e54ae73f2901970c44ff4713523",
+      "services/api/mrqlab_api/research.py": "5dbc78e748952b739388aa3f09afe65b45de25c77dd83338cebb4d2201fb78f1",
+      "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+      "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+      "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+    },
+    "sha256": "954af7c497b3b19a285c27604d2a7c07b0b716dfd32c6633d05fee864472616a"
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "system": "Darwin",
+    "machine": "arm64",
+    "packages": {
+      "numpy": "2.5.2",
+      "pydantic": "2.13.4",
+      "fastapi": "0.141.1",
+      "uvicorn": "0.52.3",
+      "finufft": "2.5.0"
+    },
+    "blas_configuration": {
+      "Compilers": {
+        "c": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "cc"
+        },
+        "cython": {
+          "name": "cython",
+          "linker": "cython",
+          "version": "3.2.9",
+          "commands": "cython"
+        },
+        "c++": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "c++"
+        }
+      },
+      "Machine Information": {
+        "host": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        },
+        "build": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        }
+      },
+      "Build Dependencies": {
+        "blas": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        },
+        "lapack": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        }
+      },
+      "Python Information": {
+        "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+        "version": "3.12"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "NEON",
+          "NEON_FP16",
+          "NEON_VFPV4",
+          "ASIMD"
+        ],
+        "found": [
+          "ASIMDHP",
+          "ASIMDDP"
+        ],
+        "not found": [
+          "ASIMDFHM"
+        ]
+      }
+    }
+  },
+  "script_sha256": "795b5a0cf302b25b5966dd6ca42b9b3d8a5770b9343b90167feb6277b7989667",
+  "independent_population_reference": {
+    "basis": [
+      "up/up",
+      "up/down",
+      "down/up",
+      "down/down"
+    ],
+    "duration_s": 0.73,
+    "transition_generator": [
+      [
+        -0.16113395090416952,
+        0.05350445272112984,
+        0.05350445272112984,
+        0.054125045461909854
+      ],
+      [
+        0.05350445272112984,
+        -2.440206464525741,
+        2.3331975590834815,
+        0.05350445272112984
+      ],
+      [
+        0.05350445272112984,
+        2.3331975590834815,
+        -2.440206464525741,
+        0.05350445272112984
+      ],
+      [
+        0.054125045461909854,
+        0.05350445272112984,
+        0.05350445272112984,
+        -0.16113395090416952
+      ]
+    ],
+    "population_initial": [
+      0.36,
+      0.21999999999999997,
+      0.28,
+      0.13999999999999999
+    ],
+    "population_final": [
+      0.34400437262216466,
+      0.24908000547088682,
+      0.2509199945291136,
+      0.15599562737783562
+    ],
+    "solomon_analytic": [
+      0.18616875618610199,
+      0.1898487343025557
+    ],
+    "independent_longitudinal": [
+      0.18616875618610224,
+      0.18984873430255583
+    ],
+    "max_absolute_error": 2.498001805406602e-16
+  },
+  "molecular_prior_sensitivity": [
+    {
+      "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+      "design": {
+        "offsets_ppm": [
+          -5.0,
+          -3.5,
+          -2.0,
+          -1.0,
+          1.0,
+          2.0,
+          3.5,
+          5.0
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 1.0,
+        "saturation_s": 1.0,
+        "mode": "cw",
+        "n_pulses": 1,
+        "pulse_s": 1.0,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-10,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "offsets_ppm": [
+        -5.0,
+        -3.5,
+        -2.0,
+        -1.0,
+        1.0,
+        2.0,
+        3.5,
+        5.0
+      ],
+      "spectra": {
+        "full": [
+          0.8152873244825498,
+          0.7642974260119668,
+          0.6127985492823036,
+          0.2851014723826021,
+          0.18155455536707749,
+          0.40637474383365335,
+          0.6951424416415882,
+          0.8026611754249078
+        ],
+        "no_cross": [
+          0.8140577006757859,
+          0.7630929931451829,
+          0.6117643452329925,
+          0.28448371362048697,
+          0.18116906164676094,
+          0.40572336946910936,
+          0.6943470415413103,
+          0.8019193754946268
+        ],
+        "no_bridge_exchange": [
+          0.8147512355284016,
+          0.7678477895102158,
+          0.6336342144379191,
+          0.3337778768735089,
+          0.28806031706812935,
+          0.46268117972586986,
+          0.7115869037825239,
+          0.8072767432705718
+        ],
+        "no_amide": [
+          0.8149531134345023,
+          0.763956389590226,
+          0.6124946188237882,
+          0.2849712296926026,
+          0.18203918018969423,
+          0.40917506953815863,
+          0.7329339907473877,
+          0.8063033326169264
+        ],
+        "no_mt": [
+          0.9542233046056987,
+          0.9070539235163957,
+          0.7382398950134381,
+          0.334103276300871,
+          0.1972708895765725,
+          0.46436523268417057,
+          0.816749944765944,
+          0.9380093588112736
+        ]
+      },
+      "metrics": {
+        "amide_exchange_contrast": 0.037791549105799516,
+        "relayed_noe_contrast": -0.0012044328667839554,
+        "bridge_exchange_control_contrast": 0.0035503634982489984,
+        "mt_contrast_at_amide": 0.12160750312435575,
+        "donor_minus_amide": 0.06915498437037859,
+        "unsaturated_water": 0.999999999999218
+      },
+      "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+      "objective_loss": 0.0012044328667839554,
+      "validation": {
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005,
+        "passed": false
+      },
+      "provenance": {
+        "version": "solomon-relay-cest-v1",
+        "replay": {
+          "offsets_ppm": [
+            -5.0,
+            -3.5,
+            -2.0,
+            -1.0,
+            1.0,
+            2.0,
+            3.5,
+            5.0
+          ],
+          "b0_t": 3.0,
+          "b1_uT": 1.0,
+          "saturation_s": 1.0,
+          "mode": "cw",
+          "n_pulses": 1,
+          "pulse_s": 1.0,
+          "gap_s": 0.0,
+          "pair_fraction": 0.02,
+          "bridge_exchange_s1": 1000.0,
+          "bridge_shift_ppm": 1.0,
+          "donor_shift_ppm": -3.5,
+          "distance_m": 2.5e-10,
+          "tau_c_s": 1e-10,
+          "bound_fraction": 0.08,
+          "bound_to_water_hz": 20.0,
+          "bound_t2_s": 1.2e-05,
+          "lineshape": "super_lorentzian",
+          "max_work": 100000000,
+          "max_duration_s": 300.0,
+          "target_min_amide_contrast": 0.005,
+          "target_min_relay_contrast": 0.005
+        },
+        "input_hash": "c4036657d29fe6cc3e78c9de2871c94b3fe497b941cd4c3dc4fa94b447532c63",
+        "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+        "source_files": {
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+          "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+          "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+          "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+          "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+          "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+        },
+        "states_hash": "bcd7b03c08eae8640c510a19057068a7c4f5b984b1e1b413ab8eefc893fd7e6f",
+        "runtime": {
+          "python": "3.12.14",
+          "numpy": "2.5.2"
+        },
+        "dipolar_rates": {
+          "rho_i_s1": 0.2293555665854976,
+          "rho_s_s1": 0.2293555705913978,
+          "sigma_s1": 0.11314365703727608,
+          "w0_s1": 0.023331975590831774,
+          "w2_s1": 0.13647563262810786,
+          "w1_i_s1": 0.03477397918327899,
+          "w1_s_s1": 0.03477398118622908,
+          "dipolar_b_rad_s": 48303.183736514526,
+          "weak_fluctuation_b_tau": 4.830318373651453e-06,
+          "omega_i_rad_s": 802567372.4672475,
+          "omega_s_rad_s": 802563760.917683,
+          "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+          "mu0_over_4pi_si": 1e-07,
+          "hbar_j_s": 1.054571817e-34
+        },
+        "liquid_system": {
+          "t1": [
+            1.5,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "t2": [
+            0.08,
+            0.02,
+            0.01,
+            0.01,
+            0.0005
+          ],
+          "density": [
+            1.0,
+            0.003,
+            0.005,
+            0.02,
+            0.02
+          ],
+          "offset_hz": [
+            0.0,
+            447.06352866,
+            255.46487352,
+            127.73243676,
+            -447.06352866
+          ],
+          "rates": [
+            [
+              0.0,
+              0.09,
+              1.0,
+              20.0,
+              0.0
+            ],
+            [
+              30.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              200.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              1000.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "require_balance": true
+        },
+        "controls": {
+          "full": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "no_cross": [
+            false,
+            true,
+            true,
+            true
+          ],
+          "no_bridge_exchange": [
+            true,
+            false,
+            true,
+            true
+          ],
+          "no_amide": [
+            true,
+            true,
+            false,
+            true
+          ],
+          "no_mt": [
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        "estimated_work": 18757834,
+        "duration_s": 41.0,
+        "duty_cycle": 1.0,
+        "rf_energy_uT2_s": 40.0,
+        "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+        "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+        "bound_lineshape": "super_lorentzian",
+        "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+      }
+    },
+    {
+      "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+      "design": {
+        "offsets_ppm": [
+          -5.0,
+          -3.5,
+          -2.0,
+          -1.0,
+          1.0,
+          2.0,
+          3.5,
+          5.0
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 1.0,
+        "saturation_s": 1.0,
+        "mode": "cw",
+        "n_pulses": 1,
+        "pulse_s": 1.0,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-09,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "offsets_ppm": [
+        -5.0,
+        -3.5,
+        -2.0,
+        -1.0,
+        1.0,
+        2.0,
+        3.5,
+        5.0
+      ],
+      "spectra": {
+        "full": [
+          0.8168532268818697,
+          0.7661565078300057,
+          0.6153534553265484,
+          0.2882820934431348,
+          0.1842200012688601,
+          0.40945616360396747,
+          0.6971313731119,
+          0.8040212573226977
+        ],
+        "no_cross": [
+          0.8151955562452431,
+          0.7645210368228534,
+          0.6139591119328359,
+          0.287459419868727,
+          0.1837265550777883,
+          0.40863840040670857,
+          0.6961562803525021,
+          0.8031300823563033
+        ],
+        "no_bridge_exchange": [
+          0.8147512355284016,
+          0.7678477895102158,
+          0.6336342144379191,
+          0.3337778768735089,
+          0.28806031706812935,
+          0.46268117972586986,
+          0.7115869037825239,
+          0.8072767432705718
+        ],
+        "no_amide": [
+          0.8165251332757634,
+          0.7658223699366391,
+          0.6150579855897257,
+          0.28816143879735556,
+          0.18471553451674586,
+          0.4122589255843034,
+          0.7347275494400012,
+          0.8076460367403313
+        ],
+        "no_mt": [
+          0.9550482275783829,
+          0.9082005431442299,
+          0.7403395095830942,
+          0.3374890384855202,
+          0.2002096497531212,
+          0.46750167359628314,
+          0.8181871093504363,
+          0.9386192584793684
+        ]
+      },
+      "metrics": {
+        "amide_exchange_contrast": 0.037596176328101194,
+        "relayed_noe_contrast": -0.0016354710071522227,
+        "bridge_exchange_control_contrast": 0.001691281680210155,
+        "mt_contrast_at_amide": 0.12105573623853627,
+        "donor_minus_amide": 0.06902513471810567,
+        "unsaturated_water": 0.9999999999989758
+      },
+      "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+      "objective_loss": 0.0016354710071522227,
+      "validation": {
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005,
+        "passed": false
+      },
+      "provenance": {
+        "version": "solomon-relay-cest-v1",
+        "replay": {
+          "offsets_ppm": [
+            -5.0,
+            -3.5,
+            -2.0,
+            -1.0,
+            1.0,
+            2.0,
+            3.5,
+            5.0
+          ],
+          "b0_t": 3.0,
+          "b1_uT": 1.0,
+          "saturation_s": 1.0,
+          "mode": "cw",
+          "n_pulses": 1,
+          "pulse_s": 1.0,
+          "gap_s": 0.0,
+          "pair_fraction": 0.02,
+          "bridge_exchange_s1": 1000.0,
+          "bridge_shift_ppm": 1.0,
+          "donor_shift_ppm": -3.5,
+          "distance_m": 2.5e-10,
+          "tau_c_s": 1e-09,
+          "bound_fraction": 0.08,
+          "bound_to_water_hz": 20.0,
+          "bound_t2_s": 1.2e-05,
+          "lineshape": "super_lorentzian",
+          "max_work": 100000000,
+          "max_duration_s": 300.0,
+          "target_min_amide_contrast": 0.005,
+          "target_min_relay_contrast": 0.005
+        },
+        "input_hash": "7619b43678d9d2fa28c25920f03290b6aaa1bd68465fa57b8fba21231f56c72b",
+        "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+        "source_files": {
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+          "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+          "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+          "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+          "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+          "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+        },
+        "states_hash": "f020bde7afe8058246b99f01aa4cf00c6c4f467461275bc9ad2e039bd41304fc",
+        "runtime": {
+          "python": "3.12.14",
+          "numpy": "2.5.2"
+        },
+        "dipolar_rates": {
+          "rho_i_s1": 1.0504833981190154,
+          "rho_s_s1": 1.0504848992353049,
+          "sigma_s1": 0.1581075305468825,
+          "w0_s1": 0.23331975590530488,
+          "w2_s1": 0.3914272864521874,
+          "w1_i_s1": 0.2128681778807615,
+          "w1_s_s1": 0.2128689284389063,
+          "dipolar_b_rad_s": 48303.183736514526,
+          "weak_fluctuation_b_tau": 4.830318373651453e-05,
+          "omega_i_rad_s": 802567372.4672475,
+          "omega_s_rad_s": 802563760.917683,
+          "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+          "mu0_over_4pi_si": 1e-07,
+          "hbar_j_s": 1.054571817e-34
+        },
+        "liquid_system": {
+          "t1": [
+            1.5,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "t2": [
+            0.08,
+            0.02,
+            0.01,
+            0.01,
+            0.0005
+          ],
+          "density": [
+            1.0,
+            0.003,
+            0.005,
+            0.02,
+            0.02
+          ],
+          "offset_hz": [
+            0.0,
+            447.06352866,
+            255.46487352,
+            127.73243676,
+            -447.06352866
+          ],
+          "rates": [
+            [
+              0.0,
+              0.09,
+              1.0,
+              20.0,
+              0.0
+            ],
+            [
+              30.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              200.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              1000.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "require_balance": true
+        },
+        "controls": {
+          "full": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "no_cross": [
+            false,
+            true,
+            true,
+            true
+          ],
+          "no_bridge_exchange": [
+            true,
+            false,
+            true,
+            true
+          ],
+          "no_amide": [
+            true,
+            true,
+            false,
+            true
+          ],
+          "no_mt": [
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        "estimated_work": 18757834,
+        "duration_s": 41.0,
+        "duty_cycle": 1.0,
+        "rf_energy_uT2_s": 40.0,
+        "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+        "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+        "bound_lineshape": "super_lorentzian",
+        "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+      }
+    },
+    {
+      "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+      "design": {
+        "offsets_ppm": [
+          -5.0,
+          -3.5,
+          -2.0,
+          -1.0,
+          1.0,
+          2.0,
+          3.5,
+          5.0
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 1.0,
+        "saturation_s": 1.0,
+        "mode": "cw",
+        "n_pulses": 1,
+        "pulse_s": 1.0,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-08,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "offsets_ppm": [
+        -5.0,
+        -3.5,
+        -2.0,
+        -1.0,
+        1.0,
+        2.0,
+        3.5,
+        5.0
+      ],
+      "spectra": {
+        "full": [
+          0.7944079095708364,
+          0.74428803637849,
+          0.5983363603438113,
+          0.28073373461521645,
+          0.1805490505695083,
+          0.4017855580677363,
+          0.6863514841800393,
+          0.7939181594753832
+        ],
+        "no_cross": [
+          0.8171672325794961,
+          0.7669955792466978,
+          0.6177633433034826,
+          0.29262743785201495,
+          0.18818111952961655,
+          0.4136979958151674,
+          0.6992919712151422,
+          0.8052280560357654
+        ],
+        "no_bridge_exchange": [
+          0.8147512355284016,
+          0.7678477895102158,
+          0.6336342144379191,
+          0.3337778768735089,
+          0.28806031706812935,
+          0.46268117972586986,
+          0.7115869037825239,
+          0.8072767432705718
+        ],
+        "no_amide": [
+          0.7940221205197868,
+          0.7438979620939528,
+          0.597997011208796,
+          0.2805912853811393,
+          0.18102336278207248,
+          0.404517064088228,
+          0.7233635174602218,
+          0.7974691237308706
+        ],
+        "no_mt": [
+          0.9272750304202276,
+          0.8807951849154645,
+          0.7187239701480692,
+          0.32810155188346257,
+          0.19594234180462675,
+          0.4582111304410654,
+          0.80475267057575,
+          0.92600479442753
+        ]
+      },
+      "metrics": {
+        "amide_exchange_contrast": 0.03701203328018243,
+        "relayed_noe_contrast": 0.022707542868207864,
+        "bridge_exchange_control_contrast": 0.02355975313172587,
+        "mt_contrast_at_amide": 0.11840118639571062,
+        "donor_minus_amide": 0.05793655219845062,
+        "unsaturated_water": 0.9999999999991707
+      },
+      "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+      "objective_loss": -0.022707542868207864,
+      "validation": {
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005,
+        "passed": true
+      },
+      "provenance": {
+        "version": "solomon-relay-cest-v1",
+        "replay": {
+          "offsets_ppm": [
+            -5.0,
+            -3.5,
+            -2.0,
+            -1.0,
+            1.0,
+            2.0,
+            3.5,
+            5.0
+          ],
+          "b0_t": 3.0,
+          "b1_uT": 1.0,
+          "saturation_s": 1.0,
+          "mode": "cw",
+          "n_pulses": 1,
+          "pulse_s": 1.0,
+          "gap_s": 0.0,
+          "pair_fraction": 0.02,
+          "bridge_exchange_s1": 1000.0,
+          "bridge_shift_ppm": 1.0,
+          "donor_shift_ppm": -3.5,
+          "distance_m": 2.5e-10,
+          "tau_c_s": 1e-08,
+          "bound_fraction": 0.08,
+          "bound_to_water_hz": 20.0,
+          "bound_t2_s": 1.2e-05,
+          "lineshape": "super_lorentzian",
+          "max_work": 100000000,
+          "max_duration_s": 300.0,
+          "target_min_amide_contrast": 0.005,
+          "target_min_relay_contrast": 0.005
+        },
+        "input_hash": "370b22865ca28f5ff6f140297fb2bb509bbb516649e7e813448ed7c88ea9c899",
+        "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+        "source_files": {
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+          "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+          "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+          "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+          "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+          "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+        },
+        "states_hash": "e758016c1d903a52a4406af03be0a11f6b5aeeebf0dacff06318115027571199",
+        "runtime": {
+          "python": "3.12.14",
+          "numpy": "2.5.2"
+        },
+        "dipolar_rates": {
+          "rho_i_s1": 2.494331430988476,
+          "rho_s_s1": 2.4943323793486587,
+          "sigma_s1": -2.279072375788608,
+          "w0_s1": 2.333197556040224,
+          "w2_s1": 0.05412518025161585,
+          "w1_i_s1": 0.05350434734831815,
+          "w1_s_s1": 0.05350482152840958,
+          "dipolar_b_rad_s": 48303.183736514526,
+          "weak_fluctuation_b_tau": 0.00048303183736514524,
+          "omega_i_rad_s": 802567372.4672475,
+          "omega_s_rad_s": 802563760.917683,
+          "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+          "mu0_over_4pi_si": 1e-07,
+          "hbar_j_s": 1.054571817e-34
+        },
+        "liquid_system": {
+          "t1": [
+            1.5,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "t2": [
+            0.08,
+            0.02,
+            0.01,
+            0.01,
+            0.0005
+          ],
+          "density": [
+            1.0,
+            0.003,
+            0.005,
+            0.02,
+            0.02
+          ],
+          "offset_hz": [
+            0.0,
+            447.06352866,
+            255.46487352,
+            127.73243676,
+            -447.06352866
+          ],
+          "rates": [
+            [
+              0.0,
+              0.09,
+              1.0,
+              20.0,
+              0.0
+            ],
+            [
+              30.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              200.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              1000.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "require_balance": true
+        },
+        "controls": {
+          "full": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "no_cross": [
+            false,
+            true,
+            true,
+            true
+          ],
+          "no_bridge_exchange": [
+            true,
+            false,
+            true,
+            true
+          ],
+          "no_amide": [
+            true,
+            true,
+            false,
+            true
+          ],
+          "no_mt": [
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        "estimated_work": 18757834,
+        "duration_s": 41.0,
+        "duty_cycle": 1.0,
+        "rf_energy_uT2_s": 40.0,
+        "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+        "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+        "bound_lineshape": "super_lorentzian",
+        "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+      }
+    }
+  ],
+  "pulse_power_candidates": [
+    {
+      "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+      "design": {
+        "offsets_ppm": [
+          -5.0,
+          -3.5,
+          -2.0,
+          -1.0,
+          1.0,
+          2.0,
+          3.5,
+          5.0
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 0.1,
+        "saturation_s": 1.0,
+        "mode": "cw",
+        "n_pulses": 1,
+        "pulse_s": 1.0,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-08,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "offsets_ppm": [
+        -5.0,
+        -3.5,
+        -2.0,
+        -1.0,
+        1.0,
+        2.0,
+        3.5,
+        5.0
+      ],
+      "spectra": {
+        "full": [
+          0.9960588629372267,
+          0.9947832001394987,
+          0.9927863223893727,
+          0.9823313472769559,
+          0.973348649303958,
+          0.9849947651535048,
+          0.9836624959444314,
+          0.9973264214843898
+        ],
+        "no_cross": [
+          0.9976859573932519,
+          0.9969577205028237,
+          0.994434719368406,
+          0.9835581176768641,
+          0.9740814078186713,
+          0.9854923957291617,
+          0.9840339254768428,
+          0.9975266615390284
+        ],
+        "no_bridge_exchange": [
+          0.9976492154162152,
+          0.9969640986430355,
+          0.9947306929822257,
+          0.9858624113839354,
+          0.9832250421392157,
+          0.9868952213618367,
+          0.9837354173228828,
+          0.9975475447899289
+        ],
+        "no_amide": [
+          0.996049542126582,
+          0.9947718270223523,
+          0.9927757193779282,
+          0.9823239459497786,
+          0.973412654339104,
+          0.9850810088555777,
+          0.996223793437585,
+          0.9973772999583492
+        ],
+        "no_mt": [
+          0.9977801872228758,
+          0.9966799544972522,
+          0.9950758783502578,
+          0.9850757959448501,
+          0.9753966886465084,
+          0.986639488000344,
+          0.9846422629868294,
+          0.9991470828905574
+        ]
+      },
+      "metrics": {
+        "amide_exchange_contrast": 0.0125612974931536,
+        "relayed_noe_contrast": 0.0021745203633249943,
+        "bridge_exchange_control_contrast": 0.0021808985035367545,
+        "mt_contrast_at_amide": 0.0009797670423979943,
+        "donor_minus_amide": 0.011120704195067277,
+        "unsaturated_water": 0.9999999999991707
+      },
+      "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+      "objective_loss": -0.0021745203633249943,
+      "validation": {
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005,
+        "passed": false
+      },
+      "provenance": {
+        "version": "solomon-relay-cest-v1",
+        "replay": {
+          "offsets_ppm": [
+            -5.0,
+            -3.5,
+            -2.0,
+            -1.0,
+            1.0,
+            2.0,
+            3.5,
+            5.0
+          ],
+          "b0_t": 3.0,
+          "b1_uT": 0.1,
+          "saturation_s": 1.0,
+          "mode": "cw",
+          "n_pulses": 1,
+          "pulse_s": 1.0,
+          "gap_s": 0.0,
+          "pair_fraction": 0.02,
+          "bridge_exchange_s1": 1000.0,
+          "bridge_shift_ppm": 1.0,
+          "donor_shift_ppm": -3.5,
+          "distance_m": 2.5e-10,
+          "tau_c_s": 1e-08,
+          "bound_fraction": 0.08,
+          "bound_to_water_hz": 20.0,
+          "bound_t2_s": 1.2e-05,
+          "lineshape": "super_lorentzian",
+          "max_work": 100000000,
+          "max_duration_s": 300.0,
+          "target_min_amide_contrast": 0.005,
+          "target_min_relay_contrast": 0.005
+        },
+        "input_hash": "17798ff53181e1c6bf83bc5f39fe4450c1a5fd805dce3d800c6fb88a54a4d747",
+        "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+        "source_files": {
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+          "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+          "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+          "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+          "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+          "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+        },
+        "states_hash": "c901f3513ca04bfa78855e3a49546e1f6fabb3e09bc7c5a47dc0250452422edd",
+        "runtime": {
+          "python": "3.12.14",
+          "numpy": "2.5.2"
+        },
+        "dipolar_rates": {
+          "rho_i_s1": 2.494331430988476,
+          "rho_s_s1": 2.4943323793486587,
+          "sigma_s1": -2.279072375788608,
+          "w0_s1": 2.333197556040224,
+          "w2_s1": 0.05412518025161585,
+          "w1_i_s1": 0.05350434734831815,
+          "w1_s_s1": 0.05350482152840958,
+          "dipolar_b_rad_s": 48303.183736514526,
+          "weak_fluctuation_b_tau": 0.00048303183736514524,
+          "omega_i_rad_s": 802567372.4672475,
+          "omega_s_rad_s": 802563760.917683,
+          "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+          "mu0_over_4pi_si": 1e-07,
+          "hbar_j_s": 1.054571817e-34
+        },
+        "liquid_system": {
+          "t1": [
+            1.5,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "t2": [
+            0.08,
+            0.02,
+            0.01,
+            0.01,
+            0.0005
+          ],
+          "density": [
+            1.0,
+            0.003,
+            0.005,
+            0.02,
+            0.02
+          ],
+          "offset_hz": [
+            0.0,
+            447.06352866,
+            255.46487352,
+            127.73243676,
+            -447.06352866
+          ],
+          "rates": [
+            [
+              0.0,
+              0.09,
+              1.0,
+              20.0,
+              0.0
+            ],
+            [
+              30.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              200.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              1000.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "require_balance": true
+        },
+        "controls": {
+          "full": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "no_cross": [
+            false,
+            true,
+            true,
+            true
+          ],
+          "no_bridge_exchange": [
+            true,
+            false,
+            true,
+            true
+          ],
+          "no_amide": [
+            true,
+            true,
+            false,
+            true
+          ],
+          "no_mt": [
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        "estimated_work": 18733269,
+        "duration_s": 41.0,
+        "duty_cycle": 1.0,
+        "rf_energy_uT2_s": 0.4,
+        "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+        "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+        "bound_lineshape": "super_lorentzian",
+        "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+      }
+    },
+    {
+      "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+      "design": {
+        "offsets_ppm": [
+          -5.0,
+          -3.5,
+          -2.0,
+          -1.0,
+          1.0,
+          2.0,
+          3.5,
+          5.0
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 1.0,
+        "saturation_s": 1.0,
+        "mode": "cw",
+        "n_pulses": 1,
+        "pulse_s": 1.0,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-08,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "offsets_ppm": [
+        -5.0,
+        -3.5,
+        -2.0,
+        -1.0,
+        1.0,
+        2.0,
+        3.5,
+        5.0
+      ],
+      "spectra": {
+        "full": [
+          0.7944079095708364,
+          0.74428803637849,
+          0.5983363603438113,
+          0.28073373461521645,
+          0.1805490505695083,
+          0.4017855580677363,
+          0.6863514841800393,
+          0.7939181594753832
+        ],
+        "no_cross": [
+          0.8171672325794961,
+          0.7669955792466978,
+          0.6177633433034826,
+          0.29262743785201495,
+          0.18818111952961655,
+          0.4136979958151674,
+          0.6992919712151422,
+          0.8052280560357654
+        ],
+        "no_bridge_exchange": [
+          0.8147512355284016,
+          0.7678477895102158,
+          0.6336342144379191,
+          0.3337778768735089,
+          0.28806031706812935,
+          0.46268117972586986,
+          0.7115869037825239,
+          0.8072767432705718
+        ],
+        "no_amide": [
+          0.7940221205197868,
+          0.7438979620939528,
+          0.597997011208796,
+          0.2805912853811393,
+          0.18102336278207248,
+          0.404517064088228,
+          0.7233635174602218,
+          0.7974691237308706
+        ],
+        "no_mt": [
+          0.9272750304202276,
+          0.8807951849154645,
+          0.7187239701480692,
+          0.32810155188346257,
+          0.19594234180462675,
+          0.4582111304410654,
+          0.80475267057575,
+          0.92600479442753
+        ]
+      },
+      "metrics": {
+        "amide_exchange_contrast": 0.03701203328018243,
+        "relayed_noe_contrast": 0.022707542868207864,
+        "bridge_exchange_control_contrast": 0.02355975313172587,
+        "mt_contrast_at_amide": 0.11840118639571062,
+        "donor_minus_amide": 0.05793655219845062,
+        "unsaturated_water": 0.9999999999991707
+      },
+      "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+      "objective_loss": -0.022707542868207864,
+      "validation": {
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005,
+        "passed": true
+      },
+      "provenance": {
+        "version": "solomon-relay-cest-v1",
+        "replay": {
+          "offsets_ppm": [
+            -5.0,
+            -3.5,
+            -2.0,
+            -1.0,
+            1.0,
+            2.0,
+            3.5,
+            5.0
+          ],
+          "b0_t": 3.0,
+          "b1_uT": 1.0,
+          "saturation_s": 1.0,
+          "mode": "cw",
+          "n_pulses": 1,
+          "pulse_s": 1.0,
+          "gap_s": 0.0,
+          "pair_fraction": 0.02,
+          "bridge_exchange_s1": 1000.0,
+          "bridge_shift_ppm": 1.0,
+          "donor_shift_ppm": -3.5,
+          "distance_m": 2.5e-10,
+          "tau_c_s": 1e-08,
+          "bound_fraction": 0.08,
+          "bound_to_water_hz": 20.0,
+          "bound_t2_s": 1.2e-05,
+          "lineshape": "super_lorentzian",
+          "max_work": 100000000,
+          "max_duration_s": 300.0,
+          "target_min_amide_contrast": 0.005,
+          "target_min_relay_contrast": 0.005
+        },
+        "input_hash": "370b22865ca28f5ff6f140297fb2bb509bbb516649e7e813448ed7c88ea9c899",
+        "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+        "source_files": {
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+          "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+          "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+          "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+          "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+          "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+        },
+        "states_hash": "e758016c1d903a52a4406af03be0a11f6b5aeeebf0dacff06318115027571199",
+        "runtime": {
+          "python": "3.12.14",
+          "numpy": "2.5.2"
+        },
+        "dipolar_rates": {
+          "rho_i_s1": 2.494331430988476,
+          "rho_s_s1": 2.4943323793486587,
+          "sigma_s1": -2.279072375788608,
+          "w0_s1": 2.333197556040224,
+          "w2_s1": 0.05412518025161585,
+          "w1_i_s1": 0.05350434734831815,
+          "w1_s_s1": 0.05350482152840958,
+          "dipolar_b_rad_s": 48303.183736514526,
+          "weak_fluctuation_b_tau": 0.00048303183736514524,
+          "omega_i_rad_s": 802567372.4672475,
+          "omega_s_rad_s": 802563760.917683,
+          "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+          "mu0_over_4pi_si": 1e-07,
+          "hbar_j_s": 1.054571817e-34
+        },
+        "liquid_system": {
+          "t1": [
+            1.5,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "t2": [
+            0.08,
+            0.02,
+            0.01,
+            0.01,
+            0.0005
+          ],
+          "density": [
+            1.0,
+            0.003,
+            0.005,
+            0.02,
+            0.02
+          ],
+          "offset_hz": [
+            0.0,
+            447.06352866,
+            255.46487352,
+            127.73243676,
+            -447.06352866
+          ],
+          "rates": [
+            [
+              0.0,
+              0.09,
+              1.0,
+              20.0,
+              0.0
+            ],
+            [
+              30.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              200.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              1000.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "require_balance": true
+        },
+        "controls": {
+          "full": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "no_cross": [
+            false,
+            true,
+            true,
+            true
+          ],
+          "no_bridge_exchange": [
+            true,
+            false,
+            true,
+            true
+          ],
+          "no_amide": [
+            true,
+            true,
+            false,
+            true
+          ],
+          "no_mt": [
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        "estimated_work": 18757834,
+        "duration_s": 41.0,
+        "duty_cycle": 1.0,
+        "rf_energy_uT2_s": 40.0,
+        "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+        "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+        "bound_lineshape": "super_lorentzian",
+        "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+      }
+    },
+    {
+      "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+      "design": {
+        "offsets_ppm": [
+          -5.0,
+          -3.5,
+          -2.0,
+          -1.0,
+          1.0,
+          2.0,
+          3.5,
+          5.0
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 2.0,
+        "saturation_s": 1.0,
+        "mode": "cw",
+        "n_pulses": 1,
+        "pulse_s": 1.0,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-08,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "offsets_ppm": [
+        -5.0,
+        -3.5,
+        -2.0,
+        -1.0,
+        1.0,
+        2.0,
+        3.5,
+        5.0
+      ],
+      "spectra": {
+        "full": [
+          0.5342695550834271,
+          0.44149795155390403,
+          0.24649747359102636,
+          0.07541247809693298,
+          0.05094175972676287,
+          0.15241226628929472,
+          0.37652744111834463,
+          0.5129004838386562
+        ],
+        "no_cross": [
+          0.5545134435330838,
+          0.4596205470111763,
+          0.25879951279904956,
+          0.08017957974244826,
+          0.05336117950387033,
+          0.1600028179933788,
+          0.39070763847164247,
+          0.5288923996591597
+        ],
+        "no_bridge_exchange": [
+          0.5510677106698443,
+          0.462783894722159,
+          0.2744729386119952,
+          0.09076034970533874,
+          0.07917214221063511,
+          0.2001607660426901,
+          0.41551523761068654,
+          0.5357355706730736
+        ],
+        "no_amide": [
+          0.5336661281419828,
+          0.44099039124946154,
+          0.24622157452281213,
+          0.07533656390363537,
+          0.051094831194476095,
+          0.154146514316612,
+          0.3933650626221681,
+          0.519250093095382
+        ],
+        "no_mt": [
+          0.8044085257550806,
+          0.6680309770947072,
+          0.35029897640816554,
+          0.08666119607577795,
+          0.05465956781982399,
+          0.187973198581115,
+          0.5509285964574625,
+          0.7662387463164162
+        ]
+      },
+      "metrics": {
+        "amide_exchange_contrast": 0.016837621503823452,
+        "relayed_noe_contrast": 0.01812259545727224,
+        "bridge_exchange_control_contrast": 0.02128594316825494,
+        "mt_contrast_at_amide": 0.17440115533911787,
+        "donor_minus_amide": 0.0649705104355594,
+        "unsaturated_water": 0.9999999999991707
+      },
+      "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+      "objective_loss": -0.01812259545727224,
+      "validation": {
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005,
+        "passed": true
+      },
+      "provenance": {
+        "version": "solomon-relay-cest-v1",
+        "replay": {
+          "offsets_ppm": [
+            -5.0,
+            -3.5,
+            -2.0,
+            -1.0,
+            1.0,
+            2.0,
+            3.5,
+            5.0
+          ],
+          "b0_t": 3.0,
+          "b1_uT": 2.0,
+          "saturation_s": 1.0,
+          "mode": "cw",
+          "n_pulses": 1,
+          "pulse_s": 1.0,
+          "gap_s": 0.0,
+          "pair_fraction": 0.02,
+          "bridge_exchange_s1": 1000.0,
+          "bridge_shift_ppm": 1.0,
+          "donor_shift_ppm": -3.5,
+          "distance_m": 2.5e-10,
+          "tau_c_s": 1e-08,
+          "bound_fraction": 0.08,
+          "bound_to_water_hz": 20.0,
+          "bound_t2_s": 1.2e-05,
+          "lineshape": "super_lorentzian",
+          "max_work": 100000000,
+          "max_duration_s": 300.0,
+          "target_min_amide_contrast": 0.005,
+          "target_min_relay_contrast": 0.005
+        },
+        "input_hash": "ae6eadaa374b72920d0f22fc4c3d19101b231c4db4c4111ee0dc69c261b73a3c",
+        "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+        "source_files": {
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+          "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+          "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+          "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+          "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+          "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+          "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+        },
+        "states_hash": "8cdf8232aa536f00e8233e2d091396a4162ee35fa74ee06eed4de341fef2f74b",
+        "runtime": {
+          "python": "3.12.14",
+          "numpy": "2.5.2"
+        },
+        "dipolar_rates": {
+          "rho_i_s1": 2.494331430988476,
+          "rho_s_s1": 2.4943323793486587,
+          "sigma_s1": -2.279072375788608,
+          "w0_s1": 2.333197556040224,
+          "w2_s1": 0.05412518025161585,
+          "w1_i_s1": 0.05350434734831815,
+          "w1_s_s1": 0.05350482152840958,
+          "dipolar_b_rad_s": 48303.183736514526,
+          "weak_fluctuation_b_tau": 0.00048303183736514524,
+          "omega_i_rad_s": 802567372.4672475,
+          "omega_s_rad_s": 802563760.917683,
+          "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+          "mu0_over_4pi_si": 1e-07,
+          "hbar_j_s": 1.054571817e-34
+        },
+        "liquid_system": {
+          "t1": [
+            1.5,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "t2": [
+            0.08,
+            0.02,
+            0.01,
+            0.01,
+            0.0005
+          ],
+          "density": [
+            1.0,
+            0.003,
+            0.005,
+            0.02,
+            0.02
+          ],
+          "offset_hz": [
+            0.0,
+            447.06352866,
+            255.46487352,
+            127.73243676,
+            -447.06352866
+          ],
+          "rates": [
+            [
+              0.0,
+              0.09,
+              1.0,
+              20.0,
+              0.0
+            ],
+            [
+              30.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              200.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              1000.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "require_balance": true
+        },
+        "controls": {
+          "full": [
+            true,
+            true,
+            true,
+            true
+          ],
+          "no_cross": [
+            false,
+            true,
+            true,
+            true
+          ],
+          "no_bridge_exchange": [
+            true,
+            false,
+            true,
+            true
+          ],
+          "no_amide": [
+            true,
+            true,
+            false,
+            true
+          ],
+          "no_mt": [
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        "estimated_work": 18757834,
+        "duration_s": 41.0,
+        "duty_cycle": 1.0,
+        "rf_energy_uT2_s": 160.0,
+        "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+        "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+        "bound_lineshape": "super_lorentzian",
+        "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+      }
+    }
+  ],
+  "selected_power_uT": 1.0,
+  "bridge_exchange_disabled": {
+    "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+    "design": {
+      "offsets_ppm": [
+        -5.0,
+        -3.5,
+        -2.0,
+        -1.0,
+        1.0,
+        2.0,
+        3.5,
+        5.0
+      ],
+      "b0_t": 3.0,
+      "b1_uT": 1.0,
+      "saturation_s": 1.0,
+      "mode": "cw",
+      "n_pulses": 1,
+      "pulse_s": 1.0,
+      "gap_s": 0.0,
+      "pair_fraction": 0.02,
+      "bridge_exchange_s1": 0.0,
+      "bridge_shift_ppm": 1.0,
+      "donor_shift_ppm": -3.5,
+      "distance_m": 2.5e-10,
+      "tau_c_s": 1e-08,
+      "bound_fraction": 0.08,
+      "bound_to_water_hz": 20.0,
+      "bound_t2_s": 1.2e-05,
+      "lineshape": "super_lorentzian",
+      "max_work": 100000000,
+      "max_duration_s": 300.0,
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005
+    },
+    "offsets_ppm": [
+      -5.0,
+      -3.5,
+      -2.0,
+      -1.0,
+      1.0,
+      2.0,
+      3.5,
+      5.0
+    ],
+    "spectra": {
+      "full": [
+        0.8147512355284016,
+        0.7678477895102158,
+        0.6336342144379191,
+        0.3337778768735089,
+        0.28806031706812935,
+        0.46268117972586986,
+        0.7115869037825239,
+        0.8072767432705718
+      ],
+      "no_cross": [
+        0.8147512355284016,
+        0.7678477895102158,
+        0.6336342144379191,
+        0.3337778768735089,
+        0.28806031706812935,
+        0.46268117972586986,
+        0.7115869037825239,
+        0.8072767432705718
+      ],
+      "no_bridge_exchange": [
+        0.8147512355284016,
+        0.7678477895102158,
+        0.6336342144379191,
+        0.3337778768735089,
+        0.28806031706812935,
+        0.46268117972586986,
+        0.7115869037825239,
+        0.8072767432705718
+      ],
+      "no_amide": [
+        0.8144077126248264,
+        0.7675078399177103,
+        0.6333793245314514,
+        0.3338201831742407,
+        0.28970391512448346,
+        0.4663268996709771,
+        0.7515824886529969,
+        0.8110502019285921
+      ],
+      "no_mt": [
+        0.9575333890009619,
+        0.9159766777286024,
+        0.7706990189056255,
+        0.4048396842056643,
+        0.34056100375778886,
+        0.5404168346225993,
+        0.8420202514682846,
+        0.9478750113408383
+      ]
+    },
+    "metrics": {
+      "amide_exchange_contrast": 0.039995584870473055,
+      "relayed_noe_contrast": 0.0,
+      "bridge_exchange_control_contrast": 0.0,
+      "mt_contrast_at_amide": 0.13043334768576076,
+      "donor_minus_amide": 0.056260885727691945,
+      "unsaturated_water": 0.9999999999995549
+    },
+    "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+    "objective_loss": -0.0,
+    "validation": {
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005,
+      "passed": false
+    },
+    "provenance": {
+      "version": "solomon-relay-cest-v1",
+      "replay": {
+        "offsets_ppm": [
+          -5.0,
+          -3.5,
+          -2.0,
+          -1.0,
+          1.0,
+          2.0,
+          3.5,
+          5.0
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 1.0,
+        "saturation_s": 1.0,
+        "mode": "cw",
+        "n_pulses": 1,
+        "pulse_s": 1.0,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 0.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-08,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "input_hash": "e401b4d50edeaddc37d6781713c505498831ef82bf04d95657b817e7fd3f7c05",
+      "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+      "source_files": {
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+        "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+        "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+        "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+        "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+        "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+      },
+      "states_hash": "51bb71de66cc68535f20b1558e7eb3995c3c926cf9aea6ad8d285200fe7115d1",
+      "runtime": {
+        "python": "3.12.14",
+        "numpy": "2.5.2"
+      },
+      "dipolar_rates": {
+        "rho_i_s1": 2.494331430988476,
+        "rho_s_s1": 2.4943323793486587,
+        "sigma_s1": -2.279072375788608,
+        "w0_s1": 2.333197556040224,
+        "w2_s1": 0.05412518025161585,
+        "w1_i_s1": 0.05350434734831815,
+        "w1_s_s1": 0.05350482152840958,
+        "dipolar_b_rad_s": 48303.183736514526,
+        "weak_fluctuation_b_tau": 0.00048303183736514524,
+        "omega_i_rad_s": 802567372.4672475,
+        "omega_s_rad_s": 802563760.917683,
+        "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+        "mu0_over_4pi_si": 1e-07,
+        "hbar_j_s": 1.054571817e-34
+      },
+      "liquid_system": {
+        "t1": [
+          1.5,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "t2": [
+          0.08,
+          0.02,
+          0.01,
+          0.01,
+          0.0005
+        ],
+        "density": [
+          1.0,
+          0.003,
+          0.005,
+          0.02,
+          0.02
+        ],
+        "offset_hz": [
+          0.0,
+          447.06352866,
+          255.46487352,
+          127.73243676,
+          -447.06352866
+        ],
+        "rates": [
+          [
+            0.0,
+            0.09,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            30.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "require_balance": true
+      },
+      "controls": {
+        "full": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "no_cross": [
+          false,
+          true,
+          true,
+          true
+        ],
+        "no_bridge_exchange": [
+          true,
+          false,
+          true,
+          true
+        ],
+        "no_amide": [
+          true,
+          true,
+          false,
+          true
+        ],
+        "no_mt": [
+          true,
+          true,
+          true,
+          false
+        ]
+      },
+      "estimated_work": 18757834,
+      "duration_s": 41.0,
+      "duty_cycle": 1.0,
+      "rf_energy_uT2_s": 40.0,
+      "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+      "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+      "bound_lineshape": "super_lorentzian",
+      "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+    }
+  },
+  "distance_doubled": {
+    "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+    "design": {
+      "offsets_ppm": [
+        -5.0,
+        -3.5,
+        -2.0,
+        -1.0,
+        1.0,
+        2.0,
+        3.5,
+        5.0
+      ],
+      "b0_t": 3.0,
+      "b1_uT": 1.0,
+      "saturation_s": 1.0,
+      "mode": "cw",
+      "n_pulses": 1,
+      "pulse_s": 1.0,
+      "gap_s": 0.0,
+      "pair_fraction": 0.02,
+      "bridge_exchange_s1": 1000.0,
+      "bridge_shift_ppm": 1.0,
+      "donor_shift_ppm": -3.5,
+      "distance_m": 5e-10,
+      "tau_c_s": 1e-08,
+      "bound_fraction": 0.08,
+      "bound_to_water_hz": 20.0,
+      "bound_t2_s": 1.2e-05,
+      "lineshape": "super_lorentzian",
+      "max_work": 100000000,
+      "max_duration_s": 300.0,
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005
+    },
+    "offsets_ppm": [
+      -5.0,
+      -3.5,
+      -2.0,
+      -1.0,
+      1.0,
+      2.0,
+      3.5,
+      5.0
+    ],
+    "spectra": {
+      "full": [
+        0.8134016160775643,
+        0.7623778527823428,
+        0.6109234687772717,
+        0.2835923540000283,
+        0.18044806706350736,
+        0.4048309331543032,
+        0.6936646027389135,
+        0.8013931202141589
+      ],
+      "no_cross": [
+        0.8137921480677186,
+        0.7627597180962427,
+        0.6112521991831145,
+        0.28378994805333685,
+        0.18057357288508477,
+        0.40504356717894635,
+        0.6939248401428304,
+        0.8016368245124812
+      ],
+      "no_bridge_exchange": [
+        0.8147512355284016,
+        0.7678477895102158,
+        0.6336342144379191,
+        0.3337778768735089,
+        0.28806031706812935,
+        0.46268117972586986,
+        0.7115869037825239,
+        0.8072767432705718
+      ],
+      "no_amide": [
+        0.8130618071957215,
+        0.7620311379197771,
+        0.6106140382874273,
+        0.2834575963106535,
+        0.18092770909414024,
+        0.4076252161454799,
+        0.731472283779355,
+        0.8050346198689857
+      ],
+      "no_mt": [
+        0.9522513920425205,
+        0.9050334713318797,
+        0.7362303461865336,
+        0.33241028031265674,
+        0.1960349926102734,
+        0.46268447833182746,
+        0.8152396383833447,
+        0.9367710115598058
+      ]
+    },
+    "metrics": {
+      "amide_exchange_contrast": 0.03780768104044152,
+      "relayed_noe_contrast": 0.0003818653138998318,
+      "bridge_exchange_control_contrast": 0.005469936727872993,
+      "mt_contrast_at_amide": 0.12157503564443117,
+      "donor_minus_amide": 0.06871325004342932,
+      "unsaturated_water": 0.9999999999998919
+    },
+    "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+    "objective_loss": -0.0003818653138998318,
+    "validation": {
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005,
+      "passed": false
+    },
+    "provenance": {
+      "version": "solomon-relay-cest-v1",
+      "replay": {
+        "offsets_ppm": [
+          -5.0,
+          -3.5,
+          -2.0,
+          -1.0,
+          1.0,
+          2.0,
+          3.5,
+          5.0
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 1.0,
+        "saturation_s": 1.0,
+        "mode": "cw",
+        "n_pulses": 1,
+        "pulse_s": 1.0,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 5e-10,
+        "tau_c_s": 1e-08,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "input_hash": "fa63ef18757769d8cf6019b2ecad007d50f5874babd7df0770b6a8d980c6f032",
+      "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+      "source_files": {
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+        "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+        "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+        "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+        "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+        "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+      },
+      "states_hash": "b3e4686311065b3ed46e63d2063ba9c0b611e5a46a9761109cd1a60d368ace98",
+      "runtime": {
+        "python": "3.12.14",
+        "numpy": "2.5.2"
+      },
+      "dipolar_rates": {
+        "rho_i_s1": 0.038973928609194936,
+        "rho_s_s1": 0.03897394342732279,
+        "sigma_s1": -0.035610505871697,
+        "w0_s1": 0.0364562118131285,
+        "w2_s1": 0.0008457059414314976,
+        "w1_i_s1": 0.0008360054273174711,
+        "w1_s_s1": 0.0008360128363813997,
+        "dipolar_b_rad_s": 6037.897967064316,
+        "weak_fluctuation_b_tau": 6.0378979670643156e-05,
+        "omega_i_rad_s": 802567372.4672475,
+        "omega_s_rad_s": 802563760.917683,
+        "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+        "mu0_over_4pi_si": 1e-07,
+        "hbar_j_s": 1.054571817e-34
+      },
+      "liquid_system": {
+        "t1": [
+          1.5,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "t2": [
+          0.08,
+          0.02,
+          0.01,
+          0.01,
+          0.0005
+        ],
+        "density": [
+          1.0,
+          0.003,
+          0.005,
+          0.02,
+          0.02
+        ],
+        "offset_hz": [
+          0.0,
+          447.06352866,
+          255.46487352,
+          127.73243676,
+          -447.06352866
+        ],
+        "rates": [
+          [
+            0.0,
+            0.09,
+            1.0,
+            20.0,
+            0.0
+          ],
+          [
+            30.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1000.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "require_balance": true
+      },
+      "controls": {
+        "full": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "no_cross": [
+          false,
+          true,
+          true,
+          true
+        ],
+        "no_bridge_exchange": [
+          true,
+          false,
+          true,
+          true
+        ],
+        "no_amide": [
+          true,
+          true,
+          false,
+          true
+        ],
+        "no_mt": [
+          true,
+          true,
+          true,
+          false
+        ]
+      },
+      "estimated_work": 18757834,
+      "duration_s": 41.0,
+      "duty_cycle": 1.0,
+      "rf_energy_uT2_s": 40.0,
+      "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+      "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+      "bound_lineshape": "super_lorentzian",
+      "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+    }
+  },
+  "cw": {
+    "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+    "design": {
+      "offsets_ppm": [
+        -3.5,
+        3.5
+      ],
+      "b0_t": 3.0,
+      "b1_uT": 1.0,
+      "saturation_s": 0.4,
+      "mode": "cw",
+      "n_pulses": 1,
+      "pulse_s": 1.0,
+      "gap_s": 0.0,
+      "pair_fraction": 0.02,
+      "bridge_exchange_s1": 1000.0,
+      "bridge_shift_ppm": 1.0,
+      "donor_shift_ppm": -3.5,
+      "distance_m": 2.5e-10,
+      "tau_c_s": 1e-08,
+      "bound_fraction": 0.08,
+      "bound_to_water_hz": 20.0,
+      "bound_t2_s": 1.2e-05,
+      "lineshape": "super_lorentzian",
+      "max_work": 100000000,
+      "max_duration_s": 300.0,
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005
+    },
+    "offsets_ppm": [
+      -3.5,
+      3.5
+    ],
+    "spectra": {
+      "full": [
+        0.8636285824187064,
+        0.8285335381236982
+      ],
+      "no_cross": [
+        0.8753110213442478,
+        0.8338089626401713
+      ],
+      "no_bridge_exchange": [
+        0.8775666670813521,
+        0.8438503782031948
+      ],
+      "no_amide": [
+        0.8634440758892559,
+        0.8516612177331118
+      ],
+      "no_mt": [
+        0.9361485480460556,
+        0.895864889627712
+      ]
+    },
+    "metrics": {
+      "amide_exchange_contrast": 0.023127679609413532,
+      "relayed_noe_contrast": 0.011682438925541327,
+      "bridge_exchange_control_contrast": 0.013938084662645678,
+      "mt_contrast_at_amide": 0.06733135150401381,
+      "donor_minus_amide": 0.035095044295008204,
+      "unsaturated_water": 0.999999999999776
+    },
+    "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+    "objective_loss": -0.011682438925541327,
+    "validation": {
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005,
+      "passed": true
+    },
+    "provenance": {
+      "version": "solomon-relay-cest-v1",
+      "replay": {
+        "offsets_ppm": [
+          -3.5,
+          3.5
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 1.0,
+        "saturation_s": 0.4,
+        "mode": "cw",
+        "n_pulses": 1,
+        "pulse_s": 1.0,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-08,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "input_hash": "4671f184c52025309e2bcad23e3fe1b99e81d303941a5a4b728ca395efcc455f",
+      "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+      "source_files": {
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+        "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+        "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+        "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+        "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+        "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+      },
+      "states_hash": "a9608804451b698abf36714754a8c898a68386edb08fe1bab31613de3e53df29",
+      "runtime": {
+        "python": "3.12.14",
+        "numpy": "2.5.2"
+      },
+      "dipolar_rates": {
+        "rho_i_s1": 2.494331430988476,
+        "rho_s_s1": 2.4943323793486587,
+        "sigma_s1": -2.279072375788608,
+        "w0_s1": 2.333197556040224,
+        "w2_s1": 0.05412518025161585,
+        "w1_i_s1": 0.05350434734831815,
+        "w1_s_s1": 0.05350482152840958,
+        "dipolar_b_rad_s": 48303.183736514526,
+        "weak_fluctuation_b_tau": 0.00048303183736514524,
+        "omega_i_rad_s": 802567372.4672475,
+        "omega_s_rad_s": 802563760.917683,
+        "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+        "mu0_over_4pi_si": 1e-07,
+        "hbar_j_s": 1.054571817e-34
+      },
+      "liquid_system": {
+        "t1": [
+          1.5,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "t2": [
+          0.08,
+          0.02,
+          0.01,
+          0.01,
+          0.0005
+        ],
+        "density": [
+          1.0,
+          0.003,
+          0.005,
+          0.02,
+          0.02
+        ],
+        "offset_hz": [
+          0.0,
+          447.06352866,
+          255.46487352,
+          127.73243676,
+          -447.06352866
+        ],
+        "rates": [
+          [
+            0.0,
+            0.09,
+            1.0,
+            20.0,
+            0.0
+          ],
+          [
+            30.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1000.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "require_balance": true
+      },
+      "controls": {
+        "full": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "no_cross": [
+          false,
+          true,
+          true,
+          true
+        ],
+        "no_bridge_exchange": [
+          true,
+          false,
+          true,
+          true
+        ],
+        "no_amide": [
+          true,
+          true,
+          false,
+          true
+        ],
+        "no_mt": [
+          true,
+          true,
+          true,
+          false
+        ]
+      },
+      "estimated_work": 4967043,
+      "duration_s": 4.4,
+      "duty_cycle": 1.0,
+      "rf_energy_uT2_s": 4.0,
+      "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+      "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+      "bound_lineshape": "super_lorentzian",
+      "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+    }
+  },
+  "pulsed_zero_gap": {
+    "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+    "design": {
+      "offsets_ppm": [
+        -3.5,
+        3.5
+      ],
+      "b0_t": 3.0,
+      "b1_uT": 1.0,
+      "saturation_s": 0.4,
+      "mode": "pulsed",
+      "n_pulses": 4,
+      "pulse_s": 0.1,
+      "gap_s": 0.0,
+      "pair_fraction": 0.02,
+      "bridge_exchange_s1": 1000.0,
+      "bridge_shift_ppm": 1.0,
+      "donor_shift_ppm": -3.5,
+      "distance_m": 2.5e-10,
+      "tau_c_s": 1e-08,
+      "bound_fraction": 0.08,
+      "bound_to_water_hz": 20.0,
+      "bound_t2_s": 1.2e-05,
+      "lineshape": "super_lorentzian",
+      "max_work": 100000000,
+      "max_duration_s": 300.0,
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005
+    },
+    "offsets_ppm": [
+      -3.5,
+      3.5
+    ],
+    "spectra": {
+      "full": [
+        0.8636285824187064,
+        0.8285335381236982
+      ],
+      "no_cross": [
+        0.8753110213442477,
+        0.8338089626401712
+      ],
+      "no_bridge_exchange": [
+        0.8775666670813521,
+        0.8438503782031946
+      ],
+      "no_amide": [
+        0.8634440758892559,
+        0.8516612177331115
+      ],
+      "no_mt": [
+        0.9361485480460561,
+        0.8958648896277122
+      ]
+    },
+    "metrics": {
+      "amide_exchange_contrast": 0.02312767960941331,
+      "relayed_noe_contrast": 0.011682438925541216,
+      "bridge_exchange_control_contrast": 0.013938084662645678,
+      "mt_contrast_at_amide": 0.06733135150401393,
+      "donor_minus_amide": 0.035095044295008204,
+      "unsaturated_water": 0.999999999999776
+    },
+    "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+    "objective_loss": -0.011682438925541216,
+    "validation": {
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005,
+      "passed": true
+    },
+    "provenance": {
+      "version": "solomon-relay-cest-v1",
+      "replay": {
+        "offsets_ppm": [
+          -3.5,
+          3.5
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 1.0,
+        "saturation_s": 0.4,
+        "mode": "pulsed",
+        "n_pulses": 4,
+        "pulse_s": 0.1,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-08,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "input_hash": "a30b7af823b2401fbe1dcb2ed6e1fe6af7d9118d7c7738913932a56a24ad68d0",
+      "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+      "source_files": {
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+        "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+        "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+        "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+        "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+        "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+      },
+      "states_hash": "c1d0f3d71586d0b59204dbd98bb86a4c5fc52733d5f8961c66a60b75895d703a",
+      "runtime": {
+        "python": "3.12.14",
+        "numpy": "2.5.2"
+      },
+      "dipolar_rates": {
+        "rho_i_s1": 2.494331430988476,
+        "rho_s_s1": 2.4943323793486587,
+        "sigma_s1": -2.279072375788608,
+        "w0_s1": 2.333197556040224,
+        "w2_s1": 0.05412518025161585,
+        "w1_i_s1": 0.05350434734831815,
+        "w1_s_s1": 0.05350482152840958,
+        "dipolar_b_rad_s": 48303.183736514526,
+        "weak_fluctuation_b_tau": 0.00048303183736514524,
+        "omega_i_rad_s": 802567372.4672475,
+        "omega_s_rad_s": 802563760.917683,
+        "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+        "mu0_over_4pi_si": 1e-07,
+        "hbar_j_s": 1.054571817e-34
+      },
+      "liquid_system": {
+        "t1": [
+          1.5,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "t2": [
+          0.08,
+          0.02,
+          0.01,
+          0.01,
+          0.0005
+        ],
+        "density": [
+          1.0,
+          0.003,
+          0.005,
+          0.02,
+          0.02
+        ],
+        "offset_hz": [
+          0.0,
+          447.06352866,
+          255.46487352,
+          127.73243676,
+          -447.06352866
+        ],
+        "rates": [
+          [
+            0.0,
+            0.09,
+            1.0,
+            20.0,
+            0.0
+          ],
+          [
+            30.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1000.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "require_balance": true
+      },
+      "controls": {
+        "full": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "no_cross": [
+          false,
+          true,
+          true,
+          true
+        ],
+        "no_bridge_exchange": [
+          true,
+          false,
+          true,
+          true
+        ],
+        "no_amide": [
+          true,
+          true,
+          false,
+          true
+        ],
+        "no_mt": [
+          true,
+          true,
+          true,
+          false
+        ]
+      },
+      "estimated_work": 18133883,
+      "duration_s": 4.4,
+      "duty_cycle": 1.0,
+      "rf_energy_uT2_s": 4.0,
+      "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+      "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+      "bound_lineshape": "super_lorentzian",
+      "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+    }
+  },
+  "pulsed_recovery_gap": {
+    "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+    "design": {
+      "offsets_ppm": [
+        -3.5,
+        3.5
+      ],
+      "b0_t": 3.0,
+      "b1_uT": 1.0,
+      "saturation_s": 0.55,
+      "mode": "pulsed",
+      "n_pulses": 4,
+      "pulse_s": 0.1,
+      "gap_s": 0.05,
+      "pair_fraction": 0.02,
+      "bridge_exchange_s1": 1000.0,
+      "bridge_shift_ppm": 1.0,
+      "donor_shift_ppm": -3.5,
+      "distance_m": 2.5e-10,
+      "tau_c_s": 1e-08,
+      "bound_fraction": 0.08,
+      "bound_to_water_hz": 20.0,
+      "bound_t2_s": 1.2e-05,
+      "lineshape": "super_lorentzian",
+      "max_work": 100000000,
+      "max_duration_s": 300.0,
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005
+    },
+    "offsets_ppm": [
+      -3.5,
+      3.5
+    ],
+    "spectra": {
+      "full": [
+        0.8454318459478138,
+        0.8102186689086719
+      ],
+      "no_cross": [
+        0.8600087876307678,
+        0.8164835591396308
+      ],
+      "no_bridge_exchange": [
+        0.8626609523613282,
+        0.8269705233637674
+      ],
+      "no_amide": [
+        0.845209538478456,
+        0.8352672399713584
+      ],
+      "no_mt": [
+        0.9134482334504607,
+        0.8721220444193639
+      ]
+    },
+    "metrics": {
+      "amide_exchange_contrast": 0.025048571062686542,
+      "relayed_noe_contrast": 0.014576941682953981,
+      "bridge_exchange_control_contrast": 0.017229106413514383,
+      "mt_contrast_at_amide": 0.06190337551069203,
+      "donor_minus_amide": 0.03521317703914195,
+      "unsaturated_water": 1.0000000000003892
+    },
+    "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+    "objective_loss": -0.014576941682953981,
+    "validation": {
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005,
+      "passed": true
+    },
+    "provenance": {
+      "version": "solomon-relay-cest-v1",
+      "replay": {
+        "offsets_ppm": [
+          -3.5,
+          3.5
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 1.0,
+        "saturation_s": 0.55,
+        "mode": "pulsed",
+        "n_pulses": 4,
+        "pulse_s": 0.1,
+        "gap_s": 0.05,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-08,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "super_lorentzian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "input_hash": "7c85a7eced4a3861dedd4af69282944149ab64fa570ff088ce7224f474cc3823",
+      "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+      "source_files": {
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+        "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+        "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+        "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+        "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+        "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+      },
+      "states_hash": "ff9c0922ab4c36cd12b3ac61081d2536e10ddafe5d5b80ce79d965fd49693b43",
+      "runtime": {
+        "python": "3.12.14",
+        "numpy": "2.5.2"
+      },
+      "dipolar_rates": {
+        "rho_i_s1": 2.494331430988476,
+        "rho_s_s1": 2.4943323793486587,
+        "sigma_s1": -2.279072375788608,
+        "w0_s1": 2.333197556040224,
+        "w2_s1": 0.05412518025161585,
+        "w1_i_s1": 0.05350434734831815,
+        "w1_s_s1": 0.05350482152840958,
+        "dipolar_b_rad_s": 48303.183736514526,
+        "weak_fluctuation_b_tau": 0.00048303183736514524,
+        "omega_i_rad_s": 802567372.4672475,
+        "omega_s_rad_s": 802563760.917683,
+        "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+        "mu0_over_4pi_si": 1e-07,
+        "hbar_j_s": 1.054571817e-34
+      },
+      "liquid_system": {
+        "t1": [
+          1.5,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "t2": [
+          0.08,
+          0.02,
+          0.01,
+          0.01,
+          0.0005
+        ],
+        "density": [
+          1.0,
+          0.003,
+          0.005,
+          0.02,
+          0.02
+        ],
+        "offset_hz": [
+          0.0,
+          447.06352866,
+          255.46487352,
+          127.73243676,
+          -447.06352866
+        ],
+        "rates": [
+          [
+            0.0,
+            0.09,
+            1.0,
+            20.0,
+            0.0
+          ],
+          [
+            30.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1000.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "require_balance": true
+      },
+      "controls": {
+        "full": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "no_cross": [
+          false,
+          true,
+          true,
+          true
+        ],
+        "no_bridge_exchange": [
+          true,
+          false,
+          true,
+          true
+        ],
+        "no_amide": [
+          true,
+          true,
+          false,
+          true
+        ],
+        "no_mt": [
+          true,
+          true,
+          true,
+          false
+        ]
+      },
+      "estimated_work": 31256506,
+      "duration_s": 6.050000000000001,
+      "duty_cycle": 0.7272727272727273,
+      "rf_energy_uT2_s": 4.0,
+      "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+      "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+      "bound_lineshape": "super_lorentzian",
+      "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+    }
+  },
+  "sl_zero_offset": {
+    "executed": false,
+    "reason": "Super-Lorentzian offset_hz must be finite and nonzero"
+  },
+  "explicit_gaussian_zero": {
+    "clinical_question": "How do distance and molecular correlation time alter signed dipolar NOE relayed through labile exchange into water CEST/MT?",
+    "design": {
+      "offsets_ppm": [
+        -3.5,
+        0.0,
+        3.5
+      ],
+      "b0_t": 3.0,
+      "b1_uT": 1.0,
+      "saturation_s": 1.0,
+      "mode": "cw",
+      "n_pulses": 1,
+      "pulse_s": 1.0,
+      "gap_s": 0.0,
+      "pair_fraction": 0.02,
+      "bridge_exchange_s1": 1000.0,
+      "bridge_shift_ppm": 1.0,
+      "donor_shift_ppm": -3.5,
+      "distance_m": 2.5e-10,
+      "tau_c_s": 1e-08,
+      "bound_fraction": 0.08,
+      "bound_to_water_hz": 20.0,
+      "bound_t2_s": 1.2e-05,
+      "lineshape": "gaussian",
+      "max_work": 100000000,
+      "max_duration_s": 300.0,
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005
+    },
+    "offsets_ppm": [
+      -3.5,
+      0.0,
+      3.5
+    ],
+    "spectra": {
+      "full": [
+        0.8397537749057318,
+        0.000273288149063859,
+        0.7729890103342849
+      ],
+      "no_cross": [
+        0.8637883912701294,
+        0.0002709590216981051,
+        0.7862481332201864
+      ],
+      "no_bridge_exchange": [
+        0.8694371616425893,
+        4.49851003214334e-05,
+        0.8048143102068244
+      ],
+      "no_amide": [
+        0.8396140121588749,
+        0.00027093467389384846,
+        0.8156068541862203
+      ],
+      "no_mt": [
+        0.8807951849154645,
+        0.00022782803447607078,
+        0.80475267057575
+      ]
+    },
+    "metrics": {
+      "amide_exchange_contrast": 0.042617843851935344,
+      "relayed_noe_contrast": 0.024034616364397632,
+      "bridge_exchange_control_contrast": 0.029683386736857553,
+      "mt_contrast_at_amide": 0.03176366024146504,
+      "donor_minus_amide": 0.06676476457144687,
+      "unsaturated_water": 0.9999999999991707
+    },
+    "scope": "research/teaching homogeneous CEST/MT plus high-field isotropic Solomon proton-pair relay; distance/tau-derived signed longitudinal cross-relaxation, background T2 plus spin-flip rho/2; not full Redfield coherence/spin diffusion, patient calibration, scanner validation or clinical certification; B/C parked",
+    "objective_loss": -0.024034616364397632,
+    "validation": {
+      "target_min_amide_contrast": 0.005,
+      "target_min_relay_contrast": 0.005,
+      "passed": true
+    },
+    "provenance": {
+      "version": "solomon-relay-cest-v1",
+      "replay": {
+        "offsets_ppm": [
+          -3.5,
+          0.0,
+          3.5
+        ],
+        "b0_t": 3.0,
+        "b1_uT": 1.0,
+        "saturation_s": 1.0,
+        "mode": "cw",
+        "n_pulses": 1,
+        "pulse_s": 1.0,
+        "gap_s": 0.0,
+        "pair_fraction": 0.02,
+        "bridge_exchange_s1": 1000.0,
+        "bridge_shift_ppm": 1.0,
+        "donor_shift_ppm": -3.5,
+        "distance_m": 2.5e-10,
+        "tau_c_s": 1e-08,
+        "bound_fraction": 0.08,
+        "bound_to_water_hz": 20.0,
+        "bound_t2_s": 1.2e-05,
+        "lineshape": "gaussian",
+        "max_work": 100000000,
+        "max_duration_s": 300.0,
+        "target_min_amide_contrast": 0.005,
+        "target_min_relay_contrast": 0.005
+      },
+      "input_hash": "e439783f1585aac8c66d43f18f5c2c24187181b44ae46ee483cae81d8ce67afe",
+      "source_hash": "84416759279581455e24a3ba80162c83f0bfbf048f8d77c7c68fc000693f5fa2",
+      "source_files": {
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+        "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+        "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+        "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+        "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+        "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+        "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46"
+      },
+      "states_hash": "eb1b132f5720386095e3b8b92b59245c01190712c9a49670c42d3fdb3062b79c",
+      "runtime": {
+        "python": "3.12.14",
+        "numpy": "2.5.2"
+      },
+      "dipolar_rates": {
+        "rho_i_s1": 2.494331430988476,
+        "rho_s_s1": 2.4943323793486587,
+        "sigma_s1": -2.279072375788608,
+        "w0_s1": 2.333197556040224,
+        "w2_s1": 0.05412518025161585,
+        "w1_i_s1": 0.05350434734831815,
+        "w1_s_s1": 0.05350482152840958,
+        "dipolar_b_rad_s": 48303.183736514526,
+        "weak_fluctuation_b_tau": 0.00048303183736514524,
+        "omega_i_rad_s": 802567372.4672475,
+        "omega_s_rad_s": 802563760.917683,
+        "spectral_density": "tau/(1+(omega*tau)^2), seconds",
+        "mu0_over_4pi_si": 1e-07,
+        "hbar_j_s": 1.054571817e-34
+      },
+      "liquid_system": {
+        "t1": [
+          1.5,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "t2": [
+          0.08,
+          0.02,
+          0.01,
+          0.01,
+          0.0005
+        ],
+        "density": [
+          1.0,
+          0.003,
+          0.005,
+          0.02,
+          0.02
+        ],
+        "offset_hz": [
+          0.0,
+          447.06352866,
+          255.46487352,
+          127.73243676,
+          -447.06352866
+        ],
+        "rates": [
+          [
+            0.0,
+            0.09,
+            1.0,
+            20.0,
+            0.0
+          ],
+          [
+            30.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1000.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "require_balance": true
+      },
+      "controls": {
+        "full": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "no_cross": [
+          false,
+          true,
+          true,
+          true
+        ],
+        "no_bridge_exchange": [
+          true,
+          false,
+          true,
+          true
+        ],
+        "no_amide": [
+          true,
+          true,
+          false,
+          true
+        ],
+        "no_mt": [
+          true,
+          true,
+          true,
+          false
+        ]
+      },
+      "estimated_work": 7310544,
+      "duration_s": 16.0,
+      "duty_cycle": 1.0,
+      "rf_energy_uT2_s": 15.0,
+      "state_convention": "3 Cartesian components per liquid; bound Z; affine 1; each offset starts at equilibrium",
+      "transverse_model": "authored background T2 plus rho/2 spin-flip relaxation; dipolar pure dephasing not derived",
+      "bound_lineshape": "gaussian",
+      "normalization": "declared water equilibrium density 1; no gain fit or sign clipping"
+    }
+  }
+}

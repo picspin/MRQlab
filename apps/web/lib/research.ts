@@ -1,5 +1,5 @@
 export interface TriggerEvent { trigger: number; decision_s: number; preparation_s: number; readout_s: number; rr_estimate_s: number; scheduled: boolean; accepted: boolean; rejection: string | null; cancelled_s: number | null; }
-export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "cest" | "mrs";
+export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "cest" | "cest_solomon" | "mrs";
 export interface ResearchRequest { kind: ResearchKind; parameters: Record<string, unknown>; expected_source_hash?: string; }
 export interface ResearchRun {
   kind: ResearchKind;
@@ -51,6 +51,12 @@ export const STUDIES: Record<ResearchKind, Study> = {
     defaults: { b1_uT: 1, saturation_s: 1 },
     fields: [{ key: "b1_uT", label: "饱和 B1 (µT)", step: .1 }, { key: "saturation_s", label: "饱和时长 (s)", step: .1 }],
     candidates: [{ b1_uT: .5 }, { b1_uT: 1 }, { b1_uT: 2 }] },
+  cest_solomon: { title: "CEST / Solomon relay", question: "分子距离和转动相关时间怎样改变双极 NOE 的符号，以及经桥接质子到水的中继信号？",
+    limit: "各向同性高场 Solomon 成对质子模型，保留 CEST/MT。供体不与水直接交换；完整 Redfield 相干、分子自旋扩散和近零 SL MT 仍缺失。",
+    validation: "amide 条件对比与供体处中继条件对比均 ≥ 0.005。快速转动可给出相反符号并失败，不截断负对比。",
+    defaults: { b1_uT: 1, saturation_s: 1, distance_m: 2.5e-10, tau_c_s: 1e-8, bridge_exchange_s1: 1000 },
+    fields: [{ key: "b1_uT", label: "饱和 B1 (µT)", step: .1 }, { key: "tau_c_s", label: "转动相关时间 (s)", step: 1e-9 }, { key: "bridge_exchange_s1", label: "桥接质子到水交换率 (s⁻¹)", step: 100 }],
+    candidates: [{ b1_uT: .1 }, { b1_uT: 1 }, { b1_uT: 2 }] },
   mrs: { title: "MRS basis fit", question: "有限 RF 与 J 耦合失配怎样影响水参考相对信号量？",
     limit: "教学 singlet 与合成 AB；标量 T2。真实分子基组、完整 PRESS 空间积分和临床浓度校准仍缺失。",
     validation: "已知合成量的最大相对误差 ≤ 5%，全读出拟合残差 ≤ 2%。匹配基组恢复是闭合模型验证。",

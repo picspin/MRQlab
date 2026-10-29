@@ -125,3 +125,30 @@ def test_pulsatile_search_preserves_cancellation_and_prediction_failures():
     assert not data['candidates'][1]['run']['view']['validation']['passed']
     assert data['best']['parameters']=={'inversion_time_s':.9}
     assert client.post('/research/search',json=data['replay_search']).json()['search_hash']==data['search_hash']
+
+
+def test_solomon_relay_api_actual_signed_contrast_and_source_pinned_replay():
+    response=client.post('/research/run',json={'kind':'cest_solomon'})
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert data['view']['validation']['passed']
+    assert data['result']['metrics']['relayed_noe_contrast']>.005
+    assert data['result']['provenance']['dipolar_rates']['sigma_s1']<0
+    assert not any(data['result']['provenance']['liquid_system']['rates'][4])
+    assert client.post('/research/run',json=data['replay_request']).json()['result_hash']==data['result_hash']
+    fast=client.post('/research/run',json={'kind':'cest_solomon','parameters':{'tau_c_s':1e-10}})
+    assert fast.status_code==200,fast.text
+    assert fast.json()['view']['metrics']['relayed_noe_contrast']<0
+    assert not fast.json()['view']['validation']['passed']
+    assert client.post('/research/run',json={'kind':'cest_solomon','parameters':{'distance_m':0.}}).status_code==422
+    assert client.post('/research/run',json={'kind':'cest_solomon','parameters':{'offsets_ppm':[-3.5,0.,3.5]}}).status_code==422
+
+
+def test_solomon_pulse_search_preserves_failed_target_and_keeps_molecular_priors_fixed():
+    response=client.post('/research/search',json={'kind':'cest_solomon','candidates':[{'b1_uT':.1},{'b1_uT':1.}]})
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert not data['candidates'][0]['run']['view']['validation']['passed']
+    assert data['best']['parameters']=={'b1_uT':1.}
+    assert client.post('/research/search',json={'kind':'cest_solomon','candidates':[{'tau_c_s':1e-8}]}).status_code==422
+    assert client.post('/research/search',json=data['replay_search']).json()['search_hash']==data['search_hash']

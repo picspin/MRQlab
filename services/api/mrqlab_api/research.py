@@ -13,10 +13,11 @@ from mrqlab_experiment.spatial_imaging import run_spatial_imaging
 from mrqlab_experiment.flow_imaging import run_flow_imaging
 from mrqlab_experiment.pulsatile_dir import run_pulsatile_dir
 from mrqlab_experiment.cest_mt_noe import run_cest_mt_noe
+from mrqlab_experiment.cest_solomon import run_cest_solomon
 from mrqlab_experiment.mrs_basis import run_mrs_basis
 
 router=APIRouter(prefix='/research',tags=['research/teaching'])
-Kind=Literal['tse','noncartesian','flow','pulsatile_flow','cest','mrs']
+Kind=Literal['tse','noncartesian','flow','pulsatile_flow','cest','cest_solomon','mrs']
 
 
 class StrictParameters(BaseModel):
@@ -124,6 +125,16 @@ class CESTParameters(StrictParameters):
     target_min_amide_contrast: float=Field(default=.005,gt=0,le=1.)
 
 
+class SolomonCESTParameters(CESTParameters):
+    pair_fraction: float=Field(default=.02,gt=0,le=.1)
+    bridge_exchange_s1: float=Field(default=1000.,ge=0,le=5000.)
+    bridge_shift_ppm: float=Field(default=1.,ge=-10.,le=10.)
+    donor_shift_ppm: float=Field(default=-3.5,ge=-10.,le=10.)
+    distance_m: float=Field(default=2.5e-10,ge=1e-10,le=2e-9)
+    tau_c_s: float=Field(default=1e-8,ge=1e-12,le=1e-6)
+    target_min_relay_contrast: float=Field(default=.005,gt=0,le=1.)
+
+
 class MRSParameters(StrictParameters):
     echo_s: float=Field(default=.03,gt=0,le=.2)
     points: int=Field(default=512,ge=16,le=1024)
@@ -143,8 +154,8 @@ class MRSParameters(StrictParameters):
     target_relative_amount_error: float=Field(default=.05,gt=0,le=1.)
 
 
-SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'cest':CESTParameters,'mrs':MRSParameters}
-RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'cest':run_cest_mt_noe,'mrs':run_mrs_basis}
+SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'cest':CESTParameters,'cest_solomon':SolomonCESTParameters,'mrs':MRSParameters}
+RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'cest':run_cest_mt_noe,'cest_solomon':run_cest_solomon,'mrs':run_mrs_basis}
 
 
 class RunRequest(StrictParameters):
@@ -232,7 +243,7 @@ def present(kind,result):
             curves.append(_curve(tissue,[r['gate']['readout_s'] for r in result['readouts']],
                 [r['tissues'][tissue]['mean_mz'] for r in result['readouts']]))
         x_label='Readout time (s)'; y_label='Mean longitudinal magnetization'; validation=result['validation']
-    elif kind=='cest':
+    elif kind in {'cest','cest_solomon'}:
         for name,z in result['spectra'].items(): curves.append(_curve(name,result['offsets_ppm'],z))
         x_label='Saturation offset (ppm)'; y_label='Water Z'; validation=result['validation']
     else:
@@ -249,7 +260,7 @@ def present(kind,result):
         metrics={'Completed readouts':validation['completed_readouts'],'Interrupted preparations':validation['interrupted_preparations'],'Interrupted fraction':validation['interrupted_fraction']}
         if result['readouts']: metrics.update({'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']})
     elif kind=='flow': metrics={'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']}
-    elif kind=='cest': metrics=result['metrics']
+    elif kind in {'cest','cest_solomon'}: metrics=result['metrics']
     else: metrics={'Max relative amount error':validation['max_relative_amount_error'],'Fit residual':result['fit']['relative_residual'],'Basis condition':result['fit']['basis_condition']}
     return dict(images=images,curves=curves,x_label=x_label,y_label=y_label,validation=validation,metrics=metrics)
 
@@ -276,6 +287,10 @@ def run_research(request: RunRequest): return execute(request,checked_source_has
 def search_research(request: SearchRequest):
     fingerprint=checked_source_hash()
     if request.expected_source_hash and request.expected_source_hash!=fingerprint: raise HTTPException(409,'Replay source changed')
+    if request.kind=='cest_solomon':
+        pulse_keys={'b1_uT','saturation_s','mode','n_pulses','pulse_s','gap_s'}
+        if any(set(patch)-pulse_keys for patch in request.candidates):
+            raise HTTPException(422,'Solomon design search varies saturation pulse parameters only. Molecular parameters are priors; use separate runs for sensitivity.')
     # Reject typos, unsafe budgets or unsupported fields before any computation.
     for patch in request.candidates: parameters_for(request.kind,{**request.parameters,**patch})
     points=[]

@@ -26,14 +26,14 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 
 | Requirement | Current evidence | Status / missing evidence |
 |---|---|---|
-| Clinical question → pulse/design → physical simulation | Six backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for these declared teaching chains; universal experiment schema and calibrated clinical priors remain incomplete |
+| Clinical question → pulse/design → physical simulation | Seven backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for these declared teaching chains; universal experiment schema and calibrated clinical priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
 | High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, independent adjoint/acquisition checks, budget and data residual diagnostics | FINUFFT matrix-free plans now available; radial conditioning, noise/coil/trajectory calibration and non-Cartesian echo-weighted TSE remain incomplete |
 | Real flow / slice / gating | Pressure-driven Womersley shear/backflow, volume-weighted moving spins, finite RF/Gz and causal interruption with independent fluid/Bloch references | Straight rigid pipe and fixed radius only; measured calibration, general 3D/compliant flow and motion-encoded images remain incomplete |
-| CEST MT/NOE | Concurrent liquid/semisolid generator, conditional exchange-off controls, CW/pulsed tests, named effective rNOE approximation | Microscopic NOE cross relaxation, near-resonance generalized semisolid model and spatial joint imaging remain incomplete |
+| CEST MT/NOE | Effective-pool baseline plus distance/tau-derived signed Solomon pair→bridge→water relay, conditional controls and independent population/ODE checks | Full molecular multi-spin/Redfield relaxation, near-resonance generalized semisolid model and spatial joint imaging remain incomplete |
 | More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, analytic doublet check, full complex basis fitting, J-mismatch failure | Validated molecular library, full quantum relaxation, spatially converged PRESS localization and clinical concentration calibration remain incomplete |
-| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Six research entries include actual causal scheduling/completion table; native JSON download/re-import remains open, with verified CLI local delivery |
+| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Seven research entries include actual causal scheduling/completion table; native JSON download/re-import remains open, with verified CLI local delivery |
 | All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | Portable measured-TSE stage records and locked-environment CLI evidence exist; universal multi-study persistence and cross-platform replay remain incomplete |
 | Submission content excluded | Inherited `docs/ismrm` matches 33 original manuscript-worktree files before project removal; original worktree and Git history retained; ignore rule prevents accidental untracked re-entry | Enforced in the current project snapshot; historical anchors intentionally remain immutable |
 | No push/PR/merge, B/C parked | Local commit chain, unchanged roadmap/locked catalog; API regression retains two A protocols | Preserved |
@@ -136,3 +136,23 @@ authored pressure waveform do not complete general or measured hemodynamics.
 The full objective remains active; CEST microscopic NOE and fuller MRS fidelity,
 cross-modality measured closure and remaining reconstruction/image gaps continue.
 B/C remain parked, with no push, PR, merge or submission content.
+
+
+## Solomon relay CEST/MT stage (2026-10-29)
+
+From `75dcbaa`, the [new coverage report](solomon-relay-cest-coverage.md) records
+signed isotropic dipolar rates from distance and correlation time, a non-exchanging
+donor coupled to a labile bridge, and concurrent water CEST/semisolid MT. A
+four-state population transition network and full independent Cartesian ODE
+validate the minimal pair model. Fast-motion negative contrast and failed power
+candidates remain visible; the bridge-disconnected water effect vanishes.
+
+The seventh research entry supports real simulation, pulse-power search and
+source/result/candidate hash replay. Molecular priors are fixed during design
+search and varied only through separate sensitivity runs. Portable-JSON CLI
+verification now handles tuple-based pool arrays, with actual roundtrip and
+spectrum-tampering regressions. Independent evidence recomputation matched.
+Python **746 passed**, frontend **98 passed**, TypeScript and production build
+pass. Full multi-spin/Redfield coherence, near-resonance generalized MT, measured
+priors and spatial CEST/NOE remain open. The complete platform goal stays active;
+no push, PR, merge, B/C unlock or submission content was introduced.

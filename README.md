@@ -122,3 +122,9 @@ Research also includes **Pulsatile / causal DIR**: pressure-driven rigid-pipe
 Womersley flow, finite slice RF and causal trigger interruption. Scheduled and
 completed cycles are shown separately; default failed targets remain visible.
 See [physical assumptions, independent checks and replay](docs/research/pulsatile-causal-dir-coverage.md).
+
+
+**CEST / Solomon relay** adds a signed dipolar proton-pair model with an explicit
+labile bridge to water. Molecular parameters remain priors; design search varies
+saturation pulse parameters. Negative contrasts and failed targets are retained.
+See [independent checks, replay and model gaps](docs/research/solomon-relay-cest-coverage.md).
