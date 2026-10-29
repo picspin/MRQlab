@@ -108,3 +108,11 @@ The browser gracefully shows an offline state when the API is absent. Set `NEXT_
 A sequence compiles to channel-specific, time/value events. The experiment kernel selects a representation, wraps a kernel-owned `SimulationEngine` façade for the shipped Bloch, EPG, or spectral backend, samples it under ADC gates, and sends Cartesian data through the recon adapter. External engines contribute state-backend descriptors; scheduling, work caps, ADC/NCO handling, and result assembly remain in the microkernel. Engine-specific details do not leak into sequence or HTTP contracts.
 
 MRQLab does **not** control or connect to real hardware. MaRCoS, Red Pitaya, acquisition services, scanner control, pulse safety validation, clinical decision-making, and diagnostic use are intentionally out of scope. No secrets or cloud credentials belong in this repository.
+
+
+The research radial inverse also has an optional pinned FINUFFT backend
+(`uv sync --locked --extra dev --extra noncartesian`). Choose FINUFFT / CGLS in
+the Research page; the exact DFT reference remains available. See the
+[accuracy, replay and failure evidence](docs/research/fast-noncartesian-coverage.md)
+before interpreting image or residual targets. Large radial conditioning and
+noisy/coil/trajectory-calibrated reconstruction remain open research gaps.

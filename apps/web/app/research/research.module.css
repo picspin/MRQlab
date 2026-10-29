@@ -15,7 +15,7 @@
 .design h2, .output h2 { margin: 0 0 14px; font-size: 19px; font-weight: 600; }
 .design p, .limits p, .provenance p, .search p { color: #b3c6ce; font-size: 13px; max-width: 75ch; }
 .design label { display: block; font-size: 14px; margin: 18px 0; }
-.design input[type=number], .design textarea { display: block; margin-top: 7px; padding: 9px 10px; background: #0c151b; border: 1px solid #5a7682; border-radius: 3px; color: #e8f1f4; width: 100%; font: inherit; }
+.design input[type=number], .design textarea, .design select { display: block; margin-top: 7px; padding: 9px 10px; background: #0c151b; border: 1px solid #5a7682; border-radius: 3px; color: #e8f1f4; width: 100%; font: inherit; }
 .design textarea { font-family: ui-monospace, monospace; font-size: 12px; resize: vertical; }
 .workbench summary { cursor: pointer; font-size: 13px; padding: 10px 0; color: #c4d5dc; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; }

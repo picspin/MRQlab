@@ -57,7 +57,8 @@ class NoncartesianParameters(StrictParameters):
     max_samples: int=Field(default=24576,ge=1,le=24576)
     max_work: int=Field(default=10000000000,ge=1,le=10000000000)
     quality_threshold: float=Field(default=1e-6,gt=0,le=1.)
-    reconstruction: Literal['gridding','cgls']='cgls'
+    reconstruction: Literal['gridding','cgls','nufft_cgls']='cgls'
+    nufft_eps: float=Field(default=1e-13,ge=1e-14,le=1e-3)
     inverse_max_iterations: int=Field(default=1500,ge=1,le=1500)
     inverse_tolerance: float=Field(default=1e-12,ge=1e-14,le=.1)
     max_memory_bytes: int=Field(default=134217728,ge=1,le=134217728)
@@ -170,14 +171,15 @@ def parameters_for(kind, parameters):
             if kind=='noncartesian' and parsed['encoding']=='stack_of_stars': labels=np.stack([labels,1-labels,np.roll(labels,2,0)])
             parsed['labels']=labels.tolist()
         labels=parsed['labels']
+        grid_limit=64 if kind=='noncartesian' and parsed['reconstruction']=='nufft_cgls' else 16
         def valid_row(row):
-            return isinstance(row,list) and 2<=len(row)<=16 and all(type(v) is int and v in (0,1) for v in row)
+            return isinstance(row,list) and 2<=len(row)<=grid_limit and all(type(v) is int and v in (0,1) for v in row)
         def valid_plane(plane):
-            return isinstance(plane,list) and 2<=len(plane)<=16 and all(valid_row(row) for row in plane) and len({len(row) for row in plane})==1
+            return isinstance(plane,list) and 2<=len(plane)<=grid_limit and all(valid_row(row) for row in plane) and len({len(row) for row in plane})==1
         is_2d=valid_plane(labels)
         is_3d=isinstance(labels,list) and 2<=len(labels)<=4 and all(valid_plane(plane) for plane in labels) and len({(len(plane),len(plane[0])) for plane in labels})==1
         if not is_2d and not is_3d:
-            raise HTTPException(422,'research API labels require an integer two-class grid, <=16x16 and <=4 partitions')
+            raise HTTPException(422,'research API labels require an integer two-class grid, <=16x16 (NUFFT <=64x64) and <=4 partitions')
     return parsed
 
 

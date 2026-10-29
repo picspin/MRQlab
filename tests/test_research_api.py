@@ -1,4 +1,5 @@
 import pytest
+from importlib.util import find_spec
 from fastapi.testclient import TestClient
 from mrqlab_api.main import app
 
@@ -66,3 +67,30 @@ def test_live_source_edit_is_rejected_until_server_restart(monkeypatch):
     response=client.post('/research/run',json={'kind':'tse'})
     assert response.status_code==409
     assert 'Restart' in response.text
+
+
+@pytest.mark.skipif(find_spec('finufft') is None,reason='optional NUFFT backend')
+def test_nufft_api_uses_native_backend_and_replays_all_result_fields():
+    response=client.post('/research/run',json={'kind':'noncartesian','parameters':{'reconstruction':'nufft_cgls','inverse_tolerance':1e-11}})
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert data['result']['provenance']['version']=='spatial-nufft-v1'
+    assert data['result']['solvers'][0]['operator']['backend']=='finufft'
+    assert data['view']['validation']['passed']
+    replay=client.post('/research/run',json=data['replay_request'])
+    assert replay.status_code==200,replay.text
+    assert replay.json()['result_hash']==data['result_hash']
+    assert client.post('/research/run',json={'kind':'noncartesian','parameters':{'reconstruction':'nufft_cgls','nufft_eps':1e-4}}).status_code==422
+
+
+@pytest.mark.skipif(find_spec('finufft') is None,reason='optional NUFFT backend')
+def test_only_fast_path_accepts_larger_grid_and_keeps_failed_image_target_visible():
+    import numpy as np
+    y,x=np.indices((32,32)); labels=(((x-16)**2+(y-16)**2)<64).astype(int).tolist()
+    parameters={'labels':labels,'reconstruction':'nufft_cgls','inverse_max_iterations':1}
+    response=client.post('/research/run',json={'kind':'noncartesian','parameters':parameters})
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert not data['view']['validation']['passed']
+    assert not data['result']['solvers'][0]['converged']
+    assert client.post('/research/run',json={'kind':'noncartesian','parameters':{**parameters,'reconstruction':'cgls'}}).status_code==422

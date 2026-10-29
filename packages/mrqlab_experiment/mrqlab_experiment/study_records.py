@@ -36,7 +36,7 @@ IMPORTED_SOURCE_HASH=source_manifest()['sha256']
 
 def runtime_manifest():
     versions={}
-    for distribution in ['numpy','pydantic','fastapi','uvicorn']:
+    for distribution in ['numpy','pydantic','fastapi','uvicorn','finufft']:
         try: versions[distribution]=importlib.metadata.version(distribution)
         except importlib.metadata.PackageNotFoundError: versions[distribution]='not installed'
     if versions['numpy']!=np.__version__: raise ValueError('installed NumPy differs from loaded version; restart in the recorded environment')

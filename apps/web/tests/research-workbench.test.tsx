@@ -89,3 +89,15 @@ it("imports a pinned run without displaying it as a fresh measurement", async ()
   fireEvent.click(screen.getByRole("button", { name: "运行导入回放" })); await screen.findByText("回放一致：结果哈希匹配。");
   expect(vi.mocked(runResearch).mock.calls[0][0]).toEqual(result.replay_request);
 });
+
+
+it("submits the explicitly selected NUFFT inverse and clears stale results", async () => {
+  vi.mocked(runResearch).mockResolvedValue(result); render(<ResearchPage />);
+  fireEvent.click(screen.getByRole("button", { name: "Radial inverse" }));
+  fireEvent.change(screen.getByLabelText("重建方法"), { target: { value: "nufft_cgls" } });
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
+  await screen.findByText("Measured test question");
+  expect(vi.mocked(runResearch).mock.calls[0][0]).toMatchObject({ kind: "noncartesian", parameters: { reconstruction: "nufft_cgls" } });
+  fireEvent.change(screen.getByLabelText("重建方法"), { target: { value: "cgls" } });
+  expect(screen.queryByText("Measured test question")).not.toBeInTheDocument();
+});

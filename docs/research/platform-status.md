@@ -29,7 +29,7 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 | Clinical question → pulse/design → physical simulation | Five backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for these declared teaching chains; universal experiment schema and calibrated clinical priors remain incomplete |
 | Lab experiment → clinical target | Editable two-class phantoms, tissues, spin/pool controls and explicit synthetic/control objectives | Measured lab data ingestion, calibration, uncertainty and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | No general constrained/multi-objective solver or uncertainty-aware optimization over lab data |
-| High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, independent adjoint/acquisition checks, budget and data residual diagnostics | Fast large-grid NUFFT, noise/coil/trajectory calibration and non-Cartesian echo-weighted TSE remain incomplete |
+| High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, independent adjoint/acquisition checks, budget and data residual diagnostics | FINUFFT matrix-free plans now available; radial conditioning, noise/coil/trajectory calibration and non-Cartesian echo-weighted TSE remain incomplete |
 | Real flow / slice / gating | Actual positions move through finite RF/Gz; independent constant-velocity phase and ODE convergence; state persists between cycles | Prescribed 1D constant velocity, not pulsatile/3D hemodynamics or prospective gating; full motion-encoded images remain incomplete |
 | CEST MT/NOE | Concurrent liquid/semisolid generator, conditional exchange-off controls, CW/pulsed tests, named effective rNOE approximation | Microscopic NOE cross relaxation, near-resonance generalized semisolid model and spatial joint imaging remain incomplete |
 | More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, analytic doublet check, full complex basis fitting, J-mismatch failure | Validated molecular library, full quantum relaxation, spatially converged PRESS localization and clinical concentration calibration remain incomplete |
@@ -97,3 +97,22 @@ was performed.
 Measured-input stage full verification: Python **667 passed**, frontend **95
 passed** (14 files), TypeScript and production build passed. The final example
 CSV byte hash and complete computational replay were checked after source freeze.
+
+
+## Fast non-Cartesian stage (2026-10-29)
+
+From `3b518f5`, optional pinned FINUFFT plans now connect fast acquisition,
+paired adjoint, actual CGLS inverse, image validation, source/result replay and
+an explicit frontend method selector. Exact DFT remains the independent small-
+grid reference. The [coverage report](fast-noncartesian-coverage.md) and
+[reproducible evidence](examples/fast-noncartesian-evidence.json) retain both the
+128 radial 300-iteration failure and the later passing longer solve. Large
+image recovery is explicitly closed-model with independent exact subset checks.
+The large radial solve exceeds API budgets; resource limits are planning proxies.
+
+Locked-environment validation: Python **688 passed**, frontend **96 passed**,
+TypeScript and production build pass. The real browser/API FINUFFT simulation
+and exact result-hash replay passed. The full goal remains active: noise/coil/
+trajectory and radial-conditioning work, physical flow/gating, microscopic NOE,
+real MRS basis and cross-modality measured-study closure remain unfinished.
+B/C stay parked; no submission content, push, PR or merge was introduced.

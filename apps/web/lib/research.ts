@@ -27,7 +27,7 @@ export const STUDIES: Record<ResearchKind, Study> = {
     fields: [{ key: "echoes", label: "回波数", step: 2 }, { key: "echo_spacing_s", label: "回波间隔 (s)", step: .001 }],
     candidates: [{ echoes: 2 }, { echoes: 4 }, { echoes: 8 }] },
   noncartesian: { title: "Radial inverse", question: "增加径向采样，能否恢复未缩放的真实图像幅度？",
-    limit: "16×16 小网格精确 DFT / CGLS。快速 NUFFT、线圈灵敏度、噪声正则化和轨迹校准仍缺失。",
+    limit: "精确 DFT 参考 / FINUFFT 矩阵自由 CGLS；API 的 NUFFT 体模上限 64×64。欠采样与病态性仍限制恢复，线圈、噪声正则化和轨迹校准仍缺失。",
     validation: "图像 NRMSE ≤ 1e-6。采样残差收敛并不证明图像可辨识。",
     defaults: { spokes: 48, points: 32, reconstruction: "cgls", max_work: 10000000000, inverse_max_iterations: 1500 },
     fields: [{ key: "spokes", label: "径向 spoke 数", step: 2 }, { key: "inverse_max_iterations", label: "迭代上限", step: 100 }],

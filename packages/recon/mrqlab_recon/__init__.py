@@ -15,7 +15,7 @@ def fft_reconstruct(data: np.ndarray, dimensions: int = 1) -> np.ndarray:
 
 
 def nufft_reconstruct(kx, ky, kdata, grid_size: int = 128, **kwargs) -> np.ndarray:
-    """Gridding NUFFT adapter (density-compensated nearest-neighbor)."""
+    """Legacy nearest-neighbor gridding adapter; not a high-accuracy NUFFT inverse."""
     return gridding_recon_2d(
         np.asarray(kx, dtype=np.float64),
         np.asarray(ky, dtype=np.float64),
