@@ -1,9 +1,11 @@
 export interface TriggerEvent { trigger: number; decision_s: number; preparation_s: number; readout_s: number; rr_estimate_s: number; scheduled: boolean; accepted: boolean; rejection: string | null; cancelled_s: number | null; }
-export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "flow_epi" | "cest" | "cest_solomon" | "mrs" | "mrs_press" | "radial_tse";
+export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "flow_epi" | "cest" | "cest_solomon" | "cest_memory" | "mrs" | "mrs_press" | "radial_tse";
 export interface ResearchRequest { kind: ResearchKind; parameters: Record<string, unknown>; expected_source_hash?: string; }
 export interface ResearchRun {
   kind: ResearchKind;
-  result: { clinical_question: string; scope: string; gates?: TriggerEvent[]; readout_status?: { trigger: number; encoding_sign: number; adc_samples: number; expected_samples: number; completed: boolean; stage: string }[]; provenance: Record<string, unknown>; [key: string]: unknown };
+  result: { clinical_question: string; scope: string; gates?: TriggerEvent[]; readout_status?: { trigger: number; encoding_sign: number; adc_samples: number; expected_samples: number; completed: boolean; stage: string }[];
+    memory_diagnostics?: { coarse_steps: number; refined_steps: number; rf_peak_uT: number; numerical_refinement_passed: boolean; normalized_trace_difference: number; lag_kernel_error: number; retained_history_s: number; inter_pulse_reset: boolean };
+    provenance: Record<string, unknown>; [key: string]: unknown };
   view: {
     images: { label: string; width: number; height: number; values: number[]; scale_group?: string }[];
     curves: { label: string; x: number[]; y: number[] }[];
@@ -69,6 +71,12 @@ export const STUDIES: Record<ResearchKind, Study> = {
     defaults: { b1_uT: 1, saturation_s: 1, distance_m: 2.5e-10, tau_c_s: 1e-8, bridge_exchange_s1: 1000 },
     fields: [{ key: "b1_uT", label: "饱和 B1 (µT)", step: .1 }, { key: "tau_c_s", label: "转动相关时间 (s)", step: 1e-9 }, { key: "bridge_exchange_s1", label: "桥接质子到水交换率 (s⁻¹)", step: 100 }],
     candidates: [{ b1_uT: .1 }, { b1_uT: 1 }, { b1_uT: 2 }] },
+  cest_memory: { title: "CEST / finite-memory MT", question: "有限形状 RF 与半固体记忆怎样改变零频偏附近的 MT，以及经 Solomon 中继进入水的 NOE？",
+    limit: "广义 Bloch 时间卷积保留全脉冲/间隙历史；零频偏无需替换线型。液体仍为均匀池和纵向 Solomon 对，分子参数为作者先验；不是完整 Redfield、实测校准或空间成像。",
+    validation: "amide 与中继对比各 ≥0.005；全时序粗/细步归一化差 ≤0.0002，积分记忆核差 ≤1e-6。数值收敛和对比目标分别报告；只有全部通过才选择低 RF 候选。默认中继对比不足。",
+    defaults: { b1_uT: 1, pulse_s: .02, gap_s: .04, n_pulses: 4, shape: "hann", phase_cycle_rad: [0], rf_bins: 16, steps_per_bin: 24 },
+    fields: [{ key: "b1_uT", label: "峰值 B1 (µT)", step: .1 }, { key: "pulse_s", label: "单脉冲时长 (s)", step: .01 }, { key: "gap_s", label: "脉冲间隙 (s)", step: .01 }],
+    candidates: [{ b1_uT: .5 }, { b1_uT: 1 }, { b1_uT: 2 }] },
   mrs_press: { title: "PRESS / volume fit", question: "有限 RF 带宽和三维选区如何改变局域频谱？中心点基组会产生多大偏差？",
     limit: "PRESS [-1,+1,-1] 相干选择、三维复信号积分与扩展 FOV 检查。仍为教学 singlet/合成 AB、标量 T2；真实分子库、量子弛豫和扫描仪验证仍缺失。",
     validation: "更细网格样本的信号量误差 ≤5%，拟合残差 ≤2%，RF 加密检查 ≤0.2%，网格/FOV 检查各 ≤2%，选区外功率比例 ≤10%。",

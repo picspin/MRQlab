@@ -250,3 +250,28 @@ def test_flow_epi_search_keeps_failed_and_infeasible_points_without_best():
         assert client.post('/research/search',json={'kind':'flow_epi','candidates':[patch]}).status_code==422
     for patch in [{'matrix_size':True},{'axial_spins':1000},{'scanner_export':True},{'dwell_s':0.}]:
         assert client.post('/research/run',json={'kind':'flow_epi','parameters':patch}).status_code==422
+
+
+def test_finite_memory_cest_zero_offset_refinement_and_full_complex_replay():
+    r=client.post('/research/run',json={'kind':'cest_memory','parameters':{'offsets_ppm':[-3.5,0.,3.5]}})
+    assert r.status_code==200,r.text
+    data=r.json();result=data['result']
+    assert result['validation']['numerical_refinement_passed'] and not result['validation']['passed']
+    assert result['memory_diagnostics']['coarse_steps']==3840 and not result['memory_diagnostics']['inter_pulse_reset']
+    assert len(result['provenance']['rf_holds_uT'])==3840
+    assert result['spectra']['full'][1]>0 and 'mt_contrast_at_zero' in data['view']['metrics']
+    assert client.post('/research/run',json=data['replay_request']).json()['result_hash']==data['result_hash']
+    coarse=client.post('/research/run',json={'kind':'cest_memory','parameters':{'offsets_ppm':[-3.5,0.,3.5],'steps_per_bin':4}}).json()
+    assert not coarse['view']['validation']['numerical_refinement_passed']
+
+
+def test_finite_memory_cest_search_cannot_change_priors_or_hide_convergence_failures():
+    request={'kind':'cest_memory','parameters':{'offsets_ppm':[-3.5,0.,3.5]},'candidates':[{'b1_uT':.5},{'b1_uT':1.},{'gap_s':.04001}]}
+    r=client.post('/research/search',json=request);assert r.status_code==200,r.text
+    result=r.json();assert result['best'] is None
+    assert result['candidates'][0]['feasible'] and result['candidates'][1]['feasible'] and not result['candidates'][2]['feasible']
+    assert client.post('/research/search',json=result['replay_search']).json()['search_hash']==result['search_hash']
+    for patch in [{'lineshape':'gaussian'},{'steps_per_bin':4},{'tau_c_s':1e-10},{'target_refinement_error':.1},{'bound_fraction':.04}]:
+        assert client.post('/research/search',json={'kind':'cest_memory','candidates':[patch]}).status_code==422
+    for patch in [{'steps_per_bin':True},{'orientation_order':64},{'scanner_export':True}]:
+        assert client.post('/research/run',json={'kind':'cest_memory','parameters':patch}).status_code==422

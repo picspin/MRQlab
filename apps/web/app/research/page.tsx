@@ -120,6 +120,13 @@ export default function ResearchPage() {
             {run.view.validation.completed_encoding_pairs === 0 && <p>没有完整异号编码对；未生成流速或流量测量。</p>}
             <div className={styles.scroll}><table><thead><tr><th>触发编号</th><th>编码极性</th><th>ADC 样本 / 完整网格</th><th>完成图像</th><th>停止阶段</th></tr></thead><tbody>{run.result.readout_status.map(row => <tr key={row.trigger}><td>{row.trigger + 1}</td><td>{row.encoding_sign > 0 ? "+" : "−"}</td><td>{row.adc_samples} / {row.expected_samples}</td><td>{row.completed ? "是" : "否"}</td><td>{row.stage}</td></tr>)}</tbody></table></div>
           </section>}
+          {kind === "cest_memory" && run.result.memory_diagnostics && <section className={styles.search}><h3>有限 RF 与记忆核收敛</h3>
+            <p>数值加密核对：{run.result.memory_diagnostics.numerical_refinement_passed ? "通过" : "未通过"}。该结果与上方 CEST/NOE 对比目标独立；零频偏按显式选定的时间核计算，不自动截断吸收率或替换线型。</p>
+            <dl><dt>粗 / 细时间单元</dt><dd>{run.result.memory_diagnostics.coarse_steps} / {run.result.memory_diagnostics.refined_steps}</dd>
+              <dt>全时序归一化差</dt><dd>{format(run.result.memory_diagnostics.normalized_trace_difference)}</dd><dt>积分记忆核差</dt><dd>{format(run.result.memory_diagnostics.lag_kernel_error)}</dd>
+              <dt>保留历史 (s)</dt><dd>{format(run.result.memory_diagnostics.retained_history_s)}</dd><dt>脉冲间清空历史</dt><dd>{run.result.memory_diagnostics.inter_pulse_reset ? "是" : "否"}</dd></dl>
+            <p>完整 RF 采样、各对照的水/半固体时序和历史哈希保存在记录中。分子先验与数值网格在候选搜索中固定。</p>
+          </section>}
           <section className={styles.provenance}><h3>验证与回放记录</h3><p>{run.result.scope}</p><dl><dt>源码指纹</dt><dd>{run.source_hash}</dd><dt>结果哈希</dt><dd>{run.result_hash}</dd><dt>运行环境</dt><dd>Python {run.runtime.python} / NumPy {run.runtime.numpy}</dd></dl>
             <div className={styles.actions}><button disabled={busy} onClick={() => void execute("replay")}>回放此结果</button><button disabled={busy} onClick={download}>导出完整记录</button></div>
             <details><summary>设计、时序与 provenance</summary><pre>{JSON.stringify({ replay: run.replay_request, provenance: run.result.provenance, validation: run.view.validation }, null, 2)}</pre></details>

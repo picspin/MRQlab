@@ -1,0 +1,20 @@
+{
+  "context": {
+    "study_id": "finite-memory-cest-pilot",
+    "research_question": "Do finite shaped RF and semisolid coherence memory preserve conditional CEST/Solomon-relay targets, including zero offset, under a verified full-history calculation?",
+    "target_rationale": "Keep amide/relay differences >=0.005, full-trace normalized coarse/fine difference <=0.0002 and lag-cell kernel error <=1e-6. A contrast-passing but numerically unconverged waveform must not qualify. Select minimum per-train RF energy only among designs passing every gate.",
+    "assumptions": "Authored homogeneous liquid/semisolid and dipolar-pair priors, no measured molecular calibration. Finite sampled-Hann pulses and continuous carrier phase; no history cutoff/reset, zero-offset absorption clamp, fitted image gain or full Redfield claim.",
+    "intended_use": "research"
+  },
+  "execution": {
+    "type": "search",
+    "kind": "cest_memory",
+    "parameters": {},
+    "candidates": [
+      { "b1_uT": 0.5 },
+      { "b1_uT": 1.0 },
+      { "b1_uT": 2.0 },
+      { "gap_s": 0.04001 }
+    ]
+  }
+}

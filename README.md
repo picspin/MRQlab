@@ -40,7 +40,7 @@ The product center is an experiment (`ExperimentGraph`), compiled through three 
 ## Research design and replay workspace
 
 Open `/research` from the Research navigation entry with the local API running.
-This connects ten research chains to editable designs, bounded simulation,
+This connects eleven research chains to editable designs, bounded simulation,
 finite candidate comparison, explicit validation and complete JSON records:
 
 | Research chain | Evidence and current fidelity |
@@ -51,6 +51,7 @@ finite candidate comparison, explicit validation and complete JSON records:
 | Pulsatile/causal DIR | Pressure-driven rigid-pipe Womersley flow, moving finite-RF spins and causal preparation interruption |
 | Flow / encoded EPI | Persistent moving spins, finite slice RF, bipolar moments, actual point-ADC k-space/images and explicit partial/aliased-pair failures |
 | Signed Solomon CEST/MT relay | Distance/tau-derived donor-to-bridge cross-relaxation, bridge-to-water exchange and signed control contrasts |
+| Finite-memory CEST/MT | Complex finite-RF Green-function convolution, retained phase/gap history, regular zero offset and separate full-trace convergence/contrast gates |
 | PRESS volume fitting | Ideal coherence-path selection, finite RF, complex 3D quadrature and independent RF/grid/FOV target checks |
 | Flow/slice/gating | Persistent spins on prescribed through-plane trajectories, finite RF/Gz, known-trigger retrospective timing |
 | Joint CEST/MT/rNOE | Coupled liquid and semisolid pools, effective upfield rNOE, named exchange-off controls |
@@ -77,8 +78,10 @@ historical model targets and current full computational replay are distinct.
 The project-local `.mrqlab/scientific-records.sqlite3` database survives API
 restarts and is ignored by Git; full records can be exported/imported or managed
 with `python -m mrqlab_api.scientific_records`. Background references are context
-only and do not silently calibrate a model. Browser clicking/native file-flow
-verification remains a documented gap; CLI and HTTP persistence/replay are checked.
+only and do not silently calibrate a model. Actual browser native JSON download,
+file-chooser import and complete replay are verified for the finite-memory CEST
+run and shared record flow; the remaining modality/CSV browser coverage is open.
+CLI and HTTP persistence/replay are also checked.
 
 A measured-TSE record can now derive a
 [radial TSE uncertainty study](docs/research/calibrated-radial-coverage.md):
@@ -100,6 +103,15 @@ gradient phase and relaxation through the readout. It retains interrupted ADC
 prefixes and distinguishes images, complete opposite-sign pairs, gradient-moment
 references and instantaneous flow. Its default DIR targets fail; no failed-only
 search acquires an invented best design. The supplied pressure/phantom are authored.
+
+The [finite-memory CEST extension](docs/research/cest-memory-coverage.md) uses a
+time-domain generalized Bloch semisolid model with the signed Solomon relay.
+It retains shaped RF, complex phase and whole pulse/gap history, including zero
+offset. The canonical singular absorption-rate model remains unchanged. Default
+numerical refinement passes while its relay target fails; a higher-power point
+passes contrast targets but fails refinement. No search candidate qualifies.
+Independent augmented Bloch references, full CLI/HTTP and native browser JSON
+replay preserve these failures. Molecular priors remain authored.
 
 See [research workspace evidence and gaps](docs/research/research-workbench-coverage.md).
 All accuracy statements apply to declared teaching models; there is no scanner

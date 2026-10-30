@@ -32,6 +32,7 @@ it("opens persistent history without presenting integrity as scientific replay",
   fireEvent.click(screen.getByRole("button", { name: "在当前环境完整重算" }));
   await screen.findByText("完整计算回放一致：全部结果、候选、阶段与记录哈希匹配。");
   expect(screen.getByText("重算一致的测量")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /phantom-01/ })).toHaveTextContent("当前会话已重算一致");
 });
 
 it("retains historical status and source error when current replay fails", async () => {

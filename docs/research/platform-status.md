@@ -26,15 +26,15 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 
 | Requirement | Current evidence | Status / missing evidence |
 |---|---|---|
-| Clinical question → pulse/design → physical simulation | Ten backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
+| Clinical question → pulse/design → physical simulation | Eleven backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
 | High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators and echo-resolved radial TSE; measured intervals support fixed-prior stress cases and an exact-center two-global-T2 navigator with withheld echo checks | Historical fixed-prior corners fail; one navigated candidate passes the finite noiseless stress grid while another fails its residual budget. Noisy/coil/trajectory calibration, full echo-window physics and general voxel T2 inference remain incomplete |
 | Real flow / slice / gating | Pressure-driven Womersley shear/backflow, finite RF/Gz, causal interruption and a new actual bipolar/EPI point-ADC image chain with partial acquisitions and independent complex Bloch/Fourier checks | Default DIR images/velocity targets fail. Straight rigid pipe/fixed transverse centers only; measured calibration, general 3D/compliant flow, calibrated phase and realistic hardware/readout remain incomplete |
-| CEST MT/NOE | Effective-pool baseline plus distance/tau-derived signed Solomon pair→bridge→water relay, conditional controls and independent population/ODE checks | Full molecular multi-spin/Redfield relaxation, near-resonance generalized semisolid model and spatial joint imaging remain incomplete |
+| CEST MT/NOE | Effective-pool baseline, signed Solomon relay and finite-history generalized Bloch semisolid RF including zero offset, independent augmented Bloch references and full-trace convergence gates | Default relay target fails; contrast-passing high-power point fails refinement, so no design is selected. Measured molecular calibration, full multi-spin/Redfield relaxation and spatial joint imaging remain incomplete |
 | More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, coherence-selected 3D PRESS volume fitting with separate RF/grid/FOV checks, center/J mismatch failures | Validated molecular library, full quantum relaxation, realistic field maps, measured spectra and clinical concentration calibration remain incomplete |
-| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Ten entries include actual causal decisions, ADC completeness, image/velocity validity and failed-only searches; rendered/native JSON download/re-import remains open, with verified CLI local delivery |
-| All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | All ten chains and measured TSE share immutable local multi-study SQLite records, complete source/runtime-pinned CLI/API replay and lossless portable snapshots; cross-platform replay, raw attachments and general derived multimodal workflows remain incomplete |
+| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Eleven entries include causal decisions, ADC completeness, image/velocity validity and failed-only searches. Actual CEST/record browser native JSON export/import/full replay passes; other modality/CSV browser coverage remains open |
+| All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | All eleven chains and measured TSE share immutable local multi-study SQLite records, complete source/runtime-pinned CLI/API replay and lossless portable snapshots; cross-platform replay, raw attachments and general derived multimodal workflows remain incomplete |
 | Submission content excluded | Inherited `docs/ismrm` matches 33 original manuscript-worktree files before project removal; original worktree and Git history retained; ignore rule prevents accidental untracked re-entry | Enforced in the current project snapshot; historical anchors intentionally remain immutable |
 | No push/PR/merge, B/C parked | Local commit chain, unchanged roadmap/locked catalog; API regression retains two A protocols | Preserved |
 
@@ -53,8 +53,8 @@ not silently copy manuscript content into the project or disturb live worktrees.
 
 ## Next evidence to obtain
 
-1. Finish native export/import browser verification or provide a verified
-   local-file delivery path supported by the in-app browser.
+1. Extend the now-verified CEST/shared-record native JSON browser flow to the
+   remaining modality-specific and CSV paths; retain verified CLI local delivery.
 2. Extend the shared scientific records and the measured-TSE → radial derivation
    with raw-data archives, general unit/uncertainty conventions and measured
    bindings for flow, CEST/NOE and MRS. Preserve failed target outcomes.
@@ -354,3 +354,38 @@ coils/noise/field maps, phase calibration, clinical transfer and prior CEST/MRS
 and platform gaps remain unfinished. The overall goal remains active; B/C stay
 parked, submission materials stay excluded, and no push, PR, merge, router change
 or workspace relocation occurred.
+
+## Finite-memory semisolid CEST / MT stage (2026-10-30)
+
+From `de9cdb3`, the eleventh research entry integrates a time-domain generalized
+Bloch Green function with complex shaped RF, all pulse/gap history, liquid
+exchange and the existing signed Solomon relay. Zero offset is regular in this
+different physical model; the canonical singular absorption-rate model still
+rejects its zero-offset case. No frequency clamp, Gaussian substitution, signal
+gain, sign clipping or inter-pulse reset was added. Common semisolid Z and the
+short-coherence exchange guard remain explicit limitations.
+
+The [coverage report](cest-memory-coverage.md) and
+[independently recomputed evidence](examples/cest-memory-evidence.json) retain
+all seven offsets and all five controls at 3,840/7,680 intervals, full-grid
+water/bound convergence checks, maximum-error witnesses and whole-history hashes.
+Default full-trace difference **0.0001184018** passes the **0.0002** gate, but
+relay contrast **0.0025574892** fails **0.005**. At 2 µT both contrasts pass while
+full-trace difference **0.0003887770** fails; the malformed gap is infeasible.
+No candidate is selected. Signed negative controls and independent 19-state
+Bloch/hard-pulse/long-lag references are preserved. The larger explicit work
+allowance and unchanged physical targets are documented rather than hidden.
+
+Full regression is **903 Python / 115 frontend**, with TS and production build
+passing. Independent full evidence, a new generic CLI process and actual HTTP
+create/read/full replay match the complete scientific search. Actual in-app
+browser access recovered: the default run, result replay, native download and
+file-chooser reimport pass, as do recompute/save, record-link navigation, complete
+record native export/import and full computation replay. The screen distinguishes
+integrity PASS, historical physical targets FAIL and current replay PASS.
+Two browser-discovered record-status inconsistencies were fixed and verified.
+Historical reports of browser unavailability describe their own earlier anchors;
+they no longer describe this checked JSON path. Other modality/CSV browser tests,
+measured molecular binding, full relaxation/spatial physics and earlier platform
+gaps remain open. The full goal stays active; B/C stay parked. No submission
+import, push, PR, merge, router change or workspace relocation occurred.

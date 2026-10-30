@@ -213,3 +213,30 @@ are unchanged. Its example search has two executable failures, one physically
 infeasible gradient design and no selected result. Full CLI/HTTP computational
 replay retains that entire outcome. Regression is **881 Python / 114 frontend**
 with TS/build passing; browser/native-file checks remain open.
+
+## Finite-memory CEST and restored native JSON browser verification
+
+The [finite-memory CEST continuation](cest-memory-coverage.md) adds the eleventh
+research kind under the existing immutable record schema. Its finite RF-only
+search retains three executable failures, one timing-infeasible point and no
+selection. Full-grid time/kernel refinement and whole-history hashes enter the
+payload; complete computational replay recomputes every integration node.
+Historical examples and source identities were not rewritten. Full regression
+is **903 Python / 115 frontend**, with TS/build passing; independent evidence,
+generic CLI replay and actual HTTP replay match the complete search record.
+
+Browser access recovered in this stage. Actual UI interaction ran/replayed the
+default CEST design, downloaded its complete result, used the native file chooser
+to reimport it and recomputed the same result hash. The UI then recomputed and
+saved study `browser-cest-memory`, opened its record link, filtered the library,
+natively exported/imported the full scientific record and executed full replay.
+Record `9fc1285bb7e06f28be0d5fbc25b40e7bff2df7d4b3ca4544c00b01419fa1a71c`
+retains physical target FAIL alongside integrity PASS and current replay PASS.
+Import alone claims only integrity. The selected list row now reflects replay in
+the current session, and refreshing an open record no longer asks to open one.
+
+This closes native JSON verification for that run and the shared record flow.
+The historical unavailability statements above remain evidence of their earlier
+anchors, not a current blocker for this tested path. It does not establish every
+modality-specific or CSV browser flow. Broader measured-data/uncertainty,
+attachment-origin, durable-receipt and cross-platform replay gaps remain open.

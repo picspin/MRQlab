@@ -14,13 +14,14 @@ from mrqlab_experiment.flow_imaging import run_flow_imaging
 from mrqlab_experiment.pulsatile_dir import run_pulsatile_dir
 from mrqlab_experiment.cest_mt_noe import run_cest_mt_noe
 from mrqlab_experiment.cest_solomon import run_cest_solomon
+from mrqlab_experiment.cest_memory import run_cest_memory
 from mrqlab_experiment.mrs_basis import run_mrs_basis
 from mrqlab_experiment.mrs_press import run_press_basis
 from mrqlab_experiment.radial_tse import run_radial_tse
 from mrqlab_experiment.flow_epi import run_flow_epi
 
 router=APIRouter(prefix='/research',tags=['research/teaching'])
-Kind=Literal['tse','noncartesian','flow','pulsatile_flow','flow_epi','cest','cest_solomon','mrs','mrs_press','radial_tse']
+Kind=Literal['tse','noncartesian','flow','pulsatile_flow','flow_epi','cest','cest_solomon','cest_memory','mrs','mrs_press','radial_tse']
 
 
 class StrictParameters(BaseModel):
@@ -204,6 +205,38 @@ class SolomonCESTParameters(CESTParameters):
     target_min_relay_contrast: float=Field(default=.005,gt=0,le=1.)
 
 
+class MemoryCESTParameters(StrictParameters):
+    offsets_ppm: list[float]=Field(default_factory=lambda:[-5.,-3.5,-2.,0.,2.,3.5,5.],min_length=3,max_length=16)
+    b0_t: float=Field(default=3.,ge=.5,le=7.)
+    b1_uT: float=Field(default=1.,gt=0,le=4.)
+    pulse_s: float=Field(default=.02,ge=.00001,le=1.)
+    gap_s: float=Field(default=.04,ge=0,le=.5)
+    n_pulses: int=Field(default=4,ge=1,le=8)
+    shape: Literal['hann','rectangular']='hann'
+    phase_cycle_rad: list[Phase]=Field(default_factory=lambda:[0.],min_length=1,max_length=8)
+    rf_bins: int=Field(default=16,ge=4,le=32)
+    steps_per_bin: int=Field(default=24,ge=1,le=24)
+    bound_fraction: float=Field(default=.08,gt=0,le=.3)
+    bound_to_water_hz: float=Field(default=20.,ge=0,le=100.)
+    bound_t2_s: float=Field(default=12e-6,ge=1e-6,le=.001)
+    lineshape: Literal['super_lorentzian','gaussian','lorentzian']='super_lorentzian'
+    pair_fraction: float=Field(default=.02,gt=0,le=.1)
+    bridge_exchange_s1: float=Field(default=1000.,ge=0,le=5000.)
+    bridge_shift_ppm: float=Field(default=1.,ge=-10.,le=10.)
+    donor_shift_ppm: float=Field(default=-3.5,ge=-10.,le=10.)
+    distance_m: float=Field(default=2.5e-10,ge=1e-10,le=2e-9)
+    tau_c_s: float=Field(default=1e-8,ge=1e-12,le=1e-6)
+    orientation_order: int=Field(default=32,ge=8,le=32)
+    time_order: int=Field(default=32,ge=8,le=32)
+    max_work: int=Field(default=32000000000,ge=1,le=32000000000)
+    max_memory_bytes: int=Field(default=134217728,ge=1,le=134217728)
+    max_duration_s: float=Field(default=300.,gt=0,le=300.)
+    target_min_amide_contrast: float=Field(default=.005,gt=0,le=1.)
+    target_min_relay_contrast: float=Field(default=.005,gt=0,le=1.)
+    target_refinement_error: float=Field(default=.0002,gt=0,le=.1)
+    target_kernel_error: float=Field(default=1e-6,gt=0,le=.01)
+
+
 class MRSParameters(StrictParameters):
     echo_s: float=Field(default=.03,gt=0,le=.2)
     points: int=Field(default=512,ge=16,le=1024)
@@ -253,6 +286,8 @@ class PressMRSParameters(StrictParameters):
 
 SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'flow_epi':FlowEPIParameters,'cest':CESTParameters,'cest_solomon':SolomonCESTParameters,'mrs':MRSParameters,'mrs_press':PressMRSParameters,'radial_tse':RadialTSEParameters}
 RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'flow_epi':run_flow_epi,'cest':run_cest_mt_noe,'cest_solomon':run_cest_solomon,'mrs':run_mrs_basis,'mrs_press':run_press_basis,'radial_tse':run_radial_tse}
+SCHEMAS['cest_memory']=MemoryCESTParameters
+RUNNERS['cest_memory']=run_cest_memory
 
 
 class RunRequest(StrictParameters):
@@ -359,7 +394,7 @@ def present(kind,result):
             curves.append(_curve(tissue,[r['gate']['readout_s'] for r in result['readouts']],
                 [r['tissues'][tissue]['mean_mz'] for r in result['readouts']]))
         x_label='Readout time (s)'; y_label='Mean longitudinal magnetization'; validation=result['validation']
-    elif kind in {'cest','cest_solomon'}:
+    elif kind in {'cest','cest_solomon','cest_memory'}:
         for name,z in result['spectra'].items(): curves.append(_curve(name,result['offsets_ppm'],z))
         x_label='Saturation offset (ppm)'; y_label='Water Z'; validation=result['validation']
     else:
@@ -395,7 +430,7 @@ def present(kind,result):
         metrics={'Completed readouts':validation['completed_readouts'],'Interrupted preparations':validation['interrupted_preparations'],'Interrupted fraction':validation['interrupted_fraction']}
         if result['readouts']: metrics.update({'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']})
     elif kind=='flow': metrics={'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']}
-    elif kind in {'cest','cest_solomon'}: metrics=result['metrics']
+    elif kind in {'cest','cest_solomon','cest_memory'}: metrics=result['metrics']
     else: metrics={'Max relative amount error':validation['max_relative_amount_error'],'Fit residual':result['fit']['relative_residual'],'Basis condition':result['fit']['basis_condition']}
     if kind=='mrs_press': metrics.update({'RF refinement error':validation['max_rf_error'],'Grid refinement error':validation['max_refinement_error'],'Expanded FOV error':validation['max_fov_error'],'Outside-voxel power fraction':validation['max_leakage_power_fraction']})
     return dict(images=images,curves=curves,x_label=x_label,y_label=y_label,validation=validation,metrics=metrics)
@@ -429,6 +464,8 @@ def search_research(request: SearchRequest):
         raise HTTPException(422,'PRESS design search varies pulse timing only; basis, molecular priors and numerical resolution remain fixed.')
     if request.kind=='flow_epi' and any(set(patch)-{'inversion_time_s','venc_m_s','dwell_s'} for patch in request.candidates):
         raise HTTPException(422,'Flow-EPI search varies timing, VENC and dwell only; pressure, preparation control, targets, quadrature and gradient limits remain fixed.')
+    if request.kind=='cest_memory' and any(set(patch)-{'b1_uT','pulse_s','gap_s','n_pulses','shape','phase_cycle_rad'} for patch in request.candidates):
+        raise HTTPException(422,'Finite-memory CEST search varies RF waveform only; molecular/lineshape priors, numerical grids, targets and budgets remain fixed.')
     if request.kind=='cest_solomon':
         pulse_keys={'b1_uT','saturation_s','mode','n_pulses','pulse_s','gap_s'}
         if any(set(patch)-pulse_keys for patch in request.candidates):
@@ -445,10 +482,10 @@ def search_research(request: SearchRequest):
             if exc.status_code!=422: raise
             points.append(dict(parameters=patch,feasible=False,reason=exc.detail))
     feasible=[p for p in points if p['feasible']]
-    eligible=[p for p in feasible if p['run']['view']['validation']['passed']] if request.kind in {'radial_tse','flow_epi'} else feasible
+    eligible=[p for p in feasible if p['run']['view']['validation']['passed']] if request.kind in {'radial_tse','flow_epi','cest_memory'} else feasible
     best=min(eligible,key=lambda p:p['loss']) if eligible else None
     return dict(kind=request.kind,candidates=points,best=best,
-        objective='minimize RF energy proxy among candidates passing all declared targets; finite grid, no clinical optimum' if request.kind=='radial_tse' else 'minimize declared velocity+image error and interrupted fraction among candidates passing every target; finite grid, no clinical optimum' if request.kind=='flow_epi' else 'minimize declared model loss against known teaching truth/control; finite grid, no clinical optimum',
+        objective='minimize RF energy proxy among candidates passing all declared targets; finite grid, no clinical optimum' if request.kind in {'radial_tse','cest_memory'} else 'minimize declared velocity+image error and interrupted fraction among candidates passing every target; finite grid, no clinical optimum' if request.kind=='flow_epi' else 'minimize declared model loss against known teaching truth/control; finite grid, no clinical optimum',
         replay_search={**request.model_dump(), 'expected_source_hash':fingerprint},source_hash=fingerprint,
         search_hash=sha256(json.dumps(points,sort_keys=True,allow_nan=False).encode()).hexdigest())
 

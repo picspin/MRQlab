@@ -197,3 +197,20 @@ it("shows partial EPI samples without inventing a velocity pair or completed ima
   expect(screen.getByText(/缺失 k 空间不补零生成图像/)).toBeInTheDocument();
   expect(vi.mocked(runResearch).mock.calls[0][0]).toMatchObject({ kind: "flow_epi", parameters: { preparation: "dir", dwell_s: .00006 } });
 });
+
+it("separates finite-memory numerical convergence from failed CEST/NOE target status", async () => {
+  const memory: ResearchRun = { ...result, kind: "cest_memory", result: { ...result.result, memory_diagnostics: {
+    coarse_steps: 3840, refined_steps: 7680, rf_peak_uT: 1, numerical_refinement_passed: true, normalized_trace_difference: .00012, lag_kernel_error: 1e-12, retained_history_s: .2, inter_pulse_reset: false,
+  } }, view: { ...result.view, validation: { passed: false, numerical_refinement_passed: true, target_memory_refinement_error: .0002, target_kernel_error: 1e-6 } },
+    replay_request: { kind: "cest_memory", parameters: {}, expected_source_hash: result.source_hash } };
+  vi.mocked(runResearch).mockResolvedValue(memory);render(<ResearchPage />);
+  fireEvent.click(screen.getByRole("button", { name: "CEST / finite-memory MT" }));
+  expect(screen.getByLabelText("峰值 B1 (µT)")).toHaveValue(1);
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
+  await screen.findByText("有限 RF 与记忆核收敛");
+  expect(screen.getByText("3840 / 7680")).toBeInTheDocument();
+  expect(screen.getByText(/数值加密核对：通过/)).toBeInTheDocument();
+  expect(screen.getByText("目标未通过")).toBeInTheDocument();
+  expect(screen.getByText("Memory trace refinement target")).toBeInTheDocument();
+  expect(vi.mocked(runResearch).mock.calls[0][0]).toMatchObject({ kind: "cest_memory", parameters: { shape: "hann", steps_per_bin: 24 } });
+});
