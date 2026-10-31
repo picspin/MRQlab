@@ -275,3 +275,30 @@ def test_finite_memory_cest_search_cannot_change_priors_or_hide_convergence_fail
         assert client.post('/research/search',json={'kind':'cest_memory','candidates':[patch]}).status_code==422
     for patch in [{'steps_per_bin':True},{'orientation_order':64},{'scanner_export':True}]:
         assert client.post('/research/run',json={'kind':'cest_memory','parameters':patch}).status_code==422
+
+
+def test_quantum_mrs_full_density_tr_refinement_and_exact_replay():
+    r=client.post('/research/run',json={'kind':'mrs_quantum'})
+    assert r.status_code==200,r.text
+    data=r.json();result=data['result'];assert result['validation']['passed']
+    assert result['quantum_diagnostics']['timing']['adc_end_s']==.1585
+    assert len(result['simulations'])==8 and result['validation']['max_state_error']<1e-10
+    assert len(data['view']['curves'])==2 and 'Minimum retained signal fraction' in data['view']['metrics']
+    assert client.post('/research/run',json=data['replay_request']).json()['result_hash']==data['result_hash']
+    mismatch=client.post('/research/run',json={'kind':'mrs_quantum','parameters':{'basis_mode':'equilibrium'}}).json()
+    assert not mismatch['view']['validation']['passed'] and mismatch['result']['validation']['max_relative_amount_error']>.6
+
+
+def test_quantum_mrs_search_retains_saturation_and_timing_failures_and_fixed_priors():
+    request={'kind':'mrs_quantum','candidates':[{'repetition_s':.18},{'repetition_s':.3},{'repetition_s':.6},{'repetition_s':.1}]}
+    r=client.post('/research/search',json=request);assert r.status_code==200,r.text
+    data=r.json();assert data['best']['parameters']=={'repetition_s':.3}
+    assert not data['candidates'][0]['run']['view']['validation']['passed']
+    assert not data['candidates'][3]['feasible']
+    assert client.post('/research/search',json=data['replay_search']).json()['search_hash']==data['search_hash']
+    failed=client.post('/research/search',json={**request,'parameters':{'basis_mode':'equilibrium'}})
+    assert failed.status_code==200 and failed.json()['best'] is None
+    for patch in [{'basis_mode':'equilibrium'},{'basis_t1_scale':2.},{'preparation':'finite_dummies'},{'target_min_signal_fraction':.01},{'rf_steps':16}]:
+        assert client.post('/research/search',json={'kind':'mrs_quantum','candidates':[patch]}).status_code==422
+    for patch in [{'points':True},{'polarization':1.},{'repetition_s':.1},{'scanner_export':True}]:
+        assert client.post('/research/run',json={'kind':'mrs_quantum','parameters':patch}).status_code==422

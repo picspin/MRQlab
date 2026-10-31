@@ -40,7 +40,7 @@ The product center is an experiment (`ExperimentGraph`), compiled through three 
 ## Research design and replay workspace
 
 Open `/research` from the Research navigation entry with the local API running.
-This connects eleven research chains to editable designs, bounded simulation,
+This connects twelve research chains to editable designs, bounded simulation,
 finite candidate comparison, explicit validation and complete JSON records:
 
 | Research chain | Evidence and current fidelity |
@@ -53,6 +53,7 @@ finite candidate comparison, explicit validation and complete JSON records:
 | Signed Solomon CEST/MT relay | Distance/tau-derived donor-to-bridge cross-relaxation, bridge-to-water exchange and signed control contrasts |
 | Finite-memory CEST/MT | Complex finite-RF Green-function convolution, retained phase/gap history, regular zero offset and separate full-trace convergence/contrast gates |
 | PRESS volume fitting | Ideal coherence-path selection, finite RF, complex 3D quadrature and independent RF/grid/FOV target checks |
+| Quantum-relaxed MRS / TR | Local Lindblad density evolution during finite RF/ADC/recovery, trace-constrained periodic preparation, independent finer RF sample and explicit T1/saturation failures |
 | Flow/slice/gating | Persistent spins on prescribed through-plane trajectories, finite RF/Gz, known-trigger retrospective timing |
 | Joint CEST/MT/rNOE | Coupled liquid and semisolid pools, effective upfield rNOE, named exchange-off controls |
 | MRS basis fit | Small-spin density matrix, finite RF/J coupling, complex full-readout fit and mismatch validation |
@@ -80,7 +81,7 @@ restarts and is ignored by Git; full records can be exported/imported or managed
 with `python -m mrqlab_api.scientific_records`. Background references are context
 only and do not silently calibrate a model. Actual browser native JSON download,
 file-chooser import and complete replay are verified for the finite-memory CEST
-run and shared record flow; the remaining modality/CSV browser coverage is open.
+run, quantum-MRS search and shared record flow; the remaining modality/CSV browser coverage is open.
 CLI and HTTP persistence/replay are also checked.
 
 A measured-TSE record can now derive a
@@ -112,6 +113,15 @@ numerical refinement passes while its relay target fails; a higher-power point
 passes contrast targets but fails refinement. No search candidate qualifies.
 Independent augmented Bloch references, full CLI/HTTP and native browser JSON
 replay preserve these failures. Molecular priors remain authored.
+
+The [quantum-MRS extension](docs/research/quantum-mrs-coverage.md) replaces scalar
+relaxation within its separate homogeneous entry with independent-spin Lindblad
+baths and a complete finite-RF/ADC/recovery TR channel. A fully recovered basis
+biases the periodic synthetic sample by about 60.5%; a wrong-T1 basis can fit
+well and still misestimate amounts. The finite TR search retains a weak-signal
+failure and an acquisition-overlap failure, selecting .30 s only within this
+authored grid and its explicit signal/numerical gates. This quantum chain is not
+yet coupled to the separate three-dimensional PRESS localization model.
 
 See [research workspace evidence and gaps](docs/research/research-workbench-coverage.md).
 All accuracy statements apply to declared teaching models; there is no scanner

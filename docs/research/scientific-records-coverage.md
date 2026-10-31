@@ -240,3 +240,26 @@ The historical unavailability statements above remain evidence of their earlier
 anchors, not a current blocker for this tested path. It does not establish every
 modality-specific or CSV browser flow. Broader measured-data/uncertainty,
 attachment-origin, durable-receipt and cross-platform replay gaps remain open.
+
+## Quantum-relaxed MRS and complete TR search
+
+The [quantum-MRS continuation](quantum-mrs-coverage.md) adds a twelfth declared
+research kind under the existing record schema. Complete finite-RF/ADC/recovery
+channels, periodic/finite-dummy state provenance, full-node density checks and
+independent basis/sample RF refinement enter the retained payload. Its example
+search selects .30 s within an authored finite grid, preserving a .18-s retained-
+signal failure and .10-s acquisition-overlap failure. Wrong-T1 and equilibrium-
+basis controls remain explicit separate failed studies, not recalibrated records.
+
+Full regression is **930 Python / 116 frontend**, with TS/build passing.
+Independent evidence/CLI and actual HTTP create/read/full replay match complete
+record `c9ad8e7e2e8bf56c607c0df7204d06a29cf40ce33a6918684beeb2eacbaa319a`.
+Actual browser native research export/import replays all four candidates and the
+selection from a 7,261,721-byte JSON download. Browser recompute/save, actual
+record-link navigation, native scientific export/import and full replay preserve
+record `e1124d589c73ea30019371c1867f4864f85691fc3d8a4a36bf9348d144156f07`,
+including the failed/infeasible points and the original choice. Integrity,
+historical targets and current replay remain distinct. No console errors were
+captured; historical fixtures and earlier model/source claims were not rewritten.
+Molecular/measurement provenance, quantum–spatial PRESS coupling and the broader
+lab-to-clinical platform gaps remain unfinished.

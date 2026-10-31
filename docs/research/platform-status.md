@@ -26,15 +26,15 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 
 | Requirement | Current evidence | Status / missing evidence |
 |---|---|---|
-| Clinical question → pulse/design → physical simulation | Eleven backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
+| Clinical question → pulse/design → physical simulation | Twelve backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
 | High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators and echo-resolved radial TSE; measured intervals support fixed-prior stress cases and an exact-center two-global-T2 navigator with withheld echo checks | Historical fixed-prior corners fail; one navigated candidate passes the finite noiseless stress grid while another fails its residual budget. Noisy/coil/trajectory calibration, full echo-window physics and general voxel T2 inference remain incomplete |
 | Real flow / slice / gating | Pressure-driven Womersley shear/backflow, finite RF/Gz, causal interruption and a new actual bipolar/EPI point-ADC image chain with partial acquisitions and independent complex Bloch/Fourier checks | Default DIR images/velocity targets fail. Straight rigid pipe/fixed transverse centers only; measured calibration, general 3D/compliant flow, calibrated phase and realistic hardware/readout remain incomplete |
 | CEST MT/NOE | Effective-pool baseline, signed Solomon relay and finite-history generalized Bloch semisolid RF including zero offset, independent augmented Bloch references and full-trace convergence gates | Default relay target fails; contrast-passing high-power point fails refinement, so no design is selected. Measured molecular calibration, full multi-spin/Redfield relaxation and spatial joint imaging remain incomplete |
-| More complete MRS | 1–3 spin density matrices, finite RF/isotropic J, coherence-selected 3D PRESS volume fitting with separate RF/grid/FOV checks, center/J mismatch failures | Validated molecular library, full quantum relaxation, realistic field maps, measured spectra and clinical concentration calibration remain incomplete |
-| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Eleven entries include causal decisions, ADC completeness, image/velocity validity and failed-only searches. Actual CEST/record browser native JSON export/import/full replay passes; other modality/CSV browser coverage remains open |
-| All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | All eleven chains and measured TSE share immutable local multi-study SQLite records, complete source/runtime-pinned CLI/API replay and lossless portable snapshots; cross-platform replay, raw attachments and general derived multimodal workflows remain incomplete |
+| More complete MRS | 1–3 spin density helpers, finite RF/isotropic J, 3D PRESS quadrature and a separate local-Lindblad/full-TR quantum chain with independent Bloch/Kraus/ODE references and T1/saturation failures | Quantum relaxation/TR is not yet coupled to 3D PRESS. Validated molecular/Redfield library, realistic maps/noise, measured spectra and clinical concentration calibration remain incomplete |
+| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Twelve entries include causal decisions, ADC completeness, image/velocity validity and failed-only searches. Actual CEST run, quantum-MRS search and shared-record browser native JSON export/import/full replay pass; other modality/CSV coverage remains open |
+| All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | All twelve chains and measured TSE share immutable local multi-study SQLite records, complete source/runtime-pinned CLI/API replay and lossless portable snapshots; cross-platform replay, raw attachments and general derived multimodal workflows remain incomplete |
 | Submission content excluded | Inherited `docs/ismrm` matches 33 original manuscript-worktree files before project removal; original worktree and Git history retained; ignore rule prevents accidental untracked re-entry | Enforced in the current project snapshot; historical anchors intentionally remain immutable |
 | No push/PR/merge, B/C parked | Local commit chain, unchanged roadmap/locked catalog; API regression retains two A protocols | Preserved |
 
@@ -53,7 +53,7 @@ not silently copy manuscript content into the project or disturb live worktrees.
 
 ## Next evidence to obtain
 
-1. Extend the now-verified CEST/shared-record native JSON browser flow to the
+1. Extend the verified CEST/quantum-MRS/shared-record native JSON browser flow to the
    remaining modality-specific and CSV paths; retain verified CLI local delivery.
 2. Extend the shared scientific records and the measured-TSE → radial derivation
    with raw-data archives, general unit/uncertainty conventions and measured
@@ -170,6 +170,11 @@ The handoff's 16×16 3D stop typo is explicitly resolved as `data_residual`,
 [Integration evidence](handoff-noncartesian-integration.md) separates that exact-DFT
 reference from the later FINUFFT feature. Original TSE/non-Cartesian worktrees
 still point to `dac373b`/`9664125`; no worktree merge or cleanup was performed.
+
+Read-only reinspection on 2026-10-31 finds the handoff checkout at `2d1cfb0`,
+a documentation-only child of `e1574a8` filling that same 3D gridding value.
+Its untracked `.pi/` and handoff file are preserved; this later observation does
+not change the solver anchor or the integration evidence above.
 
 The eighth research entry now covers finite-RF PRESS [-1,+1,-1] coherence
 selection, complex 3D volume quadrature, explicit excitation rephasing and
@@ -389,3 +394,36 @@ they no longer describe this checked JSON path. Other modality/CSV browser tests
 measured molecular binding, full relaxation/spatial physics and earlier platform
 gaps remain open. The full goal stays active; B/C stay parked. No submission
 import, push, PR, merge, router change or workspace relocation occurred.
+
+## Quantum-relaxed MRS / full TR stage (2026-10-31)
+
+From `7fef144`, the twelfth research entry evolves complete small-spin densities
+under finite RF, chemical shift/J and independent local Lindblad baths, through
+every ADC dwell and the physical post-readout recovery. The full composed TR
+channel supplies a trace-constrained periodic state, with explicit finite-dummy
+alternatives, condition/residual and all-node physical-state checks. No scalar
+envelope, equilibrium reset, gain calibration, eigenvalue clipping or hidden
+timing overlap is used. The ideal independent-spin dephaser is explicitly distinct
+from a spatial crusher. The existing 3D PRESS chain is not silently upgraded.
+
+The [coverage report](quantum-mrs-coverage.md) and
+[independently recomputed evidence](examples/quantum-mrs-evidence.json) preserve
+separate 32→64 basis and 64→128 sample RF comparisons, full FID/basis/state/cycle
+identities, independent analytic Bloch, Kraus, Choi and coupled density-ODE tests.
+Default amount error **0.0000929760** passes, while fully recovered and wrong-T1
+bases fail at **0.6050918985** and **0.7851670354**. The latter has residual
+**0.0040118410**, illustrating why a good fit alone does not prove quantification.
+The .18-s TR retains only **.1239166322** of its fully recovered signal and fails
+the unchanged .2 target. The finite grid selects .30 s at **.2117922124**; .10 s
+is infeasible because complete ADC ends at .1585 s. This is not a clinical optimum.
+
+Regression is **930 Python / 116 frontend**, with TS/build passing. Independent
+full evidence, a new generic CLI process and actual HTTP save/read/full replay
+match the complete scientific search. Actual browser testing covers default run,
+equilibrium mismatch, all search failures, a 7.26-MB native download/file-chooser
+reimport and exact candidate/selection replay. Browser scientific-record save,
+native export/import and complete recomputation also match; console errors are
+absent. The quantum chain still needs 3D PRESS/crusher coupling, molecular and
+measured calibration, realistic field/noise models and uncertainty; earlier
+platform gaps remain open. The full goal stays active, B/C stay parked, and no
+submission import, push, PR, merge, router change or folder relocation occurred.

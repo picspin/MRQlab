@@ -214,3 +214,25 @@ it("separates finite-memory numerical convergence from failed CEST/NOE target st
   expect(screen.getByText("Memory trace refinement target")).toBeInTheDocument();
   expect(vi.mocked(runResearch).mock.calls[0][0]).toMatchObject({ kind: "cest_memory", parameters: { shape: "hann", steps_per_bin: 24 } });
 });
+
+it("shows quantum TR preparation and equilibrium-basis failure separately from numerical checks", async () => {
+  const quantum: ResearchRun = { ...result, kind: "mrs_quantum", result: { ...result.result, quantum_diagnostics: {
+    preparation: "periodic", basis_mode: "equilibrium", numerical_refinement_passed: true,
+    timing: { echo_time_s: .0305, adc_end_s: .1585, recovery_s: .4415, repetition_s: .6, adc_points: 256, adc_interval_s: .128 },
+    minimum_density_eigenvalue: .247, max_periodic_return_error: 1e-13,
+    components: [{ name: "teaching_singlet", authored_amount: .02, recovered_amount: .008, signal_fraction: .396 }],
+  } }, view: { ...result.view, validation: { passed: false, target_min_signal_fraction: .2, target_state_error: 1e-10 } },
+    replay_request: { kind: "mrs_quantum", parameters: { basis_mode: "equilibrium" }, expected_source_hash: result.source_hash } };
+  vi.mocked(runResearch).mockResolvedValue(quantum);render(<ResearchPage />);
+  fireEvent.click(screen.getByRole("button", { name: "MRS / quantum TR" }));
+  expect(screen.getByLabelText("重复时间 TR (s)")).toHaveValue(.6);
+  fireEvent.change(screen.getByLabelText("弛豫基组"), { target: { value: "equilibrium" } });
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
+  await screen.findByText("量子弛豫与重复采集");
+  expect(screen.getByText(/完整 TR 周期稳态.*数值核对通过/)).toBeInTheDocument();
+  expect(screen.getByText("目标未通过")).toBeInTheDocument();
+  expect(screen.getByText("Retained signal fraction minimum")).toBeInTheDocument();
+  expect(vi.mocked(runResearch).mock.calls[0][0]).toMatchObject({ kind: "mrs_quantum", parameters: { basis_mode: "equilibrium", rf_steps: 32 } });
+  fireEvent.change(screen.getByLabelText("弛豫基组"), { target: { value: "matched" } });
+  expect(screen.queryByText("量子弛豫与重复采集")).not.toBeInTheDocument();
+});

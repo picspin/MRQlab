@@ -1,0 +1,20 @@
+{
+  "context": {
+    "study_id": "quantum-tr-mrs-pilot",
+    "research_question": "Which authored TR candidate retains at least 20% of each fully recovered component while preserving verified finite-RF quantum dynamics and unbiased full-FID signal amounts?",
+    "target_rationale": "Require amount error <=0.05, full-complex-FID residual <=0.02, per-component retained signal norm >=0.2, RF refinement <=0.002 and physical/periodic density error <=1e-10. Choose the shortest TR only among candidates passing every unchanged gate.",
+    "assumptions": "Authored singlet and synthetic AB, local independent Lindblad baths, common equilibrium polarization, ideal product-basis dephasing at ADC end. No spatial PRESS/crusher, molecular Redfield, measured spectra, concentration calibration or scanner certification.",
+    "intended_use": "research"
+  },
+  "execution": {
+    "type": "search",
+    "kind": "mrs_quantum",
+    "parameters": {},
+    "candidates": [
+      { "repetition_s": 0.18 },
+      { "repetition_s": 0.3 },
+      { "repetition_s": 0.6 },
+      { "repetition_s": 0.1 }
+    ]
+  }
+}

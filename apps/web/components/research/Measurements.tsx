@@ -4,6 +4,7 @@ import styles from "../../app/research/research.module.css";
 
 const COLORS = ["#4fe3eb", "#ffb834", "#c7a9ef", "#f08e9a"];
 const TARGET_LABELS: Record<string, string> = {
+  target_state_error: "Density / periodic-state target", target_min_signal_fraction: "Retained signal fraction minimum",
   target_memory_refinement_error: "Memory trace refinement target", target_kernel_error: "Integrated memory-kernel target",
   target_velocity_rmse_m_s: "Velocity RMSE target (m/s)", target_frozen_image_error: "Complex frozen-reference NRMSE target",
   target_image_error: "Image NRMSE target", target_coefficient_error: "Component NRMSE target", target_data_residual: "Data residual target", target_min_contrast: "ROI magnitude contrast minimum", target_max_rf_energy: "RF energy proxy limit",

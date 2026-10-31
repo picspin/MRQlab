@@ -1,10 +1,11 @@
 export interface TriggerEvent { trigger: number; decision_s: number; preparation_s: number; readout_s: number; rr_estimate_s: number; scheduled: boolean; accepted: boolean; rejection: string | null; cancelled_s: number | null; }
-export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "flow_epi" | "cest" | "cest_solomon" | "cest_memory" | "mrs" | "mrs_press" | "radial_tse";
+export type ResearchKind = "tse" | "noncartesian" | "flow" | "pulsatile_flow" | "flow_epi" | "cest" | "cest_solomon" | "cest_memory" | "mrs" | "mrs_press" | "mrs_quantum" | "radial_tse";
 export interface ResearchRequest { kind: ResearchKind; parameters: Record<string, unknown>; expected_source_hash?: string; }
 export interface ResearchRun {
   kind: ResearchKind;
   result: { clinical_question: string; scope: string; gates?: TriggerEvent[]; readout_status?: { trigger: number; encoding_sign: number; adc_samples: number; expected_samples: number; completed: boolean; stage: string }[];
     memory_diagnostics?: { coarse_steps: number; refined_steps: number; rf_peak_uT: number; numerical_refinement_passed: boolean; normalized_trace_difference: number; lag_kernel_error: number; retained_history_s: number; inter_pulse_reset: boolean };
+    quantum_diagnostics?: { preparation: string; basis_mode: string; numerical_refinement_passed: boolean; timing: { echo_time_s: number; adc_end_s: number; recovery_s: number; repetition_s: number; adc_points: number; adc_interval_s: number }; minimum_density_eigenvalue: number; max_periodic_return_error: number; components: { name: string; authored_amount: number; recovered_amount: number; signal_fraction: number }[] };
     provenance: Record<string, unknown>; [key: string]: unknown };
   view: {
     images: { label: string; width: number; height: number; values: number[]; scale_group?: string }[];
@@ -77,6 +78,12 @@ export const STUDIES: Record<ResearchKind, Study> = {
     defaults: { b1_uT: 1, pulse_s: .02, gap_s: .04, n_pulses: 4, shape: "hann", phase_cycle_rad: [0], rf_bins: 16, steps_per_bin: 24 },
     fields: [{ key: "b1_uT", label: "峰值 B1 (µT)", step: .1 }, { key: "pulse_s", label: "单脉冲时长 (s)", step: .01 }, { key: "gap_s", label: "脉冲间隙 (s)", step: .01 }],
     candidates: [{ b1_uT: .5 }, { b1_uT: 1 }, { b1_uT: 2 }] },
+  mrs_quantum: { title: "MRS / quantum TR", question: "有限 RF、多自旋量子弛豫和重复 TR 饱和怎样影响完整复频谱的信号量？",
+    limit: "独立自旋 Lindblad 浴、显式有限 RF/ADC/恢复与理想独立去相位。T1/T2/J/极化为作者先验；未与三维 PRESS 选区耦合，不是分子 Redfield、实测校准或临床浓度。",
+    validation: "信号量误差 ≤5%，复 FID 残差 ≤2%，相对完全恢复的每分量信号范数 ≥20%；RF 加密差 ≤0.2%，密度矩阵与周期返回误差 ≤1e-10。仅在全部通过的有限候选中选择最短 TR。",
+    defaults: { echo_s: .03, repetition_s: .6, points: 256, dwell_s: .0005, preparation: "periodic", basis_mode: "matched", rf_steps: 32, refine_rf_steps: 64 },
+    fields: [{ key: "echo_s", label: "回波时间 (s)", step: .005 }, { key: "repetition_s", label: "重复时间 TR (s)", step: .1 }],
+    candidates: [{ repetition_s: .18 }, { repetition_s: .3 }, { repetition_s: .6 }, { repetition_s: .1 }] },
   mrs_press: { title: "PRESS / volume fit", question: "有限 RF 带宽和三维选区如何改变局域频谱？中心点基组会产生多大偏差？",
     limit: "PRESS [-1,+1,-1] 相干选择、三维复信号积分与扩展 FOV 检查。仍为教学 singlet/合成 AB、标量 T2；真实分子库、量子弛豫和扫描仪验证仍缺失。",
     validation: "更细网格样本的信号量误差 ≤5%，拟合残差 ≤2%，RF 加密检查 ≤0.2%，网格/FOV 检查各 ≤2%，选区外功率比例 ≤10%。",
