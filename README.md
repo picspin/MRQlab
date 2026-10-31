@@ -47,7 +47,7 @@ finite candidate comparison, explicit validation and complete JSON records:
 |---|---|
 | TSE image/PSF | Per-echo periodic EPG, complete ideal Cartesian line timeline, tissue PSFs |
 | Non-Cartesian inverse | Exact-DFT CGLS reference for small radial/stack-of-stars grids, unscaled amplitude and residual diagnostics |
-| Echo-resolved radial TSE | Known two-curve EPG temporal basis, complex inverse, separate component/image targets and constrained pulse search |
+| Echo-resolved radial TSE | Known two-curve EPG inverse; optional finite point-ADC T2/B0 and receive maps with an exact DFT reference, separate image/component targets and retained budget failures |
 | Pulsatile/causal DIR | Pressure-driven rigid-pipe Womersley flow, moving finite-RF spins and causal preparation interruption |
 | Flow / encoded EPI | Persistent moving spins, finite slice RF, bipolar moments, actual point-ADC k-space/images and explicit partial/aliased-pair failures |
 | Signed Solomon CEST/MT relay | Distance/tau-derived donor-to-bridge cross-relaxation, bridge-to-water exchange and signed control contrasts |
@@ -104,6 +104,16 @@ gradient phase and relaxation through the readout. It retains interrupted ADC
 prefixes and distinguishes images, complete opposite-sign pairs, gradient-moment
 references and instantaneous flow. Its default DIR targets fail; no failed-only
 search acquires an invented best design. The supplied pressure/phantom are authored.
+
+The [finite-ADC radial extension](docs/research/finite-adc-radial-coverage.md)
+propagates within-window T2/B0 and individual authored receive maps, with balanced
+ideal gradient moments and independent hard-RF/Bloch/coil checks of every sample.
+Its default budget exhausts work and selects no ADC duration. A separate explicit
+larger-budget, stricter-residual reference passes the same image/component targets;
+that does not relabel the default failure. This mode requires ideal hard 180°
+CPMG and exact DFT; field-aware fast NUFFT, measured map calibration and realistic
+switching remain gaps. Native browser full-search and scientific-record replay
+are verified for this finite-ADC flow as well.
 
 The [finite-memory CEST extension](docs/research/cest-memory-coverage.md) uses a
 time-domain generalized Bloch semisolid model with the signed Solomon relay.

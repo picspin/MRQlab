@@ -29,11 +29,11 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 | Clinical question → pulse/design → physical simulation | Twelve backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
-| High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators and echo-resolved radial TSE; measured intervals support fixed-prior stress cases and an exact-center two-global-T2 navigator with withheld echo checks | Historical fixed-prior corners fail; one navigated candidate passes the finite noiseless stress grid while another fails its residual budget. Noisy/coil/trajectory calibration, full echo-window physics and general voxel T2 inference remain incomplete |
+| High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators, measured-prior/navigated radial TSE and an exact finite-ADC hard-180° reference with T2/B0 and known receive maps | Finite-ADC default budget fails; an explicit larger-budget stricter-residual reference passes unchanged image/component targets. Variable-flip/finite-RF echo-window coherence, measured field/coil/trajectory calibration, noisy uncertainty and general voxel T2 inference remain incomplete |
 | Real flow / slice / gating | Pressure-driven Womersley shear/backflow, finite RF/Gz, causal interruption and a new actual bipolar/EPI point-ADC image chain with partial acquisitions and independent complex Bloch/Fourier checks | Default DIR images/velocity targets fail. Straight rigid pipe/fixed transverse centers only; measured calibration, general 3D/compliant flow, calibrated phase and realistic hardware/readout remain incomplete |
 | CEST MT/NOE | Effective-pool baseline, signed Solomon relay and finite-history generalized Bloch semisolid RF including zero offset, independent augmented Bloch references and full-trace convergence gates | Default relay target fails; contrast-passing high-power point fails refinement, so no design is selected. Measured molecular calibration, full multi-spin/Redfield relaxation and spatial joint imaging remain incomplete |
 | More complete MRS | 1–3 spin density helpers, finite RF/isotropic J, 3D PRESS quadrature and a separate local-Lindblad/full-TR quantum chain with independent Bloch/Kraus/ODE references and T1/saturation failures | Quantum relaxation/TR is not yet coupled to 3D PRESS. Validated molecular/Redfield library, realistic maps/noise, measured spectra and clinical concentration calibration remain incomplete |
-| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Twelve entries include causal decisions, ADC completeness, image/velocity validity and failed-only searches. Actual CEST run, quantum-MRS search and shared-record browser native JSON export/import/full replay pass; other modality/CSV coverage remains open |
+| Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Twelve entries include finite-ADC radial mode, causal decisions, ADC completeness, image/velocity validity and failed-only searches. CEST, quantum-MRS, finite-ADC radial and shared-record native JSON browser replay pass; other modality/CSV coverage remains open |
 | All verifiable and replayable | Source/result/search hashes, full run and candidate inputs, Python/NumPy versions, exact backend replay tests, source-change rejection | All twelve chains and measured TSE share immutable local multi-study SQLite records, complete source/runtime-pinned CLI/API replay and lossless portable snapshots; cross-platform replay, raw attachments and general derived multimodal workflows remain incomplete |
 | Submission content excluded | Inherited `docs/ismrm` matches 33 original manuscript-worktree files before project removal; original worktree and Git history retained; ignore rule prevents accidental untracked re-entry | Enforced in the current project snapshot; historical anchors intentionally remain immutable |
 | No push/PR/merge, B/C parked | Local commit chain, unchanged roadmap/locked catalog; API regression retains two A protocols | Preserved |
@@ -53,7 +53,7 @@ not silently copy manuscript content into the project or disturb live worktrees.
 
 ## Next evidence to obtain
 
-1. Extend the verified CEST/quantum-MRS/shared-record native JSON browser flow to the
+1. Extend the verified CEST/quantum-MRS/finite-ADC/shared-record native JSON flow to the
    remaining modality-specific and CSV paths; retain verified CLI local delivery.
 2. Extend the shared scientific records and the measured-TSE → radial derivation
    with raw-data archives, general unit/uncertainty conventions and measured
@@ -427,3 +427,41 @@ absent. The quantum chain still needs 3D PRESS/crusher coupling, molecular and
 measured calibration, realistic field/noise models and uncertainty; earlier
 platform gaps remain open. The full goal stays active, B/C stay parked, and no
 submission import, push, PR, merge, router change or folder relocation occurred.
+
+## Finite-ADC radial / B0 / receive-map stage (2026-10-31)
+
+From `998b612`, the existing radial TSE entry gains explicit finite point-ADC
+T2 decay and spatial B0 phase, individual complex receive channels and balanced
+ideal prephaser/readout/rewinder moments. This exact dense DFT reference requires
+hard 180-degree CPMG; unsupported variable flips, FINUFFT selection and timing
+overlaps fail explicitly. Authored field/receive maps are retained with units and
+hashes, without coil/RSS normalization or calibration. The two unrestricted
+complex component maps use a complete temporal SVD, no image support or gain fit.
+
+The [coverage report](finite-adc-radial-coverage.md) and
+[independently recomputed evidence](examples/finite-adc-radial-evidence.json)
+compare all raw samples against separate hard-RF rotations, physical gradient
+integration, T1/T2/B0 evolution and coil sums: default/complex-phase 2D cases each
+have 6,144 values, maximum absolute error about **1.19e-12**; a 3D case matches
+all 512 values. Complete forward/adjoint, odd/even kz and independent dense-LS
+tests cover arbitrary complex maps without spatial truth in the solver.
+
+The default 20-billion budget fails at image error **.0018707920**, component
+error **.0183800985**, residual **6.50136e-8**, with a visible work stop. Raising
+only the budget to 50 billion reaches residual **9.96574e-11** yet component
+error **1.45323e-6** still fails. A separate **stricter 1e-12** residual target
+and explicit larger allowance recover components to **7.64134e-9**, preserving
+the original 1e-6 image/component gates. Default frozen-ADC control error is
+**.3847829515**. Wrong-field, complex-phase budget and 3D undersampling failures
+remain preserved. No default ADC-duration candidate qualifies for selection.
+
+Regression is **954 Python / 117 frontend**, with TS/build passing. Independent
+evidence, a new generic CLI process and actual HTTP create/read/full replay match
+the entire failed scientific search. Browser native research download/reimport
+and all-candidate replay, scientific save/link/export/import/full replay also
+match; the physical target report stays FAIL while integrity/replay pass. This
+extends a current research mode, leaving twelve entries and the locked A catalog
+unchanged. Variable-flip/finite-RF/window physics, calibrated maps/trajectory,
+noise/whitening/uncertainty, scalable field-aware inversion and earlier platform
+gaps remain unfinished. The full goal stays active, B/C stay parked; no submission
+import, push, PR, merge, router change or folder relocation occurred.

@@ -263,3 +263,24 @@ historical targets and current replay remain distinct. No console errors were
 captured; historical fixtures and earlier model/source claims were not rewritten.
 Molecular/measurement provenance, quantum–spatial PRESS coupling and the broader
 lab-to-clinical platform gaps remain unfinished.
+
+## Finite-ADC radial mode under the existing schema
+
+The [finite-ADC continuation](finite-adc-radial-coverage.md) extends the existing
+`radial_tse` kind with explicit point-ADC offsets, 2D/3D field/receive maps,
+complex per-coil samples, gradient timelines, independent component/echo images
+and every inverse/frozen-control stop. It does not add a scanner execution path
+or change historical examples. Its default ADC search retains three work-budget
+failures, one RF/ADC overlap failure and no selection. A separate stronger
+numerical reference is recorded without relabelling the default search.
+
+Regression is **954 Python / 117 frontend**, TS/build pass. Full independent
+evidence/CLI and actual HTTP save/read/replay match scientific search
+`c67469fda9a00aec6653e18db559fe5556eabad8043a287ad58aa1ce756234e4`.
+Actual browser export/file-chooser import replays all four candidates and the
+absent choice from a 13,176,510-byte research JSON. Browser recompute/save, actual
+record-link navigation, native scientific export/import and full computation
+replay preserve `b04c35150977520efb2c51a1fac7b53bf9556d2b37fb347717d1fdd5811e3dae`,
+while historical model targets remain failed. Field/coil origin is authored,
+not measured calibration. Broader physical fidelity, attachment origin,
+measurement/uncertainty bindings and platform requirements remain open.

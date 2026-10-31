@@ -1,0 +1,20 @@
+{
+  "context": {
+    "study_id": "finite-adc-radial-pilot",
+    "research_question": "Can a known-field/known-coil finite-ADC radial TSE reference preserve unscaled complex images and components under the declared work and physical timing limits?",
+    "target_rationale": "Keep complex image/component errors <=1e-6, fresh data residual <=1e-10, magnitude contrast >=0.005 and RF proxy <=200. Compare ADC durations at the same 20-billion work allowance; preserve failures instead of changing image targets or fitting gains.",
+    "assumptions": "Authored B0 and receive sensitivity maps, ideal hard 180-degree CPMG, balanced rectangular gradient moments, point ADC and periodic echo-center EPG amplitudes with analytic free Bloch evolution. Not measured calibration, full finite-RF/coherence simulation, fast NUFFT or scanner/clinical certification.",
+    "intended_use": "research"
+  },
+  "execution": {
+    "type": "search",
+    "kind": "radial_tse",
+    "parameters": { "readout_model": "finite_adc" },
+    "candidates": [
+      { "adc_duration_s": 0.001 },
+      { "adc_duration_s": 0.002 },
+      { "adc_duration_s": 0.004 },
+      { "adc_duration_s": 0.008 }
+    ]
+  }
+}

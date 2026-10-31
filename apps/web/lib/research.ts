@@ -5,6 +5,7 @@ export interface ResearchRun {
   kind: ResearchKind;
   result: { clinical_question: string; scope: string; gates?: TriggerEvent[]; readout_status?: { trigger: number; encoding_sign: number; adc_samples: number; expected_samples: number; completed: boolean; stage: string }[];
     memory_diagnostics?: { coarse_steps: number; refined_steps: number; rf_peak_uT: number; numerical_refinement_passed: boolean; normalized_trace_difference: number; lag_kernel_error: number; retained_history_s: number; inter_pulse_reset: boolean };
+    readout?: { adc_duration_s: number; dwell_s: number; peak_gradient_t_m: number; coils: number; field_origin: string };
     quantum_diagnostics?: { preparation: string; basis_mode: string; numerical_refinement_passed: boolean; timing: { echo_time_s: number; adc_end_s: number; recovery_s: number; repetition_s: number; adc_points: number; adc_interval_s: number }; minimum_density_eigenvalue: number; max_periodic_return_error: number; components: { name: string; authored_amount: number; recovered_amount: number; signal_fraction: number }[] };
     provenance: Record<string, unknown>; [key: string]: unknown };
   view: {
@@ -37,9 +38,9 @@ export const STUDIES: Record<ResearchKind, Study> = {
     fields: [{ key: "spokes", label: "径向 spoke 数", step: 2 }, { key: "inverse_max_iterations", label: "迭代上限", step: 100 }],
     candidates: [{ spokes: 2 }, { spokes: 24 }, { spokes: 48 }] },
   radial_tse: { title: "Radial TSE / echo model", question: "逐回波幅度怎样改变径向 TSE 图像？能否在 RF 与时长限制内恢复声明回波的对比？",
-    limit: "两条已知 EPG 时间曲线，两个未知复系数图；逐 spoke 回波幅度在理想 ADC 内恒定。未估计 T2，没有真实梯度、线圈或实测校准。静态模型作为失配对照。",
+    limit: "回波中心模式使用已知 EPG 曲线和精确 DFT / FINUFFT。有限 ADC 模式以硬 180° CPMG、点采样、作者 B0/线圈图和理想平衡梯度计算窗内演化，仅提供精确 DFT 参考；没有实测校准、完整有限 RF 或真实梯度切换。",
     validation: "图像与组分 NRMSE 各 ≤1e-6，数据残差 ≤1e-10，幅度 ROI 对比 ≥0.005，RF 能量代理 ≤200；仅从通过全部目标的候选中选择低 RF 设计。",
-    defaults: { echoes: 4, spokes: 96, points: 32, backend: "exact", refocusing_angle: 180, refocusing_end_angle: 180, max_work: 20000000000 },
+    defaults: { echoes: 4, spokes: 96, points: 32, backend: "exact", readout_model: "echo_center", refocusing_angle: 180, refocusing_end_angle: 180, max_work: 20000000000 },
     fields: [{ key: "echoes", label: "回波串长度", step: 2 }, { key: "refocusing_angle", label: "起始重聚角 (°)", step: 10 }, { key: "refocusing_end_angle", label: "末次重聚角 (°)", step: 10 }],
     candidates: [{ refocusing_angle: 180, refocusing_end_angle: 180 }, { refocusing_angle: 140, refocusing_end_angle: 110 }, { refocusing_angle: 100, refocusing_end_angle: 80 }] },
   flow: { title: "Flow / slice / gates", question: "连续流入、有限选层 RF 和心动时机如何影响血液抑制？",
@@ -97,3 +98,5 @@ export const STUDIES: Record<ResearchKind, Study> = {
     fields: [{ key: "echo_s", label: "回波时间 (s)", step: .005 }, { key: "basis_j_hz", label: "基组 J (Hz)", step: 1 }],
     candidates: [{ echo_s: .02 }, { echo_s: .03 }, { echo_s: .06 }] },
 };
+
+export const FINITE_ADC_CANDIDATES = [{ adc_duration_s: .001 }, { adc_duration_s: .002 }, { adc_duration_s: .004 }, { adc_duration_s: .008 }];

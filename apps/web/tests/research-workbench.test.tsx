@@ -236,3 +236,18 @@ it("shows quantum TR preparation and equilibrium-basis failure separately from n
   fireEvent.change(screen.getByLabelText("弛豫基组"), { target: { value: "matched" } });
   expect(screen.queryByText("量子弛豫与重复采集")).not.toBeInTheDocument();
 });
+
+it("keeps finite ADC failures and selects the declared duration grid without changing priors", async () => {
+  const finite: ResearchRun = { ...result, kind: "radial_tse", result: { ...result.result, readout: {
+    adc_duration_s: .002, dwell_s: .0000625, peak_gradient_t_m: .00156, coils: 2, field_origin: "authored",
+  } }, view: { ...result.view, validation: { passed: false } }, replay_request: { kind: "radial_tse", parameters: { readout_model: "finite_adc" } } };
+  vi.mocked(searchResearch).mockResolvedValue({ best: null, candidates: [{ parameters: { adc_duration_s: .001 }, feasible: true, loss: 102, run: finite }],
+    search_hash: "c".repeat(64), objective: "RF cost among passing points", replay_search: { kind: "radial_tse", parameters: { readout_model: "finite_adc" }, candidates: [{ adc_duration_s: .001 }] } });
+  render(<ResearchPage />);fireEvent.click(screen.getByRole("button", { name: "Radial TSE / echo model" }));
+  fireEvent.change(screen.getByLabelText("径向读出模型"), { target: { value: "finite_adc" } });
+  fireEvent.click(screen.getByRole("button", { name: "比较候选设计" }));
+  await screen.findByText("有限 ADC、B0 与接收线圈");
+  expect(screen.getByText("目标未通过")).toBeInTheDocument();
+  expect(screen.getByText("候选可执行，但没有设计通过全部目标。展示首个可执行候选。")).toBeInTheDocument();
+  expect(vi.mocked(searchResearch).mock.calls[0][0]).toMatchObject({ parameters: { backend: "exact", readout_model: "finite_adc" }, candidates: [{ adc_duration_s: .001 }, { adc_duration_s: .002 }, { adc_duration_s: .004 }, { adc_duration_s: .008 }] });
+});

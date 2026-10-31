@@ -302,3 +302,26 @@ def test_quantum_mrs_search_retains_saturation_and_timing_failures_and_fixed_pri
         assert client.post('/research/search',json={'kind':'mrs_quantum','candidates':[patch]}).status_code==422
     for patch in [{'points':True},{'polarization':1.},{'repetition_s':.1},{'scanner_export':True}]:
         assert client.post('/research/run',json={'kind':'mrs_quantum','parameters':patch}).status_code==422
+
+
+def test_finite_adc_radial_api_retains_multicoil_data_and_failed_work_budget():
+    response=client.post('/research/run',json={'kind':'radial_tse','parameters':{'readout_model':'finite_adc'}})
+    assert response.status_code==200,response.text
+    data=response.json();r=data['result'];assert not r['validation']['passed']
+    assert len(r['samples'])==2 and len(r['samples'][0])==3072
+    assert r['solvers'][0]['stop_reason']=='max_work'
+    assert data['view']['images'][-1]['label']=='Frozen-ADC mismatch control'
+    assert client.post('/research/run',json=data['replay_request']).json()['result_hash']==data['result_hash']
+    for patch in [{'backend':'finufft'},{'refocusing_angle':140.},{'adc_duration_s':.008},{'coils_ri':[1.]}]:
+        assert client.post('/research/run',json={'kind':'radial_tse','parameters':{'readout_model':'finite_adc',**patch}}).status_code==422
+
+
+def test_finite_adc_radial_search_preserves_gradient_timing_and_work_failures():
+    response=client.post('/research/search',json={'kind':'radial_tse','parameters':{'readout_model':'finite_adc'},
+        'candidates':[{'adc_duration_s':.001},{'adc_duration_s':.002},{'adc_duration_s':.008}]})
+    assert response.status_code==200,response.text
+    r=response.json();assert r['best'] is None
+    assert r['candidates'][0]['feasible'] and r['candidates'][1]['feasible'] and not r['candidates'][2]['feasible']
+    assert client.post('/research/search',json=r['replay_search']).json()['search_hash']==r['search_hash']
+    for patch in [{'field_scale_hz':0.},{'coil_count':1},{'readout_model':'echo_center'},{'basis_field_scale':0.}]:
+        assert client.post('/research/search',json={'kind':'radial_tse','parameters':{'readout_model':'finite_adc'},'candidates':[patch]}).status_code==422

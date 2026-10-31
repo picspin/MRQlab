@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { runResearch, searchResearch } from "../../lib/api";
-import { ResearchKind, ResearchRequest, ResearchRun, ResearchSearch, STUDIES } from "../../lib/research";
+import { ResearchKind, ResearchRequest, ResearchRun, ResearchSearch, STUDIES, FINITE_ADC_CANDIDATES } from "../../lib/research";
 import styles from "./research.module.css";
 import Link from "next/link";
 import Measurements from "../../components/research/Measurements";
@@ -40,6 +40,7 @@ export default function ResearchPage() {
     try { edit(JSON.stringify({ ...parse(), [key]: value === "" ? null : Number(value) }, null, 2)); }
     catch { setError("先修正完整参数中的 JSON，再修改数值。"); }
   }
+  const candidates = kind === "radial_tse" && field("readout_model") === "finite_adc" ? FINITE_ADC_CANDIDATES : study.candidates;
   async function execute(mode: "run" | "search" | "replay" | "replay-search") {
     pending.current?.abort(); const control = new AbortController(); pending.current = control;
     const id = ++generation.current; setBusy(true); setError(""); setMessage("");
@@ -47,7 +48,7 @@ export default function ResearchPage() {
     try {
       const request: ResearchRequest = mode === "replay" && original ? original.replay_request : { kind, parameters: parse(), expected_source_hash: pin };
       if (mode === "search" || mode === "replay-search") {
-        const searchRequest = mode === "replay-search" && search ? search.replay_search : importedSearch?.request ?? { ...request, candidates: study.candidates };
+        const searchRequest = mode === "replay-search" && search ? search.replay_search : importedSearch?.request ?? { ...request, candidates };
         const expectedSearch = mode === "replay-search" ? search?.search_hash : importedSearch?.hash;
         const response = await searchResearch(searchRequest, control.signal);
         if (generation.current !== id) return;
@@ -100,12 +101,14 @@ export default function ResearchPage() {
         <h2>问题与设计</h2><p>{study.question}</p>
         {kind === "noncartesian" && <label>重建方法<select aria-label="重建方法" value={field("reconstruction")} onChange={event => { try { edit(JSON.stringify({ ...parse(), reconstruction: event.target.value }, null, 2)); } catch { setError("先修正完整参数 JSON。"); } }}><option value="cgls">精确 DFT / CGLS（参考）</option><option value="nufft_cgls">FINUFFT / CGLS（需可选依赖）</option><option value="gridding">线性 gridding（近似）</option></select></label>}
         {kind === "radial_tse" && <label>傅里叶后端<select aria-label="傅里叶后端" value={field("backend")} onChange={event => { try { edit(JSON.stringify({ ...parse(), backend: event.target.value }, null, 2)); } catch { setError("先修正完整参数 JSON。"); } }}><option value="exact">精确 DFT（参考）</option><option value="finufft">FINUFFT（需可选依赖，检查预算）</option></select></label>}
+        {kind === "radial_tse" && <label>径向读出模型<select aria-label="径向读出模型" value={field("readout_model")} onChange={event => { try { edit(JSON.stringify({ ...parse(), readout_model: event.target.value }, null, 2)); } catch { setError("先修正完整参数 JSON。"); } }}><option value="echo_center">回波中心幅度</option><option value="finite_adc">有限 ADC / 已知 B0 与线圈</option></select></label>}
+        {kind === "radial_tse" && field("readout_model") === "finite_adc" && <p>有限 ADC 模式只支持精确 DFT 与硬 180° 重聚脉冲；参数不会自动替换。完整 JSON 可设置 adc_duration_s、field_scale_hz、coil_count 及作者图。默认工作预算可能不足，失败结果仍保留。</p>}
         {kind === "mrs_press" && <label>拟合基组<select aria-label="拟合基组" value={field("basis_mode")} onChange={event => { try { edit(JSON.stringify({ ...parse(), basis_mode: event.target.value }, null, 2)); } catch { setError("先修正完整参数 JSON。"); } }}><option value="volume">三维体积积分</option><option value="center">中心点（失配对照）</option></select></label>}
         {kind === "mrs_quantum" && <label>弛豫基组<select aria-label="弛豫基组" value={field("basis_mode")} onChange={event => { try { edit(JSON.stringify({ ...parse(), basis_mode: event.target.value }, null, 2)); } catch { setError("先修正完整参数 JSON。"); } }}><option value="matched">匹配实际准备与 TR</option><option value="equilibrium">完全恢复（失配对照）</option></select></label>}
         {study.fields.map(input => <label key={input.key}>{input.label}<input type="number" step={input.step} value={field(input.key)} placeholder="使用模型默认值" onChange={event => update(input.key, event.target.value)} /></label>)}
         <details><summary>完整参数与自定义体模</summary><p>未提供的值使用模型默认值。可编辑 RF、组织、目标、预算与体模；服务器验证所有输入。</p><textarea aria-label="完整参数 JSON" rows={15} value={parameters} onChange={event => edit(event.target.value)} spellCheck={false} /></details>
         <div className={styles.actions}><button disabled={busy} onClick={() => void execute("run")}>{busy ? "计算中…" : pin ? "运行导入回放" : "运行仿真"}</button><button disabled={busy} onClick={() => void execute("search")}>{importedSearch ? "回放导入候选比较" : "比较候选设计"}</button></div>
-        <details><summary>搜索网格</summary><p>优化仅比较以下候选，按模型声明的损失选择。目标通过与可执行性分别报告。</p><pre>{JSON.stringify(study.candidates, null, 2)}</pre></details>
+        <details><summary>搜索网格</summary><p>优化仅比较以下候选，按模型声明的损失选择。目标通过与可执行性分别报告。</p><pre>{JSON.stringify(candidates, null, 2)}</pre></details>
         <div className={styles.limits}><h3>默认验证目标</h3><p>{study.validation}</p><h3>模型边界与缺口</h3><p>{study.limit}</p></div>
         <label className={styles.import}>导入回放记录<input type="file" accept="application/json,.json" onChange={event => void importRecord(event.target.files?.[0])} /></label>
       </section>
@@ -120,6 +123,11 @@ export default function ResearchPage() {
             <p>中断前的样本保留；缺失 k 空间不补零生成图像。流速是完整异号复图像的包裹相位差，必须结合信号有效性图；不是单个时刻的直接流速测量。</p>
             {run.view.validation.completed_encoding_pairs === 0 && <p>没有完整异号编码对；未生成流速或流量测量。</p>}
             <div className={styles.scroll}><table><thead><tr><th>触发编号</th><th>编码极性</th><th>ADC 样本 / 完整网格</th><th>完成图像</th><th>停止阶段</th></tr></thead><tbody>{run.result.readout_status.map(row => <tr key={row.trigger}><td>{row.trigger + 1}</td><td>{row.encoding_sign > 0 ? "+" : "−"}</td><td>{row.adc_samples} / {row.expected_samples}</td><td>{row.completed ? "是" : "否"}</td><td>{row.stage}</td></tr>)}</tbody></table></div>
+          </section>}
+          {kind === "radial_tse" && run.result.readout && <section className={styles.search}><h3>有限 ADC、B0 与接收线圈</h3>
+            <p>精确 DFT 参考；每个点样本传播窗内 T2 与空间 B0 相位，并保留各线圈复数信号。作者场图与线圈图没有经过实测校准。</p>
+            <dl><dt>ADC 窗 / dwell (s)</dt><dd>{format(run.result.readout.adc_duration_s)} / {format(run.result.readout.dwell_s)}</dd><dt>线圈数</dt><dd>{run.result.readout.coils}</dd><dt>理想梯度峰值 (T/m)</dt><dd>{format(run.result.readout.peak_gradient_t_m)}</dd></dl>
+            <p>冻结 ADC 对照使用同一批样本和接收图，仅忽略窗内 B0/T2 演化。全部复数组分、场图、线圈图、梯度时序和失败停机原因保存在记录中。</p>
           </section>}
           {kind === "mrs_quantum" && run.result.quantum_diagnostics && <section className={styles.search}><h3>量子弛豫与重复采集</h3>
             <p>准备：{run.result.quantum_diagnostics.preparation === "periodic" ? "完整 TR 周期稳态" : "有限次 dummy 扫描"}；基组：{run.result.quantum_diagnostics.basis_mode === "matched" ? "匹配实际准备与 TR" : "完全恢复（失配对照）"}。数值核对{run.result.quantum_diagnostics.numerical_refinement_passed ? "通过" : "未通过"}；信号量、残差和保留信号目标单独判定。</p>

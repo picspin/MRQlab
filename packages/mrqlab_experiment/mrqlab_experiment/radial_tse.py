@@ -27,7 +27,16 @@ def run_radial_tse(labels, *, echoes=4, spokes=96, points=32, echo_spacing_s=.00
                    max_samples=24576, max_work=20000000000, max_memory_bytes=134217728,
                    max_duration_s=100., target_image_error=1e-6,
                    target_coefficient_error=1e-6, target_min_contrast=.005,
-                   target_max_rf_energy=200., experiment=None):
+                   target_max_rf_energy=200., experiment=None,
+                   readout_model='echo_center',adc_duration_s=.002,fov_m=.24,prephaser_s=.0005,
+                   field_scale_hz=80.,coil_count=2,field_hz=None,coils_ri=None,basis_field_scale=1.,max_gradient_t_m=.08):
+    if readout_model=='finite_adc':
+        readout_inputs=locals().copy()
+        from .radial_readout import run_finite_adc_radial_tse
+        return run_finite_adc_radial_tse(**readout_inputs)
+    if readout_model!='echo_center': raise ValueError('echo_center or finite_adc readout model required')
+    if field_hz is not None or coils_ri is not None or adc_duration_s!=.002 or fov_m!=.24 or prephaser_s!=.0005 or field_scale_hz!=80. or coil_count!=2 or basis_field_scale!=1. or max_gradient_t_m!=.08:
+        raise ValueError('finite ADC/field/coil overrides require readout_model=finite_adc')
     sources = _checked_sources()
     labels = np.asarray(labels)
     if (labels.ndim not in (2,3) or labels.shape[-1]!=labels.shape[-2] or
@@ -142,7 +151,7 @@ def run_radial_tse(labels, *, echoes=4, spokes=96, points=32, echo_spacing_s=.00
                     adc_start_s=float(offset+(echo_for_spoke[i]+1)*echo_spacing_s),
                     adc_end_s=float(offset+(echo_for_spoke[i]+1)*echo_spacing_s+.002),samples=points,dwell_s=.002/points,
                     tissue_weights=truth_weights[:,echo_for_spoke[i]].tolist()) for i in indices]))
-    inputs=dict(labels=labels.tolist(),echoes=echoes,spokes=spokes,points=points,echo_spacing_s=echo_spacing_s,
+    inputs=dict(labels=labels.tolist(),readout_model='echo_center',echoes=echoes,spokes=spokes,points=points,echo_spacing_s=echo_spacing_s,
         tr_s=tr_s,t2_s=list(t2_s),basis_t2_s=list(basis_t2_s),refocusing_angle=refocusing_angle,
         refocusing_end_angle=refocusing_end_angle,echo_order=echo_order,display_echo=display_echo,backend=backend,
         inverse_max_iterations=inverse_max_iterations,inverse_tolerance=inverse_tolerance,nufft_eps=nufft_eps,

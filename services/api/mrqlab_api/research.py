@@ -72,6 +72,16 @@ class NoncartesianParameters(StrictParameters):
 
 
 class RadialTSEParameters(StrictParameters):
+    readout_model: Literal['echo_center','finite_adc']='echo_center'
+    adc_duration_s: float=Field(default=.002,ge=.0001,le=.02)
+    fov_m: float=Field(default=.24,ge=.05,le=1.)
+    prephaser_s: float=Field(default=.0005,ge=.00005,le=.005)
+    field_scale_hz: float=Field(default=80.,ge=-1000.,le=1000.)
+    coil_count: int=Field(default=2,ge=1,le=4)
+    field_hz: list | None=None
+    coils_ri: list | None=None
+    basis_field_scale: float=Field(default=1.,ge=0,le=2.)
+    max_gradient_t_m: float=Field(default=.08,gt=0,le=.1)
     labels: list | None=None
     echoes: int=Field(default=4,ge=2,le=16)
     spokes: int=Field(default=96,ge=4,le=192)
@@ -405,7 +415,7 @@ def present(kind,result):
             for preview in images: preview['scale_group']='echo'
             image=np.asarray(result['static_control']['image']).real
             if image.ndim==3: image=image[len(image)//2]
-            images.append(dict(label='Static-model mismatch control',scale_group='static_control',width=image.shape[1],height=image.shape[0],values=image.ravel().tolist()))
+            images.append(dict(label='Frozen-ADC mismatch control' if 'readout' in result else 'Static-model mismatch control',scale_group='static_control',width=image.shape[1],height=image.shape[0],values=image.ravel().tolist()))
     elif kind=='flow_epi':
         if result['images']:
             frame=result['images'][-1]
@@ -490,7 +500,7 @@ def run_research(request: RunRequest): return execute(request,checked_source_has
 def search_research(request: SearchRequest):
     fingerprint=checked_source_hash()
     if request.expected_source_hash and request.expected_source_hash!=fingerprint: raise HTTPException(409,'Replay source changed')
-    if request.kind=='radial_tse' and any(set(patch)-{'echoes','echo_spacing_s','tr_s','refocusing_angle','refocusing_end_angle','echo_order'} for patch in request.candidates):
+    if request.kind=='radial_tse' and any(set(patch)-{'echoes','echo_spacing_s','tr_s','refocusing_angle','refocusing_end_angle','echo_order','adc_duration_s','prephaser_s'} for patch in request.candidates):
         raise HTTPException(422,'Radial TSE search varies pulse/echo schedule only; tissue priors, basis assumptions, targets and numerical resolution remain fixed.')
     if request.kind=='mrs_press' and any(set(patch)-{'echo_s','rf_duration_s'} for patch in request.candidates):
         raise HTTPException(422,'PRESS design search varies pulse timing only; basis, molecular priors and numerical resolution remain fixed.')
