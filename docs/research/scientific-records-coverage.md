@@ -284,3 +284,25 @@ replay preserve `b04c35150977520efb2c51a1fac7b53bf9556d2b37fb347717d1fdd5811e3da
 while historical model targets remain failed. Field/coil origin is authored,
 not measured calibration. Broader physical fidelity, attachment origin,
 measurement/uncertainty bindings and platform requirements remain open.
+
+## Conditional measured-velocity flow records (2026-11-01)
+
+From `fdbad1c`, `measured_flow` adds actual velocity dataset consumption to the
+same envelope/store/CLI/API. It retains exact imported CSV bytes and parsed-row
+consistency, explicit origin/units/clock priors, conditional pressure covariance,
+independent holdout and every nominal/eight-corner coarse/fine DIR simulation.
+Seven stages add raw velocity data and conditional pressure calibration. No
+record integrity check authenticates data origin or substitutes for computation.
+
+The [coverage report](measured-flow-coverage.md) preserves default calibration
+and numerical success alongside both failed physical designs and null selection.
+Independent processes and CLI full replay match record
+`8091518e480208a74abd2b942fb654bd8ca7feeb95026a55d4a06426c73069a2`.
+Actual browser CSV export/chooser import, local save, complete recalculation,
+native scientific-record export/chooser import and full replay also match.
+Its separate context produces record
+`8330a7235c7d80e8424cb87868fe81b6a2d4eced1b522b84606806ee2e9da8b5`,
+with identical complete payload
+`376df454d1a71364c5bdfab6c221ffc2e882bf58d097d57a0696bca61c28df20`.
+Regression is **977 Python / 124 frontend**, TS/build pass. Synthetic origin,
+conditional rigid-pipe assumptions and all wider platform gaps stay explicit.

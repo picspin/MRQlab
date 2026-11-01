@@ -8,7 +8,7 @@ import { DeriveRadialStudy, DerivedRadialEvidence } from "../../../components/re
 import styles from "../research.module.css";
 
 const EMPTY: ScientificList = { total: 0, offset: 0, limit: 20, records: [] };
-const STAGES: Record<string, string> = { question: "研究问题", parent_measurement_record: "父测量记录", design_and_inputs: "设计与输入", source_and_runtime: "源码与环境", computed_execution: "计算与候选", reported_validation: "目标验证" };
+const STAGES: Record<string, string> = { question: "研究问题", raw_velocity_measurements: "原始速度测量", conditional_pressure_calibration: "条件压力校准", parent_measurement_record: "父测量记录", design_and_inputs: "设计与输入", source_and_runtime: "源码与环境", computed_execution: "计算与候选", reported_validation: "目标验证" };
 export default function ScientificRecordsPage() {
   const [filter, setFilter] = useState("");
   const [listing, setListing] = useState(EMPTY);

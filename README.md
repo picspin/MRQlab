@@ -115,6 +115,14 @@ CPMG and exact DFT; field-aware fast NUFFT, measured map calibration and realist
 switching remain gaps. Native browser full-search and scientific-record replay
 are verified for this finite-ADC flow as well.
 
+The [measured-velocity flow study](docs/research/measured-flow-coverage.md) retains
+raw CSV bytes, calibrates conditional Womersley pressure on calibration data,
+checks independent acquisitions and propagates pressure uncertainty through
+finite-slice RF and causal DIR. `/research/flow-study` saves the complete shared
+record. Numerical refinement passes for the default synthetic example, but both
+physical design candidates fail; no design is selected. Geometry, fluid properties,
+clock and tissue relaxation remain explicit priors.
+
 The [finite-memory CEST extension](docs/research/cest-memory-coverage.md) uses a
 time-domain generalized Bloch semisolid model with the signed Solomon relay.
 It retains shaped RF, complex phase and whole pulse/gap history, including zero

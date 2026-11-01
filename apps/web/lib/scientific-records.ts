@@ -1,6 +1,6 @@
 import type { ResearchRequest, ResearchSearch, ResearchRun } from "./research";
 import type { StudyInput } from "./lab-study";
-export type ScientificExecution = ({ type: "run" } & ResearchRequest) | ({ type: "search" } & ResearchSearch["replay_search"]) | { type: "measured_tse"; study: StudyInput } | { type: "calibrated_radial_tse"; parent_record_sha256: string; parent_record?: ScientificRecord; study: Record<string, unknown> };
+export type ScientificExecution = ({ type: "run" } & ResearchRequest) | ({ type: "search" } & ResearchSearch["replay_search"]) | { type: "measured_tse"; study: StudyInput } | { type: "measured_flow"; study: import("./flow-study").FlowStudyInput } | { type: "calibrated_radial_tse"; parent_record_sha256: string; parent_record?: ScientificRecord; study: Record<string, unknown> };
 export interface ScientificPlan {
   context: { study_id: string; research_question: string; target_rationale: string; assumptions?: string; intended_use?: "teaching" | "research" };
   execution: ScientificExecution; expected_execution_hash?: string;

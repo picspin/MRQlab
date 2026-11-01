@@ -1,0 +1,365 @@
+{
+  "context": {
+    "study_id": "synthetic-velocity-dir-1",
+    "research_question": "How do velocity-calibrated pressure and its conditional uncertainty change finite-slice DIR suppression under causal cardiac triggering?",
+    "target_rationale": "Use independent acquisitions for pressure holdout; preserve blood <=0.1, wall >=0.7 and observable refinement <=0.01 across nominal plus eight pressure corners.",
+    "assumptions": "Rigid straight Newtonian pipe, known geometry/fluid/frequency and clock, independent known-sigma velocity errors; user-declared origin; research only."
+  },
+  "execution": {
+    "type": "measured_flow",
+    "study": {
+      "schema_version": "flow-lab-study-1",
+      "research_question": "How do velocity-calibrated pressure and its conditional uncertainty change finite-slice DIR suppression under causal cardiac triggering?",
+      "target_rationale": "Use independent acquisitions for pressure holdout; preserve blood <=0.1, wall >=0.7 and observable refinement <=0.01 across nominal plus eight pressure corners.",
+      "dataset": {
+        "source_ref": "synthetic:analytic-womersley-velocity-v1",
+        "origin": "synthetic",
+        "noise_model": "independent_gaussian_known_sigma",
+        "time_reference": "shared_with_simulation_and_r_peaks",
+        "raw_file_sha256": "d8ba61a1e9c751aa593e88ba43b70008ea02db9e3cc8d672f910098a8fc505f0",
+        "raw_csv_base64": "bWVhc3VyZW1lbnRfaWQsYWNxdWlzaXRpb25faWQsc3BsaXQsdGltZV9zLHJhZGl1c19tLHZlbG9jaXR5X21fcyxzdGRfbV9zDQpjYWxpYnJhdGlvbi0wLTAsY2FsaWJyYXRpb24tcnVuLGNhbGlicmF0aW9uLDAsMCwwLjA1MjYwODUyNjMwOTQ3MjAyLC4wMDENCmNhbGlicmF0aW9uLTAtMSxjYWxpYnJhdGlvbi1ydW4sY2FsaWJyYXRpb24sMCwwLjAwMSwwLjA0MTkzOTQ1MjMxODYwNzY3NywuMDAxDQpjYWxpYnJhdGlvbi0xLTAsY2FsaWJyYXRpb24tcnVuLGNhbGlicmF0aW9uLDAuMTI1LDAsMC4wNjIyNzA4NzM1NTcyMTMwMTYsLjAwMQ0KY2FsaWJyYXRpb24tMS0xLGNhbGlicmF0aW9uLXJ1bixjYWxpYnJhdGlvbiwwLjEyNSwwLjAwMSwwLjA0NzMwMTcxMDUxOTk3NDc1NSwuMDAxDQpjYWxpYnJhdGlvbi0yLTAsY2FsaWJyYXRpb24tcnVuLGNhbGlicmF0aW9uLDAuMjUsMCwwLjA1MjE5MjU0Mjk3NjcyNzQ4NSwuMDAxDQpjYWxpYnJhdGlvbi0yLTEsY2FsaWJyYXRpb24tcnVuLGNhbGlicmF0aW9uLDAuMjUsMC4wMDEsMC4wMzc1MDc4MzQ3NDI3NjMyNTcsLjAwMQ0KY2FsaWJyYXRpb24tMy0wLGNhbGlicmF0aW9uLXJ1bixjYWxpYnJhdGlvbiwwLjM3NSwwLDAuMDI4Mjc3MjgzOTM1OTg0MzM5LC4wMDENCmNhbGlicmF0aW9uLTMtMSxjYWxpYnJhdGlvbi1ydW4sY2FsaWJyYXRpb24sMC4zNzUsMC4wMDEsMC4wMTgyOTQ5NDQ1ODkwNjYzNTksLjAwMQ0KY2FsaWJyYXRpb24tNC0wLGNhbGlicmF0aW9uLXJ1bixjYWxpYnJhdGlvbiwwLjUsMCwwLjAwNDUzNDMzMDgzMzM4NTEyNzksLjAwMQ0KY2FsaWJyYXRpb24tNC0xLGNhbGlicmF0aW9uLXJ1bixjYWxpYnJhdGlvbiwwLjUsMC4wMDEsMC4wMDA5MTc2OTA1Mzg1MzUxOTA5MiwuMDAxDQpjYWxpYnJhdGlvbi01LTAsY2FsaWJyYXRpb24tcnVuLGNhbGlicmF0aW9uLDAuNjI1LDAsLTAuMDA1MTI4MDE2NDE0MzU1ODg1NSwuMDAxDQpjYWxpYnJhdGlvbi01LTEsY2FsaWJyYXRpb24tcnVuLGNhbGlicmF0aW9uLDAuNjI1LDAuMDAxLC0wLjAwNDQ0NDU2NzY2MjgzMTg5LC4wMDENCmNhbGlicmF0aW9uLTYtMCxjYWxpYnJhdGlvbi1ydW4sY2FsaWJyYXRpb24sMC43NSwwLDAuMDA0OTUwMzE0MTY2MTI5NjQ5LC4wMDENCmNhbGlicmF0aW9uLTYtMSxjYWxpYnJhdGlvbi1ydW4sY2FsaWJyYXRpb24sMC43NSwwLjAwMSwwLjAwNTM0OTMwODExNDM3OTYwMDEsLjAwMQ0KY2FsaWJyYXRpb24tNy0wLGNhbGlicmF0aW9uLXJ1bixjYWxpYnJhdGlvbiwwLjg3NSwwLDAuMDI4ODY1NTczMjA2ODcyNzk5LC4wMDENCmNhbGlicmF0aW9uLTctMSxjYWxpYnJhdGlvbi1ydW4sY2FsaWJyYXRpb24sMC44NzUsMC4wMDEsMC4wMjQ1NjIxOTgyNjgwNzY1MDIsLjAwMQ0KaG9sZG91dC0wLTAsaG9sZG91dC1ydW4saG9sZG91dCwwLjAzNjk5OTk5OTk5OTk5OTk5OCwwLDAuMDU3NDAzOTQ3NTkzOTQ5NDYzLC4wMDENCmhvbGRvdXQtMC0xLGhvbGRvdXQtcnVuLGhvbGRvdXQsMC4wMzY5OTk5OTk5OTk5OTk5OTgsMC4wMDEsMC4wNDUwOTIxNzEzMzc5MzYwNDgsLjAwMQ0KaG9sZG91dC0xLTAsaG9sZG91dC1ydW4saG9sZG91dCwwLjE2MjAwMDAwMDAwMDAwMDAxLDAsMC4wNjEyOTY1NDA0OTQwOTk1MjIsLjAwMQ0KaG9sZG91dC0xLTEsaG9sZG91dC1ydW4saG9sZG91dCwwLjE2MjAwMDAwMDAwMDAwMDAxLDAuMDAxLDAuMDQ1ODgzNzMwMDYxODc3NTAxLC4wMDENCmhvbGRvdXQtMi0wLGhvbGRvdXQtcnVuLGhvbGRvdXQsMC4yODY5OTk5OTk5OTk5OTk5OCwwLDAuMDQ2MDE5MjA2NjYwMTI2NDE5LC4wMDENCmhvbGRvdXQtMi0xLGhvbGRvdXQtcnVuLGhvbGRvdXQsMC4yODY5OTk5OTk5OTk5OTk5OCwwLjAwMSwwLjAzMjM0OTc4ODUyODQxMzc1NSwuMDAxDQpob2xkb3V0LTMtMCxob2xkb3V0LXJ1bixob2xkb3V0LDAuNDExOTk5OTk5OTk5OTk5OTgsMCwwLjAyMDUyMTIwMTA1NTA3MDIzMiwuMDAxDQpob2xkb3V0LTMtMSxob2xkb3V0LXJ1bixob2xkb3V0LDAuNDExOTk5OTk5OTk5OTk5OTgsMC4wMDEsMC4wMTI0MTgzNDYxMzU0ODMzMzEsLjAwMQ0KaG9sZG91dC00LTAsaG9sZG91dC1ydW4saG9sZG91dCwwLjUzNzAwMDAwMDAwMDAwMDAzLDAsLTAuMDAwMjYxMDkwNDUxMDkyMzIxNzYsLjAwMQ0KaG9sZG91dC00LTEsaG9sZG91dC1ydW4saG9sZG91dCwwLjUzNzAwMDAwMDAwMDAwMDAzLDAuMDAxLC0wLjAwMjIzNTAyODQ4MDc5MzE4MzEsLjAwMQ0KaG9sZG91dC01LTAsaG9sZG91dC1ydW4saG9sZG91dCwwLjY2MjAwMDAwMDAwMDAwMDAzLDAsLTAuMDA0MTUzNjgzMzUxMjQyMzcwMywuMDAxDQpob2xkb3V0LTUtMSxob2xkb3V0LXJ1bixob2xkb3V0LDAuNjYyMDAwMDAwMDAwMDAwMDMsMC4wMDEsLTAuMDAzMDI2NTg3MjA0NzM0NjMyNywuMDAxDQpob2xkb3V0LTYtMCxob2xkb3V0LXJ1bixob2xkb3V0LDAuNzg3MDAwMDAwMDAwMDAwMDMsMCwwLjAxMTEyMzY1MDQ4MjczMDc1LC4wMDENCmhvbGRvdXQtNi0xLGhvbGRvdXQtcnVuLGhvbGRvdXQsMC43ODcwMDAwMDAwMDAwMDAwMywwLjAwMSwwLjAxMDUwNzM1NDMyODcyOTEyOSwuMDAxDQpob2xkb3V0LTctMCxob2xkb3V0LXJ1bixob2xkb3V0LDAuOTEyMDAwMDAwMDAwMDAwMDMsMCwwLjAzNjYyMTY1NjA4Nzc4NjkzMywuMDAxDQpob2xkb3V0LTctMSxob2xkb3V0LXJ1bixob2xkb3V0LDAuOTEyMDAwMDAwMDAwMDAwMDMsMC4wMDEsMC4wMzA0Mzg3OTY3MjE2NTk1NTYsLjAwMQ0K",
+        "measurements": [
+          {
+            "measurement_id": "calibration-0-0",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.0,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.05260852630947202,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-0-1",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.0,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.04193945231860768,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-1-0",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.125,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.062270873557213016,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-1-1",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.125,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.047301710519974755,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-2-0",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.25,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.052192542976727485,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-2-1",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.25,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.03750783474276326,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-3-0",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.375,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.02827728393598434,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-3-1",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.375,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.01829494458906636,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-4-0",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.5,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.004534330833385128,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-4-1",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.5,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.0009176905385351909,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-5-0",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.625,
+            "radius_m": 0.0,
+            "velocity_m_s": -0.0051280164143558855,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-5-1",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.625,
+            "radius_m": 0.001,
+            "velocity_m_s": -0.00444456766283189,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-6-0",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.75,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.004950314166129649,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-6-1",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.75,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.0053493081143796,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-7-0",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.875,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.0288655732068728,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "calibration-7-1",
+            "acquisition_id": "calibration-run",
+            "split": "calibration",
+            "time_s": 0.875,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.024562198268076502,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-0-0",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.037,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.05740394759394946,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-0-1",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.037,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.04509217133793605,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-1-0",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.162,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.06129654049409952,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-1-1",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.162,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.0458837300618775,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-2-0",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.287,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.04601920666012642,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-2-1",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.287,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.032349788528413755,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-3-0",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.412,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.020521201055070232,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-3-1",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.412,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.012418346135483331,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-4-0",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.537,
+            "radius_m": 0.0,
+            "velocity_m_s": -0.00026109045109232176,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-4-1",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.537,
+            "radius_m": 0.001,
+            "velocity_m_s": -0.002235028480793183,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-5-0",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.662,
+            "radius_m": 0.0,
+            "velocity_m_s": -0.00415368335124237,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-5-1",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.662,
+            "radius_m": 0.001,
+            "velocity_m_s": -0.0030265872047346327,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-6-0",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.787,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.01112365048273075,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-6-1",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.787,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.010507354328729129,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-7-0",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.912,
+            "radius_m": 0.0,
+            "velocity_m_s": 0.03662165608778693,
+            "std_m_s": 0.001
+          },
+          {
+            "measurement_id": "holdout-7-1",
+            "acquisition_id": "holdout-run",
+            "split": "holdout",
+            "time_s": 0.912,
+            "radius_m": 0.001,
+            "velocity_m_s": 0.030438796721659556,
+            "std_m_s": 0.001
+          }
+        ]
+      },
+      "priors": {
+        "radius_m": 0.002,
+        "density_kg_m3": 1060.0,
+        "viscosity_pa_s": 0.0035,
+        "frequency_hz": 1.0
+      },
+      "acquisition": {
+        "r_peaks_s": [
+          0.0,
+          1.0,
+          2.0
+        ],
+        "observation_end_s": 3.0,
+        "trigger_latency_s": 0.003,
+        "initial_rr_s": 1.0,
+        "rr_range_s": [
+          0.5,
+          1.5
+        ],
+        "thickness_m": 0.005,
+        "off_resonance_hz": 0.0
+      },
+      "candidates": [
+        {
+          "inversion_time_s": 0.6
+        },
+        {
+          "inversion_time_s": 0.9
+        }
+      ],
+      "numerics": {
+        "radial_rings": 8,
+        "axial_spins": 401,
+        "rf_steps": 128
+      },
+      "targets": {
+        "max_calibration_reduced_chi2": 3.0,
+        "max_holdout_standardized_residual": 4.0,
+        "max_holdout_reduced_chi2": 3.0,
+        "max_relative_pressure_std": 0.25,
+        "uncertainty_std_multiplier": 2.0,
+        "blood_target_max": 0.1,
+        "wall_target_min": 0.7,
+        "max_interrupted_fraction": 0.0,
+        "max_observation_refinement_error": 0.01
+      },
+      "budget": {
+        "max_work_per_simulation": 50000000,
+        "max_total_work": 2000000000,
+        "max_memory_bytes": 134217728
+      }
+    }
+  }
+}

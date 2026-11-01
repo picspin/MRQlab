@@ -20,6 +20,7 @@ from mrqlab_experiment.mrs_press import run_press_basis
 from mrqlab_experiment.mrs_quantum import run_mrs_quantum
 from mrqlab_experiment.radial_tse import run_radial_tse
 from mrqlab_experiment.flow_epi import run_flow_epi
+from mrqlab_experiment.flow_study import build_flow_study_example,import_velocity_csv
 
 router=APIRouter(prefix='/research',tags=['research/teaching'])
 Kind=Literal['tse','noncartesian','flow','pulsatile_flow','flow_epi','cest','cest_solomon','cest_memory','mrs','mrs_press','mrs_quantum','radial_tse']
@@ -27,6 +28,24 @@ Kind=Literal['tse','noncartesian','flow','pulsatile_flow','flow_epi','cest','ces
 
 class StrictParameters(BaseModel):
     model_config=ConfigDict(extra='forbid',strict=True,allow_inf_nan=False)
+
+
+class VelocityCSVRequest(StrictParameters):
+    csv_base64: str=Field(min_length=1,max_length=1333340)
+    source_ref: str=Field(min_length=1,max_length=1024)
+    origin: Literal['measured','synthetic']
+
+
+@router.get('/flow-study/example')
+def flow_study_example(): return build_flow_study_example().model_dump(mode='json')
+
+
+@router.post('/flow-study/import-csv')
+def import_flow_csv(request: VelocityCSVRequest):
+    try:
+        raw=base64.b64decode(request.csv_base64,validate=True)
+        return import_velocity_csv(raw,source_ref=request.source_ref,origin=request.origin).model_dump(mode='json')
+    except (ValueError,TypeError) as exc: raise HTTPException(422,str(exc)) from exc
 
 
 T2Value=Annotated[float,Field(gt=0,le=10.)]

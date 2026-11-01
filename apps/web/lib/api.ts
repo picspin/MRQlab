@@ -412,6 +412,16 @@ export async function createScientificRecord(plan: import("./scientific-records"
   if (!response.ok) throw new Error(`实验记录保存失败 (${response.status}): ${await response.text()}`);
   return response.json();
 }
+export async function fetchFlowStudyExample(signal?: AbortSignal): Promise<import("./flow-study").FlowStudyInput> {
+  const response = await fetch(`${BASE}/research/flow-study/example`, { signal });
+  if (!response.ok) throw new Error(`流动示例载入失败 (${response.status})`);
+  return response.json();
+}
+export async function importFlowVelocity(request: { csv_base64: string; source_ref: string; origin: "measured" | "synthetic" }, signal?: AbortSignal): Promise<import("./flow-study").FlowDataset> {
+  const response = await fetch(`${BASE}/research/flow-study/import-csv`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal });
+  if (!response.ok) throw new Error(`速度 CSV 导入失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
 export async function listScientificRecords(studyId: string, offset: number, signal?: AbortSignal): Promise<import("./scientific-records").ScientificList> {
   const params = new URLSearchParams({ limit: "20", offset: String(offset) });
   if (studyId.trim()) params.set("study_id", studyId.trim());

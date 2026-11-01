@@ -25,6 +25,7 @@ from mrqlab_experiment.study_records import (
     _checked_sources, runtime_manifest, create_study_record, verify_study_record,
 )
 from mrqlab_experiment.calibrated_radial import CalibratedRadialStudy, run_calibrated_radial_study
+from mrqlab_experiment.flow_study import FlowStudy,VelocityDataset,run_flow_study
 from .research import (
     RunRequest, SearchRequest, checked_source_hash, execute, search_research, _lab_response, serializable, present,
 )
@@ -70,6 +71,11 @@ class MeasuredPlan(Strict):
     study: LabStudy
 
 
+class MeasuredFlowPlan(Strict):
+    type: Literal['measured_flow']='measured_flow'
+    study: FlowStudy
+
+
 class CalibratedRadialPlan(Strict):
     type: Literal['calibrated_radial_tse']='calibrated_radial_tse'
     parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
@@ -79,7 +85,7 @@ class CalibratedRadialPlan(Strict):
 
 class ScientificPlan(Strict):
     context: StudyContext
-    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | CalibratedRadialPlan,Field(discriminator='type')]
+    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | CalibratedRadialPlan,Field(discriminator='type')]
     expected_execution_hash: str | None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
 
 
@@ -185,6 +191,16 @@ def _summary(request,payload,source):
         points=[dict(index=p['index'],parameters=p['design'],executable=p['executed'],
             model_reported_passed=p['eligible'],reasons=p['reasons']) for p in r['candidates']]
         kind='measured_tse';execution_hash=legacy['record_sha256'];origins=[legacy['request']['dataset']['origin']]
+    elif mode=='measured_flow':
+        r=payload['flow_study']
+        dataset=VelocityDataset.model_validate(execution['study']['dataset'])
+        if any(r['provenance'][key]!=value for key,value in [('input_origin',dataset.origin),('source_ref',dataset.source_ref),('raw_file_sha256',dataset.raw_file_sha256)]):
+            raise ValueError('flow result measurement origin/archive differs from retained input')
+        if fingerprint(execution['study'])!=r['provenance']['request_sha256']: raise ValueError('flow result input hash differs from retained measurement request')
+        if payload['view'] is not None: _validate_view(payload['view'])
+        selected=r['selected_index'];reported=r['validation']['selected_design_passed'];kind=mode
+        points=[dict(index=p['index'],parameters=p['design'],executable=p['executed'],model_reported_passed=p['eligible'],reasons=p['reasons']) for p in r['candidates']]
+        origins=[execution['study']['dataset']['origin']];execution_hash=fingerprint(r)
     elif mode=='calibrated_radial_tse':
         parent,legacy=_parent_measurement(execution)
         r=payload['derivation']
@@ -202,6 +218,7 @@ def _summary(request,payload,source):
         candidate_count=len(points),candidates=points,execution_hash=execution_hash,input_origins=origins,
         background_references_applied=False,scope=SCOPE)
     if mode=='calibrated_radial_tse': summary['parent_record_sha256']=execution['parent_record_sha256']
+    if mode=='measured_flow': summary['calibration_sha256']=fingerprint(payload['flow_study']['calibration'])
     return summary
 
 
@@ -210,6 +227,9 @@ def _stages(request,request_hash,payload_hash,summary,environment):
             ('source_and_runtime',fingerprint(environment)),('computed_execution',payload_hash),('reported_validation',fingerprint(summary))]
     if request['execution']['type']=='calibrated_radial_tse':
         values.insert(1,('parent_measurement_record',request['execution']['parent_record_sha256']))
+    if request['execution']['type']=='measured_flow':
+        values=[values[0],('raw_velocity_measurements',fingerprint(request['execution']['study']['dataset'])),values[2],
+            ('conditional_pressure_calibration',summary['calibration_sha256']),values[1],*values[3:]]
     nodes=[]
     for name,value in values:
         parents=[nodes[-1]['sha256']] if nodes else []
@@ -247,6 +267,9 @@ def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
             view['images'][-1]['label']='Fixed nominal-prior mismatch control (same samples)'
             view['metrics']['Fixed-prior control NRMSE']=view['metrics'].pop('Static-control NRMSE')
         payload=serializable(dict(derivation=derived,view=view))
+    elif isinstance(execution,MeasuredFlowPlan):
+        result=run_flow_study(execution.study);preview=result['preview_simulation']
+        payload=dict(flow_study=result,view=present('pulsatile_flow',preview) if preview is not None else None)
     elif isinstance(execution,MeasuredPlan): payload=_lab_response(create_study_record(execution.study))
     elif isinstance(execution,SearchPlan): payload=search_research(SearchRequest.model_validate(execution.model_dump(exclude={'type'})))
     else: payload=execute(RunRequest.model_validate(execution.model_dump(exclude={'type'})),api_source)
@@ -361,7 +384,7 @@ class ScientificStore:
 
 def _response(record):
     payload=_loads(record['payload_json']);mode=record['summary']['mode']
-    if mode in {'measured_tse','calibrated_radial_tse'}: view=payload['view']
+    if mode in {'measured_tse','measured_flow','calibrated_radial_tse'}: view=payload['view']
     elif mode=='run': view=payload['view']
     else:
         selected=payload['best'] or next((p for p in payload['candidates'] if p['feasible']),None)

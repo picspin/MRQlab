@@ -26,11 +26,14 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 
 | Requirement | Current evidence | Status / missing evidence |
 |---|---|---|
+| RF/gradient orchestration matched to standard sequence schemes | SequenceIR, family templates/composition/lowering and finite research timelines exist; individual engines declare supported physics | A general editable operation-level contract shared by all research runners, uniform constraints and cross-engine equivalence remain incomplete; B/C stay parked |
+| Tissue biophysics under intrinsic/extrinsic influence | Existing declared T1/T2, Gaussian isotropic diffusion and exchange/MT/NOE models cover separate supported chains | `TissueModel.contrast_agent_concentration` is currently a declared field without a verified concentration-to-relaxation binding. Contrast-agent relaxivity/kinetics, spatial joint relaxation/diffusion/exchange and measured calibration remain incomplete |
+| Doctor MR Image / Agent Signal Vector bidirectional reading and control | Existing reconstructed images, complete complex signals, typed requests, finite search and scientific records are available | No single cross-modality image/vector schema with units, axes, spatial/tissue bindings and safe typed parameter patch/replay is yet verified end to end. Human interpretation and agent debugging/control require additional validation |
 | Clinical question → pulse/design → physical simulation | Twelve backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
-| Lab experiment → clinical target | Measured-input TSE pilot includes raw CSV/units, calibration, independent holdout and conditional uncertainty; other chains expose authored controls | Cross-modality measured calibration and robust clinical target translation remain incomplete |
+| Lab experiment → clinical target | Measured-input TSE and a velocity-CSV → conditional pressure → finite-RF DIR study include units, calibration, independent holdout and uncertainty; flow retains exact raw CSV bytes | Flow example is synthetic and its design targets fail; measured CEST/MRS calibration, authenticated lab evidence and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
 | High-precision non-Cartesian inverse | Unscaled complex 2D/3D recovery, paired direct/FINUFFT operators, measured-prior/navigated radial TSE and an exact finite-ADC hard-180° reference with T2/B0 and known receive maps | Finite-ADC default budget fails; an explicit larger-budget stricter-residual reference passes unchanged image/component targets. Variable-flip/finite-RF echo-window coherence, measured field/coil/trajectory calibration, noisy uncertainty and general voxel T2 inference remain incomplete |
-| Real flow / slice / gating | Pressure-driven Womersley shear/backflow, finite RF/Gz, causal interruption and a new actual bipolar/EPI point-ADC image chain with partial acquisitions and independent complex Bloch/Fourier checks | Default DIR images/velocity targets fail. Straight rigid pipe/fixed transverse centers only; measured calibration, general 3D/compliant flow, calibrated phase and realistic hardware/readout remain incomplete |
+| Real flow / slice / gating | Pressure-driven Womersley shear/backflow, finite RF/Gz, causal interruption, bipolar/EPI point-ADC images and conditional velocity-derived pressure with independent holdout/covariance/corner refinement | Default DIR targets fail. Measured-flow study produces DIR signals, not joint MR-image pressure inference. Straight rigid pipe/fixed transverse centers only; measured-image phase/velocity calibration, general 3D/compliant flow and realistic hardware/readout remain incomplete |
 | CEST MT/NOE | Effective-pool baseline, signed Solomon relay and finite-history generalized Bloch semisolid RF including zero offset, independent augmented Bloch references and full-trace convergence gates | Default relay target fails; contrast-passing high-power point fails refinement, so no design is selected. Measured molecular calibration, full multi-spin/Redfield relaxation and spatial joint imaging remain incomplete |
 | More complete MRS | 1–3 spin density helpers, finite RF/isotropic J, 3D PRESS quadrature and a separate local-Lindblad/full-TR quantum chain with independent Bloch/Kraus/ODE references and T1/saturation failures | Quantum relaxation/TR is not yet coupled to 3D PRESS. Validated molecular/Redfield library, realistic maps/noise, measured spectra and clinical concentration calibration remain incomplete |
 | Frontend entry | `/research`, bounded `/research/run` and `/research/search`, actual backend plots/tables, failure states, strict input and source checks | Twelve entries include finite-ADC radial mode, causal decisions, ADC completeness, image/velocity validity and failed-only searches. CEST, quantum-MRS, finite-ADC radial and shared-record native JSON browser replay pass; other modality/CSV coverage remains open |
@@ -57,10 +60,17 @@ not silently copy manuscript content into the project or disturb live worktrees.
    remaining modality-specific and CSV paths; retain verified CLI local delivery.
 2. Extend the shared scientific records and the measured-TSE → radial derivation
    with raw-data archives, general unit/uncertainty conventions and measured
-   bindings for flow, CEST/NOE and MRS. Preserve failed target outcomes.
+   bindings for CEST/NOE and MRS. The conditional velocity-to-flow binding now
+   retains raw bytes and independent holdout; actual measured-image calibration
+   and general flow inference remain open. Preserve failed target outcomes.
 3. Continue fidelity work in the original priority order. Report model validity,
    conditioning, independent references and failed targets without gain fitting,
    hidden calibration or a claim of clinical/scanner certification.
+4. Verify the expanded platform contract: operation-level RF/gradient control,
+   explicit intrinsic/extrinsic tissue state (including concentration/relaxivity),
+   and a common linked MR Image / Signal Vector representation with typed edits,
+   complete recomputation and observable target evidence. Existing fields and
+   separate model outputs do not establish this bidirectional requirement.
 
 The preceding partial implementations are progress toward the full objective;
 they are not evidence that every platform requirement has been achieved.
@@ -465,3 +475,33 @@ unchanged. Variable-flip/finite-RF/window physics, calibrated maps/trajectory,
 noise/whitening/uncertainty, scalable field-aware inversion and earlier platform
 gaps remain unfinished. The full goal stays active, B/C stay parked; no submission
 import, push, PR, merge, router change or folder relocation occurred.
+
+## Velocity-derived pressure and expanded platform audit (2026-11-01)
+
+From `fdbad1c`, the [measured-flow study](measured-flow-coverage.md) retains raw
+velocity CSV bytes and source/origin, fits only independent calibration velocity
+rows and binds pressure coefficients conditionally on authored geometry/fluid/
+frequency/clock. Known-sigma full covariance and acquisition holdout are checked
+before nominal/eight-corner finite-RF causal DIR and coarse/fine observables.
+An independent finite-volume momentum solve gives second-order pressure recovery.
+The default synthetic input passes calibration and every numerical gate, while
+both physical suppression/retention candidates fail and selection remains null.
+Holdout, identifiability, budget and underresolved cases preserve their failures.
+
+The new `/research/flow-study` route uses the shared scientific-record store.
+Actual native CSV download/file-chooser re-import, record save/download/native
+re-import and two full computational replays pass. CLI and independent-process
+evidence are exact. Regression is **977 Python / 124 frontend**, TS/build pass.
+This is a DIR signal workflow, not measured MR-image pressure reconstruction.
+No clinical/scanner certification, push/PR/merge or B/C change occurred.
+
+The expanded user objective additionally requires operation-level RF/gradient
+orchestration, tissue relaxation/diffusion/exchange under intrinsic and external
+influences (especially contrast agents), and bidirectional doctor-readable MR
+Image / agent-readable Signal Vector control. Current sources were inspected:
+SequenceIR/family lowering, reconstructed images and complete complex signals
+exist, and diffusion/exchange are supported only in declared chains. The tissue
+concentration field has no verified concentration/relaxivity execution binding;
+the common linked image/vector schema and safe typed edits are unfinished.
+These are explicit remaining requirements, not inferred completion from the
+current separate modules. The full expanded goal remains active.
