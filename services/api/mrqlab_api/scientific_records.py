@@ -28,6 +28,7 @@ from mrqlab_experiment.calibrated_radial import CalibratedRadialStudy, run_calib
 from mrqlab_experiment.flow_study import FlowStudy,VelocityDataset,run_flow_study
 from mrqlab_experiment.tse_control import apply_tse_edits
 from mrqlab_experiment.linked_readout import LinkedEdit, verify_linked_readout
+from mrqlab_experiment.agentic_inference import infer_tissue_modalities, verify_agentic_inference
 from .research import (
     RunRequest, SearchRequest, checked_source_hash, execute, search_research, _lab_response, serializable, present,
 )
@@ -85,6 +86,13 @@ class EditedTSEPlan(Strict):
     updates: list[LinkedEdit]=Field(min_length=1,max_length=8)
 
 
+class AgenticInferencePlan(Strict):
+    type: Literal['agentic_inference']='agentic_inference'
+    parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
+    parent_record: dict | None=None
+    reference_tissue_id: str | None=Field(default=None,min_length=1,max_length=128)
+
+
 class CalibratedRadialPlan(Strict):
     type: Literal['calibrated_radial_tse']='calibrated_radial_tse'
     parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
@@ -94,7 +102,7 @@ class CalibratedRadialPlan(Strict):
 
 class ScientificPlan(Strict):
     context: StudyContext
-    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan,Field(discriminator='type')]
+    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan,Field(discriminator='type')]
     expected_execution_hash: str | None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
 
 
@@ -156,6 +164,37 @@ def _validate_run(run, source):
         pair=run['result']['linked_readout'];verify_linked_readout(pair)
         if pair['provenance']['inputs_sha256']!=fingerprint(run['replay_request']['parameters']):
             raise ValueError('linked input pin differs from retained computation')
+
+
+def _agentic_view(inference):
+    """Bounded human preview of the identified proportions; 3D uses the center plane."""
+    shape=inference['source']['shape'];images=[];curves=[]
+    for modality in inference['modalities']:
+        values=modality['values']
+        if len(shape)==2:
+            width,height=shape[1],shape[0];flat=values
+        else:
+            plane=shape[1]*shape[2];start=(shape[0]//2)*plane
+            width,height=shape[2],shape[1];flat=values[start:start+plane]
+        if width<=128 and height<=128 and len(flat)==width*height:
+            images.append(dict(label=modality['label'],width=width,height=height,
+                values=[float(value) for value in flat],scale_group=modality['id']))
+    acquisition=inference['proportions']['acquisition']
+    if acquisition['available']:
+        times=[float(value) for value in inference['ingestion']['echo_times_s']]
+        for tissue,values in acquisition['coefficients'].items():
+            curves.append(dict(label=tissue,x=times,y=[float(value) for value in values]))
+        x_label='Echo time (s)';y_label='Identifiable relative coefficient'
+    else:
+        x_label='Echo time (s)';y_label='Unavailable'
+    metrics={'Complete complex samples read':float(inference['ingestion']['sample_count']),
+        'Parseval relative error':float(inference['ingestion']['parseval_relative_error'])}
+    for tissue,item in inference['proportions']['image_signal'].items():
+        metrics['Image signal share · '+tissue]=float(item['energy_fraction'])
+    for tissue,item in inference['proportions']['structure'].items():
+        metrics['Structure voxel fraction · '+tissue]=float(item['voxel_fraction'])
+    validation=dict(inference['validation']['checks'],passed=inference['validation']['passed'])
+    return dict(images=images,curves=curves,x_label=x_label,y_label=y_label,validation=validation,metrics=metrics)
 
 
 def _edit_parent(execution):
@@ -259,13 +298,31 @@ def _summary(request,payload,source):
             model_reported_passed=p['eligible'],reasons=p['reasons'],
             validation={k:p[k] for k in ['worst_image_nrmse','worst_component_nrmse','worst_total_rf_energy'] if k in p}) for p in r['candidates']]
         origins=[r['input_origin']];execution_hash=fingerprint(r)
+    elif mode=='agentic_inference':
+        parent,original=_edit_parent(execution);_validate_run(original,source)
+        pair=original['result']['linked_readout'];inference=payload['inference']
+        verify_agentic_inference(inference)
+        if payload['parent_record_sha256']!=parent['record_sha256'] or parent['api_source_hash']!=source:
+            raise ValueError('agentic inference parent/source differs')
+        if payload['parent_pair_sha256']!=pair['pair_sha256'] or inference['source']['pair_sha256']!=pair['pair_sha256']:
+            raise ValueError('agentic inference pair differs from the retained parent')
+        if (inference['source']['source_sha256']!=pair['provenance']['source_sha256']
+                or inference['source']['runtime']!=pair['provenance']['runtime']):
+            raise ValueError('agentic inference source/runtime pin differs from the linked parent')
+        if payload['view'] is not None: _validate_view(payload['view'])
+        kind=mode;selected=0;reported=inference['validation']['passed'];execution_hash=fingerprint(inference)
+        points=[dict(index=0,executable=True,model_reported_passed=reported,validation=inference['validation'])]
+        origins=_run_origins(original)
     else: raise ValueError('unknown scientific execution type')
     summary=dict(study_id=request['context']['study_id'],research_question=request['context']['research_question'],
         mode=mode,kind=kind,selected_index=selected,model_reported_passed=bool(reported),
         candidate_count=len(points),candidates=points,execution_hash=execution_hash,input_origins=origins,
         background_references_applied=False,scope=SCOPE)
-    if mode in {'calibrated_radial_tse','edited_tse'}: summary['parent_record_sha256']=execution['parent_record_sha256']
+    if mode in {'calibrated_radial_tse','edited_tse','agentic_inference'}: summary['parent_record_sha256']=execution['parent_record_sha256']
     if mode=='edited_tse': summary['applied_edits_sha256']=fingerprint(execution['updates'])
+    if mode=='agentic_inference':
+        summary['inference_sha256']=fingerprint(payload['inference'])
+        summary['parent_pair_sha256']=payload['parent_pair_sha256']
     if mode=='measured_flow': summary['calibration_sha256']=fingerprint(payload['flow_study']['calibration'])
     return summary
 
@@ -277,6 +334,9 @@ def _stages(request,request_hash,payload_hash,summary,environment):
         values.insert(1,('parent_measurement_record',request['execution']['parent_record_sha256']))
     if request['execution']['type']=='edited_tse':
         values[1:1]=[('parent_image_signal_record',request['execution']['parent_record_sha256']),('typed_parameter_edits',summary['applied_edits_sha256'])]
+    if request['execution']['type']=='agentic_inference':
+        values[1:1]=[('parent_image_signal_record',request['execution']['parent_record_sha256']),
+                     ('agentic_signal_inference',summary['inference_sha256'])]
     if request['execution']['type']=='measured_flow':
         values=[values[0],('raw_velocity_measurements',fingerprint(request['execution']['study']['dataset'])),values[2],
             ('conditional_pressure_calibration',summary['calibration_sha256']),values[1],*values[3:]]
@@ -290,7 +350,7 @@ def _stages(request,request_hash,payload_hash,summary,environment):
 
 def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
     plan=ScientificPlan.model_validate(plan).model_copy(deep=True)
-    if isinstance(plan.execution,(CalibratedRadialPlan,EditedTSEPlan)) and plan.execution.parent_record is None:
+    if isinstance(plan.execution,(CalibratedRadialPlan,EditedTSEPlan,AgenticInferencePlan)) and plan.execution.parent_record is None:
         plan.execution.parent_record=(store or ScientificStore()).get(plan.execution.parent_record_sha256)
     sources=_checked_sources();api_source=checked_source_hash();runtime=runtime_manifest()
     request=plan.model_dump(mode='json');request_json=_dump(request)
@@ -302,6 +362,13 @@ def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
         run=execute(RunRequest(kind='tse',parameters=parameters,expected_source_hash=api_source),api_source)
         payload=dict(parent_record_sha256=parent['record_sha256'],updates=[u.model_dump(mode='json') for u in execution.updates],parent_computationally_replayed=True,
             parameters_before_sha256=fingerprint(original['replay_request']['parameters']),parameters_after_sha256=fingerprint(run['replay_request']['parameters']),run=run)
+    elif isinstance(execution,AgenticInferencePlan):
+        parent,original=_edit_parent(request['execution'])
+        replay_scientific_record(parent)  # never infer from an uncomputed imported result
+        pair=original['result']['linked_readout']
+        inference=infer_tissue_modalities(pair,reference_tissue_id=execution.reference_tissue_id)
+        payload=dict(parent_record_sha256=parent['record_sha256'],parent_computationally_replayed=True,
+            parent_pair_sha256=pair['pair_sha256'],inference=inference,view=_agentic_view(inference))
     elif isinstance(execution,CalibratedRadialPlan):
         parent,legacy=_parent_measurement(request['execution'])
         derived=run_calibrated_radial_study(legacy,execution.study)
@@ -419,6 +486,9 @@ class ScientificStore:
         if record['summary']['mode']=='calibrated_radial_tse':
             parent,_=_parent_measurement(_loads(record['request_json'])['execution'])
             self.save(parent)
+        if record['summary']['mode']=='agentic_inference':
+            parent,_=_edit_parent(_loads(record['request_json'])['execution'])
+            self.save(parent)
         with closing(self._connect()) as conn,conn:
             conn.execute('INSERT OR IGNORE INTO records VALUES (?,?,?,?,?,?)',
                 (identity,record['summary']['study_id'],time.time_ns(),raw,_dump({k:v for k,v in record['summary'].items() if k!='candidates'}),size))
@@ -451,7 +521,7 @@ class ScientificStore:
 
 def _response(record):
     payload=_loads(record['payload_json']);mode=record['summary']['mode']
-    if mode in {'measured_tse','measured_flow','calibrated_radial_tse'}: view=payload['view']
+    if mode in {'measured_tse','measured_flow','calibrated_radial_tse','agentic_inference'}: view=payload['view']
     elif mode=='edited_tse': view=payload['run']['view']
     elif mode=='run': view=payload['view']
     else:

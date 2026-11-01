@@ -94,7 +94,7 @@ export default function ResearchPage() {
   }
   return <div className={styles.workbench}>
     <header className={styles.heading}><div><h1>脉冲设计研究台</h1><p>从研究问题到设计、仿真、参数搜索、目标验证与回放。</p></div><Link className={styles.scope} href="/research/lab-study">实验测量到设计验证</Link></header>
-    <p className={styles.boundary}>不作为扫描仪验证或临床质量认证。Milestone B / C 保持 parked。 <Link href="/research/records">本地实验记录</Link> · <Link href="/research/flow-study">速度测量到 DIR 设计验证</Link> · <Link href="/research/contrast-study">组织状态与图像 / 信号</Link></p>
+    <p className={styles.boundary}>不作为扫描仪验证或临床质量认证。Milestone B / C 保持 parked。 <Link href="/research/records">本地实验记录</Link> · <Link href="/research/flow-study">速度测量到 DIR 设计验证</Link> · <Link href="/research/contrast-study">组织状态与图像 / 信号</Link> · <Link href="/research/agentic-study">Agent 信号推断与组织模态</Link></p>
     <nav aria-label="研究实验" className={styles.kinds}>{KINDS.map(item => <button key={item} aria-pressed={item === kind} onClick={() => choose(item)}>{STUDIES[item].title}</button>)}</nav>
     <div className={styles.instrument}>
       <section className={styles.design} aria-label="研究设计">
