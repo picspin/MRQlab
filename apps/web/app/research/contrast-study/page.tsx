@@ -3,12 +3,12 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createScientificRecord, fetchContrastStudyExample, replayScientificRecord } from "../../../lib/api";
 import type { ScientificPlan, ScientificResponse } from "../../../lib/scientific-records";
-import { linkedRun, type LinkedReadout, type TSEEdit } from "../../../lib/linked-readout";
+import { linkedRun, type LinkedReadout, type LinkedEdit } from "../../../lib/linked-readout";
 import Measurements from "../../../components/research/Measurements";
 import styles from "../research.module.css";
 
 const format = (value: number) => value.toPrecision(5);
-const LABELS: Record<TSEEdit["field"], string> = { "rf.refocusing_start_deg": "起始重聚焦角", "rf.refocusing_end_deg": "末端重聚焦角", "timing.tr_s": "TR", "timing.echo_spacing_s": "回波间隔", "encoding.order": "理想 ky 编码顺序", "tissue.concentration_mmol_l": "组织浓度" };
+const LABELS: Record<LinkedEdit["field"], string> = { "rf.refocusing_start_deg": "起始重聚焦角", "rf.refocusing_end_deg": "末端重聚焦角", "timing.tr_s": "TR", "timing.echo_spacing_s": "回波间隔", "encoding.order": "理想 ky 编码顺序", "tissue.concentration_mmol_l": "组织浓度" };
 const controlKey = (c: LinkedReadout["controls"][number]) => `${c.field}:${c.tissue_id ?? ""}`;
 function download(value: unknown, name: string) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(value)], { type: "application/json" })), link = document.createElement("a");
@@ -44,8 +44,8 @@ export default function ContrastStudyPage() {
   }
   async function apply(signal: AbortSignal) {
     if (!response || !pair) throw new Error("先计算并保存父图像 / 信号记录。");
-    const updates: TSEEdit[] = pair.controls.filter(c => controlKey(c) in changes && changes[controlKey(c)] !== String(c.value)).map(c => {
-      const text = changes[controlKey(c)], value = c.field === "encoding.order" ? text : Number(text);
+    const updates: LinkedEdit[] = pair.controls.filter(c => controlKey(c) in changes && changes[controlKey(c)] !== String(c.value)).map(c => {
+      const text = changes[controlKey(c)], value = c.kind === "category" ? text : Number(text);
       if (!text.trim() || (typeof value === "number" && !Number.isFinite(value))) throw new Error("请输入有限且有明确单位的参数。");
       return { field: c.field, value, ...(c.tissue_id ? { tissue_id: c.tissue_id } : {}) };
     });
@@ -72,8 +72,8 @@ export default function ContrastStudyPage() {
         <details><summary>完整基线计划与来源</summary><label>基线科学计划<textarea aria-label="对比剂基线计划" value={draft} rows={16} spellCheck={false} onChange={event => { cancel(); setDraft(event.target.value); setResponse(null); setChanges({}); }} /></label></details>
         <div className={styles.actions}><button disabled={busy || !draft} onClick={() => void perform(baseline)}>运行并保存基线</button></div>
         {pair && <><h2>基于当前父记录修改</h2><p>这些控件与 Agent 使用同一个类型化修改契约。提交后重新计算全部输出，不直接修改图像或信号数组；最多连续修改三代。</p>
-          {pair.controls.map(c => <label key={controlKey(c)}>{LABELS[c.field]}{c.tissue_id ? ` · ${c.tissue_id}` : ""} ({c.unit})
-            {c.field === "encoding.order" ? <select aria-label={LABELS[c.field]} value={changes[controlKey(c)] ?? String(c.value)} onChange={event => { cancel(); setChanges(previous => ({ ...previous, [controlKey(c)]: event.target.value })); }}><option value="centric">centric</option><option value="linear">linear</option></select> : <input aria-label={`${LABELS[c.field]}${c.tissue_id ? ` ${c.tissue_id}` : ""}`} type="number" step="any" min={c.min} max={c.max} value={changes[controlKey(c)] ?? String(c.value)} onChange={event => { cancel(); setChanges(previous => ({ ...previous, [controlKey(c)]: event.target.value })); }} />}
+          {pair.controls.map(c => <label key={controlKey(c)}>{LABELS[c.field] ?? c.field}{c.tissue_id ? ` · ${c.tissue_id}` : ""} ({c.unit})
+            {c.kind === "category" ? <select aria-label={LABELS[c.field] ?? c.field} value={changes[controlKey(c)] ?? String(c.value)} onChange={event => { cancel(); setChanges(previous => ({ ...previous, [controlKey(c)]: event.target.value })); }}>{c.choices.map(choice => <option key={choice} value={choice}>{choice}</option>)}</select> : <input aria-label={`${LABELS[c.field] ?? c.field}${c.tissue_id ? ` ${c.tissue_id}` : ""}`} type="number" step="any" min={c.min} max={c.max} value={changes[controlKey(c)] ?? String(c.value)} onChange={event => { cancel(); setChanges(previous => ({ ...previous, [controlKey(c)]: event.target.value })); }} />}
           </label>)}
           <div className={styles.actions}><button disabled={busy || !changed} onClick={() => void perform(apply)}>重算父记录并应用修改</button></div>
         </>}

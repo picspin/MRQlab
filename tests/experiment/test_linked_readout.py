@@ -16,7 +16,7 @@ def test_complete_acquisition_vector_matches_independent_voxel_sum_and_image(sha
     actual=np.array(s['values']['real'])+1j*np.array(s['values']['imag'])
     xyz=(np.indices(shape)-np.array(shape).reshape((-1,)+(1,)*len(shape))//2).reshape(len(shape),-1).T
     expected=[]
-    for echo,coordinate in zip(s['echo_numbers'],s['normalized_coordinates']):
+    for echo,coordinate in zip(s['extensions']['echo_numbers'],s['normalized_coordinates']):
         source=np.take(r['tissue_echo_weights'][:,echo-1],labels).ravel()
         expected.append(np.sum(source*np.exp(-2j*np.pi*(xyz@np.asarray(coordinate)))))
     assert actual==pytest.approx(expected,abs=2e-12)

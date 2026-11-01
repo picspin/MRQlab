@@ -26,8 +26,8 @@ from mrqlab_experiment.study_records import (
 )
 from mrqlab_experiment.calibrated_radial import CalibratedRadialStudy, run_calibrated_radial_study
 from mrqlab_experiment.flow_study import FlowStudy,VelocityDataset,run_flow_study
-from mrqlab_experiment.tse_control import TSEEdit,apply_tse_edits
-from mrqlab_experiment.linked_readout import verify_linked_readout
+from mrqlab_experiment.tse_control import apply_tse_edits
+from mrqlab_experiment.linked_readout import LinkedEdit, verify_linked_readout
 from .research import (
     RunRequest, SearchRequest, checked_source_hash, execute, search_research, _lab_response, serializable, present,
 )
@@ -82,7 +82,7 @@ class EditedTSEPlan(Strict):
     type: Literal['edited_tse']='edited_tse'
     parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
     parent_record: dict | None=None
-    updates: list[TSEEdit]=Field(min_length=1,max_length=8)
+    updates: list[LinkedEdit]=Field(min_length=1,max_length=8)
 
 
 class CalibratedRadialPlan(Strict):
@@ -152,7 +152,10 @@ def _validate_run(run, source):
     # This is the original API hash convention, applied to the lossless payload.
     actual=sha256(json.dumps(run['result'],sort_keys=True,allow_nan=False).encode()).hexdigest()
     if run.get('result_hash')!=actual: raise ValueError('nested research result hash mismatch')
-    if run.get('kind')=='tse' and 'linked_readout' in run['result']: verify_linked_readout(run['result']['linked_readout'])
+    if run.get('kind')=='tse' and 'linked_readout' in run['result']:
+        pair=run['result']['linked_readout'];verify_linked_readout(pair)
+        if pair['provenance']['inputs_sha256']!=fingerprint(run['replay_request']['parameters']):
+            raise ValueError('linked input pin differs from retained computation')
 
 
 def _edit_parent(execution):
@@ -295,7 +298,7 @@ def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
     if isinstance(execution,EditedTSEPlan):
         parent,original=_edit_parent(request['execution'])
         replay_scientific_record(parent)  # never derive from an uncomputed imported result
-        parameters=apply_tse_edits(original['replay_request']['parameters'],execution.updates)
+        parameters=apply_tse_edits(original['replay_request']['parameters'],execution.updates,pair=original['result']['linked_readout'])
         run=execute(RunRequest(kind='tse',parameters=parameters,expected_source_hash=api_source),api_source)
         payload=dict(parent_record_sha256=parent['record_sha256'],updates=[u.model_dump(mode='json') for u in execution.updates],parent_computationally_replayed=True,
             parameters_before_sha256=fingerprint(original['replay_request']['parameters']),parameters_after_sha256=fingerprint(run['replay_request']['parameters']),run=run)
@@ -358,6 +361,13 @@ def verify_scientific_record(record):
         if not HASH.fullmatch(record['api_source_hash']): raise ValueError('invalid API source fingerprint')
         request=_loads(record['request_json']);payload=_loads(record['payload_json'])
         StudyContext.model_validate(request['context'])
+        mode=request['execution']['type']
+        runs=([payload] if mode=='run' else [payload['run']] if mode=='edited_tse' else
+              [p['run'] for p in payload['candidates'] if p['feasible']] if mode=='search' else [])
+        for run in runs:
+            pair=run.get('result',{}).get('linked_readout')
+            if pair and (pair['provenance']['source_sha256']!=record['sources']['sha256'] or pair['provenance']['runtime']!=record['runtime']):
+                raise ValueError('linked source/runtime pin differs from scientific record')
         summary=_summary(request,payload,record['api_source_hash'])
         if fingerprint(summary)!=fingerprint(record['summary']): raise ValueError('record summary differs from computed payload')
         if request.get('expected_execution_hash') and request['expected_execution_hash']!=summary['execution_hash']:
@@ -403,6 +413,9 @@ class ScientificStore:
         verify_scientific_record(record);raw=_dump(record);size=len(raw.encode())
         if size>MAX_BYTES: raise ValueError('scientific record exceeds 128 MiB storage limit')
         identity=record['record_sha256']
+        if record['summary']['mode']=='edited_tse':
+            parent,_=_edit_parent(_loads(record['request_json'])['execution'])
+            self.save(parent)
         if record['summary']['mode']=='calibrated_radial_tse':
             parent,_=_parent_measurement(_loads(record['request_json'])['execution'])
             self.save(parent)

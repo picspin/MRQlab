@@ -6,7 +6,7 @@ from .spatial_imaging import _hash
 from .family_recipes import build_family_recipe
 from .kernel import run_experiment
 from .observations import build_result_graph
-from .linked_readout import pair_tse_readout
+from .tse_linked_readout import pair_tse_readout
 
 SCOPE = ('Teaching/research spoiled periodic EPG, ideal hard CPMG RF and Cartesian '
          'encoding; no scanner validation or clinical quality certification; no B1 '

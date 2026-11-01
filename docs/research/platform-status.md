@@ -540,3 +540,41 @@ declared adapter. Dynamic biology, measured relaxivity/uncertainty, general
 operation-level RF/gradient orchestration, broader modality adapters and actual
 physician/LLM usability remain incomplete. The expanded platform goal stays
 active. No manuscript import, push/PR/merge, B/C promotion or router change occurred.
+
+## Common linked image/vector core and TSE migration (2026-11-01)
+
+From `586cd3e`, the [common-schema slice](linked-image-vector-schema-coverage.md)
+extracts modality-independent complex image/vector structure and typed capability
+validation from the existing TSE pair. The first verified transform remains a
+complete 2D/3D Cartesian centered inverse DFT. Shared axes/indices, normalized
+coordinates, acquisition-order times, complete tissue bindings and standalone
+source/runtime/input pins are retained. TSE echo membership is adapter metadata;
+RF/timing/order/concentration capabilities come from its declared adapter rather
+than common schema fields. The TSE runner now emits only the common pair.
+
+The existing bounded `edited_tse` scientific carrier consumes common edits from
+either view, fully replays its immutable pinned parent and recomputes both views.
+Unsupported/unbound, ambiguous, out-of-range and extrapolated edits fail explicitly.
+Physical gradient waveform edits stay unsupported. Target failures remain visible;
+no thresholds, including the 0.4 NRMSE gate, were changed. Portable child import
+also restores embedded parents for immutable record-link navigation.
+
+New schema/replay tests cover non-TSE direct-sum fixtures, typed rejection,
+view-origin equivalence, HTTP parent/child export/import, shared-library replay
+and byte-identical fresh CLI replay. Repeated independent contrast evidence
+matches across processes: maximum complete-sample error **2.84217e-14**, direct
+inverse-DFT image error **9.99567e-16**, and the .5-concentration child's image
+NRMSE **0.16709967168449194** still fails its unchanged **1e-10** target.
+Fresh full Python regression is **1070 passed** (one existing Starlette warning);
+TypeScript and repo diff-check pass. Frontend `npm test` is the final pending
+command; no full dual-end pass or commit is claimed yet. The specified Vite-cache
+EPERM requires an immediate stop without staging or changing symlinks/configuration/permissions.
+
+This is the first common schema/typed-edit/TSE replay slice, not completion of
+the expanded goal. Additional transforms and modality adapters, general parameter
+proportions/tissue-modality inference, non-Cartesian NRMSE recalibration, frontend
+productization, operation-level RF/gradient orchestration, dynamic biology,
+measured relaxivity/uncertainty and actual physician/LLM usability remain explicit
+gaps. B/C remain parked; teaching/research boundaries remain. No goal-file change,
+submission/manuscript work, push, PR, merge, router/provider/classifier change or
+other-worktree change is included.

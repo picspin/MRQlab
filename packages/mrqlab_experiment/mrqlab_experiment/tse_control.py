@@ -1,4 +1,5 @@
 """Bounded semantic edits shared by human and agent TSE controls."""
+from .linked_readout import LinkedEdit, validate_linked_edits
 from copy import deepcopy
 import math
 from typing import Literal
@@ -7,6 +8,7 @@ from pydantic import BaseModel,ConfigDict,Field,model_validator
 
 class TSEEdit(BaseModel):
     model_config=ConfigDict(extra='forbid',strict=True,allow_inf_nan=False)
+    view: Literal['image','signal_vector'] | None=None
     field: Literal['rf.refocusing_start_deg','rf.refocusing_end_deg','timing.tr_s','timing.echo_spacing_s','encoding.order','tissue.concentration_mmol_l']
     value: float | str
     tissue_id: str | None=Field(default=None,min_length=1,max_length=128)
@@ -20,11 +22,12 @@ class TSEEdit(BaseModel):
         return self
 
 
-def apply_tse_edits(parameters,updates):
+def apply_tse_edits(parameters,updates, *, pair=None):
+    if pair is not None: updates=validate_linked_edits(pair,updates)
     result=deepcopy(parameters);seen=set()
     mapped={'rf.refocusing_start_deg':'refocusing_angle','rf.refocusing_end_deg':'refocusing_end_angle','timing.tr_s':'tr_s','timing.echo_spacing_s':'echo_spacing_s','encoding.order':'order'}
     for raw in updates:
-        edit=TSEEdit.model_validate(raw.model_dump(mode='json') if isinstance(raw,TSEEdit) else raw)
+        edit=TSEEdit.model_validate(raw.model_dump(mode='json') if isinstance(raw,(TSEEdit,LinkedEdit)) else raw)
         key=(edit.field,edit.tissue_id)
         if key in seen: raise ValueError('duplicate semantic edit')
         seen.add(key)

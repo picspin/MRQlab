@@ -1,71 +1,204 @@
-"""Lossless linked MR image / acquisition-order complex signal representation.
+"""Common linked complex image/vector core, with explicitly registered transforms.
 
-This adapter represents the existing ideal echo-held Cartesian TSE model. Sample
-times are its authored ADC schedule, not additional within-window Bloch evolution.
+The first verified transform is complete Cartesian centered inverse DFT. Modality
+physics and control-to-input mappings belong to adapters, never this schema.
 """
+from copy import deepcopy
+import math
+from typing import Literal
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from mrqlab_recon.spatial import cartesian_reconstruct
+
+SCHEMA = 'mrqlab-linked-image-vector-1'
 
 
 def _hash(value):
-    # Runtime import avoids the existing lab-study -> TSE module dependency.
     from .lab_study import fingerprint
     return fingerprint(value)
-def _values(data):
-    a=np.asarray(data,complex).ravel()
-    return dict(real=a.real.tolist(),imag=a.imag.tolist())
 
 
-def pair_tse_readout(kspace,image,timeline,labels,tissues,design):
-    shape=list(np.shape(image));axes=['z','y','x'][-len(shape):];indices=[];times=[];echoes=[]
-    for train in timeline:
-        for line in train['lines']:
-            for x in range(shape[-1]):
-                indices.append([line['kz'],line['ky'],x][-len(shape):]);times.append(line['adc_start_s']+x*line['dwell_s']);echoes.append(line['echo'])
-    indices=np.asarray(indices,int);samples=kspace[tuple(indices.T)]
-    signal=dict(id='acquired_kspace',axis='acquisition_sample',value_unit='a.u.',complex_convention='real + i*imag',values=_values(samples),
-        grid_indices=indices.tolist(),grid_index_axes=axes,
-        normalized_coordinates=((indices-np.asarray(shape)//2)/np.asarray(shape)).tolist(),coordinate_unit='cycles/voxel',
-        sample_times_s=times,time_unit='s',echo_numbers=echoes,
-        timing_model='ideal authored ADC schedule; one periodic EPG echo-center amplitude is held across the entire line')
-    mr_image=dict(id='reconstructed_image',shape=shape,axes=axes,index_unit='voxel',flatten_order='C',value_unit='a.u.',values=_values(image),
-        display='magnitude for human preview; complex values retained without gain normalization')
-    structure=dict(shape=shape,label_grid=np.asarray(labels,int).tolist(),label_to_tissue_id=[t.id for t in tissues],
-        origin='authored two-class synthetic spatial structure; no patient/anatomical validation')
-    controls=[dict(field=name,unit=unit,value=value) for name,unit,value in [
-        ('rf.refocusing_start_deg','deg',timeline[0]['refocusing_degrees'][0]),
-        ('rf.refocusing_end_deg','deg',timeline[0]['refocusing_degrees'][-1]),
-        ('timing.tr_s','s',design['tr_s']),('timing.echo_spacing_s','s',design['echo_spacing_s']),('encoding.order','category',design['order'])]]
-    if len(timeline[0]['refocusing_degrees'])==1: controls=[c for c in controls if c['field']!='rf.refocusing_end_deg']
-    for tissue in tissues:
-        e=tissue.contrast_exposure
-        if e is not None: controls.append(dict(field='tissue.concentration_mmol_l',tissue_id=tissue.id,value=e.concentration_mmol_l,unit='mmol/L',min=0.,max=e.valid_concentration_max_mmol_l))
-    result=dict(schema_version='mrqlab-image-signal-pair-1',canonicalization='typed-json-f64-v1',image=mr_image,signal_vector=signal,structure=structure,controls=controls,
-        links=[dict(source='acquired_kspace',target='reconstructed_image',transform='centered inverse DFT over declared grid axes',normalization='1/product(shape); no fitted gain'),
-               dict(source='structure',target='acquired_kspace',transform='tissue-specific periodic EPG and ideal Fourier line encoding')],
-        scope='linked teaching/research ideal TSE images and signal vectors, not DICOM, diagnosis, scanner control or a universal multimodal representation')
-    result['pair_sha256']=_hash(result)
-    return result
+def complex_values(data):
+    a = np.asarray(data, complex).ravel()
+    return dict(real=a.real.tolist(), imag=a.imag.tolist())
+
+
+class Strict(BaseModel):
+    model_config = ConfigDict(extra='forbid', strict=True, allow_inf_nan=False)
+
+
+class LinkedEdit(Strict):
+    """A semantic edit from either view; its bound descriptor supplies the type."""
+    field: str = Field(min_length=1, max_length=128, pattern=r'^[a-zA-Z][a-zA-Z0-9_.]*$')
+    value: float | str
+    tissue_id: str | None = Field(default=None, min_length=1, max_length=128)
+    view: Literal['image', 'signal_vector'] | None = None
+
+
+class Control(Strict):
+    field: str = Field(min_length=1, max_length=128, pattern=r'^[a-zA-Z][a-zA-Z0-9_.]*$')
+    tissue_id: str | None = None
+    value: float | str
+    unit: str = Field(min_length=1)
+    kind: Literal['number', 'category']
+    min: float | None = None
+    max: float | None = None
+    choices: list[str] | None = None
+
+    @model_validator(mode='after')
+    def bounded(self):
+        if not self.unit.strip():
+            raise ValueError('explicit control unit required')
+        if self.kind == 'number':
+            if self.min is None or self.max is None or self.min > self.max or self.choices is not None:
+                raise ValueError('explicit finite numeric control bounds required')
+            if not isinstance(self.value, float):
+                raise ValueError('numeric control value required')
+        elif self.min is not None or self.max is not None or not self.choices or len(set(self.choices)) != len(self.choices):
+            raise ValueError('explicit unique category choices required')
+        elif any(not choice.strip() for choice in self.choices) or self.value not in self.choices:
+            raise ValueError('declared current category required')
+        return self
+
+    def check_value(self, value):
+        if self.kind == 'number':
+            if type(value) not in (int, float) or not math.isfinite(value):
+                raise ValueError('finite numeric control value required')
+            if not self.min <= value <= self.max:
+                raise ValueError('out-of-range or extrapolated control value: ' + self.field)
+        elif type(value) is not str or value not in self.choices:
+            raise ValueError('unsupported category value: ' + self.field)
+
+
+def validate_linked_edits(pair, updates):
+    """Return validated edits, never mutate a parent or directly write samples."""
+    verify_linked_readout(pair)
+    if not isinstance(updates, list) or not 1 <= len(updates) <= 8:
+        raise ValueError('one to eight typed edits required')
+    controls = {(c['field'], c.get('tissue_id')): Control.model_validate(c) for c in pair['controls']}
+    seen = set(); checked = []
+    for raw in updates:
+        edit = LinkedEdit.model_validate(raw.model_dump(mode='json') if isinstance(raw, BaseModel) else raw)
+        key = (edit.field, edit.tissue_id)
+        if key in seen:
+            raise ValueError('duplicate or ambiguous semantic edit')
+        seen.add(key)
+        if key not in controls:
+            raise ValueError('unsupported or unbound control (physical gradient waveform edits unsupported): ' + edit.field)
+        controls[key].check_value(edit.value)
+        checked.append(edit)
+    return checked
+
+
+def create_linked_readout(*, image, signal_vector, structure, controls, links, provenance, scope):
+    body = deepcopy(dict(schema_version=SCHEMA, canonicalization='typed-json-f64-v1', image=image,
+        signal_vector=signal_vector, structure=structure, controls=controls, links=links, provenance=provenance, scope=scope))
+    body['pair_sha256'] = _hash(body)
+    verify_linked_readout(body)
+    return body
+
+
+def _numeric(value, name):
+    def no_bools(v):
+        if isinstance(v,list): return all(no_bools(x) for x in v)
+        return type(v) in (int,float)
+    if not no_bools(value):
+        raise ValueError('finite numeric ' + name + ' required')
+    a = np.asarray(value)
+    if a.dtype.kind not in 'fiu' or not np.isfinite(a).all():
+        raise ValueError('finite numeric ' + name + ' required')
+    return a
+
+
+def _integers(value, name):
+    def valid(v):
+        return all(valid(x) for x in v) if isinstance(v,list) else type(v) is int
+    if not isinstance(value,list) or not valid(value):
+        raise ValueError('integer ' + name + ' required; booleans are unsupported')
+    return np.asarray(value)
+
+
+def _text(value):
+    return isinstance(value,str) and bool(value.strip())
 
 
 def verify_linked_readout(pair):
-    if not isinstance(pair,dict) or pair.get('schema_version')!='mrqlab-image-signal-pair-1': raise ValueError('unsupported image/signal pair')
-    if _hash({k:v for k,v in pair.items() if k!='pair_sha256'})!=pair.get('pair_sha256'): raise ValueError('image/signal pair hash mismatch')
-    image=pair['image'];signal=pair['signal_vector'];shape=image['shape']
-    if len(shape) not in [2,3] or any(type(n) is not int or n<2 for n in shape) or np.prod(shape)>1000000: raise ValueError('bounded image grid required')
+    """Integrity/geometry/transform checks; computational replay proves physics."""
+    try:
+        return _verify(pair)
+    except (KeyError, TypeError, IndexError, OverflowError) as exc:
+        raise ValueError('malformed common linked image/vector schema') from exc
+
+
+def _verify(pair):
+    expected = {'schema_version','canonicalization','image','signal_vector','structure','controls','links','provenance','scope','pair_sha256'}
+    if not isinstance(pair, dict) or set(pair) != expected or pair['schema_version'] != SCHEMA or pair['canonicalization'] != 'typed-json-f64-v1':
+        raise ValueError('unsupported common linked image/vector schema')
+    if _hash({k:v for k,v in pair.items() if k != 'pair_sha256'}) != pair['pair_sha256']:
+        raise ValueError('image/signal pair hash mismatch')
+    image = pair['image']; signal = pair['signal_vector']; shape = image['shape']
+    if not isinstance(shape, list) or len(shape) not in (2,3) or any(type(n) is not int or n < 2 for n in shape) or math.prod(shape) > 1000000:
+        raise ValueError('bounded image grid required')
+    axes = image['axes']
+    if len(axes) != len(shape) or len(set(axes)) != len(axes) or any(not isinstance(a,str) or not a for a in axes) or signal['grid_index_axes'] != axes:
+        raise ValueError('shared unique spatial axes required')
+    if not all(_text(v) for v in [image['id'],signal['id'],image['value_unit'],signal['value_unit']]):
+        raise ValueError('explicit view identifiers and value units required')
+    if image['flatten_order'] != 'C' or image['index_unit'] != 'voxel' or signal['coordinate_unit'] != 'cycles/voxel' or signal['time_unit'] != 's' or image['value_unit'] != signal['value_unit']:
+        raise ValueError('unsupported image/vector layout or units')
+    if signal['complex_convention'] != 'real + i*imag' or signal['axis'] != 'acquisition_sample':
+        raise ValueError('explicit complex acquisition convention required')
     def values(payload):
-        if set(payload)!= {'real','imag'}: raise ValueError('complete real/imag vectors required')
-        re=np.asarray(payload['real']);im=np.asarray(payload['imag'])
-        if re.ndim!=1 or re.shape!=im.shape or re.dtype.kind not in 'fiu' or im.dtype.kind not in 'fiu' or not np.isfinite(re).all() or not np.isfinite(im).all(): raise ValueError('finite matched complex vectors required')
-        return re+1j*im
-    samples=values(signal['values']);actual=values(image['values'])
-    if samples.size!=np.prod(shape) or actual.size!=samples.size: raise ValueError('complete paired image/acquisition required')
-    indices=np.asarray(signal['grid_indices']);coords=np.asarray(signal['normalized_coordinates']);times=np.asarray(signal['sample_times_s'])
-    if times.shape!=(samples.size,) or not np.isfinite(times).all() or np.any(times<0) or np.any(np.diff(times)<0): raise ValueError('bounded acquisition-order sample times required')
-    expected=(indices-np.asarray(shape)//2)/np.asarray(shape)
-    if coords.shape!=expected.shape or not np.array_equal(coords,expected): raise ValueError('normalized coordinates differ from encoding grid')
-    reconstructed=cartesian_reconstruct(indices,samples,tuple(shape)).ravel()
-    error=float(np.max(abs(reconstructed-actual)))
-    if error>1e-12*max(1.,float(np.max(abs(actual)))): raise ValueError('image is not the inverse transform of the retained signal vector')
+        if set(payload) != {'real','imag'}:
+            raise ValueError('complete real/imag vectors required')
+        re = _numeric(payload['real'], 'real values'); im = _numeric(payload['imag'], 'imag values')
+        if re.ndim != 1 or re.shape != im.shape:
+            raise ValueError('finite matched complex vectors required')
+        return re + 1j*im
+    samples = values(signal['values']); actual = values(image['values'])
+    if samples.size != math.prod(shape) or actual.size != samples.size:
+        raise ValueError('complete paired image/acquisition required')
+    indices = _integers(signal['grid_indices'], 'grid indices'); coords = _numeric(signal['normalized_coordinates'], 'coordinates'); times = _numeric(signal['sample_times_s'], 'times')
+    if indices.shape != (samples.size,len(shape)) or indices.dtype.kind not in 'iu' or np.any(indices < 0) or np.any(indices >= shape) or len(np.unique(indices,axis=0)) != samples.size:
+        raise ValueError('complete unique bounded integer grid indices required')
+    if times.shape != (samples.size,) or np.any(times < 0) or np.any(np.diff(times) < 0):
+        raise ValueError('bounded acquisition-order sample times required')
+    expected_coords = (indices - np.asarray(shape)//2)/np.asarray(shape)
+    if coords.shape != expected_coords.shape or not np.array_equal(coords, expected_coords):
+        raise ValueError('normalized coordinates differ from encoding grid')
+    structure = pair['structure']; labels = _integers(structure['label_grid'], 'tissue labels'); tissues = structure['label_to_tissue_id']
+    if structure['shape'] != shape or labels.shape != tuple(shape) or labels.dtype.kind not in 'iu' or not tissues or len(set(tissues)) != len(tissues) or any(not isinstance(t,str) or not t.strip() for t in tissues) or np.any(labels < 0) or np.any(labels >= len(tissues)):
+        raise ValueError('complete bound spatial tissue labels required')
+    controls = pair['controls']; seen = set()
+    if not isinstance(controls,list) or len(controls) > 128:
+        raise ValueError('bounded control descriptors required')
+    for raw in controls:
+        c = Control.model_validate(raw); key = (c.field,c.tissue_id)
+        if key in seen or (c.tissue_id is not None and c.tissue_id not in tissues):
+            raise ValueError('ambiguous or unbound control descriptor')
+        seen.add(key)
+        # Low-level adapter runs can use a larger physical domain than the safe
+        # record-edit API. Such current values are readable, never edit bounds.
+    provenance = pair['provenance']
+    for key in ['source_sha256','inputs_sha256']:
+        value = provenance[key]
+        if not isinstance(value,str) or len(value) != 64 or any(c not in '0123456789abcdef' for c in value):
+            raise ValueError('source/input pin required')
+    if not all(_text(v) for v in [provenance['adapter'],provenance['origin'],structure['origin'],pair['scope']]) or not isinstance(provenance['runtime'],dict) or not provenance['runtime'] or not provenance['source_refs']:
+        raise ValueError('runtime, adapter, provenance and origin required')
+    refs = provenance['source_refs']
+    if not isinstance(refs,list) or len(refs) != len(tissues) or {r['tissue_id'] for r in refs} != set(tissues) or any(not _text(r['source_ref']) or not _text(r['origin']) or not isinstance(r['state'],dict) or not r['state'] for r in refs):
+        raise ValueError('per-tissue state, source and origin bindings required')
+    if image['id'] == signal['id'] or not image['id'] or not signal['id']:
+        raise ValueError('distinct linked view identifiers required')
+    transform = dict(source=signal['id'],target=image['id'],transform='centered_inverse_dft',normalization='1/product(shape); no fitted gain')
+    if pair['links'].count(transform) != 1:
+        raise ValueError('unsupported or ambiguous image/vector transform')
+    if any(l['target'] == image['id'] and l != transform for l in pair['links']):
+        raise ValueError('unsupported image/vector transform')
+    reconstructed = cartesian_reconstruct(indices,samples,tuple(shape)).ravel()
+    error = float(np.max(abs(reconstructed-actual)))
+    if error > 1e-12*max(1.,float(np.max(abs(actual)))):
+        raise ValueError('image is not the inverse transform of the retained signal vector')
     return dict(integrity_passed=True,transform_passed=True,max_absolute_transform_error=error,complex_sample_count=int(samples.size),
         scope='pair integrity and Fourier relationship only; no independent physical/model/clinical revalidation')
