@@ -26,6 +26,8 @@ from mrqlab_experiment.study_records import (
 )
 from mrqlab_experiment.calibrated_radial import CalibratedRadialStudy, run_calibrated_radial_study
 from mrqlab_experiment.flow_study import FlowStudy,VelocityDataset,run_flow_study
+from mrqlab_experiment.tse_control import TSEEdit,apply_tse_edits
+from mrqlab_experiment.linked_readout import verify_linked_readout
 from .research import (
     RunRequest, SearchRequest, checked_source_hash, execute, search_research, _lab_response, serializable, present,
 )
@@ -76,6 +78,13 @@ class MeasuredFlowPlan(Strict):
     study: FlowStudy
 
 
+class EditedTSEPlan(Strict):
+    type: Literal['edited_tse']='edited_tse'
+    parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
+    parent_record: dict | None=None
+    updates: list[TSEEdit]=Field(min_length=1,max_length=8)
+
+
 class CalibratedRadialPlan(Strict):
     type: Literal['calibrated_radial_tse']='calibrated_radial_tse'
     parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
@@ -85,7 +94,7 @@ class CalibratedRadialPlan(Strict):
 
 class ScientificPlan(Strict):
     context: StudyContext
-    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | CalibratedRadialPlan,Field(discriminator='type')]
+    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan,Field(discriminator='type')]
     expected_execution_hash: str | None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
 
 
@@ -143,6 +152,32 @@ def _validate_run(run, source):
     # This is the original API hash convention, applied to the lossless payload.
     actual=sha256(json.dumps(run['result'],sort_keys=True,allow_nan=False).encode()).hexdigest()
     if run.get('result_hash')!=actual: raise ValueError('nested research result hash mismatch')
+    if run.get('kind')=='tse' and 'linked_readout' in run['result']: verify_linked_readout(run['result']['linked_readout'])
+
+
+def _edit_parent(execution):
+    parent=execution['parent_record']
+    if not isinstance(parent,dict) or parent.get('record_sha256')!=execution['parent_record_sha256']: raise ValueError('edit parent record identity mismatch')
+    cursor=parent;depth=1
+    while _loads(cursor['request_json'])['execution']['type']=='edited_tse':
+        depth+=1
+        if depth>3: raise ValueError('at most three TSE edit generations are supported; no unbounded parent replay')
+        cursor=_loads(cursor['request_json'])['execution']['parent_record']
+    verify_scientific_record(parent)
+    payload=_loads(parent['payload_json'])
+    if parent['summary']['mode']=='edited_tse': run=payload['run']
+    elif parent['summary']['mode']=='run' and parent['summary']['kind']=='tse': run=payload
+    else: raise ValueError('semantic edits require a TSE run or edited TSE parent')
+    if 'linked_readout' not in run['result']: raise ValueError('parent lacks complete linked image/signal data')
+    return parent,run
+
+
+def _run_origins(run):
+    origins={'authored_model_inputs'}
+    if run.get('kind')=='tse':
+        for physical in run['result']['provenance']['physical']:
+            for binding in physical.get('contrast_relaxation_bindings',[]): origins.add(binding['exposure']['origin'])
+    return sorted(origins)
 
 
 
@@ -166,7 +201,15 @@ def _summary(request,payload,source):
         points=[dict(index=0,input_parameters_sha256=fingerprint(payload['replay_request']['parameters']),executable=True,
             model_reported_passed=payload['view']['validation']['passed'],validation=payload['view']['validation'])]
         kind=payload['kind'];selected=0;reported=points[0]['model_reported_passed']
-        execution_hash=payload['result_hash'];origins=['authored_model_inputs']
+        execution_hash=payload['result_hash'];origins=_run_origins(payload)
+    elif mode=='edited_tse':
+        parent,original=_edit_parent(execution);run=payload['run'];_validate_run(run,source)
+        if payload['parent_record_sha256']!=parent['record_sha256'] or parent['api_source_hash']!=source: raise ValueError('edited TSE parent/source differs')
+        if fingerprint(payload['updates'])!=fingerprint(execution['updates']): raise ValueError('applied semantic edits differ from retained request')
+        if payload['parameters_before_sha256']!=fingerprint(original['replay_request']['parameters']) or payload['parameters_after_sha256']!=fingerprint(run['replay_request']['parameters']):
+            raise ValueError('edit parameter dependency hashes differ')
+        reported=run['view']['validation']['passed'];kind='tse';selected=0;execution_hash=run['result_hash'];origins=_run_origins(run)
+        points=[dict(index=0,executable=True,model_reported_passed=reported,validation=run['view']['validation'])]
     elif mode=='search':
         if execution.get('kind')!=payload.get('kind'): raise ValueError('execution kind differs from payload')
         if payload.get('source_hash')!=source or payload.get('replay_search',{}).get('expected_source_hash')!=source:
@@ -183,7 +226,8 @@ def _summary(request,payload,source):
             if payload['best'] is not None and _dump(p)==_dump(payload['best']): selected=i
         if payload['best'] is not None and selected is None: raise ValueError('selected result is not a candidate')
         reported=selected is not None and points[selected]['model_reported_passed']
-        kind=payload['kind'];execution_hash=payload['search_hash'];origins=['authored_model_inputs']
+        kind=payload['kind'];execution_hash=payload['search_hash']
+        origins=sorted({'authored_model_inputs'}|{origin for p in payload['candidates'] if p['feasible'] for origin in _run_origins(p['run'])})
     elif mode=='measured_tse':
         legacy=payload['record'];verify_study_record(legacy)
         if payload['view'] is not None: _validate_view(payload['view'])
@@ -217,7 +261,8 @@ def _summary(request,payload,source):
         mode=mode,kind=kind,selected_index=selected,model_reported_passed=bool(reported),
         candidate_count=len(points),candidates=points,execution_hash=execution_hash,input_origins=origins,
         background_references_applied=False,scope=SCOPE)
-    if mode=='calibrated_radial_tse': summary['parent_record_sha256']=execution['parent_record_sha256']
+    if mode in {'calibrated_radial_tse','edited_tse'}: summary['parent_record_sha256']=execution['parent_record_sha256']
+    if mode=='edited_tse': summary['applied_edits_sha256']=fingerprint(execution['updates'])
     if mode=='measured_flow': summary['calibration_sha256']=fingerprint(payload['flow_study']['calibration'])
     return summary
 
@@ -227,6 +272,8 @@ def _stages(request,request_hash,payload_hash,summary,environment):
             ('source_and_runtime',fingerprint(environment)),('computed_execution',payload_hash),('reported_validation',fingerprint(summary))]
     if request['execution']['type']=='calibrated_radial_tse':
         values.insert(1,('parent_measurement_record',request['execution']['parent_record_sha256']))
+    if request['execution']['type']=='edited_tse':
+        values[1:1]=[('parent_image_signal_record',request['execution']['parent_record_sha256']),('typed_parameter_edits',summary['applied_edits_sha256'])]
     if request['execution']['type']=='measured_flow':
         values=[values[0],('raw_velocity_measurements',fingerprint(request['execution']['study']['dataset'])),values[2],
             ('conditional_pressure_calibration',summary['calibration_sha256']),values[1],*values[3:]]
@@ -240,12 +287,19 @@ def _stages(request,request_hash,payload_hash,summary,environment):
 
 def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
     plan=ScientificPlan.model_validate(plan).model_copy(deep=True)
-    if isinstance(plan.execution,CalibratedRadialPlan) and plan.execution.parent_record is None:
+    if isinstance(plan.execution,(CalibratedRadialPlan,EditedTSEPlan)) and plan.execution.parent_record is None:
         plan.execution.parent_record=(store or ScientificStore()).get(plan.execution.parent_record_sha256)
     sources=_checked_sources();api_source=checked_source_hash();runtime=runtime_manifest()
     request=plan.model_dump(mode='json');request_json=_dump(request)
     execution=plan.execution
-    if isinstance(execution,CalibratedRadialPlan):
+    if isinstance(execution,EditedTSEPlan):
+        parent,original=_edit_parent(request['execution'])
+        replay_scientific_record(parent)  # never derive from an uncomputed imported result
+        parameters=apply_tse_edits(original['replay_request']['parameters'],execution.updates)
+        run=execute(RunRequest(kind='tse',parameters=parameters,expected_source_hash=api_source),api_source)
+        payload=dict(parent_record_sha256=parent['record_sha256'],updates=[u.model_dump(mode='json') for u in execution.updates],parent_computationally_replayed=True,
+            parameters_before_sha256=fingerprint(original['replay_request']['parameters']),parameters_after_sha256=fingerprint(run['replay_request']['parameters']),run=run)
+    elif isinstance(execution,CalibratedRadialPlan):
         parent,legacy=_parent_measurement(request['execution'])
         derived=run_calibrated_radial_study(legacy,execution.study)
         preview=derived['preview_simulation']
@@ -385,6 +439,7 @@ class ScientificStore:
 def _response(record):
     payload=_loads(record['payload_json']);mode=record['summary']['mode']
     if mode in {'measured_tse','measured_flow','calibrated_radial_tse'}: view=payload['view']
+    elif mode=='edited_tse': view=payload['run']['view']
     elif mode=='run': view=payload['view']
     else:
         selected=payload['best'] or next((p for p in payload['candidates'] if p['feasible']),None)

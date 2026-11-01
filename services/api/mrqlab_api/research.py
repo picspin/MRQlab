@@ -21,6 +21,8 @@ from mrqlab_experiment.mrs_quantum import run_mrs_quantum
 from mrqlab_experiment.radial_tse import run_radial_tse
 from mrqlab_experiment.flow_epi import run_flow_epi
 from mrqlab_experiment.flow_study import build_flow_study_example,import_velocity_csv
+from mrqlab_experiment.models import ExperimentGraph
+from mrqlab_experiment.tse_control import contrast_tse_example
 
 router=APIRouter(prefix='/research',tags=['research/teaching'])
 Kind=Literal['tse','noncartesian','flow','pulsatile_flow','flow_epi','cest','cest_solomon','cest_memory','mrs','mrs_press','mrs_quantum','radial_tse']
@@ -40,6 +42,10 @@ class VelocityCSVRequest(StrictParameters):
 def flow_study_example(): return build_flow_study_example().model_dump(mode='json')
 
 
+@router.get('/contrast-study/example')
+def contrast_study_example(): return contrast_tse_example()
+
+
 @router.post('/flow-study/import-csv')
 def import_flow_csv(request: VelocityCSVRequest):
     try:
@@ -57,6 +63,7 @@ Shift=Annotated[float,Field(ge=-20.,le=20.)]
 
 
 class TSEParameters(StrictParameters):
+    experiment: ExperimentGraph | None=None
     labels: list | None=None
     echoes: int=Field(default=4,ge=1,le=16)
     order: Literal['linear','centric']='centric'
@@ -585,7 +592,9 @@ def _lab_response(record):
     simulation=record['result']['selected_simulation']
     def decode(value):
         if isinstance(value,dict):
-            if set(value)=={'real','imag'}: return complex(value['real'],value['imag'])
+            if set(value)=={'real','imag'}:
+                if isinstance(value['real'],(int,float)) and isinstance(value['imag'],(int,float)): return complex(value['real'],value['imag'])
+                return np.asarray(value['real'])+1j*np.asarray(value['imag'])
             return {k:decode(v) for k,v in value.items()}
         if isinstance(value,list): return [decode(v) for v in value]
         return value

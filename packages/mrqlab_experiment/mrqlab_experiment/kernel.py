@@ -22,6 +22,7 @@ from .disturbances import disturbance_requirements
 from .models import ExperimentGraph
 from .physics_ir import PhysicsIR, compile_physics_ir
 from .resolution import ResolvedExecutionPlan, fingerprint_resolved_plan, resolve_parameter_states
+from .contrast_relaxation import contrast_bindings,effective_tissue
 
 
 class ValidationIssue(BaseModel):
@@ -50,7 +51,7 @@ class KernelRun:
 
 def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
     if graph.tissue is not None:
-        tissues = graph.tissue if isinstance(graph.tissue, tuple) else (graph.tissue,)
+        tissues = tuple(effective_tissue(t,graph.effective_scanner.b0_t) for t in (graph.tissue if isinstance(graph.tissue, tuple) else (graph.tissue,)))
         if len(tissues) == 1:
             t = tissues[0]
             return Phantom(
@@ -117,6 +118,7 @@ def _phantom_from_sample(graph: ExperimentGraph) -> Phantom:
 
 
 def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
+    bindings = contrast_bindings(graph)
     sequence = compile_sequence(graph)
     cest = sequence.metadata.get("cest")
     adc_values = (
@@ -214,7 +216,7 @@ def plan_experiment(graph: ExperimentGraph) -> ExecutionPlan:
     elif selected.name == "bloch":
         approximations = ("isochromat_sampling_grid",)
 
-    physics_status = {}
+    physics_status = {"contrast_relaxation": "static_linear_R1_R2_applied_from_explicit_tissue_exposure"} if bindings else {}
     if graph.tissue is not None:
         tissues = graph.tissue if isinstance(graph.tissue, tuple) else (graph.tissue,)
         for t in tissues:
@@ -350,6 +352,8 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
                 raise ValueError("combined family compartments exceed max_work")
         else:
             result = simulate_family(sequence, _phantom_from_sample(graph), scanner_model, options)
+        bindings=contrast_bindings(graph)
+        if bindings: result.meta['contrast_relaxation_bindings']=bindings
         return KernelRun(graph.model_copy(deep=True), sequence, result, plan, physics_ir)
     try:
         engine = get_engine(plan.representation if plan.representation in {"hybrid", "ssepg", "pdg", "epg-x"} else plan.engine)
@@ -363,4 +367,6 @@ def run_experiment(graph: ExperimentGraph) -> KernelRun:
         if plan.representation not in {"hybrid", "ssepg", "pdg"}:
             raise
         raise CapabilityMismatch(f"{plan.representation} engine handoff unavailable: {exc}") from exc
+    bindings=contrast_bindings(graph)
+    if bindings: result.meta['contrast_relaxation_bindings']=bindings
     return KernelRun(graph.model_copy(deep=True), sequence, result, plan, physics_ir)

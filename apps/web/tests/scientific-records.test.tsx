@@ -1,5 +1,5 @@
 import React from "react";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import RecordsPage from "../app/research/records/page";
 import SaveScientificRecord from "../components/research/SaveScientificRecord";
@@ -22,6 +22,16 @@ beforeEach(() => {
   vi.mocked(importScientificRecord).mockResolvedValue(response);
 });
 afterEach(cleanup);
+
+it("identifies an edited image/signal parent without labelling it measured calibration", async () => {
+  const child = structuredClone(response); child.record.summary.mode = "edited_tse"; child.record.summary.parent_record_sha256 = "f".repeat(64);
+  vi.mocked(getScientificRecord).mockResolvedValueOnce(child).mockResolvedValue(response);
+  render(<RecordsPage />); fireEvent.click(await screen.findByRole("button", { name: /phantom-01/ }));
+  const parentButton = await screen.findByRole("button", { name: "打开父图像 / 信号记录" });
+  expect(screen.queryByRole("button", { name: "打开父测量记录" })).not.toBeInTheDocument();
+  fireEvent.click(parentButton);
+  await waitFor(() => expect(getScientificRecord).toHaveBeenLastCalledWith("f".repeat(64), expect.any(AbortSignal)));
+});
 
 it("opens persistent history without presenting integrity as scientific replay", async () => {
   render(<RecordsPage />); fireEvent.click(await screen.findByRole("button", { name: /phantom-01/ }));

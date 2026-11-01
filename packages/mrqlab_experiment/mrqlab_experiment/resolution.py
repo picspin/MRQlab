@@ -81,6 +81,7 @@ _UNITS = {
 
 
 def resolve_parameter_states(graph: ExperimentGraph, sequence) -> tuple[ParameterState, ...]:
+    from .contrast_relaxation import contrast_bindings
     authored = graph.sequence.params if isinstance(graph.sequence, TemplateRef) else {}
     derived = {
         key: value
@@ -99,6 +100,12 @@ def resolve_parameter_states(graph: ExperimentGraph, sequence) -> tuple[Paramete
         for name, value in sorted(values.items())
         if name in _UNITS
     ]
+    for binding in contrast_bindings(graph):
+        exposure=binding['exposure'];prefix='tissue.'+binding['tissue_id']+'.'
+        for name,unit in [('concentration_mmol_l','mmol/L'),('r1_l_mmol_s','L/(mmol*s)'),('r2_l_mmol_s','L/(mmol*s)')]:
+            states.append(ParameterState(name=prefix+name,value=exposure[name],unit=unit,state='authored',source='ExperimentGraph.tissue.contrast_exposure; '+exposure['source_ref']))
+        for name in ['baseline_t1_s','baseline_t2_s','effective_t1_s','effective_t2_s']:
+            states.append(ParameterState(name=prefix+name,value=binding[name],unit='s',state='derived' if name.startswith('effective') else 'authored',source='static_linear_R1_R2; original tissue times remain baseline'))
     cest = sequence.metadata.get("cest")
     if cest:
         for name, unit in (("saturation_power_uT", "uT"), ("saturation_duration_s", "s")):

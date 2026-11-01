@@ -123,6 +123,15 @@ record. Numerical refinement passes for the default synthetic example, but both
 physical design candidates fail; no design is selected. Geometry, fluid properties,
 clock and tissue relaxation remain explicit priors.
 
+The [tissue-state / image-signal pilot](docs/research/contrast-image-signal-coverage.md)
+binds explicitly sourced static concentration and relaxivity to baseline T1/T2
+in the shared kernel. `/research/contrast-study` links complete complex TSE
+acquisitions to their reconstructed images. Human controls and agent requests
+use the same bounded semantic edits, preserve the parent and recompute both
+representations. This currently covers an ideal TSE adapter; dynamic exposure,
+general waveform control, measured relaxivity and broader biological validation
+remain open. Existing failed image-quality targets are preserved.
+
 The [finite-memory CEST extension](docs/research/cest-memory-coverage.md) uses a
 time-domain generalized Bloch semisolid model with the signed Solomon relay.
 It retains shaped RF, complex phase and whole pulse/gap history, including zero

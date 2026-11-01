@@ -6,6 +6,7 @@ from mrqlab_sequence import SequenceIR
 
 from .disturbances import DisturbanceStack
 from .objectives import ObjectiveFunction
+from .contrast_relaxation import ContrastExposure
 
 if TYPE_CHECKING:
     from .clinical import ClinicalProtocolRecipe
@@ -58,6 +59,7 @@ class TissueModel(BaseModel):
     bound_pool: bool = False
     diffusion_adc_mm2_s: float | None = Field(default=None, ge=0)
     chemical_shift_ppm: float = 0.0
+    contrast_exposure: ContrastExposure | None = None
 
 
 class PhysiologyModel(BaseModel):

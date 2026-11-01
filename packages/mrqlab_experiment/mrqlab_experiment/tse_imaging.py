@@ -6,6 +6,7 @@ from .spatial_imaging import _hash
 from .family_recipes import build_family_recipe
 from .kernel import run_experiment
 from .observations import build_result_graph
+from .linked_readout import pair_tse_readout
 
 SCOPE = ('Teaching/research spoiled periodic EPG, ideal hard CPMG RF and Cartesian '
          'encoding; no scanner validation or clinical quality certification; no B1 '
@@ -46,7 +47,7 @@ def psf_metrics(modulation):
 
 def prepare_tse_echo_train(*, echoes, echo_spacing_s, tr_s, t2_s,
                            refocusing_angle=180., refocusing_end_angle=180.,
-                           max_work=100000000, experiment=None):
+                           max_work=100000000, experiment=None, allow_contrast_exposure=False):
     """Shared periodic EPG echo centers; no spatial acquisition or mean weighting."""
     if type(echoes) is not int or not 1 <= echoes <= 64:
         raise ValueError('bounded integer echo count required')
@@ -62,6 +63,8 @@ def prepare_tse_echo_train(*, echoes, echo_spacing_s, tr_s, t2_s,
         validated = ExperimentGraph.model_validate(experiment)
         experiment_input = validated.model_dump(mode='json')
         graph = validated.model_copy(deep=True)
+        if not allow_contrast_exposure and isinstance(graph.tissue,tuple) and any(t.contrast_exposure is not None for t in graph.tissue):
+            raise ValueError('this radial/inverse caller does not yet bind effective contrast relaxation consistently; contrast_exposure unsupported here')
         if not isinstance(graph.sequence, TemplateRef) or graph.sequence.template != 'TSE3D' or graph.engine.preferred != 'epg':
             raise ValueError('TSE imaging requires a TSE3D EPG experiment chassis')
         if not isinstance(graph.tissue, tuple) or len(graph.tissue) != 2 or graph.physiology is not None or graph.disturbances.items:
@@ -128,7 +131,7 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
     graph,sequence,weights,physical,preparation_s,physical_work,experiment_input = prepare_tse_echo_train(
         echoes=echoes,echo_spacing_s=echo_spacing_s,tr_s=tr_s,t2_s=t2_s,
         refocusing_angle=refocusing_angle,refocusing_end_angle=refocusing_end_angle,
-        max_work=max_work-spatial_work,experiment=experiment)
+        max_work=max_work-spatial_work,experiment=experiment,allow_contrast_exposure=True)
     if spatial_work+physical_work > max_work:
         raise ValueError('combined EPG and spatial work exceeds budget')
     if trains*tr_s+max(preparation_s) > max_duration_s:
@@ -171,6 +174,7 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
     question = graph.clinical_recipe.question.research_question if experiment is not None and graph.clinical_recipe else 'How do T2, echo ordering and train length alter tissue contrast and spatial resolution?'
     return dict(clinical_question=question,
         design=graph.model_dump(mode='json'), timeline=timeline, echo_times_s=np.arange(1, echoes+1)*echo_spacing_s,
+        linked_readout=pair_tse_readout(kspace,image,timeline,labels,graph.tissue,inputs),
         tissue_echo_weights=weights, modulation=modulation, psfs=psfs, image=image, reference=reference,
         quality=image_quality(reference, image, 1e-10),
         psf_prediction_quality=image_quality(prediction, image, 1e-10), scope=SCOPE,

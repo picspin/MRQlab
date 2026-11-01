@@ -306,3 +306,30 @@ with identical complete payload
 `376df454d1a71364c5bdfab6c221ffc2e882bf58d097d57a0696bca61c28df20`.
 Regression is **977 Python / 124 frontend**, TS/build pass. Synthetic origin,
 conditional rigid-pipe assumptions and all wider platform gaps stay explicit.
+
+## Linked image/signal semantic derivations (2026-11-01)
+
+From `d383d52`, existing TSE runs retain complete complex image/acquisition
+vectors and their axes/units/structure binding. A new `edited_tse` execution
+accepts only bounded semantic RF/timing/ky/concentration fields from an existing
+linked TSE parent, fully replays that parent before computation and embeds it in
+the portable child. Source/runtime pins, pair integrity/transform checks and
+three-generation limits are enforced. A checksum-consistent forged parent
+target report is rejected by actual computation. Root/child target failures are
+not changed by replay success. The UI identifies the parent as an image/signal
+record, without labelling it measured calibration.
+
+The [coverage report](contrast-image-signal-coverage.md) and
+[independent evidence](examples/contrast-image-signal-evidence.json) preserve
+Python and actual browser request variants. Native browser child
+`040e65a9b3c6ae6e4e7420050d96b4848a62f183c7010fd4c42695b498bc3ff1`
+and parent `a1f15837a49503979b14c56720f5049dfe498a6e5412d0318fe71e13a221509c`
+survive native file-chooser import and full library replay. A fresh CLI process
+replays the downloaded child with exact full-record identity. The complete
+standalone pair hash
+`94a9808c77e3dfabf4eb395083b5628bcc691c0456a13d101541a2de310b2e44`
+survives real browser numeric transport; Python/Node variants produce identical
+paired physical outputs while retaining distinct historical raw metadata hashes.
+Regression is **1026 Python / 132 frontend**, TS/build pass. Measured-T2 and
+radial/inverse exposure paths remain explicitly unsupported until consistently
+bound, alongside the wider platform gaps.

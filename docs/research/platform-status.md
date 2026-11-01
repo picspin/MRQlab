@@ -26,9 +26,9 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 
 | Requirement | Current evidence | Status / missing evidence |
 |---|---|---|
-| RF/gradient orchestration matched to standard sequence schemes | SequenceIR, family templates/composition/lowering and finite research timelines exist; individual engines declare supported physics | A general editable operation-level contract shared by all research runners, uniform constraints and cross-engine equivalence remain incomplete; B/C stay parked |
-| Tissue biophysics under intrinsic/extrinsic influence | Existing declared T1/T2, Gaussian isotropic diffusion and exchange/MT/NOE models cover separate supported chains | `TissueModel.contrast_agent_concentration` is currently a declared field without a verified concentration-to-relaxation binding. Contrast-agent relaxivity/kinetics, spatial joint relaxation/diffusion/exchange and measured calibration remain incomplete |
-| Doctor MR Image / Agent Signal Vector bidirectional reading and control | Existing reconstructed images, complete complex signals, typed requests, finite search and scientific records are available | No single cross-modality image/vector schema with units, axes, spatial/tissue bindings and safe typed parameter patch/replay is yet verified end to end. Human interpretation and agent debugging/control require additional validation |
+| RF/gradient orchestration matched to standard sequence schemes | SequenceIR, family templates/composition/lowering and finite research timelines exist; ideal TSE RF/timing/ky controls now share a bounded human/agent edit contract | General operation-level RF/physical-gradient control across paired imaging runners, uniform constraints and cross-engine equivalence remain incomplete; B/C stay parked |
+| Tissue biophysics under intrinsic/extrinsic influence | Explicit static per-tissue concentration/relaxivity now reaches common Bloch/EPG, scoring and TSE; PGSE diffusion and liquid-water CEST parameter-binding checks pass | Legacy unitless `PhysiologyModel.contrast_agent_concentration` is rejected rather than ignored. Dynamic kinetics, agent-induced diffusion/exchange, spatial joint state, measured relaxivity/uncertainty and biological validation remain incomplete |
+| Doctor MR Image / Agent Signal Vector bidirectional reading and control | A complete complex TSE pair has units/axes/tissue bindings and an inverse-transform check; both use the same source-pinned parent-preserving semantic edits with actual browser/CLI replay | This is one declared ideal TSE adapter, not a universal cross-modality contract, real-anatomy validation or proven physician/LLM usability. General waveform control and multimodal state/optimization remain incomplete |
 | Clinical question → pulse/design → physical simulation | Twelve backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |
 | Lab experiment → clinical target | Measured-input TSE and a velocity-CSV → conditional pressure → finite-RF DIR study include units, calibration, independent holdout and uncertainty; flow retains exact raw CSV bytes | Flow example is synthetic and its design targets fail; measured CEST/MRS calibration, authenticated lab evidence and robust clinical target translation remain incomplete |
 | Parameter optimization | Each chain executes an explicit candidate grid and preserves every point; API search distinguishes execution feasibility from target pass | Measured TSE has bounded uncertainty-corner target checks; general constrained/multi-objective and cross-modality optimization remain incomplete |
@@ -500,8 +500,43 @@ orchestration, tissue relaxation/diffusion/exchange under intrinsic and external
 influences (especially contrast agents), and bidirectional doctor-readable MR
 Image / agent-readable Signal Vector control. Current sources were inspected:
 SequenceIR/family lowering, reconstructed images and complete complex signals
-exist, and diffusion/exchange are supported only in declared chains. The tissue
+exist, and diffusion/exchange are supported only in declared chains. The legacy physiology
 concentration field has no verified concentration/relaxivity execution binding;
 the common linked image/vector schema and safe typed edits are unfinished.
 These are explicit remaining requirements, not inferred completion from the
 current separate modules. The full expanded goal remains active.
+
+## Static exposure and paired human/agent TSE control (2026-11-01)
+
+From `d383d52`, the [contrast / image-signal continuation](contrast-image-signal-coverage.md)
+adds explicit per-tissue static concentration and supplied relaxivity to common
+kernel execution, plan states, observations and scoring. Baseline T1/T2 remain
+unchanged; effective rates, units, B0/temperature/medium conditions, validity
+range and origin are retained. Unitless legacy physiology concentration,
+unsupported/extrapolated exposures, ambiguous measured-T2 baseline and currently
+unwired radial/inverse exposure combinations fail explicitly.
+
+The existing TSE runner now returns a complete complex image / acquisition-order
+signal pair with spatial indices, normalized coordinates, sample times, tissue
+bindings and a checked inverse-DFT link. `/research/contrast-study` uses the same
+bounded typed RF/timing/order/concentration edits as an agent. Each child fully
+recomputes its source/runtime-pinned parent, retains it immutably and recomputes
+both views. Consistently forged parent target reports are caught by actual
+computation. Three edit generations bound recursive replay. Physical gradient
+waveform edits are deliberately unsupported in this ideal TSE adapter.
+
+Independent CPMG/direct-DFT checks cover five concentrations and 2D/3D complete
+complex data. Coupled PGSE diffusion and CEST-water parameter-binding checks also
+pass without changing their authored ADC/exchange rates. Actual browser controls,
+standalone vector download/verification, full native parent/child export/import,
+shared-library replay and a fresh CLI process pass. A Node request reproduces
+the exact browser records and the same complete pair as Python. Historical raw
+metadata hashes retain their numeric-token distinctions; neither old identities
+nor physical data are relabelled. Image target failure is retained.
+
+Regression is **1026 Python / 132 frontend** (18 files), TS/build pass. This is
+progress on explicit extrinsic state and bidirectional reading/control for one
+declared adapter. Dynamic biology, measured relaxivity/uncertainty, general
+operation-level RF/gradient orchestration, broader modality adapters and actual
+physician/LLM usability remain incomplete. The expanded platform goal stays
+active. No manuscript import, push/PR/merge, B/C promotion or router change occurred.

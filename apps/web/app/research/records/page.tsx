@@ -8,7 +8,7 @@ import { DeriveRadialStudy, DerivedRadialEvidence } from "../../../components/re
 import styles from "../research.module.css";
 
 const EMPTY: ScientificList = { total: 0, offset: 0, limit: 20, records: [] };
-const STAGES: Record<string, string> = { question: "研究问题", raw_velocity_measurements: "原始速度测量", conditional_pressure_calibration: "条件压力校准", parent_measurement_record: "父测量记录", design_and_inputs: "设计与输入", source_and_runtime: "源码与环境", computed_execution: "计算与候选", reported_validation: "目标验证" };
+const STAGES: Record<string, string> = { question: "研究问题", parent_image_signal_record: "父图像与信号记录", typed_parameter_edits: "类型化参数修改", raw_velocity_measurements: "原始速度测量", conditional_pressure_calibration: "条件压力校准", parent_measurement_record: "父测量记录", design_and_inputs: "设计与输入", source_and_runtime: "源码与环境", computed_execution: "计算与候选", reported_validation: "目标验证" };
 export default function ScientificRecordsPage() {
   const [filter, setFilter] = useState("");
   const [listing, setListing] = useState(EMPTY);
@@ -99,7 +99,7 @@ export default function ScientificRecordsPage() {
           {record.summary.mode === "search" && record.summary.selected_index === null && <p>原记录未选出设计；全部候选保留在下表。</p>}
           {record.summary.mode === "search" && response.view && <p>下方展示候选 {(record.summary.selected_index ?? record.summary.candidates?.find(point => point.executable)?.index ?? 0) + 1} 的历史测量；展示不会改变原选择。</p>}
           <p>输入来源：{record.summary.input_origins.join("、")}。背景引用不会自动用于校准。</p>
-          {record.summary.parent_record_sha256 && <button disabled={busy} onClick={() => void perform(signal => open(record.summary.parent_record_sha256!, signal))}>打开父测量记录</button>}
+          {record.summary.parent_record_sha256 && <button disabled={busy} onClick={() => void perform(signal => open(record.summary.parent_record_sha256!, signal))}>{record.summary.mode === "edited_tse" ? "打开父图像 / 信号记录" : "打开父测量记录"}</button>}
           <div className={styles.actions}><button disabled={busy} onClick={() => void replay()}>在当前环境完整重算</button><button disabled={busy} onClick={download}>导出完整实验记录</button></div>
           <ol className={styles.recordStages}>{record.stages.map(stage => <li key={stage.sha256}><strong>{STAGES[stage.stage] ?? stage.stage}</strong><code>{stage.sha256}</code></li>)}</ol>
           <div className={styles.scroll}><table><caption>完整候选与模型历史报告</caption><thead><tr><th>候选</th><th>计算完成</th><th>声明目标</th><th>说明</th></tr></thead><tbody>{record.summary.candidates?.map(point => <tr key={point.index}><td>{point.index + 1}{point.index === record.summary.selected_index ? "（原结果）" : ""}</td><td>{point.executable ? "是" : "否"}</td><td>{point.model_reported_passed ? "通过" : "未通过"}</td><td>{point.reasons?.join("；") ?? (point.reason ? JSON.stringify(point.reason) : "")}</td></tr>)}</tbody></table></div>

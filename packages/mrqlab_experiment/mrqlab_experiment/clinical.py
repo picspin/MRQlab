@@ -4,11 +4,13 @@ import math
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from .contrast_relaxation import ContrastExposure
 
 NonEmpty = Annotated[str, Field(min_length=1)]
 ClinicalUnit = Literal[
     "s", "ms", "m", "mm", "Hz", "T", "uT", "mT/m", "T/m/s", "deg",
     "count", "pixel", "work_unit", "dimensionless",
+    "mmol/L", "L/(mmol*s)", "1/s",
 ]
 
 ParameterStateKind = Literal[
@@ -71,6 +73,7 @@ class TissuePrior(FrozenModel):
     bound_pool: bool = False
     diffusion_adc_mm2_s: float | None = Field(default=None, ge=0)
     chemical_shift_ppm: float = 0.0
+    contrast_exposure: ContrastExposure | None = None
 
 
 class TissuePriorSet(FrozenModel):

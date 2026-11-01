@@ -39,6 +39,7 @@ class ObjectiveFunction(BaseModel):
 
 
 def evaluate_multi_tissue_contrast(graph) -> dict[str, Any]:
+    from .contrast_relaxation import effective_tissue
     from .compiler import compile_sequence
     from .kernel import plan_experiment
 
@@ -53,6 +54,7 @@ def evaluate_multi_tissue_contrast(graph) -> dict[str, Any]:
     if graph.tissue is not None:
         tissues = graph.tissue if isinstance(graph.tissue, tuple) else (graph.tissue,)
         for t in tissues:
+            t=effective_tissue(t,scanner.b0_t)
             tissue_info.append({"id": t.id, "label": t.label, "role": t.role})
             phantom = Phantom(
                 t1=t.t1,

@@ -417,6 +417,11 @@ export async function fetchFlowStudyExample(signal?: AbortSignal): Promise<impor
   if (!response.ok) throw new Error(`流动示例载入失败 (${response.status})`);
   return response.json();
 }
+export async function fetchContrastStudyExample(signal?: AbortSignal): Promise<import("./scientific-records").ScientificPlan> {
+  const response = await fetch(`${BASE}/research/contrast-study/example`, { signal });
+  if (!response.ok) throw new Error(`对比剂研究示例载入失败 (${response.status})`);
+  return response.json();
+}
 export async function importFlowVelocity(request: { csv_base64: string; source_ref: string; origin: "measured" | "synthetic" }, signal?: AbortSignal): Promise<import("./flow-study").FlowDataset> {
   const response = await fetch(`${BASE}/research/flow-study/import-csv`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal });
   if (!response.ok) throw new Error(`速度 CSV 导入失败 (${response.status}): ${await response.text()}`);

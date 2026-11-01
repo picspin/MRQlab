@@ -121,6 +121,8 @@ class LabStudy(Strict):
             raise ValueError('unsupported objectives, physiology, disturbances or sample overrides in lab TSE study')
         if any(t.flow_velocity_mps or t.exchange_rate_hz or t.bound_pool or t.diffusion_adc_mm2_s for t in g.tissue):
             raise ValueError('lab study requires independent relaxation tissues')
+        if any(t.contrast_exposure is not None for t in g.tissue):
+            raise ValueError('lab T2 calibration does not infer contrast-free baseline T2 from an exposed measurement; contrast_exposure unsupported here')
         if any(not np.isfinite([t.t1,t.t2,t.proton_density]).all() or not .001<=t.t1<=10 or not 0<t.t2<=10 or not 0<t.proton_density<=10 for t in g.tissue):
             raise ValueError('bounded finite independent T1/T2/PD priors required')
         if set(g.engine.options)-{'dwell_time','epg_kmax','max_work'}:

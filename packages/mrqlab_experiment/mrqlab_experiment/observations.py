@@ -44,6 +44,7 @@ class ObservationProvenance(BaseModel):
     seed: int
     n_ops: int
     estimated_work: int
+    contrast_relaxation_bindings: tuple[dict[str, Any], ...] = ()
 
 
 class Observation(BaseModel):
@@ -127,6 +128,7 @@ def build_result_graph(run) -> ResultGraph:
         seed=run.experiment.provenance.seed,
         n_ops=int(meta.get("n_ops", 0)),
         estimated_work=int(meta.get("estimated_work", 0)),
+        contrast_relaxation_bindings=tuple(meta.get('contrast_relaxation_bindings',())),
     )
     products = run.experiment.readout.products
     if run.sim_result.slice_profile is not None and "slice_profile" not in products:
