@@ -20,14 +20,18 @@ function download(value: unknown, name: string) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(value)], { type: "application/json" })), link = document.createElement("a");
   link.href = url; link.download = name; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+// Own-property reads only: keys come from untyped JSON, so "__proto__" / "constructor" must never resolve to Object.prototype.
+function ownValue<T>(map: Record<string, T>, key: string): T | undefined {
+  return Object.prototype.hasOwnProperty.call(map, key) ? map[key] : undefined;
+}
 function checkLabel(key: string) {
-  return ({
+  return ownValue({
     pair_integrity: "图像 / 信号完整性", complete_signal_read: "完整采集信号读取",
     parseval_energy_consistency: "Parseval 能量一致", echo_membership_declared: "回波成员已声明",
     static_partition_linear_model: "静态组织分区线性模型", identifiable_coefficient_basis: "可识别系数基",
     structure_proportions_normalized: "结构比例归一", image_proportions_normalized: "图像比例归一",
     modalities_complete: "模态代理完整",
-  } as Record<string, string>)[key] ?? key;
+  } as Record<string, string>, key) ?? key;
 }
 
 export default function AgenticStudyPage() {
@@ -120,11 +124,11 @@ export default function AgenticStudyPage() {
             <h3>参考相对对比与表观衰减</h3>
             <p>参考组织：{inference.reference.tissue_id}（{inference.reference.definition}）。相对对比为零共同模差值；表观衰减是相对差的指数拟合，不是组织 T2。</p>
             <table><caption>相对对比、强度与拟合</caption><thead><tr><th>组织</th><th>首回波</th><th>末回波</th><th>表观相对衰减 (s)</th><th>拟合残差</th><th>相对强度</th></tr></thead><tbody>
-              {inference.source.tissue_ids.map(tissue => { const contrast = acquisition.contrast_vs_reference[tissue] ?? [], strength = acquisition.relative_contrast_strength[tissue]; return <tr key={tissue}><td>{tissue}</td><td>{contrast.length ? format(contrast[0]) : "—"}</td><td>{contrast.length ? format(contrast[contrast.length - 1]) : "—"}</td><td>{decimal(acquisition.apparent_relative_contrast_decay_s[tissue] ?? null)}</td><td>{decimal(acquisition.decay_fit_residual[tissue] ?? null)}</td><td>{strength === undefined ? "—" : format(strength)}</td></tr>; })}
+              {inference.source.tissue_ids.map(tissue => { const contrast = ownValue(acquisition.contrast_vs_reference, tissue) ?? [], strength = ownValue(acquisition.relative_contrast_strength, tissue); return <tr key={tissue}><td>{tissue}</td><td>{contrast.length ? format(contrast[0]) : "—"}</td><td>{contrast.length ? format(contrast[contrast.length - 1]) : "—"}</td><td>{decimal(ownValue(acquisition.apparent_relative_contrast_decay_s, tissue) ?? null)}</td><td>{decimal(ownValue(acquisition.decay_fit_residual, tissue) ?? null)}</td><td>{strength === undefined ? "—" : format(strength)}</td></tr>; })}
             </tbody></table>
           </> : <p role="note">逐回波系数不可用：{acquisition?.reason}</p>}
           <h3>明确未生成的组织模态</h3>
-          <ul>{inference.unavailable.map(item => <li key={item.item}>{UNAVAILABLE[item.item] ?? item.item}：{item.reason}</li>)}</ul>
+          <ul>{inference.unavailable.map(item => <li key={item.item}>{ownValue(UNAVAILABLE, item.item) ?? item.item}：{item.reason}</li>)}</ul>
           <details><summary>九项数值检查</summary><dl className={styles.recordChecks}>{Object.entries(inference.validation.checks).map(([key, passed]) => <React.Fragment key={key}><dt>{checkLabel(key)}</dt><dd className={passed ? styles.passed : styles.failed}>{passed ? "通过" : "未通过"}</dd></React.Fragment>)}</dl></details>
           <div className={styles.provenance}><h3>来源与回放</h3><p>推断范围：{inference.scope}</p><p>检查范围：{inference.validation.scope}</p><p>图像 / 信号对 SHA256：{inference.source.pair_sha256}</p><p>推断 SHA256：{inference.inference_sha256}</p><p>当前记录：{response.record.record_sha256}</p><p>父记录：{response.record.summary.parent_record_sha256}</p><p>父图像 / 信号对：{response.record.summary.parent_pair_sha256}</p>
             <details><summary>完整推断载荷（含各项依据与限制）</summary><pre>{JSON.stringify(inference, null, 2)}</pre></details>

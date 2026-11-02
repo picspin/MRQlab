@@ -1,5 +1,5 @@
 import React from "react";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import AgenticStudyPage from "../app/research/agentic-study/page";
 import { createScientificRecord, fetchContrastStudyExample, replayScientificRecord } from "../lib/api";
@@ -244,4 +244,72 @@ it("invalid initial plans never reach the physics API", async () => {
   await load(); fireEvent.change(screen.getByLabelText("Agent 基线科学计划"), { target: { value: "{}" } });
   fireEvent.click(screen.getByRole("button", { name: "运行并保存父记录" })); await screen.findByRole("alert");
   expect(createScientificRecord).not.toHaveBeenCalled();
+});
+
+// Major 1: label lookups must read own properties only. Keys arrive as untyped JSON, so "__proto__" and "constructor" must render as raw text.
+it.each(["__proto__", "constructor"])("an unavailable item named %s renders its raw key instead of crashing", async name => {
+  await baseline();
+  const value = structuredClone(inference);
+  value.unavailable = [{ item: name, reason: "probe" }];
+  vi.mocked(createScientificRecord).mockResolvedValueOnce(child(value));
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
+  expect(screen.getByText(`${name}：probe`)).toBeInTheDocument();
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
+
+it.each(["__proto__", "constructor"])("a validation check named %s renders its raw key instead of crashing", async name => {
+  await baseline();
+  const value = structuredClone(inference);
+  value.validation.checks = JSON.parse(`{"${name}": true}`);
+  vi.mocked(createScientificRecord).mockResolvedValueOnce(child(value));
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
+  expect(screen.getByText(name, { selector: "dt" }).nextElementSibling).toHaveTextContent("通过");
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
+
+// Major 2: a tissue whose own entry is missing from one per-tissue map must render "—" rather than read an inherited prototype value.
+// Tissue names are injected as own JSON keys; each map is removed in isolation so every map is covered on its own.
+const contrastMaps = ["contrast_vs_reference", "relative_contrast_strength", "apparent_relative_contrast_decay_s", "decay_fit_residual"] as const;
+// Column index in "相对对比、强度与拟合" (组织=0) and the text a missing own entry must render as.
+const renderedCell: Record<(typeof contrastMaps)[number], { index: number; text: string }> = {
+  contrast_vs_reference: { index: 1, text: "—" }, relative_contrast_strength: { index: 5, text: "—" },
+  apparent_relative_contrast_decay_s: { index: 3, text: "不可识别" }, decay_fit_residual: { index: 4, text: "不可识别" },
+};
+function withTissue(from: string, to: string): AgenticInference {
+  return JSON.parse(JSON.stringify(inference).split(`"${from}"`).join(`"${to}"`));
+}
+it.each(contrastMaps.flatMap(map => ["__proto__", "constructor"].map(name => [map, name] as const)))("a missing own %s entry for tissue %s renders as a dash instead of inherited values", async (map, name) => {
+  await baseline();
+  const value = withTissue("gray_matter", name);
+  Reflect.deleteProperty(value.proportions.acquisition[map], name);
+  vi.mocked(createScientificRecord).mockResolvedValueOnce(child(value));
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
+  const table = screen.getByRole("table", { name: "相对对比、强度与拟合" });
+  const row = within(table).getByText(name, { selector: "td" }).closest("tr")!;
+  const cell = renderedCell[map];
+  expect(within(row).getAllByRole("cell")[cell.index]).toHaveTextContent(cell.text);
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
+
+// Major 3: outer response fields the page renders must be validated before the response is committed.
+async function rejectsMalformedResponse(mutate: (response: ScientificResponse) => void) {
+  await baseline(); vi.mocked(createScientificRecord).mockResolvedValueOnce(child());
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
+  const malformed = child(); mutate(malformed);
+  vi.mocked(createScientificRecord).mockResolvedValueOnce(malformed);
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("记录载荷缺少推断渲染所需的比例结构。");
+  expect(screen.queryByRole("heading", { name: "结构层面比例呈现" })).not.toBeInTheDocument();
+}
+it("a non-numeric view metric is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { const view = response.view as unknown as Record<string, unknown>; view.metrics = { ...(view.metrics as object), bad: { bad: true } }; });
+});
+it("a non-string record_sha256 is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { (response.record as unknown as Record<string, unknown>).record_sha256 = { bad: true }; });
+});
+it("a non-string parent_record_sha256 is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { (response.record.summary as unknown as Record<string, unknown>).parent_record_sha256 = { bad: true }; });
+});
+it("a non-string parent_pair_sha256 is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { (response.record.summary as unknown as Record<string, unknown>).parent_pair_sha256 = { bad: true }; });
 });

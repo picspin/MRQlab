@@ -53,11 +53,16 @@ export interface AgenticInference {
   scope: string;
   inference_sha256: string;
 }
-export interface AgenticRecordLike { record: { payload_json: string; summary: { mode: string } } }
+export interface AgenticRecordLike {
+  record: { record_sha256: string; payload_json: string; summary: { mode: string; parent_record_sha256?: string; parent_pair_sha256?: string } };
+  view?: unknown;
+}
 
 /** Retains the exact computed inference; rejects a record from another execution mode or one whose payload cannot be rendered. */
 export function agenticInference(response: AgenticRecordLike): AgenticInference {
   if (response.record.summary.mode !== "agentic_inference") throw new Error("当前记录不是 agentic 信号推断。");
+  // Outer response fields the page renders (record hashes, parent summary, view metrics) are checked with the payload below.
+  const outer = response as unknown as { record: Record<string, unknown>; view?: { metrics?: unknown } };
   const payload = JSON.parse(response.record.payload_json) as { inference?: AgenticInference };
   const inference = payload?.inference;
   if (!inference || inference.schema_version !== "mrqlab-agentic-tissue-inference-1") throw new Error("记录缺少可识别的 agentic 推断载荷。");
@@ -80,6 +85,9 @@ export function agenticInference(response: AgenticRecordLike): AgenticInference 
     && ((entry as Record<string, unknown>).relative_residual === undefined || finite((entry as Record<string, unknown>).relative_residual));
 
   const { proportions, ingestion, validation, source, reference, unavailable } = raw;
+  const summary = outer.record.summary as { parent_record_sha256?: unknown; parent_pair_sha256?: unknown };
+  check(typeof outer.record.record_sha256 === "string" && typeof summary.parent_record_sha256 === "string" && typeof summary.parent_pair_sha256 === "string");
+  check(outer.view === undefined || outer.view === null || (plainObject(outer.view) && (outer.view.metrics === undefined || (plainObject(outer.view.metrics) && Object.values(outer.view.metrics as object).every(finite)))));
   check(typeof raw.scope === "string" && typeof raw.inference_sha256 === "string");
   check(plainObject(proportions) && plainObject(proportions.structure) && plainObject(proportions.image_signal) && plainObject(proportions.acquisition));
   check(plainObject(ingestion) && numberArray(ingestion.echo_ids) && Array.isArray(ingestion.echo_bins) && ingestion.echo_bins.every(echoBinValid));
