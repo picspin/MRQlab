@@ -87,7 +87,37 @@ export function agenticInference(response: AgenticRecordLike): AgenticInference 
   const { proportions, ingestion, validation, source, reference, unavailable } = raw;
   const summary = outer.record.summary as { parent_record_sha256?: unknown; parent_pair_sha256?: unknown };
   check(typeof outer.record.record_sha256 === "string" && typeof summary.parent_record_sha256 === "string" && typeof summary.parent_pair_sha256 === "string");
-  check(outer.view === undefined || outer.view === null || (plainObject(outer.view) && (outer.view.metrics === undefined || (plainObject(outer.view.metrics) && Object.values(outer.view.metrics as object).every(finite)))));
+  // The view is handed to Measurements verbatim. Every field that component reads is required here:
+  // images/curves and their entries, both axis labels, validation.passed and the metric table.
+  // Optional view (absent or null) renders no Measurements at all, so it cannot crash a consumer.
+  const positiveInteger = (value: unknown): boolean => typeof value === "number" && Number.isInteger(value) && value > 0;
+  const imageValid = (entry: unknown): boolean => {
+    if (!plainObject(entry)) return false;
+    const image = entry as Record<string, unknown>;
+    return typeof image.label === "string" && positiveInteger(image.width) && positiveInteger(image.height)
+      && numberArray(image.values) && (image.values as unknown[]).length === (image.width as number) * (image.height as number)
+      && (image.scale_group === undefined || typeof image.scale_group === "string");
+  };
+  const curveValid = (entry: unknown): boolean => {
+    if (!plainObject(entry)) return false;
+    const curve = entry as Record<string, unknown>;
+    // Measurements indexes y by every x position (polyline, points, value table), so y must cover x.
+    return typeof curve.label === "string" && numberArray(curve.x) && numberArray(curve.y)
+      && (curve.y as unknown[]).length >= (curve.x as unknown[]).length;
+  };
+  const viewValid = (value: unknown): boolean => {
+    if (!plainObject(value)) return false;
+    const view = value as Record<string, unknown>;
+    return typeof view.x_label === "string" && typeof view.y_label === "string"
+      && Array.isArray(view.images) && view.images.every(imageValid)
+      && Array.isArray(view.curves) && view.curves.every(curveValid)
+      // The table iterates validation entries: check flags are booleans, target values are numbers.
+      && plainObject(view.validation)
+      && typeof (view.validation as Record<string, unknown>).passed === "boolean"
+      && Object.values(view.validation as object).every(entry => typeof entry === "boolean" || finite(entry))
+      && plainObject(view.metrics) && Object.values(view.metrics as object).every(finite);
+  };
+  check(outer.view === undefined || outer.view === null || viewValid(outer.view));
   check(typeof raw.scope === "string" && typeof raw.inference_sha256 === "string");
   check(plainObject(proportions) && plainObject(proportions.structure) && plainObject(proportions.image_signal) && plainObject(proportions.acquisition));
   check(plainObject(ingestion) && numberArray(ingestion.echo_ids) && Array.isArray(ingestion.echo_bins) && ingestion.echo_bins.every(echoBinValid));

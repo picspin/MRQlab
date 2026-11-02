@@ -21,7 +21,8 @@ function child(value: AgenticInference = inference): ScientificResponse {
   const record = structuredClone(parent.record);
   record.record_sha256 = "0".repeat(64); record.payload_json = JSON.stringify({ inference: value });
   record.summary = { ...record.summary, mode: "agentic_inference", kind: "agentic_inference", model_reported_passed: value.validation.passed, parent_record_sha256: parent.record.record_sha256, parent_pair_sha256: pair.pair_sha256, inference_sha256: value.inference_sha256 };
-  return { record, view: { ...view, validation: { passed: value.validation.passed } }, verification: { integrity_passed: true, computational_replay_performed: false } };
+  // Deep-clone the shared view fixture so a test mutating a nested entry cannot poison later tests.
+  return { record, view: { ...structuredClone(view), validation: { passed: value.validation.passed } }, verification: { integrity_passed: true, computational_replay_performed: false } };
 }
 beforeEach(() => { vi.resetAllMocks(); vi.mocked(fetchContrastStudyExample).mockResolvedValue(plan); vi.mocked(createScientificRecord).mockResolvedValue(parent); });
 afterEach(cleanup);
@@ -312,4 +313,42 @@ it("a non-string parent_record_sha256 is rejected before rendering and leaves no
 });
 it("a non-string parent_pair_sha256 is rejected before rendering and leaves no old result", async () => {
   await rejectsMalformedResponse(response => { (response.record.summary as unknown as Record<string, unknown>).parent_pair_sha256 = { bad: true }; });
+});
+
+// Major 4 (Codex review of 1b0d458): Measurements consumes the complete outer view, so every field it reads must be
+// validated before the response is committed. Each mutation keeps the inference payload valid and breaks one field only.
+const malformedView = (response: ScientificResponse): Record<string, any> => response.view as unknown as Record<string, any>;
+it("a null view.images is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { malformedView(response).images = null; });
+});
+it("a null view.curves is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { malformedView(response).curves = null; });
+});
+it("a null image values array is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { malformedView(response).images[0].values = null; });
+});
+it("a non-string image label is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { malformedView(response).images[0].label = { bad: true }; });
+});
+it("a curve whose y array is shorter than x is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => {
+    const curve = malformedView(response).curves[0];
+    expect(curve.x.length).toBeGreaterThan(0);
+    curve.y = [];
+  });
+});
+it("a non-string curve label is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { malformedView(response).curves[0].label = { bad: true }; });
+});
+it("a non-string x_label is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { malformedView(response).x_label = { bad: true }; });
+});
+it("a non-string y_label is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { malformedView(response).y_label = { bad: true }; });
+});
+it("a null view.validation is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { malformedView(response).validation = null; });
+});
+it("a view without metrics is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => { delete malformedView(response).metrics; });
 });
