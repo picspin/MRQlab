@@ -90,31 +90,44 @@ export function agenticInference(response: AgenticRecordLike): AgenticInference 
   // The view is handed to Measurements verbatim. Every field that component reads is required here:
   // images/curves and their entries, both axis labels, validation.passed and the metric table.
   // Optional view (absent or null) renders no Measurements at all, so it cannot crash a consumer.
+  // Bound the preview the renderer materialises. These mirror the API's own preview limits and add a
+  // combined curve bound, because Measurements flattens every curve before computing axis extents.
+  const MAX_PREVIEW_IMAGES = 8, MAX_PREVIEW_CURVES = 32, MAX_PREVIEW_SIDE = 128, MAX_PREVIEW_POINTS = 10000;
   const positiveInteger = (value: unknown): boolean => typeof value === "number" && Number.isInteger(value) && value > 0;
   const imageValid = (entry: unknown): boolean => {
     if (!plainObject(entry)) return false;
     const image = entry as Record<string, unknown>;
     return typeof image.label === "string" && positiveInteger(image.width) && positiveInteger(image.height)
+      && (image.width as number) <= MAX_PREVIEW_SIDE && (image.height as number) <= MAX_PREVIEW_SIDE
       && numberArray(image.values) && (image.values as unknown[]).length === (image.width as number) * (image.height as number)
       && (image.scale_group === undefined || typeof image.scale_group === "string");
   };
   const curveValid = (entry: unknown): boolean => {
     if (!plainObject(entry)) return false;
     const curve = entry as Record<string, unknown>;
-    // Measurements indexes y by every x position (polyline, points, value table), so y must cover x.
+    // Measurements indexes y by every x position (polyline, points, value table) and also includes
+    // every y value in the axis extent, so x and y must be equal length, not merely y >= x.
     return typeof curve.label === "string" && numberArray(curve.x) && numberArray(curve.y)
-      && (curve.y as unknown[]).length >= (curve.x as unknown[]).length;
+      && (curve.y as unknown[]).length === (curve.x as unknown[]).length
+      && (curve.x as unknown[]).length <= MAX_PREVIEW_POINTS;
   };
+  const curvePoints = (curves: unknown[]): number => curves.reduce<number>((total, curve) => total + (curve as { x: unknown[] }).x.length, 0);
+  // Numeric target rows are looked up by name in the renderer's own label table and rendered as that
+  // label. Reject names inherited from Object.prototype, so a finite value can never resolve to an
+  // inherited object and crash React.
+  const ownTargetName = (key: string): boolean => !Object.prototype.hasOwnProperty.call(Object.prototype, key);
   const viewValid = (value: unknown): boolean => {
     if (!plainObject(value)) return false;
     const view = value as Record<string, unknown>;
     return typeof view.x_label === "string" && typeof view.y_label === "string"
-      && Array.isArray(view.images) && view.images.every(imageValid)
-      && Array.isArray(view.curves) && view.curves.every(curveValid)
+      && Array.isArray(view.images) && view.images.length <= MAX_PREVIEW_IMAGES && view.images.every(imageValid)
+      && Array.isArray(view.curves) && view.curves.length <= MAX_PREVIEW_CURVES && view.curves.every(curveValid)
+      // Every curve is flattened into one axis extent, so bound the combined point count as well.
+      && curvePoints(view.curves) <= MAX_PREVIEW_POINTS
       // The table iterates validation entries: check flags are booleans, target values are numbers.
       && plainObject(view.validation)
       && typeof (view.validation as Record<string, unknown>).passed === "boolean"
-      && Object.values(view.validation as object).every(entry => typeof entry === "boolean" || finite(entry))
+      && Object.entries(view.validation as object).every(([key, entry]) => typeof entry === "boolean" || (finite(entry) && ownTargetName(key)))
       && plainObject(view.metrics) && Object.values(view.metrics as object).every(finite);
   };
   check(outer.view === undefined || outer.view === null || viewValid(outer.view));

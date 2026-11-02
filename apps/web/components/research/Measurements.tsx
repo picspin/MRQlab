@@ -12,6 +12,23 @@ const TARGET_LABELS: Record<string, string> = {
   target_min_amide_contrast: "Amide contrast target", target_min_relay_contrast: "Relay contrast target", target: "Maximum relative amount error target",
 };
 const format = (value: number) => Number.isInteger(value) ? String(value) : value.toPrecision(5);
+// Axis extents are computed by iteration: spreading an untrusted preview array into Math.min/Math.max
+// can exceed the engine's argument limit. Empty ranges keep each caller's documented fallback.
+function extent(values: number[], emptyLow: number, emptyHigh: number): [number, number] {
+  if (!values.length) return [emptyLow, emptyHigh];
+  let low = values[0], high = values[0];
+  for (let index = 1; index < values.length; index++) {
+    const value = values[index];
+    if (value < low) low = value;
+    if (value > high) high = value;
+  }
+  return [low, high];
+}
+// Labels come from untyped JSON keys, so only own entries may resolve; "__proto__" / "constructor"
+// must never read Object.prototype and be rendered as a React child.
+function ownLabel(map: Record<string, string>, key: string): string | undefined {
+  return Object.prototype.hasOwnProperty.call(map, key) ? map[key] : undefined;
+}
 
 export default function Measurements({ view, validationLabel = "目标验证" }: { view: ResearchRun["view"]; validationLabel?: string }) {
   const { images, curves, x_label, y_label } = view;
@@ -19,13 +36,17 @@ export default function Measurements({ view, validationLabel = "目标验证" }:
   for (const image of images) {
     const key = image.scale_group ?? "shared";
     const values = scaleGroups.get(key) ?? [];
-    values.push(...image.values); scaleGroups.set(key, values);
+    for (const value of image.values) values.push(value);
+    scaleGroups.set(key, values);
   }
-  const scales = new Map(Array.from(scaleGroups, ([key, values]) => [key, {
-    low: values.length ? Math.min(...values) : 0, high: values.length ? Math.max(...values) : 1,
-  }]));
+  const scales = new Map(Array.from(scaleGroups, ([key, values]): [string, { low: number; high: number }] => {
+    const [low, high] = values.length ? extent(values, 0, 1) : [0, 1];
+    return [key, { low, high }];
+  }));
   const xs = curves.flatMap(curve => curve.x), ys = curves.flatMap(curve => curve.y);
-  const xmin = Math.min(...xs), xmax = Math.max(...xs), ymin = Math.min(0, ...ys), ymax = Math.max(...ys);
+  const [xmin, xmax] = extent(xs, Infinity, -Infinity);
+  const [yLow, yHigh] = extent(ys, Infinity, -Infinity);
+  const ymin = Math.min(0, yLow), ymax = yHigh;
   const sx = (x: number) => 52 + 590 * (x - xmin) / (xmax - xmin || 1);
   const sy = (y: number) => 216 - 190 * (y - ymin) / (ymax - ymin || 1);
   return <div className={styles.measurements}>
@@ -63,7 +84,10 @@ export default function Measurements({ view, validationLabel = "目标验证" }:
     <table><caption>目标与测量</caption><tbody>
       <tr><th scope="row">{validationLabel}</th><td>{view.validation.passed ? "通过" : "未通过"}</td></tr>
       {Object.entries(view.metrics).map(([key, value]) => <tr key={key}><th scope="row">{key}</th><td>{format(value)}</td></tr>)}
-      {Object.entries(view.validation).filter(([key, value]) => key in TARGET_LABELS && typeof value === "number").map(([key, value]) => <tr key={key}><th scope="row">{TARGET_LABELS[key]}</th><td>{format(value as number)}</td></tr>)}
+      {Object.entries(view.validation).flatMap(([key, value]) => {
+        const label = ownLabel(TARGET_LABELS, key);
+        return typeof value === "number" && label ? [<tr key={key}><th scope="row">{label}</th><td>{format(value)}</td></tr>] : [];
+      })}
     </tbody></table>
     <details><summary>曲线数值表</summary><div className={styles.scroll}>
       <table><thead><tr><th>序列</th><th>{x_label}</th><th>{y_label}</th></tr></thead><tbody>

@@ -352,3 +352,39 @@ it("a null view.validation is rejected before rendering and leaves no old result
 it("a view without metrics is rejected before rendering and leaves no old result", async () => {
   await rejectsMalformedResponse(response => { delete malformedView(response).metrics; });
 });
+
+// Major 5 (Codex review of c6fce75): a finite validation entry named after an Object.prototype member
+// passed the value-only check, then resolved to an inherited object in the renderer's target-label table
+// and crashed React. Finite values alone are not enough; inherited target names must be rejected.
+it.each(["__proto__", "constructor"])("a numeric validation entry named %s is rejected before rendering and leaves no old result", async name => {
+  await rejectsMalformedResponse(response => {
+    malformedView(response).validation = JSON.parse(`{"passed":true,"${name}":1}`);
+  });
+});
+
+// Major 6 (Codex review of c6fce75): Measurements flattens every curve and spreads it into Math.min/Math.max,
+// so an unbounded point count crashes rendering with "Maximum call stack size exceeded". Bound both each
+// curve and the combined count (the renderer computes one extent across all curves).
+it("a single curve beyond the bounded preview point count is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => {
+    const curve = malformedView(response).curves[0];
+    const xs = Array.from({ length: 150000 }, (_, index) => index);
+    curve.x = xs; curve.y = xs.slice();
+  });
+});
+it("curves within the per-curve limit whose combined point count exceeds the preview bound are rejected before rendering and leave no old result", async () => {
+  await rejectsMalformedResponse(response => {
+    const xs = Array.from({ length: 6000 }, (_, index) => index);
+    malformedView(response).curves = [{ label: "a", x: xs, y: xs.slice() }, { label: "b", x: xs, y: xs.slice() }];
+  });
+});
+
+// Minor (Codex review of c6fce75): every y value participates in the vertical axis extent even though the
+// value table only indexes y[0..x.length-1]; a longer y therefore silently rescales the plotted curve.
+it("a curve whose y array is longer than x is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedResponse(response => {
+    const curve = malformedView(response).curves[0];
+    expect(curve.x).toEqual([.01, .02]);
+    curve.y = [1, .8, 1e12];
+  });
+});
