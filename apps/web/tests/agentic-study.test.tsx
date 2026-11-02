@@ -86,7 +86,7 @@ it("a record without an inference payload is rejected and leaves no old result",
 it("a schema-matching payload without proportions is rejected before rendering and leaves no old result", async () => {
   await baseline(); vi.mocked(createScientificRecord).mockResolvedValueOnce(child());
   fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
-  const { proportions: _omitted, ...withoutProportions } = structuredClone(inference) as Record<string, unknown>;
+  const { proportions: _omitted, ...withoutProportions } = structuredClone(inference) as unknown as Record<string, unknown>;
   vi.mocked(createScientificRecord).mockResolvedValueOnce(child(withoutProportions as unknown as AgenticInference));
   fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" }));
   expect(await screen.findByRole("alert")).toHaveTextContent("记录载荷缺少推断渲染所需的比例结构。");
