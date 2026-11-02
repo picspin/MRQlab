@@ -61,30 +61,49 @@ export function agenticInference(response: AgenticRecordLike): AgenticInference 
   const payload = JSON.parse(response.record.payload_json) as { inference?: AgenticInference };
   const inference = payload?.inference;
   if (!inference || inference.schema_version !== "mrqlab-agentic-tissue-inference-1") throw new Error("记录缺少可识别的 agentic 推断载荷。");
-  const object = (value: unknown) => !!value && typeof value === "object";
-  const proportions = inference.proportions;
-  if (!object(proportions) || !object(proportions.structure) || !object(proportions.image_signal)
-    || !object(inference.ingestion) || !Array.isArray(inference.ingestion.echo_ids) || !Array.isArray(inference.ingestion.echo_bins)
-    || !object(inference.validation) || typeof inference.validation.passed !== "boolean" || !object(inference.validation.checks)
-    || !object(inference.source) || !Array.isArray(inference.source.tissue_ids)
-    || !object(inference.reference) || typeof inference.reference.tissue_id !== "string"
-    || !Array.isArray(inference.unavailable)) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
-  if (!inference.source.tissue_ids.every(tissue => object(proportions.structure[tissue]) && typeof proportions.structure[tissue].voxel_fraction === "number"
-    && object(proportions.image_signal[tissue]) && typeof proportions.image_signal[tissue].energy_fraction === "number")) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
+  // The payload is untyped JSON at this boundary. Every field the render consumers read is checked here,
+  // so a malformed value is rejected before return rather than crashing a render consumer afterwards.
+  const raw = inference as unknown as Record<string, any>;
+  const check = (ok: boolean) => { if (!ok) throw new Error("记录载荷缺少推断渲染所需的比例结构。"); };
+  // Plain (non-array) objects only: arrays pass typeof "object" and would otherwise satisfy map checks vacuously.
+  const plainObject = (value: unknown): boolean => !!value && typeof value === "object" && !Array.isArray(value);
+  const finite = (value: unknown): boolean => typeof value === "number" && Number.isFinite(value);
+  const numberOrNull = (value: unknown): boolean => value === null || finite(value);
+  const numberArray = (value: unknown): boolean => Array.isArray(value) && value.every(finite);
+  const mapOf = (value: unknown, valid: (entry: unknown) => boolean): boolean => plainObject(value) && Object.values(value as object).every(valid);
+  const fieldsFinite = (value: unknown, fields: string[]): boolean => plainObject(value) && fields.every(field => finite((value as Record<string, unknown>)[field]));
+  const echoBinValid = (entry: unknown): boolean => plainObject(entry)
+    && finite((entry as Record<string, unknown>).echo) && finite((entry as Record<string, unknown>).sample_count)
+    && ((entry as Record<string, unknown>).rank === undefined || finite((entry as Record<string, unknown>).rank))
+    && ((entry as Record<string, unknown>).nullity === undefined || finite((entry as Record<string, unknown>).nullity))
+    && ((entry as Record<string, unknown>).absolute_amplitude_identified === undefined || typeof (entry as Record<string, unknown>).absolute_amplitude_identified === "boolean")
+    && ((entry as Record<string, unknown>).relative_residual === undefined || finite((entry as Record<string, unknown>).relative_residual));
+
+  const { proportions, ingestion, validation, source, reference, unavailable } = raw;
+  check(typeof raw.scope === "string" && typeof raw.inference_sha256 === "string");
+  check(plainObject(proportions) && plainObject(proportions.structure) && plainObject(proportions.image_signal) && plainObject(proportions.acquisition));
+  check(plainObject(ingestion) && numberArray(ingestion.echo_ids) && Array.isArray(ingestion.echo_bins) && ingestion.echo_bins.every(echoBinValid));
+  check(plainObject(validation) && typeof validation.passed === "boolean" && typeof validation.scope === "string"
+    && mapOf(validation.checks, entry => typeof entry === "boolean"));
+  check(plainObject(source) && typeof source.pair_sha256 === "string" && Array.isArray(source.tissue_ids) && source.tissue_ids.every((tissue: unknown) => typeof tissue === "string"));
+  check(plainObject(reference) && typeof reference.tissue_id === "string" && typeof reference.definition === "string");
+  check(Array.isArray(unavailable) && unavailable.every(item => plainObject(item) && typeof item.item === "string" && typeof item.reason === "string"));
+  // Per-tissue proportions for every declared tissue, with the numeric fields the table reads.
+  check((source.tissue_ids as string[]).every(tissue => fieldsFinite(proportions.structure[tissue], ["voxel_count", "voxel_fraction"])
+    && fieldsFinite(proportions.image_signal[tissue], ["energy_fraction", "magnitude_fraction"])));
+
   const acquisition = proportions.acquisition;
-  if (acquisition?.available === true && (!object(acquisition.coefficients) || !object(acquisition.contrast_vs_reference)
-    || !object(acquisition.relative_contrast_strength) || !object(acquisition.apparent_relative_contrast_decay_s)
-    || !object(acquisition.decay_fit_residual) || !object(acquisition.absolute_dc_echo)
-    || typeof acquisition.identifiability?.gauge !== "string")) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
-  // Nested entries are checked down to their rendered type, so a malformed value is rejected here
-  // rather than crashing a render consumer after this function has returned.
-  const finiteNumber = (value: unknown) => typeof value === "number" && Number.isFinite(value);
-  const numberArrays = (map: unknown) => object(map) && Object.values(map as Record<string, unknown>).every(values => Array.isArray(values) && values.every(finiteNumber));
-  const echoBinValid = (entry: unknown) => object(entry) && finiteNumber((entry as AgenticEchoBin).echo) && finiteNumber((entry as AgenticEchoBin).sample_count);
-  if (!inference.ingestion.echo_bins.every(echoBinValid)) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
-  if (acquisition?.available === true && (!numberArrays(acquisition.coefficients) || !numberArrays(acquisition.contrast_vs_reference)
-    || !Array.isArray(acquisition.echo_bins) || !acquisition.echo_bins.every(echoBinValid))) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
-  if (!inference.unavailable.every(item => object(item) && typeof (item as { item?: unknown }).item === "string" && typeof (item as { reason?: unknown }).reason === "string")) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
+  check(typeof acquisition.available === "boolean");
+  if (acquisition.available) {
+    check(mapOf(acquisition.coefficients, numberArray) && mapOf(acquisition.contrast_vs_reference, numberArray)
+      && mapOf(acquisition.relative_contrast_strength, finite)
+      && mapOf(acquisition.apparent_relative_contrast_decay_s, numberOrNull)
+      && mapOf(acquisition.decay_fit_residual, numberOrNull)
+      && mapOf(acquisition.absolute_dc_echo, entry => mapOf(entry, finite))
+      && plainObject(acquisition.identifiability) && typeof acquisition.identifiability.gauge === "string");
+  } else {
+    check(acquisition.reason === null || typeof acquisition.reason === "string");
+  }
   return inference;
 }
 export const percentage = (value: number) => `${(value * 100).toPrecision(5)}%`;

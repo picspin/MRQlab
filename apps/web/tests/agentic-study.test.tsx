@@ -139,6 +139,74 @@ it("an unavailable reason that is not a string is rejected before rendering and 
   await rejectsMalformedNested(value => { value.unavailable[0].reason = { bad: true }; });
 });
 
+it("an echo-bin relative_residual of the wrong type is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.ingestion.echo_bins[0].relative_residual = "bad"; });
+});
+
+it("an echo-bin rank that is an object is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.ingestion.echo_bins[0].rank = { bad: true }; });
+});
+
+it("an echo-bin nullity that is an object is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.ingestion.echo_bins[0].nullity = { bad: true }; });
+});
+
+it("a null absolute_dc_echo entry is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.proportions.acquisition.absolute_dc_echo["1"] = null; });
+});
+
+it("an absolute_dc_echo tissue value of the wrong type is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.proportions.acquisition.absolute_dc_echo["1"].white_matter = "bad"; });
+});
+
+it("a relative_contrast_strength value of the wrong type is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.proportions.acquisition.relative_contrast_strength.white_matter = "bad"; });
+});
+
+it("an apparent_relative_contrast_decay_s value of the wrong type is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.proportions.acquisition.apparent_relative_contrast_decay_s.gray_matter = "bad"; });
+});
+
+it("a decay_fit_residual value of the wrong type is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.proportions.acquisition.decay_fit_residual.gray_matter = "bad"; });
+});
+
+it("a structure voxel_count of the wrong type is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.proportions.structure.white_matter.voxel_count = { bad: true }; });
+});
+
+it("a reference definition that is not a string is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.reference.definition = { bad: true }; });
+});
+
+it("an ingestion echo id that is an object is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => { value.ingestion.echo_ids[0] = { bad: true }; });
+});
+
+it("an unavailable acquisition reason that is an object is rejected before rendering", async () => {
+  await rejectsMalformedNested(value => {
+    value.proportions.acquisition.available = false;
+    value.proportions.acquisition.reason = { bad: true };
+  });
+});
+
+it("coefficient maps replaced with arrays are rejected before rendering", async () => {
+  await rejectsMalformedNested(value => {
+    value.proportions.acquisition.coefficients = [[1, .8], [.3, .2]];
+    value.proportions.acquisition.contrast_vs_reference = [];
+  });
+});
+
+it("a valid payload with every nested rendered surface still renders all acquisition tables", async () => {
+  await baseline(); vi.mocked(createScientificRecord).mockResolvedValueOnce(child());
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
+  expect(screen.getByRole("heading", { name: "回波可识别性" })).toBeInTheDocument();
+  expect(screen.getByText("组织 × 回波系数")).toBeInTheDocument();
+  expect(screen.getByText("直流回波绝对幅度（唯一绝对可识别回波）")).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "参考相对对比与表观衰减" })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "明确未生成的组织模态" })).toBeInTheDocument();
+});
+
 it("legitimate payloads still render after nested validation", async () => {
   await baseline(); vi.mocked(createScientificRecord).mockResolvedValueOnce(child());
   fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
