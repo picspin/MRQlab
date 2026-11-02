@@ -216,9 +216,13 @@ def test_small_amplitude_complex_solution_is_rejected_scale_aware(small_complex_
     assert 'not real in the declared partition gauge' in acquisition['reason']
     assert acquisition['coefficients']=={}
     assert inference['validation']['passed'] is False
-    # The echo bin reports the residual of the retained real coefficients
-    # (2/sqrt(5) here), not of the discarded complex least-squares fit.
-    assert inference['ingestion']['echo_bins'][0]['relative_residual']==pytest.approx(0.894427190999916,rel=1e-9)
+    # Every echo bin reports the residual of the retained real coefficients
+    # (2/sqrt(5) here), not of the discarded complex least-squares fit, even
+    # for echoes after the first rejection.
+    bins=inference['ingestion']['echo_bins']
+    assert [entry['echo'] for entry in bins]==[1,2,3,4]
+    for entry in bins:
+        assert entry['relative_residual']==pytest.approx(0.894427190999916,rel=1e-9), entry
     assert any(item['item']=='per_echo_coefficients' for item in inference['unavailable'])
     assert verify_agentic_inference(inference)['integrity_passed']
 

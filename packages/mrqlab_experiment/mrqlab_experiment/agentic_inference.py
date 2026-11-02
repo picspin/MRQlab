@@ -132,10 +132,16 @@ def _identifiable_coefficients(*, labels, tissues, indices, samples, echo_number
         common_mode_identified = projection > 1e-9 * max(1.0, coefficient_scale)
         expected_rank = tissue_count if common_mode_identified else tissue_count - 1
         model_residual = float(np.linalg.norm(design @ solution - observed) / max(float(np.linalg.norm(observed)), 1e-300))
+        # Every bin reports the residual of the real coefficients that would be
+        # returned, not of the discarded complex least-squares solution. It is
+        # computed for every echo, before any failure short-circuit, so the
+        # diagnostic has one definition across echoes even after a rejection.
+        retained = solution.real
+        residual = float(np.linalg.norm(design @ retained - observed) / max(float(np.linalg.norm(observed)), 1e-300))
         bins.append(dict(echo=int(echo), sample_count=int(np.count_nonzero(selected)),
                          rank=int(rank), nullity=int(tissue_count - rank),
                          absolute_amplitude_identified=bool(common_mode_identified and rank == tissue_count),
-                         relative_residual=model_residual))
+                         relative_residual=residual))
         if failure is not None:
             continue
         if rank != expected_rank:
@@ -144,11 +150,6 @@ def _identifiable_coefficients(*, labels, tissues, indices, samples, echo_number
         if model_residual > STATIC_MODEL_RELATIVE_TOLERANCE:
             failure = 'acquired samples do not follow the declared static per-tissue Fourier model'
             continue
-        # The bin reports the residual of the real coefficients that would be
-        # returned, not of the discarded complex least-squares solution.
-        retained = solution.real
-        residual = float(np.linalg.norm(design @ retained - observed) / max(float(np.linalg.norm(observed)), 1e-300))
-        bins[-1]['relative_residual'] = residual
         # Reality and negativity are judged against the solution's own magnitude,
         # never an absolute floor of 1.0: a relative tolerance must stay relative
         # at 1e-10 amplitudes. An exactly-zero solution has no imaginary or

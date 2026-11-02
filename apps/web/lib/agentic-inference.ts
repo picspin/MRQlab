@@ -76,6 +76,15 @@ export function agenticInference(response: AgenticRecordLike): AgenticInference 
     || !object(acquisition.relative_contrast_strength) || !object(acquisition.apparent_relative_contrast_decay_s)
     || !object(acquisition.decay_fit_residual) || !object(acquisition.absolute_dc_echo)
     || typeof acquisition.identifiability?.gauge !== "string")) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
+  // Nested entries are checked down to their rendered type, so a malformed value is rejected here
+  // rather than crashing a render consumer after this function has returned.
+  const finiteNumber = (value: unknown) => typeof value === "number" && Number.isFinite(value);
+  const numberArrays = (map: unknown) => object(map) && Object.values(map as Record<string, unknown>).every(values => Array.isArray(values) && values.every(finiteNumber));
+  const echoBinValid = (entry: unknown) => object(entry) && finiteNumber((entry as AgenticEchoBin).echo) && finiteNumber((entry as AgenticEchoBin).sample_count);
+  if (!inference.ingestion.echo_bins.every(echoBinValid)) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
+  if (acquisition?.available === true && (!numberArrays(acquisition.coefficients) || !numberArrays(acquisition.contrast_vs_reference)
+    || !Array.isArray(acquisition.echo_bins) || !acquisition.echo_bins.every(echoBinValid))) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
+  if (!inference.unavailable.every(item => object(item) && typeof (item as { item?: unknown }).item === "string" && typeof (item as { reason?: unknown }).reason === "string")) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
   return inference;
 }
 export const percentage = (value: number) => `${(value * 100).toPrecision(5)}%`;

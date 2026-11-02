@@ -112,6 +112,39 @@ it("a schema-matching available payload without coefficient maps is rejected bef
   expect(screen.queryByRole("heading", { name: "结构层面比例呈现" })).not.toBeInTheDocument();
 });
 
+async function rejectsMalformedNested(mutate: (value: Record<string, any>) => void) {
+  await baseline(); vi.mocked(createScientificRecord).mockResolvedValueOnce(child());
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
+  const malformed = structuredClone(inference) as unknown as Record<string, any>;
+  mutate(malformed);
+  vi.mocked(createScientificRecord).mockResolvedValueOnce(child(malformed as unknown as AgenticInference));
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("记录载荷缺少推断渲染所需的比例结构。");
+  expect(screen.queryByRole("heading", { name: "结构层面比例呈现" })).not.toBeInTheDocument();
+}
+
+it("a coefficient value of the wrong type is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedNested(value => { value.proportions.acquisition.coefficients.white_matter[0] = "bad"; });
+});
+
+it("an echo-bin entry of the wrong type is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedNested(value => { value.ingestion.echo_bins[0] = null; });
+});
+
+it("a null unavailable entry is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedNested(value => { value.unavailable = [null]; });
+});
+
+it("an unavailable reason that is not a string is rejected before rendering and leaves no old result", async () => {
+  await rejectsMalformedNested(value => { value.unavailable[0].reason = { bad: true }; });
+});
+
+it("legitimate payloads still render after nested validation", async () => {
+  await baseline(); vi.mocked(createScientificRecord).mockResolvedValueOnce(child());
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
+  expect(screen.getByRole("heading", { name: "结构层面比例呈现" })).toBeInTheDocument();
+});
+
 it("the intro describes deterministic numerical inference rather than an LLM reading the signal", () => {
   render(<AgenticStudyPage />);
   expect(screen.getByText(/确定性数值推断读取完整采集信号/)).toBeInTheDocument();

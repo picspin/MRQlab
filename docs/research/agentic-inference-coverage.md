@@ -94,6 +94,14 @@ The implementation verifies this numerically instead of assuming it:
 - On any rejection, return `available=false` with a concrete reason. Partial
   coefficients are never fabricated.
 
+Residual definition (single, consistent across echoes). Each echo bin's
+`relative_residual` is the relative residual `||design @ Re(x) - y|| / ||y||` of
+the **retained real coefficients** `Re(x)`, where `x` is the per-echo
+least-squares solution. It is computed for every echo before any failure
+short-circuit, so it stays meaningful even after a rejection on an earlier echo.
+The complex least-squares residual is used only for the static-model test
+(`model_residual` against `1e-8`) and is not reported in the bin.
+
 When available, coefficients are projected onto zero common mode for every echo,
 so columns are comparable as relative weights. Absolute amplitudes are reported
 separately only for the identified DC-bearing echo. `contrast_vs_reference` is
