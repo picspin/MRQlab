@@ -7,7 +7,7 @@ import pytest
 from mrqlab_experiment.agentic_inference import (
     SCHEMA, infer_tissue_modalities, verify_agentic_inference,
 )
-from mrqlab_experiment.linked_readout import complex_values, create_linked_readout
+from mrqlab_experiment.linked_readout import complex_values, create_linked_readout, verify_linked_readout
 from mrqlab_experiment.lab_study import fingerprint
 from mrqlab_experiment.tse_imaging import run_tse_imaging
 from mrqlab_recon.spatial import cartesian_indices, cartesian_reconstruct, fft_image
@@ -76,20 +76,19 @@ def nonstatic_echo_pair():
                         echo_numbers=[0]*8+[1]*8,times=(np.arange(count)*.01).tolist())
 
 
-@pytest.fixture(scope='module')
-def same_t2_pair():
-    shape=[16,16]; echoes=4; lines_per=shape[0]//echoes; t2=.05
-    labels=_labels(); indices=cartesian_indices(shape)
+def _weighted_pair(*, weights, echoes, labels=None, scope='weighted static partition fixture'):
+    """Static partition pair whose per-tissue, per-echo amplitudes are exact."""
+    shape=[16,16]; lines_per=shape[0]//echoes
+    labels=_labels() if labels is None else labels
+    indices=cartesian_indices(shape)
     echo_numbers=np.array([y//lines_per+1 for y,x in indices])
-    weights={0:.2*np.exp(-np.arange(1,echoes+1)*.008/t2),
-             1:.12*np.exp(-np.arange(1,echoes+1)*.008/t2)}
     grid=np.zeros(shape,complex)
     for echo in range(1,echoes+1):
         selected=echo_numbers==echo
-        full=sum(fft_image((labels==index).astype(float))*weights[index][echo-1] for index in (0,1))
+        full=sum(fft_image((labels==index).astype(float))*weights[index][echo-1] for index in range(len(weights)))
         grid[tuple(indices[selected].T)]=full[tuple(indices[selected].T)]
     image=cartesian_reconstruct(indices,grid[tuple(indices.T)],shape)
-    times=np.array([echo*.008 for echo in echo_numbers])
+    times=(echo_numbers*.008).tolist()
     return create_linked_readout(
         image=dict(id='image',shape=shape,axes=['y','x'],index_unit='voxel',flatten_order='C',
                    value_unit='a.u.',values=complex_values(image)),
@@ -97,14 +96,49 @@ def same_t2_pair():
                            complex_convention='real + i*imag',values=complex_values(grid[tuple(indices.T)]),
                            grid_indices=indices.tolist(),grid_index_axes=['y','x'],
                            normalized_coordinates=((indices-np.array(shape)//2)/np.array(shape)).tolist(),
-                           coordinate_unit='cycles/voxel',sample_times_s=times.tolist(),time_unit='s',
+                           coordinate_unit='cycles/voxel',sample_times_s=times,time_unit='s',
                            extensions=dict(echo_numbers=echo_numbers.tolist())),
         structure=dict(shape=shape,label_grid=labels.tolist(),label_to_tissue_id=['a','b'],origin='synthetic'),
         controls=[dict(field='model.fraction',tissue_id='b',kind='number',value=.5,
                        unit='fraction',min=0.,max=1.)],
         links=[dict(source='signal',target='image',transform='centered_inverse_dft',
                     normalization='1/product(shape); no fitted gain')],
-        provenance=_provenance(['a','b']),scope='same-T2 synthetic fixture')
+        provenance=_provenance(['a','b']),scope=scope)
+
+
+@pytest.fixture(scope='module')
+def same_t2_pair():
+    t2=.05
+    weights={0:.2*np.exp(-np.arange(1,5)*.008/t2),1:.12*np.exp(-np.arange(1,5)*.008/t2)}
+    return _weighted_pair(weights=weights,echoes=4,scope='same-T2 synthetic fixture')
+
+
+@pytest.fixture(scope='module')
+def small_complex_pair():
+    scaled=1e-10*(1+2j)
+    weights={tissue:scaled*amplitude*np.exp(-np.arange(1,5)*.008/.05) for tissue,amplitude in ((0,.2),(1,.12))}
+    return _weighted_pair(weights=weights,echoes=4)
+
+
+@pytest.fixture(scope='module')
+def small_positive_pair():
+    return _weighted_pair(weights={0:[1e-10],1:[2e-10]},echoes=1)
+
+
+@pytest.fixture(scope='module')
+def negative_small_pair():
+    return _weighted_pair(weights={0:[-1e-10],1:[2e-10]},echoes=1)
+
+
+@pytest.fixture(scope='module')
+def zero_dc_amplitude_pair():
+    # Echo 2 holds the DC sample (grid index (8,8)); its absolute amplitudes are exactly zero.
+    return _weighted_pair(weights={0:[.1,0.],1:[.05,0.]},echoes=2)
+
+
+@pytest.fixture(scope='module')
+def empty_label_pair():
+    return _weighted_pair(weights={0:[.1],1:[.05]},echoes=1,labels=np.zeros((16,16),int))
 
 
 def test_reads_complete_signal_and_reports_exact_structure_and_image_proportions(tse_pair):
@@ -144,6 +178,10 @@ def test_absolute_amplitudes_are_identified_only_at_the_dc_echo(tse_pair,tse_run
     assert all(entry['rank']==1 and entry['nullity']==1 for entry in bins if not entry['absolute_amplitude_identified'])
     echo=str(absolute[0]['echo'])
     assert set(acquisition['absolute_dc_echo'])=={echo}
+    modality=next(item for item in inference['modalities'] if item['id']=='dc_echo_absolute_amplitude')
+    assert modality['label']==f'DC-echo (echo {echo}) absolute amplitude share'
+    assert modality['basis']==f'absolute per-tissue amplitude identified at the DC sample of echo {echo}'
+    assert f'echo {int(echo)+1}' not in modality['label']
     weights=tse_run['tissue_echo_weights'];tissues=tse_pair['structure']['label_to_tissue_id']
     for index,tissue in enumerate(tissues):
         assert acquisition['absolute_dc_echo'][echo][tissue]==pytest.approx(
@@ -169,6 +207,71 @@ def test_same_t2_pair_recovers_relative_contrast_decay_not_a_tissue_t2_map(same_
     assert sum(entry['absolute_amplitude_identified'] for entry in bins)==1
     assert set(acquisition['absolute_dc_echo'])=={str(absolute['echo'])}
     assert any(item['item']=='per_tissue_t2_map' for item in inference['unavailable'])
+
+
+def test_small_amplitude_complex_solution_is_rejected_scale_aware(small_complex_pair):
+    inference=infer_tissue_modalities(small_complex_pair)
+    acquisition=inference['proportions']['acquisition']
+    assert acquisition['available'] is False
+    assert 'not real in the declared partition gauge' in acquisition['reason']
+    assert acquisition['coefficients']=={}
+    assert inference['validation']['passed'] is False
+    # The echo bin reports the residual of the retained real coefficients
+    # (2/sqrt(5) here), not of the discarded complex least-squares fit.
+    assert inference['ingestion']['echo_bins'][0]['relative_residual']==pytest.approx(0.894427190999916,rel=1e-9)
+    assert any(item['item']=='per_echo_coefficients' for item in inference['unavailable'])
+    assert verify_agentic_inference(inference)['integrity_passed']
+
+
+def test_small_negative_absolute_amplitude_is_rejected_not_clipped(negative_small_pair):
+    inference=infer_tissue_modalities(negative_small_pair)
+    acquisition=inference['proportions']['acquisition']
+    assert acquisition['available'] is False
+    assert 'identified absolute amplitudes are negative' in acquisition['reason']
+    assert acquisition['absolute_dc_echo']=={}
+    assert acquisition['coefficients']=={}
+    assert verify_agentic_inference(inference)['integrity_passed']
+
+
+def test_small_positive_absolute_amplitudes_are_still_identified(small_positive_pair):
+    inference=infer_tissue_modalities(small_positive_pair)
+    acquisition=inference['proportions']['acquisition']
+    assert acquisition['available'] and inference['validation']['passed']
+    assert acquisition['absolute_dc_echo']=={'1': {'a':pytest.approx(1e-10,rel=1e-9),'b':pytest.approx(2e-10,rel=1e-9)}}
+    assert verify_agentic_inference(inference)['integrity_passed']
+
+
+def test_zero_dc_amplitude_keeps_inference_and_omits_the_undefined_proxy(zero_dc_amplitude_pair):
+    inference=infer_tissue_modalities(zero_dc_amplitude_pair)
+    acquisition=inference['proportions']['acquisition']
+    assert acquisition['available'] and inference['validation']['passed']
+    assert acquisition['absolute_dc_echo']=={'2': {'a':0.,'b':0.}}
+    # Echo 2 (last echo) has zero relative contrast, so only the early proxy remains.
+    assert {item['id'] for item in inference['modalities']}=={
+        'structure_voxel_share','image_signal_share','early_relative_contrast'}
+    note=next(item for item in inference['unavailable'] if item['item']=='dc_echo_absolute_amplitude')
+    assert 'all zero' in note['reason']
+    assert verify_agentic_inference(inference)['integrity_passed']
+
+
+def test_empty_declared_label_is_kept_with_zero_counts_and_unavailable_coefficients(empty_label_pair):
+    inference=infer_tissue_modalities(empty_label_pair)
+    structure=inference['proportions']['structure']
+    assert structure['b']['voxel_count']==0 and structure['b']['voxel_fraction']==0.
+    assert structure['a']['voxel_fraction']==pytest.approx(1.,abs=1e-15)
+    acquisition=inference['proportions']['acquisition']
+    assert acquisition['available'] is False
+    assert 'every declared tissue must occupy at least one voxel' in acquisition['reason']
+    assert any(item['item']=='per_echo_coefficients' for item in inference['unavailable'])
+    assert {item['id'] for item in inference['modalities']}=={'structure_voxel_share','image_signal_share'}
+    assert verify_agentic_inference(inference)['integrity_passed']
+
+
+def test_transform_error_reports_the_measured_pair_error(tse_pair,generic_pair):
+    for pair in (tse_pair,generic_pair):
+        inference=infer_tissue_modalities(pair)
+        assert inference['ingestion']['transform_max_absolute_error']==verify_linked_readout(pair)['max_absolute_transform_error']
+    assert infer_tissue_modalities(generic_pair)['ingestion']['transform_max_absolute_error']>0.
 
 
 def test_link_without_echo_membership_keeps_structure_proportions_and_reports_gap(generic_pair):

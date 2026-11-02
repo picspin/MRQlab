@@ -131,31 +131,42 @@ def _identifiable_coefficients(*, labels, tissues, indices, samples, echo_number
         projection = float(np.linalg.norm(design @ ones))
         common_mode_identified = projection > 1e-9 * max(1.0, coefficient_scale)
         expected_rank = tissue_count if common_mode_identified else tissue_count - 1
-        residual = float(np.linalg.norm(design @ solution - observed) / max(float(np.linalg.norm(observed)), 1e-300))
+        model_residual = float(np.linalg.norm(design @ solution - observed) / max(float(np.linalg.norm(observed)), 1e-300))
         bins.append(dict(echo=int(echo), sample_count=int(np.count_nonzero(selected)),
                          rank=int(rank), nullity=int(tissue_count - rank),
                          absolute_amplitude_identified=bool(common_mode_identified and rank == tissue_count),
-                         relative_residual=residual))
+                         relative_residual=model_residual))
         if failure is not None:
             continue
         if rank != expected_rank:
             failure = 'sampled Fourier columns are rank-deficient beyond the declared common-mode limitation'
             continue
-        if residual > STATIC_MODEL_RELATIVE_TOLERANCE:
+        if model_residual > STATIC_MODEL_RELATIVE_TOLERANCE:
             failure = 'acquired samples do not follow the declared static per-tissue Fourier model'
             continue
-        imaginary = float(np.max(np.abs(solution.imag))) if solution.size else 0.0
-        scale = max(1.0, float(np.max(np.abs(solution.real)))) if solution.size else 1.0
-        if imaginary > IMAGINARY_RELATIVE_TOLERANCE * scale:
-            failure = 'identified coefficients are not real in the declared partition gauge'
-            continue
-        if common_mode_identified:
-            if float(np.min(solution.real)) < -IMAGINARY_RELATIVE_TOLERANCE * scale:
+        # The bin reports the residual of the real coefficients that would be
+        # returned, not of the discarded complex least-squares solution.
+        retained = solution.real
+        residual = float(np.linalg.norm(design @ retained - observed) / max(float(np.linalg.norm(observed)), 1e-300))
+        bins[-1]['relative_residual'] = residual
+        # Reality and negativity are judged against the solution's own magnitude,
+        # never an absolute floor of 1.0: a relative tolerance must stay relative
+        # at 1e-10 amplitudes. An exactly-zero solution has no imaginary or
+        # negative part to reject.
+        scale = float(np.max(np.abs(solution))) if solution.size else 0.0
+        if scale > 0.0:
+            if float(np.max(np.abs(solution.imag))) > IMAGINARY_RELATIVE_TOLERANCE * scale:
+                failure = 'identified coefficients are not real in the declared partition gauge'
+                continue
+            if common_mode_identified and float(np.min(solution.real)) < -IMAGINARY_RELATIVE_TOLERANCE * scale:
                 failure = 'identified absolute amplitudes are negative'
                 continue
+        if residual > STATIC_MODEL_RELATIVE_TOLERANCE:
+            failure = 'retained real coefficients do not reproduce the acquired samples within the static-model tolerance'
+            continue
         # Zero-common-mode projection makes every echo comparable. For a
         # rank-(T-1) echo this is the least-squares solution itself.
-        coefficients[:, column] = solution.real - float(np.mean(solution.real))
+        coefficients[:, column] = retained - float(np.mean(retained))
     if failure is not None:
         return dict(available=False, reason=failure, echo_bins=bins), None
     absolute = {}
@@ -164,6 +175,8 @@ def _identifiable_coefficients(*, labels, tissues, indices, samples, echo_number
             selected = echo_numbers == echo
             design = basis[selected]
             solution, _, _, _ = np.linalg.lstsq(design, samples[selected], rcond=None)
+            # Substantive negatives are rejected above; the clamp only removes
+            # within-tolerance numerical noise so reported amplitudes stay nonnegative.
             absolute[int(echo)] = {tissue: max(0.0, float(value)) for tissue, value in zip(tissues, solution.real)}
     return dict(available=True, reason=None, echo_bins=bins, coefficients=coefficients,
                 absolute=absolute), basis
@@ -235,6 +248,7 @@ def _normalized_per_structure(value_by_tissue, tissues, labels, *, signed=False)
 
 def _modalities(*, labels, tissues, shape, axes, structure, image_signal, acquisition, reference):
     modalities = []
+    omissions = []
     modalities.append(_modality(
         identifier='structure_voxel_share', label='Structure voxel share (declared grid)',
         kind='structure_proportion',
@@ -250,18 +264,27 @@ def _modalities(*, labels, tissues, shape, axes, structure, image_signal, acquis
         basis='complete complex image energy inside each declared label, normalized to the largest tissue',
         note='relative signal proportion from the declared inverse transform; no anatomy or diagnosis'))
     if not acquisition['available']:
-        return modalities
+        return modalities, omissions
     if acquisition['absolute']:
         echo = sorted(acquisition['absolute'])[0]
         amplitudes = acquisition['absolute'][echo]
-        modalities.append(_modality(
-            identifier='dc_echo_absolute_amplitude',
-            label=f'DC-echo (echo {echo + 1}) absolute amplitude share',
-            kind='absolute_amplitude',
-            values=_normalized_per_structure(amplitudes, tissues, labels),
-            shape=shape, axes=axes,
-            basis=f'absolute per-tissue amplitude identified at the DC sample of echo {echo + 1}',
-            note='absolute amplitude at one echo only; other echoes keep the unidentified common mode'))
+        if all(value == 0.0 for value in amplitudes.values()):
+            # A valid zero-amplitude DC echo keeps its identified zeros in the
+            # reported absolute table; only the normalized share proxy, which is
+            # 0/0 there, is omitted.
+            omissions.append(dict(
+                item='dc_echo_absolute_amplitude',
+                reason=f'the identified absolute amplitudes at the DC-bearing echo {echo} are all zero; '
+                       'a normalized share proxy is undefined and is not fabricated'))
+        else:
+            modalities.append(_modality(
+                identifier='dc_echo_absolute_amplitude',
+                label=f'DC-echo (echo {echo}) absolute amplitude share',
+                kind='absolute_amplitude',
+                values=_normalized_per_structure(amplitudes, tissues, labels),
+                shape=shape, axes=axes,
+                basis=f'absolute per-tissue amplitude identified at the DC sample of echo {echo}',
+                note='absolute amplitude at one echo only; other echoes keep the unidentified common mode'))
     per_echo = acquisition['contrast_vs_reference']
     for name, column, description in [('early', 0, 'first echo'), ('late', len(acquisition['echo_ids']) - 1, 'last echo')]:
         if name == 'late' and len(acquisition['echo_ids']) < 2:
@@ -278,14 +301,14 @@ def _modalities(*, labels, tissues, shape, axes, structure, image_signal, acquis
             basis=f'identifiable zero-common-mode coefficient difference at the {description}',
             note='signed relative contrast proxy; absolute per-tissue amplitude and T2 remain unidentified',
             signed=True))
-    return modalities
+    return modalities, omissions
 
 
 def infer_tissue_modalities(pair, *, reference_tissue_id=None, max_samples=MAX_SAMPLES):
     """Infer bounded, identifiable structure proportions and modality proxies."""
     if type(max_samples) is not int or not 1 <= max_samples <= 1000000:
         raise ValueError('bounded integer inference sample limit required')
-    verify_linked_readout(pair)
+    pair_check = verify_linked_readout(pair)
     image_payload = pair['image']; signal = pair['signal_vector']; structure_payload = pair['structure']
     shape = list(image_payload['shape']); axes = list(image_payload['axes'])
     tissues = list(structure_payload['label_to_tissue_id'])
@@ -343,8 +366,8 @@ def infer_tissue_modalities(pair, *, reference_tissue_id=None, max_samples=MAX_S
                                contrast_vs_reference=contrast, decay=decay, strength=strength,
                                absolute=solved['absolute'])
 
-    modalities = _modalities(labels=labels, tissues=tissues, shape=shape, axes=axes, structure=structure,
-                             image_signal=image_signal, acquisition=acquisition, reference=reference)
+    modalities, omissions = _modalities(labels=labels, tissues=tissues, shape=shape, axes=axes, structure=structure,
+                                        image_signal=image_signal, acquisition=acquisition, reference=reference)
 
     unavailable = [
         dict(item='per_tissue_t2_map',
@@ -364,6 +387,7 @@ def infer_tissue_modalities(pair, *, reference_tissue_id=None, max_samples=MAX_S
     for tissue, fit in acquisition['decay'].items():
         if fit['reason'] is not None:
             unavailable.append(dict(item='relative_contrast_decay:' + tissue, reason=fit['reason']))
+    unavailable.extend(omissions)
 
     checks = dict(
         pair_integrity=True,
@@ -395,7 +419,7 @@ def infer_tissue_modalities(pair, *, reference_tissue_id=None, max_samples=MAX_S
                        parseval_signal_energy=expected_image_energy,
                        parseval_image_energy=image_energy,
                        parseval_relative_error=parseval_error,
-                       transform_max_absolute_error=0.0,
+                       transform_max_absolute_error=float(pair_check['max_absolute_transform_error']),
                        echo_ids=echo_ids, echo_times_s=echo_times, echo_bins=echo_bins),
         proportions=dict(structure=structure, image_signal=image_signal,
                          acquisition=dict(

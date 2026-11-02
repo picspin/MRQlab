@@ -82,7 +82,7 @@ export default function AgenticStudyPage() {
   }
   const acquisition = inference?.proportions.acquisition;
   return <div className={styles.workbench}>
-    <header className={styles.heading}><div><h1>Agent 信号推断与组织模态</h1><p>LLM 直接读取完整采集信号，在声明结构上呈现参数比例，再生成可审计的组织模态代理。</p></div><Link href="/research" className={styles.scope}>脉冲设计研究台</Link></header>
+    <header className={styles.heading}><div><h1>Agent 信号推断与组织模态</h1><p>确定性数值推断读取完整采集信号，在声明结构上呈现参数比例，生成可审计的组织模态代理；类型化输出供后续 LLM 消费。</p></div><Link href="/research" className={styles.scope}>脉冲设计研究台</Link></header>
     <p className={styles.boundary}>教学 / 研究仿真；合成结构不代表真实解剖，不是患者诊断、剂量建议、扫描仪验证或临床质量认证。数值可识别性检查不等于物理或临床有效性。B/C 保持 parked。</p>
     <div className={styles.instrument}>
       <section className={styles.design} aria-label="父记录与推断参考">

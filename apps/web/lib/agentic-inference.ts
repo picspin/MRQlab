@@ -55,12 +55,28 @@ export interface AgenticInference {
 }
 export interface AgenticRecordLike { record: { payload_json: string; summary: { mode: string } } }
 
-/** Retains the exact computed inference; rejects a record from another execution mode. */
+/** Retains the exact computed inference; rejects a record from another execution mode or one whose payload cannot be rendered. */
 export function agenticInference(response: AgenticRecordLike): AgenticInference {
   if (response.record.summary.mode !== "agentic_inference") throw new Error("当前记录不是 agentic 信号推断。");
   const payload = JSON.parse(response.record.payload_json) as { inference?: AgenticInference };
-  if (!payload.inference || payload.inference.schema_version !== "mrqlab-agentic-tissue-inference-1") throw new Error("记录缺少可识别的 agentic 推断载荷。");
-  return payload.inference;
+  const inference = payload?.inference;
+  if (!inference || inference.schema_version !== "mrqlab-agentic-tissue-inference-1") throw new Error("记录缺少可识别的 agentic 推断载荷。");
+  const object = (value: unknown) => !!value && typeof value === "object";
+  const proportions = inference.proportions;
+  if (!object(proportions) || !object(proportions.structure) || !object(proportions.image_signal)
+    || !object(inference.ingestion) || !Array.isArray(inference.ingestion.echo_ids) || !Array.isArray(inference.ingestion.echo_bins)
+    || !object(inference.validation) || typeof inference.validation.passed !== "boolean" || !object(inference.validation.checks)
+    || !object(inference.source) || !Array.isArray(inference.source.tissue_ids)
+    || !object(inference.reference) || typeof inference.reference.tissue_id !== "string"
+    || !Array.isArray(inference.unavailable)) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
+  if (!inference.source.tissue_ids.every(tissue => object(proportions.structure[tissue]) && typeof proportions.structure[tissue].voxel_fraction === "number"
+    && object(proportions.image_signal[tissue]) && typeof proportions.image_signal[tissue].energy_fraction === "number")) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
+  const acquisition = proportions.acquisition;
+  if (acquisition?.available === true && (!object(acquisition.coefficients) || !object(acquisition.contrast_vs_reference)
+    || !object(acquisition.relative_contrast_strength) || !object(acquisition.apparent_relative_contrast_decay_s)
+    || !object(acquisition.decay_fit_residual) || !object(acquisition.absolute_dc_echo)
+    || typeof acquisition.identifiability?.gauge !== "string")) throw new Error("记录载荷缺少推断渲染所需的比例结构。");
+  return inference;
 }
 export const percentage = (value: number) => `${(value * 100).toPrecision(5)}%`;
 export const decimal = (value: number | null) => value === null ? "不可识别" : value.toPrecision(5);

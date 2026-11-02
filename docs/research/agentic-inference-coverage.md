@@ -25,16 +25,29 @@ New module: `packages/mrqlab_experiment/mrqlab_experiment/agentic_inference.py`,
 schema `mrqlab-agentic-tissue-inference-1`, canonicalization `typed-json-f64-v1`.
 
 `infer_tissue_modalities(pair, reference_tissue_id=None, max_samples=65536)`
-first runs `verify_linked_readout(pair)`. It then requires:
+first runs `verify_linked_readout(pair)`. Two contracts are distinct:
+
+Forced input requirements — a violation raises `ValueError` before any
+inference is returned:
 
 - the complete paired complex image/vector, not a display magnitude;
 - unique complete grid indices, matching declared inverse DFT and finite values;
-- at least two and at most 16 declared tissues, all non-empty and bound in the
-  label grid; the reference must be one of them;
-- `signal_vector.extensions.echo_numbers` covering every sample with nonnegative
-  integer IDs, at most 64 echo IDs;
+- at least two and at most 16 declared tissues; the reference must be one of them;
 - default sample count ≤65,536. Library callers may raise the explicit bound up
   to the linked-grid limit; the HTTP plan does not expose that override.
+
+Coefficient-availability requirements — a violation does not raise; the
+structural/image proportions are still returned and the affected layer is
+reported as explicitly unavailable (`available=false` with a concrete reason):
+
+- every declared tissue must occupy at least one voxel for coefficient
+  identification. A declared-but-empty label is kept, not rejected: it is
+  reported with `voxel_count=0`, `voxel_fraction=0` and the per-echo
+  coefficients are marked unavailable;
+- `signal_vector.extensions.echo_numbers` must cover every sample with
+  nonnegative integer IDs, at most 64 echo IDs. Missing or malformed membership
+  keeps the structure/image proportions and reports the per-echo coefficients
+  as explicitly unavailable.
 
 No data is mutated. `inference_sha256` covers all fields except itself.
 
@@ -73,8 +86,11 @@ The implementation verifies this numerically instead of assuming it:
 - Test whether `design @ ones` vanishes. If it does, the common mode is
   unidentified and the expected rank is `T-1`; otherwise the expected rank is `T`.
 - Reject any rank other than the expected rank, a relative residual above
-  `1e-8`, non-real coefficients above `1e-9` relative scale in the declared
-  partition gauge, or a negative absolute solution at a DC-bearing echo.
+  `1e-8` for either the least-squares fit or the retained real coefficients,
+  non-real coefficients above `1e-9` of the solution's own magnitude (so the
+  criterion stays relative at arbitrarily small amplitudes; an exactly-zero
+  solution is accepted as real), or a negative absolute solution beyond `1e-9`
+  of that magnitude at a DC-bearing echo.
 - On any rejection, return `available=false` with a concrete reason. Partial
   coefficients are never fabricated.
 
@@ -109,6 +125,8 @@ identifiability report, not a physics/anatomy/clinical verdict.
 1. `structure_voxel_share` — declared voxel fraction, constant per structure;
 2. `image_signal_share` — reconstructed complex-image energy fraction;
 3. `dc_echo_absolute_amplitude` — absolute amplitude share at the one DC echo;
+   omitted, with an explicit `unavailable` note, when the identified amplitudes
+   are all zero (a normalized share is 0/0 there and is not fabricated);
 4. `early_relative_contrast` — signed zero-common-mode difference at the first echo;
 5. `late_relative_contrast` — the same at the last echo when ≥2 echoes exist.
 

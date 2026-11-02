@@ -83,6 +83,41 @@ it("a record without an inference payload is rejected and leaves no old result",
   expect(screen.queryByRole("heading", { name: "结构层面比例呈现" })).not.toBeInTheDocument();
 });
 
+it("a schema-matching payload without proportions is rejected before rendering and leaves no old result", async () => {
+  await baseline(); vi.mocked(createScientificRecord).mockResolvedValueOnce(child());
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
+  const { proportions: _omitted, ...withoutProportions } = structuredClone(inference) as Record<string, unknown>;
+  vi.mocked(createScientificRecord).mockResolvedValueOnce(child(withoutProportions as unknown as AgenticInference));
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("记录载荷缺少推断渲染所需的比例结构。");
+  expect(screen.queryByRole("heading", { name: "结构层面比例呈现" })).not.toBeInTheDocument();
+});
+
+it("a schema-matching payload missing a declared tissue's proportions is rejected before rendering", async () => {
+  await baseline();
+  const partial = structuredClone(inference); delete (partial.proportions.image_signal as Record<string, unknown>).gray_matter;
+  vi.mocked(createScientificRecord).mockResolvedValueOnce(child(partial));
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("记录载荷缺少推断渲染所需的比例结构。");
+  expect(screen.queryByRole("heading", { name: "结构层面比例呈现" })).not.toBeInTheDocument();
+});
+
+it("a schema-matching available payload without coefficient maps is rejected before rendering", async () => {
+  await baseline();
+  const noCoefficients = structuredClone(inference) as unknown as Record<string, Record<string, Record<string, unknown>>>;
+  delete noCoefficients.proportions.acquisition.contrast_vs_reference;
+  vi.mocked(createScientificRecord).mockResolvedValueOnce(child(noCoefficients as unknown as AgenticInference));
+  fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("记录载荷缺少推断渲染所需的比例结构。");
+  expect(screen.queryByRole("heading", { name: "结构层面比例呈现" })).not.toBeInTheDocument();
+});
+
+it("the intro describes deterministic numerical inference rather than an LLM reading the signal", () => {
+  render(<AgenticStudyPage />);
+  expect(screen.getByText(/确定性数值推断读取完整采集信号/)).toBeInTheDocument();
+  expect(screen.queryByText(/LLM 直接读取/)).not.toBeInTheDocument();
+});
+
 it("full replay needs an explicit matching receipt and hides output on failure", async () => {
   await baseline(); vi.mocked(createScientificRecord).mockResolvedValueOnce(child());
   fireEvent.click(screen.getByRole("button", { name: "从父记录推断组织模态" })); await screen.findByText(/推断已保存/);
