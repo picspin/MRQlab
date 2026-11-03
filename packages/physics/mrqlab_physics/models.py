@@ -83,6 +83,54 @@ class BlochMcConnellPools:
 
 
 @dataclass(frozen=True, slots=True)
+class LiquidPoolSystem:
+    """N liquid pools. rates[i][j] is the first-order rate i -> j (s^-1).
+
+    Detailed balance is required with densities, so unsaturated equilibrium is
+    stationary. Semisolid MT lineshapes are deliberately not liquid pools.
+    """
+    t1: tuple[float, ...]
+    t2: tuple[float, ...]
+    density: tuple[float, ...]
+    offset_hz: tuple[float, ...]
+    rates: tuple[tuple[float, ...], ...]
+
+    require_balance: bool = True
+
+    def __post_init__(self):
+        n = len(self.t1)
+        if n < 1 or any(len(x) != n for x in (self.t2, self.density, self.offset_hz, self.rates)):
+            raise ValueError("liquid pool arrays must have equal nonzero length")
+        if any(len(row) != n for row in self.rates):
+            raise ValueError("exchange matrix must be N by N")
+        for value in (*self.t1, *self.t2, *self.density, *self.offset_hz, *(v for row in self.rates for v in row)):
+            _require_finite_real("liquid pool value", value)
+        k = np.asarray(self.rates)
+        if (min(*self.t1, *self.t2) <= 0 or min(self.density) < 0
+                or (self.require_balance and min(self.density) <= 0)
+                or np.any(k < 0) or np.any(np.diag(k) != 0)):
+            raise ValueError("positive relaxation/densities and nonnegative off-diagonal exchange required")
+        flux = np.asarray(self.density)[:, None] * k
+        if self.require_balance and not np.allclose(flux, flux.T, atol=1e-10, rtol=1e-8):
+            raise ValueError("exchange must satisfy detailed balance with pool densities")
+
+    @property
+    def count(self):
+        return len(self.t1)
+
+    @property
+    def exchange(self):
+        rates = np.asarray(self.rates, dtype=float)
+        return rates.T - np.diag(rates.sum(axis=1))
+
+    @classmethod
+    def from_two(cls, pools):
+        return cls((pools.t1_a, pools.t1_b), (pools.t2_a, pools.t2_b),
+                   (pools.pd_a, pools.pd_b), (0., pools.delta_b_hz),
+                   ((0., pools.k_ab_hz), (pools.k_ba_hz, 0.)), require_balance=False)
+
+
+@dataclass(frozen=True, slots=True)
 class MagnetizationTransferPools:
     """Free liquid pool and bound longitudinal-only pool for EPG-X MT."""
 
@@ -115,6 +163,7 @@ class Phantom:
     pools: tuple[SpectralPool, ...] = ()
     bloch_mcconnell: BlochMcConnellPools | None = None
     magnetization_transfer: MagnetizationTransferPools | None = None
+    liquid_pools: LiquidPoolSystem | None = None
 
     def __post_init__(self):
         for name in ("t1", "t2", "proton_density", "off_resonance_hz"):
@@ -137,7 +186,9 @@ class Phantom:
             self.magnetization_transfer, MagnetizationTransferPools
         ):
             raise TypeError("phantom magnetization_transfer must be MagnetizationTransferPools")
-        if self.bloch_mcconnell is not None and self.magnetization_transfer is not None:
+        if self.liquid_pools is not None and not isinstance(self.liquid_pools, LiquidPoolSystem):
+            raise TypeError("liquid_pools must be LiquidPoolSystem")
+        if sum(x is not None for x in (self.bloch_mcconnell, self.magnetization_transfer, self.liquid_pools)) > 1:
             raise ValueError("phantom two-pool models are mutually exclusive")
 
     def resolved_isochromats(self) -> tuple[Isochromat, ...]:

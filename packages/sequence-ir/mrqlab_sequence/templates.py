@@ -21,6 +21,9 @@ def _echo_count(params: dict, default: int) -> int:
 
 def build_sequence(template: str, params: dict | None = None) -> SequenceIR:
     p = params or {}; kind = template.upper()
+    if kind in {"TSE3D", "SSFP", "EPSE", "PRESS"}:
+        from .family_templates import build_family_sequence
+        return build_family_sequence(kind, p)
     if kind not in {"GRE", "SE", "TSE"}:
         raise ValueError(f"unknown template {template!r}")
     te = _finite_parameter(p, "te", .03); tr = _finite_parameter(p, "tr", .5)

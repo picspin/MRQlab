@@ -60,6 +60,11 @@ class ResolvedExecutionPlan(BaseModel):
 
 
 _UNITS = {
+    "voxel_size_m": "m",
+    "partitions": "count", "repetitions": "count", "refocusing_end_angle": "deg",
+    "inversion_time_s": "s", "inflow_fraction": "dimensionless", "double_inversion": "dimensionless",
+    "delta_s": "s", "separation_s": "s", "diffusion_gradient_mt_m": "mT/m",
+    "epi_lines": "count", "echo_spacing_s": "s", "readout_s": "s",
     "te": "s",
     "tr": "s",
     "echoes": "count",
@@ -94,6 +99,14 @@ def resolve_parameter_states(graph: ExperimentGraph, sequence) -> tuple[Paramete
         for name, value in sorted(values.items())
         if name in _UNITS
     ]
+    cest = sequence.metadata.get("cest")
+    if cest:
+        for name, unit in (("saturation_power_uT", "uT"), ("saturation_duration_s", "s")):
+            states.append(ParameterState(name=name, value=cest[name], unit=unit, state="authored",
+                source="ExperimentGraph.sequence.metadata.cest"))
+        tissue_values = graph.tissue if isinstance(graph.tissue, tuple) else ()
+        states.append(ParameterState(name="liquid_pool_count", value=len(tissue_values), unit="count",
+            state="derived", source="ExperimentGraph.tissue"))
     scanner = graph.effective_scanner
     states.extend(
         (
