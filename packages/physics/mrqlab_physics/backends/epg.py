@@ -22,6 +22,13 @@ def _translate(values: np.ndarray, delta: int) -> np.ndarray:
 
 class EPGBackend:
     def __init__(self, phantom: Phantom, kmax: int, *, gradient_units="teaching", fov_m=0.22):
+        self.members = tuple(
+            (spin.weight, EPGBackend(Phantom(t1=spin.t1, t2=spin.t2,
+                proton_density=spin.proton_density, off_resonance_hz=spin.off_resonance_hz,
+                diffusion_adc_mm2_s=phantom.diffusion_adc_mm2_s), kmax,
+                gradient_units=gradient_units, fov_m=fov_m))
+            for spin in phantom.isochromats
+        )
         self.phantom = phantom
         self.kmax = kmax
         self.zero = kmax
@@ -34,6 +41,12 @@ class EPGBackend:
         self.omega[2, self.zero] = phantom.proton_density
 
     def apply(self, op: Operator) -> None:
+        if self.members:
+            for _, backend in self.members:
+                backend.apply(op)
+            self.diffusion_applied = any(b.diffusion_applied for _, b in self.members)
+            self.omega = self.snapshot()
+            return
         if isinstance(op, RfOp):
             self.omega = epg_rf_matrix(op.alpha_rad, op.phase_rad) @ self.omega
         elif isinstance(op, Relax):
@@ -60,7 +73,10 @@ class EPGBackend:
             return
 
     def observe(self) -> complex:
-        return complex(self.omega[0, self.zero])
+        return complex(self.snapshot()[0, self.zero])
 
     def snapshot(self) -> np.ndarray:
+        if self.members:
+            weight = sum(w for w, _ in self.members)
+            return sum((w * b.snapshot() for w, b in self.members), np.zeros_like(self.omega)) / weight if weight else np.zeros_like(self.omega)
         return self.omega.copy()
