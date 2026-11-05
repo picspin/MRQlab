@@ -19,6 +19,14 @@ from mrqlab_sequence import build_sequence
 from .gradient import DiffusionSpec, calculate_diffusion_b_value, generate_diffusion_waveform
 
 
+class FamilyWorkError(ValueError):
+    """A family simulation failed after consuming the attached work amount."""
+
+    def __init__(self, message, estimated_work):
+        super().__init__(message)
+        self.estimated_work = int(estimated_work)
+
+
 def ssfp_steady_state(t1, t2, tr, flip_angle, off_resonance_hz=0., density=1.):
     """Exact fixed point in the alternating-RF rotating frame at TE=TR/2.
 
@@ -90,7 +98,10 @@ def simulate_family(sequence, phantom, scanner, options):
             previous=backend.omega.copy()
             run_backend(backend,ops,False); _spoil(backend); warm_ops+=len(ops)
             if (warm_ops+plan.operator_count)*width>options.max_work:
-                raise ValueError('TSE steady preparation exceeds max_work')
+                # ``ops`` has already run for this iteration. Surface that
+                # consumed preparation work to callers that keep an attempt
+                # ledger instead of pretending a failed tissue was free.
+                raise FamilyWorkError('TSE steady preparation exceeds max_work',warm_ops*width)
             if np.max(np.abs(backend.omega-previous))<1e-9:
                 break
         else: raise ValueError('TSE steady preparation did not converge')

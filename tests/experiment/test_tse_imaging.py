@@ -79,6 +79,18 @@ def test_failed_readout_reports_epg_work_actually_consumed():
     assert not isinstance(early.value, ReadoutWorkError)
 
 
+def test_failed_tse_preparation_reports_partial_tissue_work():
+    """A family preparation failure exposes its already executed EPG work."""
+    from mrqlab_experiment.family_recipes import build_family_recipe
+    from mrqlab_experiment.tse_imaging import ReadoutWorkError
+    graph=build_family_recipe('brain_t1_3d_tse').model_dump(mode='json')
+    graph['tissue'][0]['t1']=.001
+    with pytest.raises(ReadoutWorkError) as caught:
+        run_tse_imaging(phantom(), echoes=8, max_work=50000, experiment=graph)
+    assert str(caught.value)=='TSE steady preparation exceeds max_work'
+    assert caught.value.estimated_work==59796
+
+
 def test_discrete_psf_metrics_known_delta_and_lowpass():
     delta = psf_metrics(np.ones((16, 16)))
     assert delta['half_amplitude_width_voxels'] == [1, 1]

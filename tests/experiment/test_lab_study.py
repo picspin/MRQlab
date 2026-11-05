@@ -123,6 +123,22 @@ def test_failed_simulation_charges_work_actually_consumed_not_just_the_cap(spec)
     assert result['provenance']['estimated_work']==92278
 
 
+def test_failed_tse_preparation_charges_partial_tissue_work(spec):
+    """A failure inside one tissue's preparation still charges its spent work."""
+    spec['experiment']['tissue'][0]['t1']=.001
+    spec['candidates']=[{'echoes':8}]
+    spec['budget']={'max_total_work':5000000000,'max_work_per_simulation':50000}
+    result=run_lab_study(spec)
+    candidate=result['candidates'][0]
+    assert not candidate['executed']
+    assert candidate['reasons']==['TSE steady preparation exceeds max_work']
+    fit_work=sum(f['estimated_work'] for f in result['calibration'])
+    # The failed first tissue executes 59,796 EPG operations before rejecting
+    # its preparation. It must not be reduced to the 50,000 reservation.
+    assert fit_work==2584
+    assert result['provenance']['estimated_work']==fit_work+59796
+
+
 def test_csv_exact_units_byte_hash_and_independent_acquisitions(spec):
     rows=spec['dataset']['measurements']; output=io.StringIO()
     writer=csv.DictWriter(output,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)

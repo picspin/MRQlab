@@ -74,10 +74,10 @@ no selected design. All outcomes and reasons remain in the record.
 
 The work ledger reserves an upper cap before every simulation, includes fitting,
 charges failed attempts conservatively, and distinguishes reserved from estimated
-work. A failed TSE readout reports the EPG work it actually spent (the per-call cap
-is shared across the two tissue runs, so a failure can exceed it); the ledger
-charges the larger of that spent work and the reservation, never less. RF is a
-relative ideal-pulse energy proxy over preparation and acquisition,
+work. A failed TSE readout reports the EPG work it actually spent, including a
+partial tissue's completed steady-preparation trains (the per-call cap is shared
+across the two tissue runs, so a failure can exceed it); the ledger charges the
+larger of that spent work and the reservation, never less. RF is a relative ideal-pulse energy proxy over preparation and acquisition,
 not SAR. Time includes the longest coexisting-tissue preparation and full ideal
 Cartesian readout; it is not scanner timing certification.
 
@@ -138,10 +138,10 @@ overwritten. Without an editable installation, use the same source roots as
 pytest via `PYTHONPATH=packages/recon:packages/physics:packages/sequence-ir:packages/mrqlab_experiment`.
 
 A non-editable (wheel/site-packages) install has no repository manifest. Importing
-the API must still succeed there; only recording or replaying a study fails, at
-use time, with a message naming the editable-source requirement. The import-time
-source anchor is therefore captured as `None` when the checkout is absent instead
-of raising during module import.
+the study-record helper must still succeed there; only recording or replaying a
+study fails, at use time, with a message naming the editable-source requirement.
+The import-time source anchor is therefore captured as `None` when the checkout
+is absent instead of raising during module import.
 
 In this declared example, fitted T2 is 40/120 ms with conditional standard
 uncertainty 0.13157/0.66200 ms. Worst PSF RMS for 2/4/8 echoes is
