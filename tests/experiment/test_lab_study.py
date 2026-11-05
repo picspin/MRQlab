@@ -116,10 +116,11 @@ def test_failed_simulation_charges_work_actually_consumed_not_just_the_cap(spec)
     candidate=result['candidates'][0]
     assert not candidate['executed'] and candidate['reasons']==['combined EPG and spatial work exceeds budget']
     fit_work=sum(f['estimated_work'] for f in result['calibration'])
-    # The cap is 80,000 but the failed call spent 89,694 EPG work; the ledger must
-    # report the larger real total, never the smaller cap-only sum.
-    assert consumed['work']>80000
-    assert result['provenance']['estimated_work']==fit_work+consumed['work']
+    # The cap is 80,000 but the failed call spent 89,694 EPG work. Together
+    # with 2,584 fit work, the ledger must report 92,278 rather than 82,584.
+    assert consumed['work']==89694
+    assert fit_work==2584
+    assert result['provenance']['estimated_work']==92278
 
 
 def test_csv_exact_units_byte_hash_and_independent_acquisitions(spec):
