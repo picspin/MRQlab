@@ -50,7 +50,7 @@ Public entry points: `build_clinical_recipe`, `search_family_parameters`,
 `evaluate_family`, `ssfp_steady_state`, `adc_map`, `peak_integrals`.
 `LiquidPoolSystem` is exported from `mrqlab_physics`.
 
-[Actual search records](sequence-family-search-results.json) contain each
+Actual search records (`sequence-family-search-results.json`, not committed on this branch; held in worktree `gap-fill`, commit `8e5895f`) contain each
 baseline experiment snapshot, candidates, selected feasible point, explicit
 clinical question/objective, parameter units, timings, measurements, RF proxy
 units, and provenance for **every** tissue/control acquisition. Provenance uses
