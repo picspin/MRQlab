@@ -25,6 +25,32 @@ def _matrix_exp(generator: np.ndarray, duration_s: float) -> np.ndarray:
     return np.real_if_close(result)
 
 
+def liquid_bm_generator(system, offset_hz: float, b1_ut: float) -> np.ndarray:
+    """Affine Cartesian BM generator, RF along x, source-last convention.
+
+    Rates/densities and detailed balance belong to LiquidPoolSystem. Zero RF
+    is allowed here for coupled-model controls and unsaturated equilibrium.
+    """
+    from ..models import LiquidPoolSystem
+    if not isinstance(system, LiquidPoolSystem):
+        raise TypeError("LiquidPoolSystem required")
+    if not np.isfinite([offset_hz, b1_ut]).all() or b1_ut < 0:
+        raise ValueError("finite offset and nonnegative RF power required")
+    n = system.count
+    w1 = 2 * np.pi * GAMMA_BAR_HZ_T * b1_ut * 1e-6
+    g = np.zeros((3*n+1, 3*n+1))
+    for i in range(n):
+        base = 3*i
+        delta = 2*np.pi*(offset_hz-system.offset_hz[i])
+        g[base:base+3, base:base+3] = np.array([
+            [-1/system.t2[i], delta, 0], [-delta, -1/system.t2[i], w1],
+            [0, -w1, -1/system.t1[i]]])
+        for j in range(n):
+            g[base:base+3, 3*j:3*j+3] += np.eye(3)*system.exchange[i,j]
+        g[base+2, -1] = system.density[i]/system.t1[i]
+    return g
+
+
 def apply_cw_bloch_mcconnell_saturation(
     state: np.ndarray, duration_s: float, offset_hz: float, b1_ut: float,
     pools: BlochMcConnellPools,
@@ -42,17 +68,7 @@ def apply_cw_bloch_mcconnell_saturation(
     if not all(np.isfinite(v) for v in (duration_s, offset_hz, b1_ut)):
         raise ValueError("CEST saturation values must be finite")
     zero = state.shape[1] // 2
-    w1 = 2 * np.pi * GAMMA_BAR_HZ_T * b1_ut * 1e-6
-    g = np.zeros((3*n+1, 3*n+1))
-    for i in range(n):
-        base = 3*i
-        delta = 2*np.pi*(offset_hz-system.offset_hz[i])
-        g[base:base+3, base:base+3] = np.array([
-            [-1/system.t2[i], delta, 0], [-delta, -1/system.t2[i], w1],
-            [0, -w1, -1/system.t1[i]]])
-        for j in range(n):
-            g[base:base+3, 3*j:3*j+3] += np.eye(3)*system.exchange[i,j]
-        g[base+2, -1] = system.density[i]/system.t1[i]
+    g = liquid_bm_generator(system, offset_hz, b1_ut)
     vector = np.ones(3*n+1)
     for i in range(n):
         vector[3*i:3*i+3] = (state[3*i,zero].real, state[3*i,zero].imag, state[3*i+2,zero].real)
