@@ -61,6 +61,24 @@ def test_invalid_tse_design_and_budgets(patch):
     with pytest.raises(ValueError): run_tse_imaging(phantom(), **patch)
 
 
+def test_failed_readout_reports_epg_work_actually_consumed():
+    """A budget failure after both tissue EPG runs must expose the real work.
+
+    The cap is shared across the per-tissue runs, so a failure can consume more
+    than the cap; the raised error carries the spent EPG work for honest ledgers.
+    """
+    from mrqlab_experiment.tse_imaging import ReadoutWorkError
+    with pytest.raises(ReadoutWorkError) as caught:
+        run_tse_imaging(phantom(), echoes=8, max_work=80000)
+    assert caught.value.estimated_work > 80000
+    assert str(caught.value)=='combined EPG and spatial work exceeds budget'
+    # A design error rejected before any EPG run consumes no work and stays a
+    # plain ValueError, so callers cannot charge budget for a rejected request.
+    with pytest.raises(ValueError) as early:
+        run_tse_imaging(phantom(), echoes=8, t2_s=(0., .1))
+    assert not isinstance(early.value, ReadoutWorkError)
+
+
 def test_discrete_psf_metrics_known_delta_and_lowpass():
     delta = psf_metrics(np.ones((16, 16)))
     assert delta['half_amplitude_width_voxels'] == [1, 1]

@@ -96,6 +96,32 @@ def test_budgets_and_failed_targets_do_not_select_partial_grid(spec):
     assert all(not p['eligible'] for p in result['candidates'])
 
 
+def test_failed_simulation_charges_work_actually_consumed_not_just_the_cap(spec):
+    """A failed TSE call can spend more EPG work than its per-call cap.
+
+    The cap is split across the per-tissue EPG runs, so both tissues can run
+    before the combined check fails. The ledger must charge that real work, not
+    assume the failed call consumed only its reservation.
+    """
+    import mrqlab_experiment.tse_imaging as tse
+    spec['candidates']=[{'echoes':8}]
+    spec['budget']={'max_total_work':5000000000,'max_work_per_simulation':80000}
+    consumed={'work':0}
+    original=tse.run_experiment
+    def counted(graph):
+        result=original(graph); consumed['work']+=result.sim_result.meta['estimated_work']; return result
+    tse.run_experiment=counted
+    try: result=run_lab_study(spec)
+    finally: tse.run_experiment=original
+    candidate=result['candidates'][0]
+    assert not candidate['executed'] and candidate['reasons']==['combined EPG and spatial work exceeds budget']
+    fit_work=sum(f['estimated_work'] for f in result['calibration'])
+    # The cap is 80,000 but the failed call spent 89,694 EPG work; the ledger must
+    # report the larger real total, never the smaller cap-only sum.
+    assert consumed['work']>80000
+    assert result['provenance']['estimated_work']==fit_work+consumed['work']
+
+
 def test_csv_exact_units_byte_hash_and_independent_acquisitions(spec):
     rows=spec['dataset']['measurements']; output=io.StringIO()
     writer=csv.DictWriter(output,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
@@ -130,6 +156,20 @@ def test_replay_pins_source_runtime_and_process_loaded_code(spec,monkeypatch):
     with pytest.raises(ValueError,match='runtime'): replay_study_record(altered)
     monkeypatch.setattr(module,'source_manifest',lambda: {'files':{},'sha256':'0'*64})
     with pytest.raises(ValueError,match='source changed'): replay_study_record(record)
+
+
+def test_import_without_source_checkout_defers_failure_to_use_not_import(monkeypatch):
+    """A wheel/site-packages install has no repo manifest.
+
+    Importing the module (and therefore the API) must still succeed; only
+    recording/replaying a study may fail, with a clear message.
+    """
+    import mrqlab_experiment.study_records as module
+    def missing(): raise ValueError('study replay requires the MRQlab source checkout and dependency manifest')
+    monkeypatch.setattr(module,'source_manifest',missing)
+    assert module._startup_source_hash() is None
+    monkeypatch.setattr(module,'IMPORTED_SOURCE_HASH',None)
+    with pytest.raises(ValueError,match='editable source checkout'): module._checked_sources()
 
 
 def test_real_cli_save_verify_and_replay(spec,tmp_path):
