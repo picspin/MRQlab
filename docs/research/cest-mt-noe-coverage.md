@@ -82,7 +82,9 @@ positive controls and misleading asymmetry, explicit lineshape/zero-offset
 behavior, CW/pulsed equivalence, recovery gaps, budgets and failed targets.
 Existing two-liquid, MT, Super-Lorentzian, and family tests remain active.
 
-Remaining: microscopic NOE cross relaxation, generalized semisolid Bloch
+A later [Solomon relay extension](solomon-relay-cest-coverage.md) adds a minimal
+distance/tau-derived signed pair with chemical-exchange relay. Remaining: full
+multi-spin/Redfield coherence and relaxation, generalized semisolid Bloch
 models near resonance, measured pool priors, B0/B1 maps, readout transient and
 offset recovery ordering, pulsed RF shapes, parameter identifiability/uncertainty,
 spatial joint MT/rNOE acquisition/reconstruction, and clinical calibration.

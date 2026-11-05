@@ -81,15 +81,20 @@ def radial_cgls(xy, samples, shape, *, max_iterations=1500, tolerance=1e-12,
     # Reserve adjoint initialization and final measured residual before starting.
     if op.work+2*op.operation_work > max_work:
         raise ValueError('insufficient work for inverse initialization and validation')
+    return _cgls(op, samples, max_iterations, tolerance, 'exact-centered-DFT CGLS')
+
+
+def _cgls(op, samples, max_iterations, tolerance, method):
+    """Shared unregularized solve; each operator accounts for its own budget."""
     r = samples.copy(); z = op.adjoint(r); direction = z.copy()
     gamma = float(np.vdot(z, z).real)
-    image = np.zeros(shape, complex); norm = float(np.linalg.norm(samples))
+    image = np.zeros(op.shape, complex); norm = float(np.linalg.norm(samples))
     history = [1. if norm else 0.]; iterations = 0
     reason = 'zero_data' if norm == 0 else 'max_iterations'
     for _ in range(max_iterations if norm else 0):
         if gamma == 0:
             reason = 'least_squares_stationary'; break
-        if op.work+3*op.operation_work > max_work:
+        if op.work+3*op.operation_work > op.max_work:
             reason = 'max_work'; break
         q = op.forward(direction); delta = float(np.vdot(q, q).real)
         if delta <= 0 or not np.isfinite(delta):
@@ -101,7 +106,7 @@ def radial_cgls(xy, samples, shape, *, max_iterations=1500, tolerance=1e-12,
         z = op.adjoint(r); next_gamma = float(np.vdot(z, z).real)
         direction = z+(next_gamma/gamma)*direction; gamma = next_gamma
     measured = float(np.linalg.norm(op.forward(image)-samples)/(norm or 1.))
-    return image, dict(method='exact-centered-DFT CGLS', iterations=iterations,
+    return image, dict(method=method, iterations=iterations,
         tolerance=tolerance, stop_reason=reason, converged=measured <= tolerance,
         relative_data_residual=measured, residual_history=history,
         estimated_work=op.work, estimated_memory_bytes=op.estimated_memory_bytes,

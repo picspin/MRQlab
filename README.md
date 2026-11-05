@@ -51,6 +51,13 @@ finite candidate comparison, explicit validation and complete JSON records:
 | Joint CEST/MT/rNOE | Coupled liquid and semisolid pools, effective upfield rNOE, named exchange-off controls |
 | MRS basis fit | Small-spin density matrix, finite RF/J coupling, complex full-readout fit and mismatch validation |
 
+The [measured-input TSE study](docs/research/lab-measurement-study-coverage.md)
+is available at `/research/lab-study`: explicit-origin CSV → T2 calibration →
+independent acquisition holdout → EPG/image/PSF candidate comparison at uncertainty
+corners → target validation → atomic local-file record and full computational
+replay. Only T2 is calibrated; T1/PD and clinical transfer remain authored or
+unvalidated. Its included example is clearly synthetic.
+
 `POST /research/run` and `/research/search` are separate bounded research APIs.
 A result records its exact replay request, source fingerprint, runtime, targets
 and result hash; search records retain every candidate and the selected result.
@@ -101,3 +108,23 @@ The browser gracefully shows an offline state when the API is absent. Set `NEXT_
 A sequence compiles to channel-specific, time/value events. The experiment kernel selects a representation, wraps a kernel-owned `SimulationEngine` façade for the shipped Bloch, EPG, or spectral backend, samples it under ADC gates, and sends Cartesian data through the recon adapter. External engines contribute state-backend descriptors; scheduling, work caps, ADC/NCO handling, and result assembly remain in the microkernel. Engine-specific details do not leak into sequence or HTTP contracts.
 
 MRQLab does **not** control or connect to real hardware. MaRCoS, Red Pitaya, acquisition services, scanner control, pulse safety validation, clinical decision-making, and diagnostic use are intentionally out of scope. No secrets or cloud credentials belong in this repository.
+
+
+The research radial inverse also has an optional pinned FINUFFT backend
+(`uv sync --locked --extra dev --extra noncartesian`). Choose FINUFFT / CGLS in
+the Research page; the exact DFT reference remains available. See the
+[accuracy, replay and failure evidence](docs/research/fast-noncartesian-coverage.md)
+before interpreting image or residual targets. Large radial conditioning and
+noisy/coil/trajectory-calibrated reconstruction remain open research gaps.
+
+
+Research also includes **Pulsatile / causal DIR**: pressure-driven rigid-pipe
+Womersley flow, finite slice RF and causal trigger interruption. Scheduled and
+completed cycles are shown separately; default failed targets remain visible.
+See [physical assumptions, independent checks and replay](docs/research/pulsatile-causal-dir-coverage.md).
+
+
+**CEST / Solomon relay** adds a signed dipolar proton-pair model with an explicit
+labile bridge to water. Molecular parameters remain priors; design search varies
+saturation pulse parameters. Negative contrasts and failed targets are retained.
+See [independent checks, replay and model gaps](docs/research/solomon-relay-cest-coverage.md).

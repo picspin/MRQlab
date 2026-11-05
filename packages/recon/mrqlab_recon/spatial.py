@@ -52,16 +52,23 @@ def cartesian_reconstruct(indices, samples, shape):
     return ifft_image(grid)
 
 
-def radial_acquire(image, spokes, points):
-    image = validate_image(image)
-    n = image.shape[-1]
-    if image.shape[-2] != n or n < 16:
+def radial_coordinates(shape, spokes, points):
+    """Shared radial coordinates in cycles/pixel, independent of backend."""
+    n = shape[-1]
+    if shape[-2] != n or n < 16:
         raise ValueError('radial requires square grid >=16')
     spec = TrajectorySpec(trajectory_type='radial', matrix_size=n,
                           num_spokes_or_interleaves=spokes, points_per_arm=points)
     trajectory = generate_trajectory(spec)
     # cycles/pixel; exclude positive Nyquist endpoint symmetry issues.
     xy = np.column_stack([trajectory['kx'], trajectory['ky']]) * .5
+    return xy
+
+
+def radial_acquire(image, spokes, points):
+    image = validate_image(image)
+    xy = radial_coordinates(image.shape, spokes, points)
+    n = image.shape[-1]
     pos = (np.arange(n)-n//2)
     xx, yy = np.meshgrid(pos, pos)
     # Bounded chunks avoid materializing samples x voxels for large spokes.

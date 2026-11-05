@@ -2,6 +2,7 @@
 from hashlib import sha256
 from pathlib import Path
 import json
+import base64
 import platform
 from typing import Literal, Any, Annotated
 import numpy as np
@@ -10,11 +11,13 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from mrqlab_experiment.tse_imaging import run_tse_imaging
 from mrqlab_experiment.spatial_imaging import run_spatial_imaging
 from mrqlab_experiment.flow_imaging import run_flow_imaging
+from mrqlab_experiment.pulsatile_dir import run_pulsatile_dir
 from mrqlab_experiment.cest_mt_noe import run_cest_mt_noe
+from mrqlab_experiment.cest_solomon import run_cest_solomon
 from mrqlab_experiment.mrs_basis import run_mrs_basis
 
 router=APIRouter(prefix='/research',tags=['research/teaching'])
-Kind=Literal['tse','noncartesian','flow','cest','mrs']
+Kind=Literal['tse','noncartesian','flow','pulsatile_flow','cest','cest_solomon','mrs']
 
 
 class StrictParameters(BaseModel):
@@ -56,7 +59,8 @@ class NoncartesianParameters(StrictParameters):
     max_samples: int=Field(default=24576,ge=1,le=24576)
     max_work: int=Field(default=10000000000,ge=1,le=10000000000)
     quality_threshold: float=Field(default=1e-6,gt=0,le=1.)
-    reconstruction: Literal['gridding','cgls']='cgls'
+    reconstruction: Literal['gridding','cgls','nufft_cgls']='cgls'
+    nufft_eps: float=Field(default=1e-13,ge=1e-14,le=1e-3)
     inverse_max_iterations: int=Field(default=1500,ge=1,le=1500)
     inverse_tolerance: float=Field(default=1e-12,ge=1e-14,le=.1)
     max_memory_bytes: int=Field(default=134217728,ge=1,le=134217728)
@@ -77,6 +81,32 @@ class FlowParameters(StrictParameters):
     wall_target_min: float=Field(default=.7,gt=0,le=1.)
 
 
+class PulsatileFlowParameters(StrictParameters):
+    r_peaks_s: list[TimeValue]=Field(default_factory=lambda:[0.,1.2,2.4],min_length=1,max_length=10)
+    observation_end_s: float=Field(default=3.6,gt=0,le=10.)
+    inversion_time_s: float=Field(default=.9,gt=.008,le=2.)
+    trigger_latency_s: float=Field(default=.003,ge=0,le=.05)
+    initial_rr_s: float=Field(default=1.2,ge=.2,le=3.)
+    rr_range_s: list[RRValue]=Field(default_factory=lambda:[.5,1.5],min_length=2,max_length=2)
+    radius_m: float=Field(default=.002,ge=.0001,le=.01)
+    density_kg_m3: float=Field(default=1060.,ge=500.,le=2000.)
+    viscosity_pa_s: float=Field(default=.0035,ge=.0001,le=.1)
+    mean_gradient_pa_m: float=Field(default=100.,ge=-2000.,le=2000.)
+    oscillating_gradient_pa_m: float=Field(default=200.,ge=0,le=2000.)
+    frequency_hz: float=Field(default=1.,ge=.05,le=5.)
+    phase_rad: float=Field(default=0.,ge=-3.15,le=3.15)
+    thickness_m: float=Field(default=.005,ge=.001,le=.02)
+    radial_rings: int=Field(default=8,ge=2,le=32)
+    axial_spins: int=Field(default=401,ge=33,le=1601)
+    rf_steps: int=Field(default=128,ge=16,le=256)
+    off_resonance_hz: float=Field(default=0.,ge=-500.,le=500.)
+    blood_target_max: float=Field(default=.1,gt=0,lt=1.)
+    wall_target_min: float=Field(default=.7,gt=0,le=1.)
+    max_interrupted_fraction: float=Field(default=0.,ge=0,le=1.)
+    max_work: int=Field(default=10000000,ge=1,le=10000000)
+    max_duration_s: float=Field(default=10.,gt=0,le=10.)
+
+
 class CESTParameters(StrictParameters):
     offsets_ppm: list[float]=Field(default_factory=lambda:[-5.,-3.5,-2.,-1.,1.,2.,3.5,5.],min_length=2,max_length=16)
     b0_t: float=Field(default=3.,ge=.5,le=7.)
@@ -93,6 +123,16 @@ class CESTParameters(StrictParameters):
     max_work: int=Field(default=100000000,ge=1,le=100000000)
     max_duration_s: float=Field(default=300.,gt=0,le=300.)
     target_min_amide_contrast: float=Field(default=.005,gt=0,le=1.)
+
+
+class SolomonCESTParameters(CESTParameters):
+    pair_fraction: float=Field(default=.02,gt=0,le=.1)
+    bridge_exchange_s1: float=Field(default=1000.,ge=0,le=5000.)
+    bridge_shift_ppm: float=Field(default=1.,ge=-10.,le=10.)
+    donor_shift_ppm: float=Field(default=-3.5,ge=-10.,le=10.)
+    distance_m: float=Field(default=2.5e-10,ge=1e-10,le=2e-9)
+    tau_c_s: float=Field(default=1e-8,ge=1e-12,le=1e-6)
+    target_min_relay_contrast: float=Field(default=.005,gt=0,le=1.)
 
 
 class MRSParameters(StrictParameters):
@@ -114,8 +154,8 @@ class MRSParameters(StrictParameters):
     target_relative_amount_error: float=Field(default=.05,gt=0,le=1.)
 
 
-SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'cest':CESTParameters,'mrs':MRSParameters}
-RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'cest':run_cest_mt_noe,'mrs':run_mrs_basis}
+SCHEMAS={'tse':TSEParameters,'noncartesian':NoncartesianParameters,'flow':FlowParameters,'pulsatile_flow':PulsatileFlowParameters,'cest':CESTParameters,'cest_solomon':SolomonCESTParameters,'mrs':MRSParameters}
+RUNNERS={'tse':run_tse_imaging,'noncartesian':run_spatial_imaging,'flow':run_flow_imaging,'pulsatile_flow':run_pulsatile_dir,'cest':run_cest_mt_noe,'cest_solomon':run_cest_solomon,'mrs':run_mrs_basis}
 
 
 class RunRequest(StrictParameters):
@@ -169,14 +209,15 @@ def parameters_for(kind, parameters):
             if kind=='noncartesian' and parsed['encoding']=='stack_of_stars': labels=np.stack([labels,1-labels,np.roll(labels,2,0)])
             parsed['labels']=labels.tolist()
         labels=parsed['labels']
+        grid_limit=64 if kind=='noncartesian' and parsed['reconstruction']=='nufft_cgls' else 16
         def valid_row(row):
-            return isinstance(row,list) and 2<=len(row)<=16 and all(type(v) is int and v in (0,1) for v in row)
+            return isinstance(row,list) and 2<=len(row)<=grid_limit and all(type(v) is int and v in (0,1) for v in row)
         def valid_plane(plane):
-            return isinstance(plane,list) and 2<=len(plane)<=16 and all(valid_row(row) for row in plane) and len({len(row) for row in plane})==1
+            return isinstance(plane,list) and 2<=len(plane)<=grid_limit and all(valid_row(row) for row in plane) and len({len(row) for row in plane})==1
         is_2d=valid_plane(labels)
         is_3d=isinstance(labels,list) and 2<=len(labels)<=4 and all(valid_plane(plane) for plane in labels) and len({(len(plane),len(plane[0])) for plane in labels})==1
         if not is_2d and not is_3d:
-            raise HTTPException(422,'research API labels require an integer two-class grid, <=16x16 and <=4 partitions')
+            raise HTTPException(422,'research API labels require an integer two-class grid, <=16x16 (NUFFT <=64x64) and <=4 partitions')
     return parsed
 
 
@@ -191,18 +232,18 @@ def present(kind,result):
             if image.ndim==3: image=image[len(image)//2]
             images.append(dict(label=title,width=image.shape[1],height=image.shape[0],values=image.ravel().tolist()))
         if kind=='tse':
-            for i,weights in enumerate(result['tissue_echo_weights']): curves.append(_curve(f'Tissue {i+1}',result['echo_times_s']*1000,weights))
+            for i,weights in enumerate(result['tissue_echo_weights']): curves.append(_curve(f'Tissue {i+1}',np.asarray(result['echo_times_s'])*1000,weights))
             x_label='Echo time (ms)'; y_label='Absolute EPG signal'
         else:
             for i,solver in enumerate(result['solvers']): curves.append(_curve(f'CGLS frame {i+1}',np.arange(len(solver['residual_history'])),solver['residual_history']))
             x_label='Iteration'; y_label='Relative data residual'
         validation=result['quality']
-    elif kind=='flow':
-        for tissue in ['blood','wall']:
+    elif kind in {'flow','pulsatile_flow'}:
+        for tissue in (['blood','wall'] if result['readouts'] else []):
             curves.append(_curve(tissue,[r['gate']['readout_s'] for r in result['readouts']],
                 [r['tissues'][tissue]['mean_mz'] for r in result['readouts']]))
         x_label='Readout time (s)'; y_label='Mean longitudinal magnetization'; validation=result['validation']
-    elif kind=='cest':
+    elif kind in {'cest','cest_solomon'}:
         for name,z in result['spectra'].items(): curves.append(_curve(name,result['offsets_ppm'],z))
         x_label='Saturation offset (ppm)'; y_label='Water Z'; validation=result['validation']
     else:
@@ -215,8 +256,11 @@ def present(kind,result):
     elif kind=='noncartesian':
         metrics={'Image NRMSE':result['quality']['nrmse']}
         if result['solvers']: metrics.update({'Data residual':result['solvers'][0]['relative_data_residual'],'Iterations':result['solvers'][0]['iterations']})
+    elif kind=='pulsatile_flow':
+        metrics={'Completed readouts':validation['completed_readouts'],'Interrupted preparations':validation['interrupted_preparations'],'Interrupted fraction':validation['interrupted_fraction']}
+        if result['readouts']: metrics.update({'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']})
     elif kind=='flow': metrics={'Blood max |Mz|':validation['max_abs_blood_mz'],'Wall min |Mz|':validation['min_abs_wall_mz']}
-    elif kind=='cest': metrics=result['metrics']
+    elif kind in {'cest','cest_solomon'}: metrics=result['metrics']
     else: metrics={'Max relative amount error':validation['max_relative_amount_error'],'Fit residual':result['fit']['relative_residual'],'Basis condition':result['fit']['basis_condition']}
     return dict(images=images,curves=curves,x_label=x_label,y_label=y_label,validation=validation,metrics=metrics)
 
@@ -243,6 +287,10 @@ def run_research(request: RunRequest): return execute(request,checked_source_has
 def search_research(request: SearchRequest):
     fingerprint=checked_source_hash()
     if request.expected_source_hash and request.expected_source_hash!=fingerprint: raise HTTPException(409,'Replay source changed')
+    if request.kind=='cest_solomon':
+        pulse_keys={'b1_uT','saturation_s','mode','n_pulses','pulse_s','gap_s'}
+        if any(set(patch)-pulse_keys for patch in request.candidates):
+            raise HTTPException(422,'Solomon design search varies saturation pulse parameters only. Molecular parameters are priors; use separate runs for sensitivity.')
     # Reject typos, unsafe budgets or unsupported fields before any computation.
     for patch in request.candidates: parameters_for(request.kind,{**request.parameters,**patch})
     points=[]
@@ -260,3 +308,56 @@ def search_research(request: SearchRequest):
         objective='minimize declared model loss against known teaching truth/control; finite grid, no clinical optimum',
         replay_search={**request.model_dump(), 'expected_source_hash':fingerprint},source_hash=fingerprint,
         search_hash=sha256(json.dumps(points,sort_keys=True,allow_nan=False).encode()).hexdigest())
+
+
+# Measured study records wrap existing ExperimentGraphs; they are not a new
+# scanner export or licensed-compute path.
+from mrqlab_experiment.lab_study import LabStudy, build_lab_study_example, import_echo_csv
+from mrqlab_experiment.study_records import create_study_record, replay_study_record
+
+
+class EchoCSVRequest(StrictParameters):
+    csv_base64: str=Field(min_length=1,max_length=1333340)
+    source_ref: str=Field(min_length=1,max_length=1024)
+    origin: Literal['synthetic','measured']
+    echo_spacing_s: float=Field(default=.008,ge=.000001,le=10.)
+    tr_s: float=Field(default=.4,ge=.000001,le=10.)
+
+
+@router.get('/lab-study/example')
+def lab_study_example():
+    return build_lab_study_example().model_dump(mode='json')
+
+
+@router.post('/lab-study/import-echoes')
+def lab_study_import(request: EchoCSVRequest):
+    try:
+        dataset=import_echo_csv(base64.b64decode(request.csv_base64,validate=True),source_ref=request.source_ref,
+            origin=request.origin,echo_spacing_s=request.echo_spacing_s,tr_s=request.tr_s)
+    except ValueError as exc: raise HTTPException(422,str(exc)) from exc
+    return dataset.model_dump(mode='json')
+
+
+def _lab_response(record):
+    simulation=record['result']['selected_simulation']
+    def decode(value):
+        if isinstance(value,dict):
+            if set(value)=={'real','imag'}: return complex(value['real'],value['imag'])
+            return {k:decode(v) for k,v in value.items()}
+        if isinstance(value,list): return [decode(v) for v in value]
+        return value
+    return dict(record=record,view=present('tse',decode(simulation)) if simulation is not None else None)
+
+
+@router.post('/lab-study/run')
+def run_measured_study(request: LabStudy):
+    checked_source_hash()
+    try: return _lab_response(create_study_record(request))
+    except ValueError as exc: raise HTTPException(422,str(exc)) from exc
+
+
+@router.post('/lab-study/replay')
+def replay_measured_study(record: dict):
+    checked_source_hash()
+    try: return _lab_response(replay_study_record(record))
+    except ValueError as exc: raise HTTPException(409,str(exc)) from exc

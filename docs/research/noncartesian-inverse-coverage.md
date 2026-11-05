@@ -69,7 +69,9 @@ Cartesian, gridding, PSF and sequence-family tests remain active.
 
 ## Remaining gaps
 
-Large-grid fast NUFFT, preconditioning, noise models/regularization selection,
+Follow-up: [fast FINUFFT plans and verified limits](fast-noncartesian-coverage.md)
+add a matrix-free path while preserving this independent reference.
+Preconditioning, noise models/regularization selection,
 coil sensitivity/parallel imaging, off-resonance, gradient imperfections,
 trajectory calibration and non-Cartesian TSE echo-dependent signal weighting
 remain absent. Strong finite-grid conditioning limits recovery outside the

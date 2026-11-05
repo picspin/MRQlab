@@ -87,7 +87,8 @@ Tests cover full replay and model effects in addition to independent references.
 
 ## Remaining gaps
 
-Pulsatile/accelerating trajectories, laminar radial velocity profiles, CFD,
+A later [pressure-driven pulsatile/causal extension](pulsatile-causal-dir-coverage.md)
+adds accelerating trajectories and rigid-pipe radial velocity profiles. General CFD,
 respiratory/tissue deformation, velocity distributions from measurements,
 prospective gating, optimized inversion, diffusion during motion, readout trains
 and motion-encoded image reconstruction remain absent. The model is one-dimensional

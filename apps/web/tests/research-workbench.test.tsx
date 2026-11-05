@@ -89,3 +89,42 @@ it("imports a pinned run without displaying it as a fresh measurement", async ()
   fireEvent.click(screen.getByRole("button", { name: "运行导入回放" })); await screen.findByText("回放一致：结果哈希匹配。");
   expect(vi.mocked(runResearch).mock.calls[0][0]).toEqual(result.replay_request);
 });
+
+
+it("submits the explicitly selected NUFFT inverse and clears stale results", async () => {
+  vi.mocked(runResearch).mockResolvedValue(result); render(<ResearchPage />);
+  fireEvent.click(screen.getByRole("button", { name: "Radial inverse" }));
+  fireEvent.change(screen.getByLabelText("重建方法"), { target: { value: "nufft_cgls" } });
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
+  await screen.findByText("Measured test question");
+  expect(vi.mocked(runResearch).mock.calls[0][0]).toMatchObject({ kind: "noncartesian", parameters: { reconstruction: "nufft_cgls" } });
+  fireEvent.change(screen.getByLabelText("重建方法"), { target: { value: "cgls" } });
+  expect(screen.queryByText("Measured test question")).not.toBeInTheDocument();
+});
+
+
+it("shows causal scheduling separately from completed readouts", async () => {
+  const causal: ResearchRun = { ...result, kind: "pulsatile_flow", result: { ...result.result, gates: [
+    { trigger: 0, decision_s: 0, preparation_s: .003, readout_s: .903, rr_estimate_s: 1.2, scheduled: true, accepted: false, rejection: "interrupted_by_trigger", cancelled_s: .45 },
+  ] } };
+  vi.mocked(runResearch).mockResolvedValue(causal); render(<ResearchPage />);
+  fireEvent.click(screen.getByRole("button", { name: "Pulsatile / causal DIR" }));
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
+  await screen.findByText("触发决策与实际完成");
+  expect(screen.getByText("interrupted_by_trigger")).toBeInTheDocument();
+  expect(screen.getByText("已安排准备")).toBeInTheDocument();
+  expect(screen.getByText("完整读出")).toBeInTheDocument();
+  expect(vi.mocked(runResearch).mock.calls[0][0].kind).toBe("pulsatile_flow");
+});
+
+it("uses the Solomon relay model and displays signed failed contrast", async () => {
+  const signed: ResearchRun = { ...result, kind: "cest_solomon", view: { ...result.view, metrics: { relayed_noe_contrast: -.0012 }, validation: { passed: false, target_min_relay_contrast: .005 } } };
+  vi.mocked(runResearch).mockResolvedValue(signed); render(<ResearchPage />);
+  fireEvent.click(screen.getByRole("button", { name: "CEST / Solomon relay" }));
+  expect(screen.getByLabelText("转动相关时间 (s)")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "运行仿真" }));
+  await screen.findByText("目标未通过");
+  expect(screen.getByText("-0.0012000")).toBeInTheDocument();
+  expect(screen.getByText("Relay contrast target")).toBeInTheDocument();
+  expect(vi.mocked(runResearch).mock.calls[0][0].kind).toBe("cest_solomon");
+});

@@ -18,15 +18,16 @@ SCOPE = ('research/teaching prescribed constant through-plane velocities; finite
 
 
 class MovingBlochEnsemble:
-    """Each spin keeps its state as z(t)=z0+v*t crosses RF/receive slabs.
+    """Each spin keeps state on a constant-velocity or analytic motion trajectory.
 
     No boundary reset, mixture fraction or modulo wrap. Non-RF intervals have
     exact constant-velocity phase integral; finite RF uses midpoint field
     rotation and symmetric relaxation splitting, converging as dt decreases.
     """
     def __init__(self, z0_m, velocity_m_s, *, t1_s=1.6, t2_s=.15, off_hz=0.,
-                 max_work=10000000):
-        self.z0 = np.asarray(z0_m, float)
+                 max_work=10000000, motion=None):
+        self.motion = motion
+        self.z0 = np.array(z0_m, dtype=float, copy=True)
         self.velocity = np.broadcast_to(np.asarray(velocity_m_s, float), self.z0.shape).copy()
         if self.z0.ndim != 1 or not self.z0.size or not np.isfinite(self.z0).all() or not np.isfinite(self.velocity).all():
             raise ValueError('finite nonempty position/velocity vectors required')
@@ -39,7 +40,8 @@ class MovingBlochEnsemble:
         self.time = 0.; self.work = 0; self.max_work = max_work
 
     def positions(self, time_s=None):
-        return self.z0+self.velocity*(self.time if time_s is None else time_s)
+        at = self.time if time_s is None else time_s
+        return self.motion.positions(self.z0, at) if self.motion is not None else self.z0+self.velocity*at
 
     def hard_rf(self, degrees, phase_rad=0.):
         if not np.isfinite([degrees, phase_rad]).all(): raise ValueError('finite RF required')
@@ -60,6 +62,8 @@ class MovingBlochEnsemble:
         self._charge()
         phase = 2*np.pi*self.off_hz*dt_s+GAMMA*gz_t_m*self.positions(self.time+dt_s/2)*dt_s
         if b1_uT == 0:
+            if self.motion is not None:
+                phase = 2*np.pi*self.off_hz*dt_s+GAMMA*gz_t_m*self.motion.position_integral(self.z0,self.time,self.time+dt_s)
             transverse = (self.state[:, 0]+1j*self.state[:, 1])*np.exp(1j*phase)
             self.state[:, 0] = transverse.real; self.state[:, 1] = transverse.imag
             self._relax(dt_s)
