@@ -3,6 +3,7 @@
 Sequential hard RF, rectangular gradient holds and delays precede an ideal
 Cartesian snapshot. This is not a waveform compiler or scanner execution path.
 """
+import math
 from typing import Annotated, Literal
 
 import numpy as np
@@ -64,7 +65,7 @@ class OperationSequence(Strict):
             raise ValueError('rectangular 2..16 voxel grid required')
         if any(type(v) is not int or not 0 <= v < len(self.tissues) for row in self.labels for v in row):
             raise ValueError('integer labels must bind to declared tissues')
-        if sum(getattr(op, 'duration_s', 0.) for op in self.operations) > 2.:
+        if math.fsum(getattr(op, 'duration_s', 0.) for op in self.operations) > 2.:
             raise ValueError('total preparation duration exceeds two seconds')
         return self
 
@@ -110,7 +111,7 @@ def run_operation_sequence(parameters):
     t1 = np.asarray([t.t1_s for t in sequence.tissues])[flat]
     t2 = np.asarray([t.t2_s for t in sequence.tissues])[flat]
     state = np.zeros((labels.size, 3)); state[:, 2] = pd
-    clock = 0.; trace = []
+    clock = 0.; trace = []; durations = []
     for op in sequence.operations:
         start = clock
         if isinstance(op, HardRF):
@@ -122,7 +123,8 @@ def run_operation_sequence(parameters):
             transverse = (state[:, 0]+1j*state[:, 1])*np.exp(-dt/t2+1j*phase)
             state[:, 0] = transverse.real; state[:, 1] = transverse.imag
             state[:, 2] = pd+(state[:, 2]-pd)*np.exp(-dt/t1)
-            clock += dt
+            durations.append(dt)
+            clock = math.fsum(durations)
         trace.append(dict(operation=op.model_dump(mode='json'), start_s=start, end_s=clock,
                           magnetization=state.tolist()))
     image = (state[:, 0]+1j*state[:, 1]).reshape(shape)
@@ -144,7 +146,7 @@ def run_operation_sequence(parameters):
         provenance=dict(adapter='static-voxel-operations-1', source_sha256=_checked_sources()['sha256'], runtime=runtime_manifest(),
                         inputs_sha256=fingerprint(replay), origin='authored synthetic inputs',
                         source_refs=[dict(tissue_id=t.id, source_ref='authored:tissue:'+t.id, origin='synthetic', state=t.model_dump(mode='json')) for t in sequence.tissues]),
-        scope='teaching/research static Bloch preparation and ideal Fourier snapshot; no scanner validation; B/C parked')
+        scope='teaching/research static Bloch preparation and ideal Fourier snapshot; no scanner validation; first Milestone B slice')
     return dict(linked_readout=pair, operation_trace=trace, final_magnetization=state.tolist(), duration_s=clock,
                 provenance=dict(replay=replay),
                 validation=dict(passed=True, scope='bounded execution and linked transform only; no image quality or clinical target'))

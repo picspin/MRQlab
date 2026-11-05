@@ -3,7 +3,8 @@
 Starting anchor: `e3a94d9`, branch `herdr/codex-orchestration`. This is a new,
 bounded research adapter, using the existing common linked image/vector schema
 and scientific-record execution chain. Teaching/research simulation only;
-Milestones B and C remain parked. No scanner waveform execution or clinical
+Milestones B/C were explicitly unlocked by the user on 2026-11-05. This adapter
+is the first bounded Milestone B slice. No scanner waveform execution or clinical
 quality claim follows from a successful run.
 
 ## Implemented model and controls
@@ -106,7 +107,8 @@ union and web research form have not been expanded.
 
 ## Verification coverage
 
-`tests/test_sequence_operations.py` adds 36 cases. Independent analytic Rodrigues,
+`tests/test_sequence_operations.py` retains the original 36 cases and adds four
+boundary/physics cases in this follow-up. Independent analytic Rodrigues,
 relaxation and two-axis gradient calculations check every final voxel with
 absolute tolerance 1e-14. A direct voxel-sum DFT, independent of the production
 FFT, checks every complex sample on an odd 3x5 grid at absolute tolerance 1e-13.
@@ -118,24 +120,49 @@ gradient-only phase changes, forged capabilities, identity/source/runtime pins,
 checksum-consistent forged-parent computational rejection, generation bounds,
 HTTP failures without saving children, portable ancestor import, and identical
 child replay in a fresh CLI process. Exact pair/input binding and mixed-adapter
-lineage rejection before recursive verification are also tested. Existing TSE and common replay regression
-tests run alongside them.
+lineage rejection before recursive verification are also tested. Existing TSE
+and common replay regression tests run alongside them.
 
-Fresh validation runs use this worktree's local Python 3.15.0 environment, with
-the existing `uv.lock` dependency versions (including NumPy 2.5.2 and Pydantic
-2.13.4), and frontend dependencies installed locally with `npm ci`. No existing
-node_modules symlink, configuration, lockfile or permissions were changed.
+## Follow-up verification (2026-11-05)
 
-| Check | Fresh final-source result |
+The actual clean starting HEAD for this follow-up was `6aa885b`, already containing
+the initial slice above `e3a94d9`. No reset or duplicate implementation was made.
+Accurate summation keeps twenty 0.1 s holds at the declared 2 s boundary.
+On the tested Python 3.15 environment, the original validator already accepted
+this input because built-in sum uses compensated summation, but the original
+trace and snapshot clock reported 2.0000000000000004 s. The validator and clock
+now explicitly use math.fsum and agree at 2 s.
+An extra 1 microsecond still fails. Root execution and typed edits cover this boundary.
+An independent scalar rotation/relaxation calculation checks every voxel after
+each step in a phase-varied RF / x-gradient / RF / delay / y-gradient sequence.
+HTTP tests prove eight edits save one fully replayable child, while nine edits
+return 422 and leave only the unchanged parent in the store.
+
+Fresh validation on the final executable source (Python 3.15.0 and the existing
+local dependencies):
+
+| Check | Fresh result |
 |---|---|
-| Full `.venv/bin/python -m pytest -q` | **1106 passed**, one Starlette deprecation warning, 271.38 s |
-| Frontend `npm test` | **18 files, 134 tests passed**, exit 0, 2.81 s; no Vite-cache EPERM |
-| TypeScript `npm run typecheck` (`tsc --noEmit`) | Passed, zero errors |
-| `git diff --check`, plus new-file whitespace checks | Passed, zero whitespace errors |
+| Full `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider` | **1110 passed**, 1 Starlette deprecation warning, 247.68 s |
+| Frontend `npm test` | **18 files, 134 tests passed**, exit 0, 2.41 s |
+| `npm run typecheck -- --incremental false` (`tsc --noEmit`) | Exit 0, zero errors |
+| Working-tree `git diff --check` and final staged diff check | Passed, zero whitespace errors |
 
-If the specified sandboxed Vite-cache EPERM occurs, work stops immediately
-without staging or committing, and the blocker is reported. No workaround to
-the node_modules link, configuration or permissions is part of this slice.
+The focused operation/TSE/linked-replay run passed **58 tests**, including all
+**40 operation cases**. These are overlapping subsets of the full 1110 count,
+not extra full-suite tests. An in-memory load of the original `6aa885b` module
+independently reproduced the twenty-hold trace/snapshot clock exceeding 2 s
+before the fix. The initial rejection hypothesis was incorrect on Python 3.15;
+the confirmed regression is a disagreement between validation and output timing.
+No existing test assertion or numerical target was relaxed.
+
+Python ran without writing bytecode or pytest cache. Frontend `npm test` ran
+outside the sandbox with approval because its Vitest cache resides in this
+worktree, outside the session's writable roots. It completed without EPERM;
+no configuration, dependency links, permissions, thresholds, or shared linked
+schema files were changed. TypeScript ran with incremental writes disabled.
+No browser/manual UI, scanner, or independent full-simulator validation is claimed.
+The coverage-only result update after these checks changes no executable source.
 
 ## Remaining gaps and review items
 
@@ -159,5 +186,7 @@ the node_modules link, configuration or permissions is part of this slice.
 - Existing non-Cartesian accuracy gaps, contrast-image target failures and broader
   platform backlog remain. No old target or threshold was lowered or retuned.
 
-No goal-file edits, other-worktree work, submission material, Milestone B/C
-activation, Magpie changes, pushes, merges or PRs are included.
+B/C activation is the user decision recorded on 2026-11-05, not a claim of
+complete executable-sequence or licensed-compute support. No goal-file edits,
+other-worktree work, submission material, Magpie changes, pushes, merges or PRs
+are included.

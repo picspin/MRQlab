@@ -2,7 +2,7 @@
 
 A record checksum is integrity, not authenticity or scientific revalidation.
 Lossless JSON strings preserve original numeric tokens across browser transport.
-No scanner execution, arbitrary code/path endpoint, or Milestone B/C promotion.
+No scanner execution or arbitrary code/path endpoint.
 """
 from __future__ import annotations
 import argparse
@@ -37,7 +37,7 @@ from .research import (
 SCHEMA='mrqlab-scientific-record-1'
 MAX_BYTES=128*1024*1024
 HASH=re.compile(r'^[a-f0-9]{64}$')
-SCOPE='teaching/research only; model targets and local replay, not scanner validation or clinical quality certification; B/C parked'
+SCOPE='teaching/research only; model targets and local replay, not scanner validation or clinical quality certification'
 router=APIRouter(prefix='/research/records',tags=['local scientific records'])
 
 

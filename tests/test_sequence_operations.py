@@ -262,3 +262,91 @@ def test_child_replays_identically_in_fresh_cli_process(parent,tmp_path):
                            'replay',str(source),'--output',str(output)],cwd=root,env=env,text=True,capture_output=True)
     assert result.returncode==0,result.stderr
     assert json.loads(output.read_text())==child
+
+
+def test_every_intermediate_state_matches_independent_scalar_rotation_and_relaxation():
+    p = parameters()
+    p['labels'] = [[0, 1, 0], [1, 0, 1]]
+    p['operations'] = [
+        dict(id='tip', kind='hard_rf', flip_deg=57., phase_deg=-32.),
+        dict(id='gx', kind='gradient_hold', axis='x', amplitude_mt_m=-.06, duration_s=.003),
+        dict(id='rotate', kind='hard_rf', flip_deg=113., phase_deg=71.),
+        dict(id='wait', kind='delay', duration_s=.007),
+        dict(id='gy', kind='gradient_hold', axis='y', amplitude_mt_m=.04, duration_s=.002),
+    ]
+    result = run_operation_sequence(p)
+    expected = np.zeros((6, 3))
+    for y, x in np.ndindex(2, 3):
+        expected[y*3+x, 2] = p['tissues'][p['labels'][y][x]]['proton_density']
+    elapsed = 0.
+    for step, op in zip(result['operation_trace'], p['operations']):
+        assert step['operation'] == op
+        assert step['start_s'] == pytest.approx(elapsed, abs=1e-17)
+        for y, x in np.ndindex(2, 3):
+            index = y*3+x
+            mx, my, mz = expected[index]
+            if op['kind'] == 'hard_rf':
+                # Independent scalar expansion of a transverse-axis rotation.
+                angle, phase = np.deg2rad([op['flip_deg'], op['phase_deg']])
+                c, s = np.cos(angle), np.sin(angle)
+                nx, ny = np.cos(phase), np.sin(phase)
+                projection = nx*mx + ny*my
+                expected[index] = [mx*c + ny*mz*s + nx*projection*(1-c),
+                                   my*c - nx*mz*s + ny*projection*(1-c),
+                                   mz*c + (nx*my-ny*mx)*s]
+            else:
+                tissue = p['tissues'][p['labels'][y][x]]
+                dt = op['duration_s']
+                theta = 0.
+                if op['kind'] == 'gradient_hold':
+                    position = ((x-1)/3 if op['axis'] == 'x' else (y-1)/2)*.22
+                    theta = 2*np.pi*42.57747892e6*1e-3*op['amplitude_mt_m']*position*dt
+                decay = np.exp(-dt/tissue['t2_s'])
+                expected[index] = [(mx*np.cos(theta)-my*np.sin(theta))*decay,
+                                   (mx*np.sin(theta)+my*np.cos(theta))*decay,
+                                   tissue['proton_density']+(mz-tissue['proton_density'])*np.exp(-dt/tissue['t1_s'])]
+        elapsed += op.get('duration_s', 0.)
+        assert step['end_s'] == pytest.approx(elapsed, abs=1e-17)
+        np.testing.assert_allclose(step['magnetization'], expected, atol=1e-14, rtol=0)
+    np.testing.assert_allclose(result['final_magnetization'], expected, atol=1e-14, rtol=0)
+
+
+def test_two_second_boundary_is_consistent_for_root_edits_trace_and_snapshot():
+    p = parameters()
+    p['operations'] = [dict(id=f'g{i}', kind='gradient_hold', axis='x',
+                            amplitude_mt_m=.02, duration_s=.1) for i in range(20)]
+    result = run_operation_sequence(p)
+    assert result['duration_s'] == result['operation_trace'][-1]['end_s'] == 2.
+    assert result['linked_readout']['signal_vector']['sample_times_s'] == [2.]*16
+    p['operations'][-1]['duration_s'] = .05
+    pair = run_operation_sequence(p)['linked_readout']
+    updated = apply_operation_edits(p, [dict(field='operations.g19.duration_s', value=.1)], pair=pair)
+    assert run_operation_sequence(updated)['duration_s'] == 2.
+    assert p['operations'][-1]['duration_s'] == .05
+    updated['operations'].append(dict(id='excess', kind='delay', duration_s=1e-6))
+    with pytest.raises(ValueError, match='two seconds'):
+        run_operation_sequence(updated)
+
+
+@pytest.mark.parametrize('count', [8, 9])
+def test_http_edit_batch_boundary_is_atomic_and_preserves_parent(count, tmp_path, monkeypatch):
+    plan = operation_sequence_example()
+    plan['execution']['parameters']['operations'] = [
+        dict(id=f'r{i}', kind='hard_rf', flip_deg=90., phase_deg=0.) for i in range(9)]
+    parent = records.create_scientific_record(plan)
+    untouched = copy.deepcopy(parent)
+    store = records.ScientificStore(tmp_path/'batch.sqlite3')
+    store.save(parent)
+    monkeypatch.setattr(records, 'default_store_path', lambda: tmp_path/'batch.sqlite3')
+    updates = [dict(field=f'operations.r{i}.flip_deg', value=45.) for i in range(count)]
+    request = child_plan(parent, updates)
+    del request['execution']['parent_record']
+    response = TestClient(app).post('/research/records', json=request)
+    assert response.status_code == (200 if count == 8 else 422), response.text
+    assert store.list()['total'] == (2 if count == 8 else 1)
+    assert store.get(parent['record_sha256']) == untouched == parent
+    if count == 8:
+        child = response.json()['record']
+        retained = json.loads(child['payload_json'])['run']['replay_request']['parameters']['operations']
+        assert [op['flip_deg'] for op in retained] == [45.]*8+[90.]
+        assert records.replay_scientific_record(child)['computational_replay_performed']
