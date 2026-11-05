@@ -2,9 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useWorkspace } from "./WorkspaceProvider";
 
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const { profile, setProfile, executionState } = useWorkspace();
   const [showAiModal, setShowAiModal] = useState(false);
 
@@ -21,12 +23,13 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
           <Link href="/" className="nav-item">
             EXPLORE
           </Link>
-          <Link href="/workbench" className="nav-item active">
+          <Link href="/workbench" className={pathname?.startsWith("/research") ? "nav-item" : "nav-item active"}>
             WORKBENCH
           </Link>
           <Link href="/labs" className="nav-item">
             LABS
           </Link>
+          <Link href="/research" className={pathname?.startsWith("/research") ? "nav-item active" : "nav-item"}>RESEARCH</Link>
           <button
             onClick={() => setShowAiModal(true)}
             className="nav-item"

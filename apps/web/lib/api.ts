@@ -369,3 +369,83 @@ export async function patchSequence(req: {
   if (!response.ok) throw new Error(`sequence patch failed: ${await response.text()}`);
   return response.json();
 }
+
+export async function runResearch(request: import("./research").ResearchRequest, signal?: AbortSignal): Promise<import("./research").ResearchRun> {
+  const response = await fetch(`${BASE}/research/run`, {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal,
+  });
+  if (!response.ok) throw new Error(`研究运行失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+
+export async function searchResearch(request: import("./research").ResearchRequest & { candidates: Record<string, unknown>[] }, signal?: AbortSignal): Promise<import("./research").ResearchSearch> {
+  const response = await fetch(`${BASE}/research/search`, {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal,
+  });
+  if (!response.ok) throw new Error(`网格搜索失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+
+export async function fetchLabStudyExample(signal?: AbortSignal): Promise<import("./lab-study").StudyInput> {
+  const response = await fetch(`${BASE}/research/lab-study/example`, { signal });
+  if (!response.ok) throw new Error(`示例载入失败 (${response.status})`);
+  return response.json();
+}
+export async function runLabStudy(request: import("./lab-study").StudyInput, signal?: AbortSignal): Promise<import("./lab-study").LabStudyResponse> {
+  const response = await fetch(`${BASE}/research/lab-study/run`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal });
+  if (!response.ok) throw new Error(`实验研究失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function replayLabStudy(record: import("./lab-study").LabStudyRecord, signal?: AbortSignal): Promise<import("./lab-study").LabStudyResponse> {
+  const response = await fetch(`${BASE}/research/lab-study/replay`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(record), signal });
+  if (!response.ok) throw new Error(`计算回放失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function importLabEchoes(request: { csv_base64: string; source_ref: string; origin: "measured" | "synthetic"; echo_spacing_s: number; tr_s: number }, signal?: AbortSignal): Promise<Record<string, unknown>> {
+  const response = await fetch(`${BASE}/research/lab-study/import-echoes`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal });
+  if (!response.ok) throw new Error(`测量导入失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+
+export async function createScientificRecord(plan: import("./scientific-records").ScientificPlan, signal?: AbortSignal): Promise<import("./scientific-records").ScientificResponse> {
+  const response = await fetch(`${BASE}/research/records`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(plan), signal });
+  if (!response.ok) throw new Error(`实验记录保存失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function fetchFlowStudyExample(signal?: AbortSignal): Promise<import("./flow-study").FlowStudyInput> {
+  const response = await fetch(`${BASE}/research/flow-study/example`, { signal });
+  if (!response.ok) throw new Error(`流动示例载入失败 (${response.status})`);
+  return response.json();
+}
+export async function fetchContrastStudyExample(signal?: AbortSignal): Promise<import("./scientific-records").ScientificPlan> {
+  const response = await fetch(`${BASE}/research/contrast-study/example`, { signal });
+  if (!response.ok) throw new Error(`对比剂研究示例载入失败 (${response.status})`);
+  return response.json();
+}
+export async function importFlowVelocity(request: { csv_base64: string; source_ref: string; origin: "measured" | "synthetic" }, signal?: AbortSignal): Promise<import("./flow-study").FlowDataset> {
+  const response = await fetch(`${BASE}/research/flow-study/import-csv`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal });
+  if (!response.ok) throw new Error(`速度 CSV 导入失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function listScientificRecords(studyId: string, offset: number, signal?: AbortSignal): Promise<import("./scientific-records").ScientificList> {
+  const params = new URLSearchParams({ limit: "20", offset: String(offset) });
+  if (studyId.trim()) params.set("study_id", studyId.trim());
+  const response = await fetch(`${BASE}/research/records?${params}`, { signal });
+  if (!response.ok) throw new Error(`记录列表读取失败 (${response.status})`);
+  return response.json();
+}
+export async function getScientificRecord(id: string, signal?: AbortSignal): Promise<import("./scientific-records").ScientificResponse> {
+  const response = await fetch(`${BASE}/research/records/${encodeURIComponent(id)}`, { signal });
+  if (!response.ok) throw new Error(`记录读取失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function replayScientificRecord(id: string, signal?: AbortSignal): Promise<import("./scientific-records").ScientificReplay> {
+  const response = await fetch(`${BASE}/research/records/${encodeURIComponent(id)}/replay`, { method: "POST", signal });
+  if (!response.ok) throw new Error(`完整记录回放失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+export async function importScientificRecord(record: import("./scientific-records").ScientificRecord, signal?: AbortSignal): Promise<import("./scientific-records").ScientificResponse> {
+  const response = await fetch(`${BASE}/research/records/import`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(record), signal });
+  if (!response.ok) throw new Error(`记录导入失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}

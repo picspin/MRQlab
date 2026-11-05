@@ -52,5 +52,5 @@ class SequenceIR(BaseModel):
         return next((c.events for c in self.channels if c.name == name), [])
 
 class TemplateRequest(BaseModel):
-    template: Literal["SE", "TSE", "GRE"]
+    template: Literal["SE", "TSE", "GRE", "TSE3D", "SSFP", "EPSE", "PRESS"]
     params: dict[str, Any] = Field(default_factory=dict)

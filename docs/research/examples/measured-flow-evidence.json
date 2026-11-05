@@ -1,0 +1,3278 @@
+{
+  "cases": {
+    "budget_failed": {
+      "calibration": {
+        "calibration_count": 16,
+        "calibration_predictions": [
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-0-0",
+            "observed_velocity_m_s": 0.05260852630947202,
+            "predicted_velocity_m_s": 0.052608526309472034,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-0-1",
+            "observed_velocity_m_s": 0.04193945231860768,
+            "predicted_velocity_m_s": 0.041939452318607684,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-1-0",
+            "observed_velocity_m_s": 0.062270873557213016,
+            "predicted_velocity_m_s": 0.06227087355721304,
+            "standardized_residual": 2.0816681711721685e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-1-1",
+            "observed_velocity_m_s": 0.047301710519974755,
+            "predicted_velocity_m_s": 0.04730171051997476,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-2-0",
+            "observed_velocity_m_s": 0.052192542976727485,
+            "predicted_velocity_m_s": 0.0521925429767275,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-2-1",
+            "observed_velocity_m_s": 0.03750783474276326,
+            "predicted_velocity_m_s": 0.037507834742763264,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-3-0",
+            "observed_velocity_m_s": 0.02827728393598434,
+            "predicted_velocity_m_s": 0.028277283935984346,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-3-1",
+            "observed_velocity_m_s": 0.01829494458906636,
+            "predicted_velocity_m_s": 0.01829494458906636,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-4-0",
+            "observed_velocity_m_s": 0.004534330833385128,
+            "predicted_velocity_m_s": 0.0045343308333851366,
+            "standardized_residual": 8.673617379884035e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-4-1",
+            "observed_velocity_m_s": 0.0009176905385351909,
+            "predicted_velocity_m_s": 0.0009176905385351883,
+            "standardized_residual": -2.6020852139652106e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-5-0",
+            "observed_velocity_m_s": -0.0051280164143558855,
+            "predicted_velocity_m_s": -0.005128016414355873,
+            "standardized_residual": 1.214306433183765e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-5-1",
+            "observed_velocity_m_s": -0.00444456766283189,
+            "predicted_velocity_m_s": -0.0044445676628318935,
+            "standardized_residual": -3.469446951953614e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-6-0",
+            "observed_velocity_m_s": 0.004950314166129649,
+            "predicted_velocity_m_s": 0.004950314166129656,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-6-1",
+            "observed_velocity_m_s": 0.0053493081143796,
+            "predicted_velocity_m_s": 0.0053493081143796,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-7-0",
+            "observed_velocity_m_s": 0.0288655732068728,
+            "predicted_velocity_m_s": 0.028865573206872816,
+            "standardized_residual": 1.734723475976807e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-7-1",
+            "observed_velocity_m_s": 0.024562198268076502,
+            "predicted_velocity_m_s": 0.024562198268076502,
+            "standardized_residual": 0.0
+          }
+        ],
+        "calibration_reduced_chi2": 1.232062755889551e-28,
+        "coefficients_pa_m": [
+          100.00000000000003,
+          193.78248434212895,
+          -49.48079185090461
+        ],
+        "condition": 1.0000000000000002,
+        "covariance_pa2_m2": [
+          [
+            0.98,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            5.509708484503782,
+            -4.905825871455511e-16
+          ],
+          [
+            0.0,
+            -4.446689225710392e-16,
+            5.50970848450378
+          ]
+        ],
+        "estimated_work": 8192,
+        "fit_convention": "weighted velocity-space LS on calibration only; complete known-sigma covariance, not residual-scaled; lossless parameter-column conditioning",
+        "holdout_count": 16,
+        "holdout_max_standardized_residual": 1.3877787807814457e-14,
+        "holdout_predictions": [
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-0-0",
+            "observed_velocity_m_s": 0.05740394759394946,
+            "predicted_velocity_m_s": 0.05740394759394948,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-0-1",
+            "observed_velocity_m_s": 0.04509217133793605,
+            "predicted_velocity_m_s": 0.04509217133793605,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-1-0",
+            "observed_velocity_m_s": 0.06129654049409952,
+            "predicted_velocity_m_s": 0.061296540494099536,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-1-1",
+            "observed_velocity_m_s": 0.0458837300618775,
+            "predicted_velocity_m_s": 0.04588373006187751,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-2-0",
+            "observed_velocity_m_s": 0.04601920666012642,
+            "predicted_velocity_m_s": 0.046019206660126426,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-2-1",
+            "observed_velocity_m_s": 0.032349788528413755,
+            "predicted_velocity_m_s": 0.032349788528413755,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-3-0",
+            "observed_velocity_m_s": 0.020521201055070232,
+            "predicted_velocity_m_s": 0.020521201055070243,
+            "standardized_residual": 1.0408340855860843e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-3-1",
+            "observed_velocity_m_s": 0.012418346135483331,
+            "predicted_velocity_m_s": 0.01241834613548333,
+            "standardized_residual": -1.734723475976807e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-4-0",
+            "observed_velocity_m_s": -0.00026109045109232176,
+            "predicted_velocity_m_s": -0.0002610904510923148,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-4-1",
+            "observed_velocity_m_s": -0.002235028480793183,
+            "predicted_velocity_m_s": -0.002235028480793182,
+            "standardized_residual": 8.673617379884035e-16
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-5-0",
+            "observed_velocity_m_s": -0.00415368335124237,
+            "predicted_velocity_m_s": -0.004153683351242368,
+            "standardized_residual": 2.6020852139652106e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-5-1",
+            "observed_velocity_m_s": -0.0030265872047346327,
+            "predicted_velocity_m_s": -0.0030265872047346336,
+            "standardized_residual": -8.673617379884035e-16
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-6-0",
+            "observed_velocity_m_s": 0.01112365048273075,
+            "predicted_velocity_m_s": 0.01112365048273076,
+            "standardized_residual": 1.0408340855860843e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-6-1",
+            "observed_velocity_m_s": 0.010507354328729129,
+            "predicted_velocity_m_s": 0.01050735432872913,
+            "standardized_residual": 1.734723475976807e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-7-0",
+            "observed_velocity_m_s": 0.03662165608778693,
+            "predicted_velocity_m_s": 0.03662165608778695,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-7-1",
+            "observed_velocity_m_s": 0.030438796721659556,
+            "predicted_velocity_m_s": 0.030438796721659552,
+            "standardized_residual": -3.469446951953614e-15
+          }
+        ],
+        "holdout_reduced_chi2": 6.03263700841998e-29,
+        "parameter_names": [
+          "mean",
+          "cosine",
+          "sine"
+        ],
+        "passed": true,
+        "rank": 3,
+        "reasons": [],
+        "relative_pressure_std": 0.01549155703537095,
+        "std_pa_m": [
+          0.9899494936611666,
+          2.3472768231514114,
+          2.347276823151411
+        ],
+        "stress_intervals_pa_m": [
+          [
+            98.0201010126777,
+            101.97989898732236
+          ],
+          [
+            189.08793069582612,
+            198.4770379884318
+          ],
+          [
+            -54.17534549720743,
+            -44.78623820460179
+          ]
+        ],
+        "unit": "Pa/m"
+      },
+      "candidates": [
+        {
+          "design": {
+            "inversion_time_s": 0.6
+          },
+          "eligible": false,
+          "executed": false,
+          "index": 0,
+          "reasons": [
+            "cannot reserve complete pressure uncertainty/refinement workflow"
+          ],
+          "scenarios": []
+        },
+        {
+          "design": {
+            "inversion_time_s": 0.9
+          },
+          "eligible": false,
+          "executed": false,
+          "index": 1,
+          "reasons": [
+            "cannot reserve complete pressure uncertainty/refinement workflow"
+          ],
+          "scenarios": []
+        }
+      ],
+      "provenance": {
+        "conditional_priors": {
+          "density_kg_m3": 1060.0,
+          "frequency_hz": 1.0,
+          "radius_m": 0.002,
+          "viscosity_pa_s": 0.0035
+        },
+        "estimated_peak_memory_bytes": 15123456,
+        "estimated_work": 8192,
+        "failed_attempt_work": "each failed runner attempt is conservatively charged its full per-simulation cap; completed runs report their own work",
+        "input_origin": "synthetic",
+        "raw_bytes_retained": true,
+        "raw_file_sha256": "d8ba61a1e9c751aa593e88ba43b70008ea02db9e3cc8d672f910098a8fc505f0",
+        "request_sha256": "3cf1f9fcf42be37f42b081498faefa71966332b449e4263c3d980932b7f1cdb8",
+        "reserved_work": 1800008192,
+        "runtime": {
+          "blas_configuration": {
+            "Build Dependencies": {
+              "blas": {
+                "detection method": "system",
+                "found": true,
+                "include directory": "unknown",
+                "lib directory": "unknown",
+                "name": "accelerate",
+                "openblas configuration": "unknown",
+                "pc file directory": "unknown",
+                "version": "unknown"
+              },
+              "lapack": {
+                "detection method": "system",
+                "found": true,
+                "include directory": "unknown",
+                "lib directory": "unknown",
+                "name": "accelerate",
+                "openblas configuration": "unknown",
+                "pc file directory": "unknown",
+                "version": "unknown"
+              }
+            },
+            "Compilers": {
+              "c": {
+                "commands": "cc",
+                "linker": "ld64",
+                "name": "clang",
+                "version": "15.0.0"
+              },
+              "c++": {
+                "commands": "c++",
+                "linker": "ld64",
+                "name": "clang",
+                "version": "15.0.0"
+              },
+              "cython": {
+                "commands": "cython",
+                "linker": "cython",
+                "name": "cython",
+                "version": "3.2.9"
+              }
+            },
+            "Machine Information": {
+              "build": {
+                "cpu": "aarch64",
+                "endian": "little",
+                "family": "aarch64",
+                "system": "darwin"
+              },
+              "host": {
+                "cpu": "aarch64",
+                "endian": "little",
+                "family": "aarch64",
+                "system": "darwin"
+              }
+            },
+            "Python Information": {
+              "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+              "version": "3.12"
+            },
+            "SIMD Extensions": {
+              "baseline": [
+                "NEON",
+                "NEON_FP16",
+                "NEON_VFPV4",
+                "ASIMD"
+              ],
+              "found": [
+                "ASIMDHP",
+                "ASIMDDP"
+              ],
+              "not found": [
+                "ASIMDFHM"
+              ]
+            }
+          },
+          "implementation": "CPython",
+          "machine": "arm64",
+          "packages": {
+            "fastapi": "0.141.1",
+            "finufft": "2.5.0",
+            "numpy": "2.5.2",
+            "pydantic": "2.13.4",
+            "uvicorn": "0.52.3"
+          },
+          "python": "3.12.14",
+          "system": "Darwin"
+        },
+        "source_ref": "synthetic:analytic-womersley-velocity-v1",
+        "sources": {
+          "files": {
+            "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+            "packages/mrqlab_experiment/mrqlab_experiment/calibrated_radial.py": "e2e11f8a1d35cce81d3d8bb57964126fa20afdd934811f683c1e4e40aa762eeb",
+            "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+            "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_memory.py": "2730771f57642eba2bf7d422a35fd081fe56d46ce7d06189e040758b93703a61",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+            "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+            "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+            "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+            "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+            "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+            "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+            "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_epi.py": "d1d54a732ac6ff62a3a39b3d84e29f0ae38ea1157d3550f6dd8fff041b9abdb3",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_study.py": "375c62a87081150a8de7b3c539b62f7063219d872f1ca987b9fb7d2f3917a7b1",
+            "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+            "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+            "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+            "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_press.py": "b46158933b3ee30de8eb78877a1f3fca27b3f1da88b9632a1eda81b5872460dd",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_quantum.py": "c1e568598f8636ccf2617fd9af74b1f04673850682e06062d05e90e77ad8ed10",
+            "packages/mrqlab_experiment/mrqlab_experiment/navigator_radial.py": "ab9de5a46765519f58f19d3fde13b6e891752b6b9e99f5421791b28660239747",
+            "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+            "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+            "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+            "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+            "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+            "packages/mrqlab_experiment/mrqlab_experiment/radial_readout.py": "867924df12d94e166ed8edae2f2fa549a80b73b9383f25e6e189512728b0f886",
+            "packages/mrqlab_experiment/mrqlab_experiment/radial_tse.py": "b9ac4b174bf0e91caeb09456c9c1c59106d3b8fa0a493ecd037d1983589ac691",
+            "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+            "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+            "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+            "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "20f277de5ce44b6716de8ae939ecfc22ae525c91c0504a53f93236cfcab0512d",
+            "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+            "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+            "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+            "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+            "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+            "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+            "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+            "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+            "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+            "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+            "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+            "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+            "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+            "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+            "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+            "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+            "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+            "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+            "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+            "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+            "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+            "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+            "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+            "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+            "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+            "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+            "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+            "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+            "packages/physics/mrqlab_physics/ops/generalized_mt.py": "d90499e03b07f9a9f6546c16bf99b90d0d2979e5bee0a421ffbe4a98172bda76",
+            "packages/physics/mrqlab_physics/ops/quantum_relaxation.py": "13ddc2f5c3d5a8ebb01d5bd6c4673d9c256eb174b603a9f11a76ee365573b09f",
+            "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+            "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+            "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+            "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+            "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+            "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+            "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+            "packages/recon/mrqlab_recon/echo_subspace.py": "63cfcdda8654686b3e4d07663cf8bb9e7dd732c9739223ccb3ec782f2309c5bc",
+            "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+            "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+            "packages/recon/mrqlab_recon/readout_encoding.py": "7560b5f203072f41ca64f36b000cc3b64bf0f7209adb7eabbe0dc8b2e7ad26d5",
+            "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+            "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+            "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+            "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+            "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+            "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+            "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+            "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+            "services/api/mrqlab_api/__init__.py": "b7447d3f3581173624e78cdcbd56b4e1807c9883d07c56e928f2f9f65ee20efd",
+            "services/api/mrqlab_api/main.py": "dee84fa8fd8735d200be2f09765bdb0a6e98c330ed1c01af567a814cd62d8d70",
+            "services/api/mrqlab_api/research.py": "6e55fe2e1299c90aa48df1dfaf5f10ff787a3faa899183b08425d6859ef1d0fb",
+            "services/api/mrqlab_api/scientific_records.py": "862daf2e6bf49342c238c8f9ea832085a4672771559fc8e11980c628d5b5dad4",
+            "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+            "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+          },
+          "sha256": "6d958046cdb3a4cd879d3a8b655a1df670a39330701a614b9f4d7abf61cfe5d4"
+        },
+        "uncertainty": "marginal mean +/- multiplier*known-sigma standard errors; eight rectangular stress corners, not joint confidence or continuous robust guarantees",
+        "unchanged_priors": "radius, fluid density/viscosity/frequency, clock alignment, blood/wall T1/T2 and RF waveform family are not calibrated by these data"
+      },
+      "selected_index": null,
+      "validation": {
+        "calibration_and_holdout_passed": true,
+        "complete_budget_reserved": false,
+        "selected_design_passed": false
+      }
+    },
+    "default": {
+      "calibration": {
+        "calibration_count": 16,
+        "calibration_predictions": [
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-0-0",
+            "observed_velocity_m_s": 0.05260852630947202,
+            "predicted_velocity_m_s": 0.052608526309472034,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-0-1",
+            "observed_velocity_m_s": 0.04193945231860768,
+            "predicted_velocity_m_s": 0.041939452318607684,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-1-0",
+            "observed_velocity_m_s": 0.062270873557213016,
+            "predicted_velocity_m_s": 0.06227087355721304,
+            "standardized_residual": 2.0816681711721685e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-1-1",
+            "observed_velocity_m_s": 0.047301710519974755,
+            "predicted_velocity_m_s": 0.04730171051997476,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-2-0",
+            "observed_velocity_m_s": 0.052192542976727485,
+            "predicted_velocity_m_s": 0.0521925429767275,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-2-1",
+            "observed_velocity_m_s": 0.03750783474276326,
+            "predicted_velocity_m_s": 0.037507834742763264,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-3-0",
+            "observed_velocity_m_s": 0.02827728393598434,
+            "predicted_velocity_m_s": 0.028277283935984346,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-3-1",
+            "observed_velocity_m_s": 0.01829494458906636,
+            "predicted_velocity_m_s": 0.01829494458906636,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-4-0",
+            "observed_velocity_m_s": 0.004534330833385128,
+            "predicted_velocity_m_s": 0.0045343308333851366,
+            "standardized_residual": 8.673617379884035e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-4-1",
+            "observed_velocity_m_s": 0.0009176905385351909,
+            "predicted_velocity_m_s": 0.0009176905385351883,
+            "standardized_residual": -2.6020852139652106e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-5-0",
+            "observed_velocity_m_s": -0.0051280164143558855,
+            "predicted_velocity_m_s": -0.005128016414355873,
+            "standardized_residual": 1.214306433183765e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-5-1",
+            "observed_velocity_m_s": -0.00444456766283189,
+            "predicted_velocity_m_s": -0.0044445676628318935,
+            "standardized_residual": -3.469446951953614e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-6-0",
+            "observed_velocity_m_s": 0.004950314166129649,
+            "predicted_velocity_m_s": 0.004950314166129656,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-6-1",
+            "observed_velocity_m_s": 0.0053493081143796,
+            "predicted_velocity_m_s": 0.0053493081143796,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-7-0",
+            "observed_velocity_m_s": 0.0288655732068728,
+            "predicted_velocity_m_s": 0.028865573206872816,
+            "standardized_residual": 1.734723475976807e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-7-1",
+            "observed_velocity_m_s": 0.024562198268076502,
+            "predicted_velocity_m_s": 0.024562198268076502,
+            "standardized_residual": 0.0
+          }
+        ],
+        "calibration_reduced_chi2": 1.232062755889551e-28,
+        "coefficients_pa_m": [
+          100.00000000000003,
+          193.78248434212895,
+          -49.48079185090461
+        ],
+        "condition": 1.0000000000000002,
+        "covariance_pa2_m2": [
+          [
+            0.98,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            5.509708484503782,
+            -4.905825871455511e-16
+          ],
+          [
+            0.0,
+            -4.446689225710392e-16,
+            5.50970848450378
+          ]
+        ],
+        "estimated_work": 8192,
+        "fit_convention": "weighted velocity-space LS on calibration only; complete known-sigma covariance, not residual-scaled; lossless parameter-column conditioning",
+        "holdout_count": 16,
+        "holdout_max_standardized_residual": 1.3877787807814457e-14,
+        "holdout_predictions": [
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-0-0",
+            "observed_velocity_m_s": 0.05740394759394946,
+            "predicted_velocity_m_s": 0.05740394759394948,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-0-1",
+            "observed_velocity_m_s": 0.04509217133793605,
+            "predicted_velocity_m_s": 0.04509217133793605,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-1-0",
+            "observed_velocity_m_s": 0.06129654049409952,
+            "predicted_velocity_m_s": 0.061296540494099536,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-1-1",
+            "observed_velocity_m_s": 0.0458837300618775,
+            "predicted_velocity_m_s": 0.04588373006187751,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-2-0",
+            "observed_velocity_m_s": 0.04601920666012642,
+            "predicted_velocity_m_s": 0.046019206660126426,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-2-1",
+            "observed_velocity_m_s": 0.032349788528413755,
+            "predicted_velocity_m_s": 0.032349788528413755,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-3-0",
+            "observed_velocity_m_s": 0.020521201055070232,
+            "predicted_velocity_m_s": 0.020521201055070243,
+            "standardized_residual": 1.0408340855860843e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-3-1",
+            "observed_velocity_m_s": 0.012418346135483331,
+            "predicted_velocity_m_s": 0.01241834613548333,
+            "standardized_residual": -1.734723475976807e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-4-0",
+            "observed_velocity_m_s": -0.00026109045109232176,
+            "predicted_velocity_m_s": -0.0002610904510923148,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-4-1",
+            "observed_velocity_m_s": -0.002235028480793183,
+            "predicted_velocity_m_s": -0.002235028480793182,
+            "standardized_residual": 8.673617379884035e-16
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-5-0",
+            "observed_velocity_m_s": -0.00415368335124237,
+            "predicted_velocity_m_s": -0.004153683351242368,
+            "standardized_residual": 2.6020852139652106e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-5-1",
+            "observed_velocity_m_s": -0.0030265872047346327,
+            "predicted_velocity_m_s": -0.0030265872047346336,
+            "standardized_residual": -8.673617379884035e-16
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-6-0",
+            "observed_velocity_m_s": 0.01112365048273075,
+            "predicted_velocity_m_s": 0.01112365048273076,
+            "standardized_residual": 1.0408340855860843e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-6-1",
+            "observed_velocity_m_s": 0.010507354328729129,
+            "predicted_velocity_m_s": 0.01050735432872913,
+            "standardized_residual": 1.734723475976807e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-7-0",
+            "observed_velocity_m_s": 0.03662165608778693,
+            "predicted_velocity_m_s": 0.03662165608778695,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-7-1",
+            "observed_velocity_m_s": 0.030438796721659556,
+            "predicted_velocity_m_s": 0.030438796721659552,
+            "standardized_residual": -3.469446951953614e-15
+          }
+        ],
+        "holdout_reduced_chi2": 6.03263700841998e-29,
+        "parameter_names": [
+          "mean",
+          "cosine",
+          "sine"
+        ],
+        "passed": true,
+        "rank": 3,
+        "reasons": [],
+        "relative_pressure_std": 0.01549155703537095,
+        "std_pa_m": [
+          0.9899494936611666,
+          2.3472768231514114,
+          2.347276823151411
+        ],
+        "stress_intervals_pa_m": [
+          [
+            98.0201010126777,
+            101.97989898732236
+          ],
+          [
+            189.08793069582612,
+            198.4770379884318
+          ],
+          [
+            -54.17534549720743,
+            -44.78623820460179
+          ]
+        ],
+        "unit": "Pa/m"
+      },
+      "candidates": [
+        {
+          "design": {
+            "inversion_time_s": 0.6
+          },
+          "eligible": false,
+          "executed": true,
+          "index": 0,
+          "reasons": [
+            "one or more nominal/pressure-corner/observable targets failed"
+          ],
+          "scenarios": [
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.001734561676059232,
+              "name": "nominal",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.3609613355060207,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.44918533313081493,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0037837644283699734,
+              "name": "corner-0",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.36084708667013676,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.44918533313081493,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0021850340178053984,
+              "name": "corner-1",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.3609807178169695,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.44918533313081493,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0024397366982783497,
+              "name": "corner-2",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.3608749868937312,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.44918533313081493,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0030935992665827583,
+              "name": "corner-3",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.3610742029051988,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.44918533313081493,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0028164567549024966,
+              "name": "corner-4",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.3607952129023734,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.44918533313081493,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0029095556134184353,
+              "name": "corner-5",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.36096676162602487,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.44918533313081493,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.001974236178943767,
+              "name": "corner-6",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.36090219283569785,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.44918533313081493,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.00222778018368891,
+              "name": "corner-7",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.36096708414825696,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.44918533313081493,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            }
+          ]
+        },
+        {
+          "design": {
+            "inversion_time_s": 0.9
+          },
+          "eligible": false,
+          "executed": true,
+          "index": 1,
+          "reasons": [
+            "one or more nominal/pressure-corner/observable targets failed"
+          ],
+          "scenarios": [
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0025745236645627334,
+              "name": "nominal",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.46637093517460626,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5685952537772667,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0024765680021457404,
+              "name": "corner-0",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.46628851347733624,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5685952537772667,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0023095444830980028,
+              "name": "corner-1",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.46628942959416786,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5685952537772667,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0025171439658367434,
+              "name": "corner-2",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.46630068476854575,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5685952537772667,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.002592912839030209,
+              "name": "corner-3",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.46628939158344423,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5685952537772667,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.002759279794256747,
+              "name": "corner-4",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.46640252719451736,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5685952537772667,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0025036546495309786,
+              "name": "corner-5",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.466425210349095,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5685952537772667,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.003094838836710828,
+              "name": "corner-6",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.46641632632184343,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5685952537772667,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0024066604595895102,
+              "name": "corner-7",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.4664183318085792,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5685952537772667,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            }
+          ]
+        }
+      ],
+      "provenance": {
+        "conditional_priors": {
+          "density_kg_m3": 1060.0,
+          "frequency_hz": 1.0,
+          "radius_m": 0.002,
+          "viscosity_pa_s": 0.0035
+        },
+        "estimated_peak_memory_bytes": 15123456,
+        "estimated_work": 430412708,
+        "failed_attempt_work": "each failed runner attempt is conservatively charged its full per-simulation cap; completed runs report their own work",
+        "input_origin": "synthetic",
+        "raw_bytes_retained": true,
+        "raw_file_sha256": "d8ba61a1e9c751aa593e88ba43b70008ea02db9e3cc8d672f910098a8fc505f0",
+        "request_sha256": "e8ad7ad65be35af6307855cdad470815c599a6f0dbfc1d3080e7cfee1da17746",
+        "reserved_work": 1800008192,
+        "runtime": {
+          "blas_configuration": {
+            "Build Dependencies": {
+              "blas": {
+                "detection method": "system",
+                "found": true,
+                "include directory": "unknown",
+                "lib directory": "unknown",
+                "name": "accelerate",
+                "openblas configuration": "unknown",
+                "pc file directory": "unknown",
+                "version": "unknown"
+              },
+              "lapack": {
+                "detection method": "system",
+                "found": true,
+                "include directory": "unknown",
+                "lib directory": "unknown",
+                "name": "accelerate",
+                "openblas configuration": "unknown",
+                "pc file directory": "unknown",
+                "version": "unknown"
+              }
+            },
+            "Compilers": {
+              "c": {
+                "commands": "cc",
+                "linker": "ld64",
+                "name": "clang",
+                "version": "15.0.0"
+              },
+              "c++": {
+                "commands": "c++",
+                "linker": "ld64",
+                "name": "clang",
+                "version": "15.0.0"
+              },
+              "cython": {
+                "commands": "cython",
+                "linker": "cython",
+                "name": "cython",
+                "version": "3.2.9"
+              }
+            },
+            "Machine Information": {
+              "build": {
+                "cpu": "aarch64",
+                "endian": "little",
+                "family": "aarch64",
+                "system": "darwin"
+              },
+              "host": {
+                "cpu": "aarch64",
+                "endian": "little",
+                "family": "aarch64",
+                "system": "darwin"
+              }
+            },
+            "Python Information": {
+              "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+              "version": "3.12"
+            },
+            "SIMD Extensions": {
+              "baseline": [
+                "NEON",
+                "NEON_FP16",
+                "NEON_VFPV4",
+                "ASIMD"
+              ],
+              "found": [
+                "ASIMDHP",
+                "ASIMDDP"
+              ],
+              "not found": [
+                "ASIMDFHM"
+              ]
+            }
+          },
+          "implementation": "CPython",
+          "machine": "arm64",
+          "packages": {
+            "fastapi": "0.141.1",
+            "finufft": "2.5.0",
+            "numpy": "2.5.2",
+            "pydantic": "2.13.4",
+            "uvicorn": "0.52.3"
+          },
+          "python": "3.12.14",
+          "system": "Darwin"
+        },
+        "source_ref": "synthetic:analytic-womersley-velocity-v1",
+        "sources": {
+          "files": {
+            "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+            "packages/mrqlab_experiment/mrqlab_experiment/calibrated_radial.py": "e2e11f8a1d35cce81d3d8bb57964126fa20afdd934811f683c1e4e40aa762eeb",
+            "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+            "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_memory.py": "2730771f57642eba2bf7d422a35fd081fe56d46ce7d06189e040758b93703a61",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+            "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+            "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+            "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+            "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+            "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+            "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+            "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_epi.py": "d1d54a732ac6ff62a3a39b3d84e29f0ae38ea1157d3550f6dd8fff041b9abdb3",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_study.py": "375c62a87081150a8de7b3c539b62f7063219d872f1ca987b9fb7d2f3917a7b1",
+            "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+            "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+            "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+            "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_press.py": "b46158933b3ee30de8eb78877a1f3fca27b3f1da88b9632a1eda81b5872460dd",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_quantum.py": "c1e568598f8636ccf2617fd9af74b1f04673850682e06062d05e90e77ad8ed10",
+            "packages/mrqlab_experiment/mrqlab_experiment/navigator_radial.py": "ab9de5a46765519f58f19d3fde13b6e891752b6b9e99f5421791b28660239747",
+            "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+            "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+            "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+            "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+            "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+            "packages/mrqlab_experiment/mrqlab_experiment/radial_readout.py": "867924df12d94e166ed8edae2f2fa549a80b73b9383f25e6e189512728b0f886",
+            "packages/mrqlab_experiment/mrqlab_experiment/radial_tse.py": "b9ac4b174bf0e91caeb09456c9c1c59106d3b8fa0a493ecd037d1983589ac691",
+            "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+            "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+            "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+            "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "20f277de5ce44b6716de8ae939ecfc22ae525c91c0504a53f93236cfcab0512d",
+            "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+            "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+            "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+            "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+            "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+            "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+            "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+            "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+            "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+            "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+            "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+            "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+            "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+            "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+            "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+            "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+            "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+            "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+            "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+            "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+            "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+            "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+            "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+            "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+            "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+            "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+            "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+            "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+            "packages/physics/mrqlab_physics/ops/generalized_mt.py": "d90499e03b07f9a9f6546c16bf99b90d0d2979e5bee0a421ffbe4a98172bda76",
+            "packages/physics/mrqlab_physics/ops/quantum_relaxation.py": "13ddc2f5c3d5a8ebb01d5bd6c4673d9c256eb174b603a9f11a76ee365573b09f",
+            "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+            "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+            "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+            "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+            "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+            "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+            "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+            "packages/recon/mrqlab_recon/echo_subspace.py": "63cfcdda8654686b3e4d07663cf8bb9e7dd732c9739223ccb3ec782f2309c5bc",
+            "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+            "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+            "packages/recon/mrqlab_recon/readout_encoding.py": "7560b5f203072f41ca64f36b000cc3b64bf0f7209adb7eabbe0dc8b2e7ad26d5",
+            "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+            "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+            "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+            "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+            "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+            "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+            "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+            "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+            "services/api/mrqlab_api/__init__.py": "b7447d3f3581173624e78cdcbd56b4e1807c9883d07c56e928f2f9f65ee20efd",
+            "services/api/mrqlab_api/main.py": "dee84fa8fd8735d200be2f09765bdb0a6e98c330ed1c01af567a814cd62d8d70",
+            "services/api/mrqlab_api/research.py": "6e55fe2e1299c90aa48df1dfaf5f10ff787a3faa899183b08425d6859ef1d0fb",
+            "services/api/mrqlab_api/scientific_records.py": "862daf2e6bf49342c238c8f9ea832085a4672771559fc8e11980c628d5b5dad4",
+            "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+            "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+          },
+          "sha256": "6d958046cdb3a4cd879d3a8b655a1df670a39330701a614b9f4d7abf61cfe5d4"
+        },
+        "uncertainty": "marginal mean +/- multiplier*known-sigma standard errors; eight rectangular stress corners, not joint confidence or continuous robust guarantees",
+        "unchanged_priors": "radius, fluid density/viscosity/frequency, clock alignment, blood/wall T1/T2 and RF waveform family are not calibrated by these data"
+      },
+      "selected_index": null,
+      "validation": {
+        "calibration_and_holdout_passed": true,
+        "complete_budget_reserved": true,
+        "selected_design_passed": false
+      }
+    },
+    "holdout_failed": {
+      "calibration": {
+        "calibration_count": 16,
+        "calibration_predictions": [
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-0-0",
+            "observed_velocity_m_s": 0.05260852630947202,
+            "predicted_velocity_m_s": 0.052608526309472034,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-0-1",
+            "observed_velocity_m_s": 0.04193945231860768,
+            "predicted_velocity_m_s": 0.041939452318607684,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-1-0",
+            "observed_velocity_m_s": 0.062270873557213016,
+            "predicted_velocity_m_s": 0.06227087355721304,
+            "standardized_residual": 2.0816681711721685e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-1-1",
+            "observed_velocity_m_s": 0.047301710519974755,
+            "predicted_velocity_m_s": 0.04730171051997476,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-2-0",
+            "observed_velocity_m_s": 0.052192542976727485,
+            "predicted_velocity_m_s": 0.0521925429767275,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-2-1",
+            "observed_velocity_m_s": 0.03750783474276326,
+            "predicted_velocity_m_s": 0.037507834742763264,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-3-0",
+            "observed_velocity_m_s": 0.02827728393598434,
+            "predicted_velocity_m_s": 0.028277283935984346,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-3-1",
+            "observed_velocity_m_s": 0.01829494458906636,
+            "predicted_velocity_m_s": 0.01829494458906636,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-4-0",
+            "observed_velocity_m_s": 0.004534330833385128,
+            "predicted_velocity_m_s": 0.0045343308333851366,
+            "standardized_residual": 8.673617379884035e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-4-1",
+            "observed_velocity_m_s": 0.0009176905385351909,
+            "predicted_velocity_m_s": 0.0009176905385351883,
+            "standardized_residual": -2.6020852139652106e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-5-0",
+            "observed_velocity_m_s": -0.0051280164143558855,
+            "predicted_velocity_m_s": -0.005128016414355873,
+            "standardized_residual": 1.214306433183765e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-5-1",
+            "observed_velocity_m_s": -0.00444456766283189,
+            "predicted_velocity_m_s": -0.0044445676628318935,
+            "standardized_residual": -3.469446951953614e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-6-0",
+            "observed_velocity_m_s": 0.004950314166129649,
+            "predicted_velocity_m_s": 0.004950314166129656,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-6-1",
+            "observed_velocity_m_s": 0.0053493081143796,
+            "predicted_velocity_m_s": 0.0053493081143796,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-7-0",
+            "observed_velocity_m_s": 0.0288655732068728,
+            "predicted_velocity_m_s": 0.028865573206872816,
+            "standardized_residual": 1.734723475976807e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-7-1",
+            "observed_velocity_m_s": 0.024562198268076502,
+            "predicted_velocity_m_s": 0.024562198268076502,
+            "standardized_residual": 0.0
+          }
+        ],
+        "calibration_reduced_chi2": 1.232062755889551e-28,
+        "coefficients_pa_m": [
+          100.00000000000003,
+          193.78248434212895,
+          -49.48079185090461
+        ],
+        "condition": 1.0000000000000002,
+        "covariance_pa2_m2": [
+          [
+            0.98,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            5.509708484503782,
+            -4.905825871455511e-16
+          ],
+          [
+            0.0,
+            -4.446689225710392e-16,
+            5.50970848450378
+          ]
+        ],
+        "estimated_work": 8192,
+        "fit_convention": "weighted velocity-space LS on calibration only; complete known-sigma covariance, not residual-scaled; lossless parameter-column conditioning",
+        "holdout_count": 16,
+        "holdout_max_standardized_residual": 50.00000000000001,
+        "holdout_predictions": [
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-0-0",
+            "observed_velocity_m_s": 0.10740394759394947,
+            "predicted_velocity_m_s": 0.05740394759394948,
+            "standardized_residual": -49.99999999999999
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-0-1",
+            "observed_velocity_m_s": 0.09509217133793604,
+            "predicted_velocity_m_s": 0.04509217133793605,
+            "standardized_residual": -49.99999999999999
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-1-0",
+            "observed_velocity_m_s": 0.11129654049409952,
+            "predicted_velocity_m_s": 0.061296540494099536,
+            "standardized_residual": -49.999999999999986
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-1-1",
+            "observed_velocity_m_s": 0.0958837300618775,
+            "predicted_velocity_m_s": 0.04588373006187751,
+            "standardized_residual": -49.99999999999999
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-2-0",
+            "observed_velocity_m_s": 0.09601920666012642,
+            "predicted_velocity_m_s": 0.046019206660126426,
+            "standardized_residual": -49.99999999999999
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-2-1",
+            "observed_velocity_m_s": 0.08234978852841376,
+            "predicted_velocity_m_s": 0.032349788528413755,
+            "standardized_residual": -50.00000000000001
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-3-0",
+            "observed_velocity_m_s": 0.07052120105507023,
+            "predicted_velocity_m_s": 0.020521201055070243,
+            "standardized_residual": -49.999999999999986
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-3-1",
+            "observed_velocity_m_s": 0.06241834613548333,
+            "predicted_velocity_m_s": 0.01241834613548333,
+            "standardized_residual": -50.0
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-4-0",
+            "observed_velocity_m_s": 0.04973890954890768,
+            "predicted_velocity_m_s": -0.0002610904510923148,
+            "standardized_residual": -49.99999999999999
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-4-1",
+            "observed_velocity_m_s": 0.04776497151920682,
+            "predicted_velocity_m_s": -0.002235028480793182,
+            "standardized_residual": -50.0
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-5-0",
+            "observed_velocity_m_s": 0.04584631664875763,
+            "predicted_velocity_m_s": -0.004153683351242368,
+            "standardized_residual": -49.99999999999999
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-5-1",
+            "observed_velocity_m_s": 0.046973412795265373,
+            "predicted_velocity_m_s": -0.0030265872047346336,
+            "standardized_residual": -50.00000000000001
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-6-0",
+            "observed_velocity_m_s": 0.06112365048273075,
+            "predicted_velocity_m_s": 0.01112365048273076,
+            "standardized_residual": -49.999999999999986
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-6-1",
+            "observed_velocity_m_s": 0.060507354328729133,
+            "predicted_velocity_m_s": 0.01050735432872913,
+            "standardized_residual": -50.0
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-7-0",
+            "observed_velocity_m_s": 0.08662165608778694,
+            "predicted_velocity_m_s": 0.03662165608778695,
+            "standardized_residual": -49.999999999999986
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-7-1",
+            "observed_velocity_m_s": 0.08043879672165956,
+            "predicted_velocity_m_s": 0.030438796721659552,
+            "standardized_residual": -50.0
+          }
+        ],
+        "holdout_reduced_chi2": 2499.9999999999995,
+        "parameter_names": [
+          "mean",
+          "cosine",
+          "sine"
+        ],
+        "passed": false,
+        "rank": 3,
+        "reasons": [
+          "independent acquisition holdout failed"
+        ],
+        "relative_pressure_std": 0.01549155703537095,
+        "std_pa_m": [
+          0.9899494936611666,
+          2.3472768231514114,
+          2.347276823151411
+        ],
+        "stress_intervals_pa_m": [
+          [
+            98.0201010126777,
+            101.97989898732236
+          ],
+          [
+            189.08793069582612,
+            198.4770379884318
+          ],
+          [
+            -54.17534549720743,
+            -44.78623820460179
+          ]
+        ],
+        "unit": "Pa/m"
+      },
+      "candidates": [
+        {
+          "design": {
+            "inversion_time_s": 0.6
+          },
+          "eligible": false,
+          "executed": false,
+          "index": 0,
+          "reasons": [
+            "calibration/independent holdout failed; no flow prior applied"
+          ],
+          "scenarios": []
+        },
+        {
+          "design": {
+            "inversion_time_s": 0.9
+          },
+          "eligible": false,
+          "executed": false,
+          "index": 1,
+          "reasons": [
+            "calibration/independent holdout failed; no flow prior applied"
+          ],
+          "scenarios": []
+        }
+      ],
+      "provenance": {
+        "conditional_priors": {
+          "density_kg_m3": 1060.0,
+          "frequency_hz": 1.0,
+          "radius_m": 0.002,
+          "viscosity_pa_s": 0.0035
+        },
+        "estimated_peak_memory_bytes": 13943808,
+        "estimated_work": 8192,
+        "failed_attempt_work": "each failed runner attempt is conservatively charged its full per-simulation cap; completed runs report their own work",
+        "input_origin": "synthetic",
+        "raw_bytes_retained": false,
+        "raw_file_sha256": null,
+        "request_sha256": "608a601d3eb29dc2758819427427d676cc3bf8eda045f888e1711b50bb056f17",
+        "reserved_work": 8192,
+        "runtime": {
+          "blas_configuration": {
+            "Build Dependencies": {
+              "blas": {
+                "detection method": "system",
+                "found": true,
+                "include directory": "unknown",
+                "lib directory": "unknown",
+                "name": "accelerate",
+                "openblas configuration": "unknown",
+                "pc file directory": "unknown",
+                "version": "unknown"
+              },
+              "lapack": {
+                "detection method": "system",
+                "found": true,
+                "include directory": "unknown",
+                "lib directory": "unknown",
+                "name": "accelerate",
+                "openblas configuration": "unknown",
+                "pc file directory": "unknown",
+                "version": "unknown"
+              }
+            },
+            "Compilers": {
+              "c": {
+                "commands": "cc",
+                "linker": "ld64",
+                "name": "clang",
+                "version": "15.0.0"
+              },
+              "c++": {
+                "commands": "c++",
+                "linker": "ld64",
+                "name": "clang",
+                "version": "15.0.0"
+              },
+              "cython": {
+                "commands": "cython",
+                "linker": "cython",
+                "name": "cython",
+                "version": "3.2.9"
+              }
+            },
+            "Machine Information": {
+              "build": {
+                "cpu": "aarch64",
+                "endian": "little",
+                "family": "aarch64",
+                "system": "darwin"
+              },
+              "host": {
+                "cpu": "aarch64",
+                "endian": "little",
+                "family": "aarch64",
+                "system": "darwin"
+              }
+            },
+            "Python Information": {
+              "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+              "version": "3.12"
+            },
+            "SIMD Extensions": {
+              "baseline": [
+                "NEON",
+                "NEON_FP16",
+                "NEON_VFPV4",
+                "ASIMD"
+              ],
+              "found": [
+                "ASIMDHP",
+                "ASIMDDP"
+              ],
+              "not found": [
+                "ASIMDFHM"
+              ]
+            }
+          },
+          "implementation": "CPython",
+          "machine": "arm64",
+          "packages": {
+            "fastapi": "0.141.1",
+            "finufft": "2.5.0",
+            "numpy": "2.5.2",
+            "pydantic": "2.13.4",
+            "uvicorn": "0.52.3"
+          },
+          "python": "3.12.14",
+          "system": "Darwin"
+        },
+        "source_ref": "synthetic:analytic-womersley-velocity-v1",
+        "sources": {
+          "files": {
+            "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+            "packages/mrqlab_experiment/mrqlab_experiment/calibrated_radial.py": "e2e11f8a1d35cce81d3d8bb57964126fa20afdd934811f683c1e4e40aa762eeb",
+            "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+            "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_memory.py": "2730771f57642eba2bf7d422a35fd081fe56d46ce7d06189e040758b93703a61",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+            "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+            "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+            "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+            "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+            "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+            "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+            "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_epi.py": "d1d54a732ac6ff62a3a39b3d84e29f0ae38ea1157d3550f6dd8fff041b9abdb3",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_study.py": "375c62a87081150a8de7b3c539b62f7063219d872f1ca987b9fb7d2f3917a7b1",
+            "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+            "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+            "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+            "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_press.py": "b46158933b3ee30de8eb78877a1f3fca27b3f1da88b9632a1eda81b5872460dd",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_quantum.py": "c1e568598f8636ccf2617fd9af74b1f04673850682e06062d05e90e77ad8ed10",
+            "packages/mrqlab_experiment/mrqlab_experiment/navigator_radial.py": "ab9de5a46765519f58f19d3fde13b6e891752b6b9e99f5421791b28660239747",
+            "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+            "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+            "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+            "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+            "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+            "packages/mrqlab_experiment/mrqlab_experiment/radial_readout.py": "867924df12d94e166ed8edae2f2fa549a80b73b9383f25e6e189512728b0f886",
+            "packages/mrqlab_experiment/mrqlab_experiment/radial_tse.py": "b9ac4b174bf0e91caeb09456c9c1c59106d3b8fa0a493ecd037d1983589ac691",
+            "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+            "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+            "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+            "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "20f277de5ce44b6716de8ae939ecfc22ae525c91c0504a53f93236cfcab0512d",
+            "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+            "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+            "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+            "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+            "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+            "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+            "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+            "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+            "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+            "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+            "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+            "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+            "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+            "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+            "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+            "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+            "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+            "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+            "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+            "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+            "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+            "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+            "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+            "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+            "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+            "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+            "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+            "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+            "packages/physics/mrqlab_physics/ops/generalized_mt.py": "d90499e03b07f9a9f6546c16bf99b90d0d2979e5bee0a421ffbe4a98172bda76",
+            "packages/physics/mrqlab_physics/ops/quantum_relaxation.py": "13ddc2f5c3d5a8ebb01d5bd6c4673d9c256eb174b603a9f11a76ee365573b09f",
+            "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+            "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+            "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+            "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+            "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+            "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+            "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+            "packages/recon/mrqlab_recon/echo_subspace.py": "63cfcdda8654686b3e4d07663cf8bb9e7dd732c9739223ccb3ec782f2309c5bc",
+            "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+            "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+            "packages/recon/mrqlab_recon/readout_encoding.py": "7560b5f203072f41ca64f36b000cc3b64bf0f7209adb7eabbe0dc8b2e7ad26d5",
+            "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+            "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+            "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+            "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+            "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+            "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+            "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+            "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+            "services/api/mrqlab_api/__init__.py": "b7447d3f3581173624e78cdcbd56b4e1807c9883d07c56e928f2f9f65ee20efd",
+            "services/api/mrqlab_api/main.py": "dee84fa8fd8735d200be2f09765bdb0a6e98c330ed1c01af567a814cd62d8d70",
+            "services/api/mrqlab_api/research.py": "6e55fe2e1299c90aa48df1dfaf5f10ff787a3faa899183b08425d6859ef1d0fb",
+            "services/api/mrqlab_api/scientific_records.py": "862daf2e6bf49342c238c8f9ea832085a4672771559fc8e11980c628d5b5dad4",
+            "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+            "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+          },
+          "sha256": "6d958046cdb3a4cd879d3a8b655a1df670a39330701a614b9f4d7abf61cfe5d4"
+        },
+        "uncertainty": "marginal mean +/- multiplier*known-sigma standard errors; eight rectangular stress corners, not joint confidence or continuous robust guarantees",
+        "unchanged_priors": "radius, fluid density/viscosity/frequency, clock alignment, blood/wall T1/T2 and RF waveform family are not calibrated by these data"
+      },
+      "selected_index": null,
+      "validation": {
+        "calibration_and_holdout_passed": false,
+        "complete_budget_reserved": true,
+        "selected_design_passed": false
+      }
+    },
+    "underresolved": {
+      "calibration": {
+        "calibration_count": 16,
+        "calibration_predictions": [
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-0-0",
+            "observed_velocity_m_s": 0.05260852630947202,
+            "predicted_velocity_m_s": 0.052608526309472034,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-0-1",
+            "observed_velocity_m_s": 0.04193945231860768,
+            "predicted_velocity_m_s": 0.041939452318607684,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-1-0",
+            "observed_velocity_m_s": 0.062270873557213016,
+            "predicted_velocity_m_s": 0.06227087355721304,
+            "standardized_residual": 2.0816681711721685e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-1-1",
+            "observed_velocity_m_s": 0.047301710519974755,
+            "predicted_velocity_m_s": 0.04730171051997476,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-2-0",
+            "observed_velocity_m_s": 0.052192542976727485,
+            "predicted_velocity_m_s": 0.0521925429767275,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-2-1",
+            "observed_velocity_m_s": 0.03750783474276326,
+            "predicted_velocity_m_s": 0.037507834742763264,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-3-0",
+            "observed_velocity_m_s": 0.02827728393598434,
+            "predicted_velocity_m_s": 0.028277283935984346,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-3-1",
+            "observed_velocity_m_s": 0.01829494458906636,
+            "predicted_velocity_m_s": 0.01829494458906636,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-4-0",
+            "observed_velocity_m_s": 0.004534330833385128,
+            "predicted_velocity_m_s": 0.0045343308333851366,
+            "standardized_residual": 8.673617379884035e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-4-1",
+            "observed_velocity_m_s": 0.0009176905385351909,
+            "predicted_velocity_m_s": 0.0009176905385351883,
+            "standardized_residual": -2.6020852139652106e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-5-0",
+            "observed_velocity_m_s": -0.0051280164143558855,
+            "predicted_velocity_m_s": -0.005128016414355873,
+            "standardized_residual": 1.214306433183765e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-5-1",
+            "observed_velocity_m_s": -0.00444456766283189,
+            "predicted_velocity_m_s": -0.0044445676628318935,
+            "standardized_residual": -3.469446951953614e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-6-0",
+            "observed_velocity_m_s": 0.004950314166129649,
+            "predicted_velocity_m_s": 0.004950314166129656,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-6-1",
+            "observed_velocity_m_s": 0.0053493081143796,
+            "predicted_velocity_m_s": 0.0053493081143796,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-7-0",
+            "observed_velocity_m_s": 0.0288655732068728,
+            "predicted_velocity_m_s": 0.028865573206872816,
+            "standardized_residual": 1.734723475976807e-14
+          },
+          {
+            "acquisition_id": "calibration-run",
+            "measurement_id": "calibration-7-1",
+            "observed_velocity_m_s": 0.024562198268076502,
+            "predicted_velocity_m_s": 0.024562198268076502,
+            "standardized_residual": 0.0
+          }
+        ],
+        "calibration_reduced_chi2": 1.232062755889551e-28,
+        "coefficients_pa_m": [
+          100.00000000000003,
+          193.78248434212895,
+          -49.48079185090461
+        ],
+        "condition": 1.0000000000000002,
+        "covariance_pa2_m2": [
+          [
+            0.98,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            5.509708484503782,
+            -4.905825871455511e-16
+          ],
+          [
+            0.0,
+            -4.446689225710392e-16,
+            5.50970848450378
+          ]
+        ],
+        "estimated_work": 8192,
+        "fit_convention": "weighted velocity-space LS on calibration only; complete known-sigma covariance, not residual-scaled; lossless parameter-column conditioning",
+        "holdout_count": 16,
+        "holdout_max_standardized_residual": 1.3877787807814457e-14,
+        "holdout_predictions": [
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-0-0",
+            "observed_velocity_m_s": 0.05740394759394946,
+            "predicted_velocity_m_s": 0.05740394759394948,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-0-1",
+            "observed_velocity_m_s": 0.04509217133793605,
+            "predicted_velocity_m_s": 0.04509217133793605,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-1-0",
+            "observed_velocity_m_s": 0.06129654049409952,
+            "predicted_velocity_m_s": 0.061296540494099536,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-1-1",
+            "observed_velocity_m_s": 0.0458837300618775,
+            "predicted_velocity_m_s": 0.04588373006187751,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-2-0",
+            "observed_velocity_m_s": 0.04601920666012642,
+            "predicted_velocity_m_s": 0.046019206660126426,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-2-1",
+            "observed_velocity_m_s": 0.032349788528413755,
+            "predicted_velocity_m_s": 0.032349788528413755,
+            "standardized_residual": 0.0
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-3-0",
+            "observed_velocity_m_s": 0.020521201055070232,
+            "predicted_velocity_m_s": 0.020521201055070243,
+            "standardized_residual": 1.0408340855860843e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-3-1",
+            "observed_velocity_m_s": 0.012418346135483331,
+            "predicted_velocity_m_s": 0.01241834613548333,
+            "standardized_residual": -1.734723475976807e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-4-0",
+            "observed_velocity_m_s": -0.00026109045109232176,
+            "predicted_velocity_m_s": -0.0002610904510923148,
+            "standardized_residual": 6.938893903907228e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-4-1",
+            "observed_velocity_m_s": -0.002235028480793183,
+            "predicted_velocity_m_s": -0.002235028480793182,
+            "standardized_residual": 8.673617379884035e-16
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-5-0",
+            "observed_velocity_m_s": -0.00415368335124237,
+            "predicted_velocity_m_s": -0.004153683351242368,
+            "standardized_residual": 2.6020852139652106e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-5-1",
+            "observed_velocity_m_s": -0.0030265872047346327,
+            "predicted_velocity_m_s": -0.0030265872047346336,
+            "standardized_residual": -8.673617379884035e-16
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-6-0",
+            "observed_velocity_m_s": 0.01112365048273075,
+            "predicted_velocity_m_s": 0.01112365048273076,
+            "standardized_residual": 1.0408340855860843e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-6-1",
+            "observed_velocity_m_s": 0.010507354328729129,
+            "predicted_velocity_m_s": 0.01050735432872913,
+            "standardized_residual": 1.734723475976807e-15
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-7-0",
+            "observed_velocity_m_s": 0.03662165608778693,
+            "predicted_velocity_m_s": 0.03662165608778695,
+            "standardized_residual": 1.3877787807814457e-14
+          },
+          {
+            "acquisition_id": "holdout-run",
+            "measurement_id": "holdout-7-1",
+            "observed_velocity_m_s": 0.030438796721659556,
+            "predicted_velocity_m_s": 0.030438796721659552,
+            "standardized_residual": -3.469446951953614e-15
+          }
+        ],
+        "holdout_reduced_chi2": 6.03263700841998e-29,
+        "parameter_names": [
+          "mean",
+          "cosine",
+          "sine"
+        ],
+        "passed": true,
+        "rank": 3,
+        "reasons": [],
+        "relative_pressure_std": 0.01549155703537095,
+        "std_pa_m": [
+          0.9899494936611666,
+          2.3472768231514114,
+          2.347276823151411
+        ],
+        "stress_intervals_pa_m": [
+          [
+            98.0201010126777,
+            101.97989898732236
+          ],
+          [
+            189.08793069582612,
+            198.4770379884318
+          ],
+          [
+            -54.17534549720743,
+            -44.78623820460179
+          ]
+        ],
+        "unit": "Pa/m"
+      },
+      "candidates": [
+        {
+          "design": {
+            "inversion_time_s": 0.9
+          },
+          "eligible": false,
+          "executed": true,
+          "index": 0,
+          "reasons": [
+            "one or more nominal/pressure-corner/observable targets failed"
+          ],
+          "scenarios": [
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.012016023492708708,
+              "name": "nominal",
+              "numerical_refinement_passed": false,
+              "passed": false,
+              "reasons": [
+                "RF/radial/axial observable refinement failed or no completed readout",
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.46730126439980546,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5684889968394959,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.0106204481339136,
+              "name": "corner-0",
+              "numerical_refinement_passed": false,
+              "passed": false,
+              "reasons": [
+                "RF/radial/axial observable refinement failed or no completed readout",
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.4671966364021245,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5684889968394959,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.009634383046400276,
+              "name": "corner-1",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.46717651422621687,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5684889968394959,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.00865395009114965,
+              "name": "corner-2",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.4672148339386386,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5684889968394959,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.009251340834886629,
+              "name": "corner-3",
+              "numerical_refinement_passed": true,
+              "passed": false,
+              "reasons": [
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.4672214223485481,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5684889968394959,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.014954573057691677,
+              "name": "corner-4",
+              "numerical_refinement_passed": false,
+              "passed": false,
+              "reasons": [
+                "RF/radial/axial observable refinement failed or no completed readout",
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.4675233437020423,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5684889968394959,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.015211359622346057,
+              "name": "corner-5",
+              "numerical_refinement_passed": false,
+              "passed": false,
+              "reasons": [
+                "RF/radial/axial observable refinement failed or no completed readout",
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.4675164208656106,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5684889968394959,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.014343626391954786,
+              "name": "corner-6",
+              "numerical_refinement_passed": false,
+              "passed": false,
+              "reasons": [
+                "RF/radial/axial observable refinement failed or no completed readout",
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.467488295052911,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5684889968394959,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            },
+            {
+              "completed": true,
+              "max_observation_refinement_error": 0.014194478373328427,
+              "name": "corner-7",
+              "numerical_refinement_passed": false,
+              "passed": false,
+              "reasons": [
+                "RF/radial/axial observable refinement failed or no completed readout",
+                "declared suppression/retention/interruption targets failed"
+              ],
+              "refined_validation": {
+                "blood_target_max": 0.1,
+                "completed_readouts": 3,
+                "interrupted_fraction": 0.0,
+                "interrupted_preparations": 0,
+                "max_abs_blood_mz": 0.4675223924044096,
+                "max_interrupted_fraction": 0.0,
+                "min_abs_wall_mz": 0.5684889968394959,
+                "passed": false,
+                "scheduled_preparations": 3,
+                "wall_target_min": 0.7
+              }
+            }
+          ]
+        }
+      ],
+      "provenance": {
+        "conditional_priors": {
+          "density_kg_m3": 1060.0,
+          "frequency_hz": 1.0,
+          "radius_m": 0.002,
+          "viscosity_pa_s": 0.0035
+        },
+        "estimated_peak_memory_bytes": 4285440,
+        "estimated_work": 14757374,
+        "failed_attempt_work": "each failed runner attempt is conservatively charged its full per-simulation cap; completed runs report their own work",
+        "input_origin": "synthetic",
+        "raw_bytes_retained": true,
+        "raw_file_sha256": "d8ba61a1e9c751aa593e88ba43b70008ea02db9e3cc8d672f910098a8fc505f0",
+        "request_sha256": "0de8ff1bdc3d871ef67aaa5e437eadd24ef670ac593e2b32fcf248a27e00c4ee",
+        "reserved_work": 900008192,
+        "runtime": {
+          "blas_configuration": {
+            "Build Dependencies": {
+              "blas": {
+                "detection method": "system",
+                "found": true,
+                "include directory": "unknown",
+                "lib directory": "unknown",
+                "name": "accelerate",
+                "openblas configuration": "unknown",
+                "pc file directory": "unknown",
+                "version": "unknown"
+              },
+              "lapack": {
+                "detection method": "system",
+                "found": true,
+                "include directory": "unknown",
+                "lib directory": "unknown",
+                "name": "accelerate",
+                "openblas configuration": "unknown",
+                "pc file directory": "unknown",
+                "version": "unknown"
+              }
+            },
+            "Compilers": {
+              "c": {
+                "commands": "cc",
+                "linker": "ld64",
+                "name": "clang",
+                "version": "15.0.0"
+              },
+              "c++": {
+                "commands": "c++",
+                "linker": "ld64",
+                "name": "clang",
+                "version": "15.0.0"
+              },
+              "cython": {
+                "commands": "cython",
+                "linker": "cython",
+                "name": "cython",
+                "version": "3.2.9"
+              }
+            },
+            "Machine Information": {
+              "build": {
+                "cpu": "aarch64",
+                "endian": "little",
+                "family": "aarch64",
+                "system": "darwin"
+              },
+              "host": {
+                "cpu": "aarch64",
+                "endian": "little",
+                "family": "aarch64",
+                "system": "darwin"
+              }
+            },
+            "Python Information": {
+              "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+              "version": "3.12"
+            },
+            "SIMD Extensions": {
+              "baseline": [
+                "NEON",
+                "NEON_FP16",
+                "NEON_VFPV4",
+                "ASIMD"
+              ],
+              "found": [
+                "ASIMDHP",
+                "ASIMDDP"
+              ],
+              "not found": [
+                "ASIMDFHM"
+              ]
+            }
+          },
+          "implementation": "CPython",
+          "machine": "arm64",
+          "packages": {
+            "fastapi": "0.141.1",
+            "finufft": "2.5.0",
+            "numpy": "2.5.2",
+            "pydantic": "2.13.4",
+            "uvicorn": "0.52.3"
+          },
+          "python": "3.12.14",
+          "system": "Darwin"
+        },
+        "source_ref": "synthetic:analytic-womersley-velocity-v1",
+        "sources": {
+          "files": {
+            "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+            "packages/mrqlab_experiment/mrqlab_experiment/calibrated_radial.py": "e2e11f8a1d35cce81d3d8bb57964126fa20afdd934811f683c1e4e40aa762eeb",
+            "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+            "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_memory.py": "2730771f57642eba2bf7d422a35fd081fe56d46ce7d06189e040758b93703a61",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+            "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+            "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+            "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+            "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+            "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+            "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+            "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_epi.py": "d1d54a732ac6ff62a3a39b3d84e29f0ae38ea1157d3550f6dd8fff041b9abdb3",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_study.py": "375c62a87081150a8de7b3c539b62f7063219d872f1ca987b9fb7d2f3917a7b1",
+            "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+            "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+            "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+            "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_press.py": "b46158933b3ee30de8eb78877a1f3fca27b3f1da88b9632a1eda81b5872460dd",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_quantum.py": "c1e568598f8636ccf2617fd9af74b1f04673850682e06062d05e90e77ad8ed10",
+            "packages/mrqlab_experiment/mrqlab_experiment/navigator_radial.py": "ab9de5a46765519f58f19d3fde13b6e891752b6b9e99f5421791b28660239747",
+            "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+            "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+            "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+            "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+            "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+            "packages/mrqlab_experiment/mrqlab_experiment/radial_readout.py": "867924df12d94e166ed8edae2f2fa549a80b73b9383f25e6e189512728b0f886",
+            "packages/mrqlab_experiment/mrqlab_experiment/radial_tse.py": "b9ac4b174bf0e91caeb09456c9c1c59106d3b8fa0a493ecd037d1983589ac691",
+            "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+            "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+            "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+            "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "20f277de5ce44b6716de8ae939ecfc22ae525c91c0504a53f93236cfcab0512d",
+            "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+            "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+            "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+            "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+            "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+            "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+            "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+            "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+            "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+            "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+            "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+            "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+            "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+            "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+            "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+            "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+            "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+            "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+            "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+            "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+            "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+            "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+            "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+            "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+            "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+            "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+            "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+            "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+            "packages/physics/mrqlab_physics/ops/generalized_mt.py": "d90499e03b07f9a9f6546c16bf99b90d0d2979e5bee0a421ffbe4a98172bda76",
+            "packages/physics/mrqlab_physics/ops/quantum_relaxation.py": "13ddc2f5c3d5a8ebb01d5bd6c4673d9c256eb174b603a9f11a76ee365573b09f",
+            "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+            "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+            "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+            "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+            "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+            "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+            "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+            "packages/recon/mrqlab_recon/echo_subspace.py": "63cfcdda8654686b3e4d07663cf8bb9e7dd732c9739223ccb3ec782f2309c5bc",
+            "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+            "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+            "packages/recon/mrqlab_recon/readout_encoding.py": "7560b5f203072f41ca64f36b000cc3b64bf0f7209adb7eabbe0dc8b2e7ad26d5",
+            "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+            "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+            "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+            "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+            "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+            "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+            "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+            "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+            "services/api/mrqlab_api/__init__.py": "b7447d3f3581173624e78cdcbd56b4e1807c9883d07c56e928f2f9f65ee20efd",
+            "services/api/mrqlab_api/main.py": "dee84fa8fd8735d200be2f09765bdb0a6e98c330ed1c01af567a814cd62d8d70",
+            "services/api/mrqlab_api/research.py": "6e55fe2e1299c90aa48df1dfaf5f10ff787a3faa899183b08425d6859ef1d0fb",
+            "services/api/mrqlab_api/scientific_records.py": "862daf2e6bf49342c238c8f9ea832085a4672771559fc8e11980c628d5b5dad4",
+            "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+            "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+          },
+          "sha256": "6d958046cdb3a4cd879d3a8b655a1df670a39330701a614b9f4d7abf61cfe5d4"
+        },
+        "uncertainty": "marginal mean +/- multiplier*known-sigma standard errors; eight rectangular stress corners, not joint confidence or continuous robust guarantees",
+        "unchanged_priors": "radius, fluid density/viscosity/frequency, clock alignment, blood/wall T1/T2 and RF waveform family are not calibrated by these data"
+      },
+      "selected_index": null,
+      "validation": {
+        "calibration_and_holdout_passed": true,
+        "complete_budget_reserved": true,
+        "selected_design_passed": false
+      }
+    },
+    "unidentifiable": {
+      "calibration": {
+        "calibration_count": 16,
+        "calibration_predictions": [],
+        "calibration_reduced_chi2": null,
+        "coefficients_pa_m": null,
+        "condition": null,
+        "covariance_pa2_m2": null,
+        "estimated_work": 8192,
+        "holdout_count": 16,
+        "holdout_max_standardized_residual": null,
+        "holdout_predictions": [],
+        "holdout_reduced_chi2": null,
+        "parameter_names": [
+          "mean",
+          "cosine",
+          "sine"
+        ],
+        "passed": false,
+        "rank": 2,
+        "reasons": [
+          "unidentifiable pressure design: zero sensitivity column"
+        ],
+        "relative_pressure_std": null,
+        "std_pa_m": null,
+        "stress_intervals_pa_m": null,
+        "unit": "Pa/m"
+      },
+      "candidates": [
+        {
+          "design": {
+            "inversion_time_s": 0.6
+          },
+          "eligible": false,
+          "executed": false,
+          "index": 0,
+          "reasons": [
+            "calibration/independent holdout failed; no flow prior applied"
+          ],
+          "scenarios": []
+        },
+        {
+          "design": {
+            "inversion_time_s": 0.9
+          },
+          "eligible": false,
+          "executed": false,
+          "index": 1,
+          "reasons": [
+            "calibration/independent holdout failed; no flow prior applied"
+          ],
+          "scenarios": []
+        }
+      ],
+      "provenance": {
+        "conditional_priors": {
+          "density_kg_m3": 1060.0,
+          "frequency_hz": 1.0,
+          "radius_m": 0.002,
+          "viscosity_pa_s": 0.0035
+        },
+        "estimated_peak_memory_bytes": 13943808,
+        "estimated_work": 8192,
+        "failed_attempt_work": "each failed runner attempt is conservatively charged its full per-simulation cap; completed runs report their own work",
+        "input_origin": "synthetic",
+        "raw_bytes_retained": false,
+        "raw_file_sha256": null,
+        "request_sha256": "f9947133f2ee02fa453efdcf5a96b8892d5405bb13125b044d27de575ce9716b",
+        "reserved_work": 8192,
+        "runtime": {
+          "blas_configuration": {
+            "Build Dependencies": {
+              "blas": {
+                "detection method": "system",
+                "found": true,
+                "include directory": "unknown",
+                "lib directory": "unknown",
+                "name": "accelerate",
+                "openblas configuration": "unknown",
+                "pc file directory": "unknown",
+                "version": "unknown"
+              },
+              "lapack": {
+                "detection method": "system",
+                "found": true,
+                "include directory": "unknown",
+                "lib directory": "unknown",
+                "name": "accelerate",
+                "openblas configuration": "unknown",
+                "pc file directory": "unknown",
+                "version": "unknown"
+              }
+            },
+            "Compilers": {
+              "c": {
+                "commands": "cc",
+                "linker": "ld64",
+                "name": "clang",
+                "version": "15.0.0"
+              },
+              "c++": {
+                "commands": "c++",
+                "linker": "ld64",
+                "name": "clang",
+                "version": "15.0.0"
+              },
+              "cython": {
+                "commands": "cython",
+                "linker": "cython",
+                "name": "cython",
+                "version": "3.2.9"
+              }
+            },
+            "Machine Information": {
+              "build": {
+                "cpu": "aarch64",
+                "endian": "little",
+                "family": "aarch64",
+                "system": "darwin"
+              },
+              "host": {
+                "cpu": "aarch64",
+                "endian": "little",
+                "family": "aarch64",
+                "system": "darwin"
+              }
+            },
+            "Python Information": {
+              "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+              "version": "3.12"
+            },
+            "SIMD Extensions": {
+              "baseline": [
+                "NEON",
+                "NEON_FP16",
+                "NEON_VFPV4",
+                "ASIMD"
+              ],
+              "found": [
+                "ASIMDHP",
+                "ASIMDDP"
+              ],
+              "not found": [
+                "ASIMDFHM"
+              ]
+            }
+          },
+          "implementation": "CPython",
+          "machine": "arm64",
+          "packages": {
+            "fastapi": "0.141.1",
+            "finufft": "2.5.0",
+            "numpy": "2.5.2",
+            "pydantic": "2.13.4",
+            "uvicorn": "0.52.3"
+          },
+          "python": "3.12.14",
+          "system": "Darwin"
+        },
+        "source_ref": "synthetic:analytic-womersley-velocity-v1",
+        "sources": {
+          "files": {
+            "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+            "packages/mrqlab_experiment/mrqlab_experiment/calibrated_radial.py": "e2e11f8a1d35cce81d3d8bb57964126fa20afdd934811f683c1e4e40aa762eeb",
+            "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+            "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_memory.py": "2730771f57642eba2bf7d422a35fd081fe56d46ce7d06189e040758b93703a61",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+            "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+            "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+            "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+            "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+            "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+            "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+            "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+            "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+            "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+            "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_epi.py": "d1d54a732ac6ff62a3a39b3d84e29f0ae38ea1157d3550f6dd8fff041b9abdb3",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+            "packages/mrqlab_experiment/mrqlab_experiment/flow_study.py": "375c62a87081150a8de7b3c539b62f7063219d872f1ca987b9fb7d2f3917a7b1",
+            "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+            "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+            "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+            "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_press.py": "b46158933b3ee30de8eb78877a1f3fca27b3f1da88b9632a1eda81b5872460dd",
+            "packages/mrqlab_experiment/mrqlab_experiment/mrs_quantum.py": "c1e568598f8636ccf2617fd9af74b1f04673850682e06062d05e90e77ad8ed10",
+            "packages/mrqlab_experiment/mrqlab_experiment/navigator_radial.py": "ab9de5a46765519f58f19d3fde13b6e891752b6b9e99f5421791b28660239747",
+            "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+            "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+            "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+            "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+            "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+            "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+            "packages/mrqlab_experiment/mrqlab_experiment/radial_readout.py": "867924df12d94e166ed8edae2f2fa549a80b73b9383f25e6e189512728b0f886",
+            "packages/mrqlab_experiment/mrqlab_experiment/radial_tse.py": "b9ac4b174bf0e91caeb09456c9c1c59106d3b8fa0a493ecd037d1983589ac691",
+            "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+            "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+            "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+            "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+            "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "20f277de5ce44b6716de8ae939ecfc22ae525c91c0504a53f93236cfcab0512d",
+            "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+            "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+            "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+            "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+            "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+            "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+            "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+            "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+            "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+            "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+            "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+            "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+            "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+            "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+            "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+            "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+            "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+            "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+            "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+            "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+            "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+            "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+            "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+            "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+            "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+            "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+            "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+            "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+            "packages/physics/mrqlab_physics/ops/generalized_mt.py": "d90499e03b07f9a9f6546c16bf99b90d0d2979e5bee0a421ffbe4a98172bda76",
+            "packages/physics/mrqlab_physics/ops/quantum_relaxation.py": "13ddc2f5c3d5a8ebb01d5bd6c4673d9c256eb174b603a9f11a76ee365573b09f",
+            "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+            "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+            "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+            "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+            "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+            "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+            "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+            "packages/recon/mrqlab_recon/echo_subspace.py": "63cfcdda8654686b3e4d07663cf8bb9e7dd732c9739223ccb3ec782f2309c5bc",
+            "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+            "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+            "packages/recon/mrqlab_recon/readout_encoding.py": "7560b5f203072f41ca64f36b000cc3b64bf0f7209adb7eabbe0dc8b2e7ad26d5",
+            "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+            "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+            "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+            "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+            "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+            "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+            "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+            "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+            "services/api/mrqlab_api/__init__.py": "b7447d3f3581173624e78cdcbd56b4e1807c9883d07c56e928f2f9f65ee20efd",
+            "services/api/mrqlab_api/main.py": "dee84fa8fd8735d200be2f09765bdb0a6e98c330ed1c01af567a814cd62d8d70",
+            "services/api/mrqlab_api/research.py": "6e55fe2e1299c90aa48df1dfaf5f10ff787a3faa899183b08425d6859ef1d0fb",
+            "services/api/mrqlab_api/scientific_records.py": "862daf2e6bf49342c238c8f9ea832085a4672771559fc8e11980c628d5b5dad4",
+            "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+            "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+          },
+          "sha256": "6d958046cdb3a4cd879d3a8b655a1df670a39330701a614b9f4d7abf61cfe5d4"
+        },
+        "uncertainty": "marginal mean +/- multiplier*known-sigma standard errors; eight rectangular stress corners, not joint confidence or continuous robust guarantees",
+        "unchanged_priors": "radius, fluid density/viscosity/frequency, clock alignment, blood/wall T1/T2 and RF waveform family are not calibrated by these data"
+      },
+      "selected_index": null,
+      "validation": {
+        "calibration_and_holdout_passed": false,
+        "complete_budget_reserved": true,
+        "selected_design_passed": false
+      }
+    }
+  },
+  "independent_momentum_pressure": {
+    "cells": [
+      64,
+      128,
+      256
+    ],
+    "coefficients_pa_m": [
+      [
+        100.00728974917216,
+        193.78823758960905,
+        -49.471006313682835
+      ],
+      [
+        100.0018183870583,
+        193.78390929274613,
+        -49.47832842378416
+      ],
+      [
+        100.00045409441263,
+        193.78283889846517,
+        -49.48017386885926
+      ]
+    ],
+    "max_coefficient_absolute_errors_pa_m": [
+      0.00978553722175235,
+      0.0024634271204249103,
+      0.0006179820453269258
+    ],
+    "truth_pa_m": [
+      100.0,
+      193.78248434212895,
+      -49.48079185090459
+    ]
+  },
+  "runtime": {
+    "blas_configuration": {
+      "Build Dependencies": {
+        "blas": {
+          "detection method": "system",
+          "found": true,
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "name": "accelerate",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown",
+          "version": "unknown"
+        },
+        "lapack": {
+          "detection method": "system",
+          "found": true,
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "name": "accelerate",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown",
+          "version": "unknown"
+        }
+      },
+      "Compilers": {
+        "c": {
+          "commands": "cc",
+          "linker": "ld64",
+          "name": "clang",
+          "version": "15.0.0"
+        },
+        "c++": {
+          "commands": "c++",
+          "linker": "ld64",
+          "name": "clang",
+          "version": "15.0.0"
+        },
+        "cython": {
+          "commands": "cython",
+          "linker": "cython",
+          "name": "cython",
+          "version": "3.2.9"
+        }
+      },
+      "Machine Information": {
+        "build": {
+          "cpu": "aarch64",
+          "endian": "little",
+          "family": "aarch64",
+          "system": "darwin"
+        },
+        "host": {
+          "cpu": "aarch64",
+          "endian": "little",
+          "family": "aarch64",
+          "system": "darwin"
+        }
+      },
+      "Python Information": {
+        "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+        "version": "3.12"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "NEON",
+          "NEON_FP16",
+          "NEON_VFPV4",
+          "ASIMD"
+        ],
+        "found": [
+          "ASIMDHP",
+          "ASIMDDP"
+        ],
+        "not found": [
+          "ASIMDFHM"
+        ]
+      }
+    },
+    "implementation": "CPython",
+    "machine": "arm64",
+    "packages": {
+      "fastapi": "0.141.1",
+      "finufft": "2.5.0",
+      "numpy": "2.5.2",
+      "pydantic": "2.13.4",
+      "uvicorn": "0.52.3"
+    },
+    "python": "3.12.14",
+    "system": "Darwin"
+  },
+  "schema": "mrqlab-measured-flow-evidence-1",
+  "scientific_payload_sha256": "376df454d1a71364c5bdfab6c221ffc2e882bf58d097d57a0696bca61c28df20",
+  "scientific_record_sha256": "8091518e480208a74abd2b942fb654bd8ca7feeb95026a55d4a06426c73069a2",
+  "scope": "teaching/research conditional measured-velocity Womersley pressure calibration and finite-RF causal DIR; input origin is user-declared, not authenticated; synthetic example is not patient data; no compliant/3D CFD, correlated errors, clinical concentration/target calibration, scanner validation or quality certification; B/C parked",
+  "script_sha256": "4ec8be540e9bf3001e966631614ae11b43494bfe6da8d635331cb0d98d706abc",
+  "sources": {
+    "files": {
+      "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+      "packages/mrqlab_experiment/mrqlab_experiment/calibrated_radial.py": "e2e11f8a1d35cce81d3d8bb57964126fa20afdd934811f683c1e4e40aa762eeb",
+      "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+      "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_memory.py": "2730771f57642eba2bf7d422a35fd081fe56d46ce7d06189e040758b93703a61",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+      "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+      "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+      "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+      "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+      "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+      "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+      "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_epi.py": "d1d54a732ac6ff62a3a39b3d84e29f0ae38ea1157d3550f6dd8fff041b9abdb3",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_study.py": "375c62a87081150a8de7b3c539b62f7063219d872f1ca987b9fb7d2f3917a7b1",
+      "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+      "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+      "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_press.py": "b46158933b3ee30de8eb78877a1f3fca27b3f1da88b9632a1eda81b5872460dd",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_quantum.py": "c1e568598f8636ccf2617fd9af74b1f04673850682e06062d05e90e77ad8ed10",
+      "packages/mrqlab_experiment/mrqlab_experiment/navigator_radial.py": "ab9de5a46765519f58f19d3fde13b6e891752b6b9e99f5421791b28660239747",
+      "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+      "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+      "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+      "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+      "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+      "packages/mrqlab_experiment/mrqlab_experiment/radial_readout.py": "867924df12d94e166ed8edae2f2fa549a80b73b9383f25e6e189512728b0f886",
+      "packages/mrqlab_experiment/mrqlab_experiment/radial_tse.py": "b9ac4b174bf0e91caeb09456c9c1c59106d3b8fa0a493ecd037d1983589ac691",
+      "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+      "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+      "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+      "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "20f277de5ce44b6716de8ae939ecfc22ae525c91c0504a53f93236cfcab0512d",
+      "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+      "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+      "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+      "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+      "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+      "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+      "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+      "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+      "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+      "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+      "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+      "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+      "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+      "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+      "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+      "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+      "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+      "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+      "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+      "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+      "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+      "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+      "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+      "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+      "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+      "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+      "packages/physics/mrqlab_physics/ops/generalized_mt.py": "d90499e03b07f9a9f6546c16bf99b90d0d2979e5bee0a421ffbe4a98172bda76",
+      "packages/physics/mrqlab_physics/ops/quantum_relaxation.py": "13ddc2f5c3d5a8ebb01d5bd6c4673d9c256eb174b603a9f11a76ee365573b09f",
+      "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+      "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+      "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+      "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+      "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+      "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+      "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+      "packages/recon/mrqlab_recon/echo_subspace.py": "63cfcdda8654686b3e4d07663cf8bb9e7dd732c9739223ccb3ec782f2309c5bc",
+      "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+      "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+      "packages/recon/mrqlab_recon/readout_encoding.py": "7560b5f203072f41ca64f36b000cc3b64bf0f7209adb7eabbe0dc8b2e7ad26d5",
+      "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+      "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+      "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+      "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+      "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+      "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+      "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+      "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+      "services/api/mrqlab_api/__init__.py": "b7447d3f3581173624e78cdcbd56b4e1807c9883d07c56e928f2f9f65ee20efd",
+      "services/api/mrqlab_api/main.py": "dee84fa8fd8735d200be2f09765bdb0a6e98c330ed1c01af567a814cd62d8d70",
+      "services/api/mrqlab_api/research.py": "6e55fe2e1299c90aa48df1dfaf5f10ff787a3faa899183b08425d6859ef1d0fb",
+      "services/api/mrqlab_api/scientific_records.py": "862daf2e6bf49342c238c8f9ea832085a4672771559fc8e11980c628d5b5dad4",
+      "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+      "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+    },
+    "sha256": "6d958046cdb3a4cd879d3a8b655a1df670a39330701a614b9f4d7abf61cfe5d4"
+  }
+}

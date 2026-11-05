@@ -1,0 +1,3885 @@
+{
+  "schema": "mrqlab-echo-radial-tse-evidence-1",
+  "scope": "teaching/research; fixed known EPG priors; no measured clinical/scanner validation",
+  "sources": {
+    "files": {
+      "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+      "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+      "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+      "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+      "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+      "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+      "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+      "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+      "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+      "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+      "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+      "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+      "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_press.py": "b46158933b3ee30de8eb78877a1f3fca27b3f1da88b9632a1eda81b5872460dd",
+      "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+      "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+      "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+      "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+      "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+      "packages/mrqlab_experiment/mrqlab_experiment/radial_tse.py": "334f10c2656cd4553e0ddeb7441e49bb3019b825c3efe4291f8ac9aa5a4c9cb2",
+      "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+      "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+      "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+      "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "20f277de5ce44b6716de8ae939ecfc22ae525c91c0504a53f93236cfcab0512d",
+      "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+      "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+      "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+      "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+      "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+      "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+      "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+      "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+      "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+      "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+      "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+      "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+      "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+      "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+      "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+      "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+      "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+      "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+      "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+      "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+      "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+      "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+      "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+      "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+      "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+      "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+      "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+      "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+      "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+      "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+      "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+      "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+      "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+      "packages/recon/mrqlab_recon/echo_subspace.py": "63cfcdda8654686b3e4d07663cf8bb9e7dd732c9739223ccb3ec782f2309c5bc",
+      "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+      "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+      "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+      "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+      "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+      "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+      "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+      "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+      "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+      "services/api/mrqlab_api/__init__.py": "037f47825ff6d0902897e8ba0746f111c4c1a19d5a8cfd4cda370b317115698f",
+      "services/api/mrqlab_api/main.py": "826d1140337d984349d7319306b64d78d9e26e54ae73f2901970c44ff4713523",
+      "services/api/mrqlab_api/research.py": "7d4272567d98d73e5b6a6eb4c67209a89122cff320d433a6cd5b89a8671eb7d1",
+      "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+      "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+      "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+    },
+    "sha256": "57515b852ed8d576340047a100ec7e67431514929d4112e670afb5a3da5345de"
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "system": "Darwin",
+    "machine": "arm64",
+    "packages": {
+      "numpy": "2.5.2",
+      "pydantic": "2.13.4",
+      "fastapi": "0.141.1",
+      "uvicorn": "0.52.3",
+      "finufft": "2.5.0"
+    },
+    "blas_configuration": {
+      "Compilers": {
+        "c": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "cc"
+        },
+        "cython": {
+          "name": "cython",
+          "linker": "cython",
+          "version": "3.2.9",
+          "commands": "cython"
+        },
+        "c++": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "c++"
+        }
+      },
+      "Machine Information": {
+        "host": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        },
+        "build": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        }
+      },
+      "Build Dependencies": {
+        "blas": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        },
+        "lapack": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        }
+      },
+      "Python Information": {
+        "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+        "version": "3.12"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "NEON",
+          "NEON_FP16",
+          "NEON_VFPV4",
+          "ASIMD"
+        ],
+        "found": [
+          "ASIMDHP",
+          "ASIMDDP"
+        ],
+        "not found": [
+          "ASIMDFHM"
+        ]
+      }
+    }
+  },
+  "script_sha256": "30e81ff7e531b6bb961e3c5fe9defc357d89aa1d996ce9c7f3781b0c277a8255",
+  "independent_reference": {
+    "exact_relative_error": 5.149982972091677e-16,
+    "finufft_relative_error": 2.159955404271156e-14,
+    "independent_samples_sha256": "8b362fc6cc00c5370970df2a9d65b8c1f783869012f3b599b4c3b1edc4d0a330",
+    "coordinates": [
+      [
+        -0.18358568014899834,
+        -0.45539514032375483
+      ],
+      [
+        0.129093229841177,
+        -0.19251896152323134
+      ],
+      [
+        -0.15725047061959552,
+        -0.25245792664016387
+      ],
+      [
+        0.3879866569877606,
+        -0.09304195819187233
+      ],
+      [
+        -0.12826250766823932,
+        0.09581697635038444
+      ],
+      [
+        -0.009879998127256595,
+        0.06469384112946353
+      ],
+      [
+        0.19456024766358138,
+        -0.10089146058923582
+      ],
+      [
+        0.030057793051682435,
+        -0.07460761728728849
+      ],
+      [
+        0.1136980154495969,
+        0.38832803496841817
+      ],
+      [
+        0.04550519311627521,
+        0.4592767033584991
+      ],
+      [
+        0.27580039819400637,
+        -0.3435459261666215
+      ],
+      [
+        -0.07158613700807781,
+        -0.47022938760719846
+      ],
+      [
+        -0.23842754250730602,
+        -0.03551183227340149
+      ],
+      [
+        -0.17704688770818489,
+        0.20529671795059312
+      ],
+      [
+        0.03725734812394066,
+        -0.2607466747811451
+      ],
+      [
+        0.020668213431476512,
+        0.2628379235409364
+      ],
+      [
+        0.27208263746164507,
+        -0.36137854111015877
+      ],
+      [
+        0.34900019846550145,
+        -0.457243740585366
+      ],
+      [
+        -0.44894488879382755,
+        0.1652490465133546
+      ],
+      [
+        -0.48544121587614975,
+        -0.3105419221767377
+      ],
+      [
+        0.3291826398654727,
+        0.44062765917115954
+      ],
+      [
+        0.22337189608179797,
+        0.18436986163464364
+      ],
+      [
+        0.06310531190786162,
+        -0.20076010622688778
+      ],
+      [
+        -0.2603411032847889,
+        -0.2885159092389168
+      ],
+      [
+        0.37377076802308185,
+        -0.38979340074430024
+      ],
+      [
+        -0.1423020667752305,
+        0.0212822075601673
+      ],
+      [
+        0.06061348384614074,
+        0.20136335421953577
+      ],
+      [
+        -0.04715444841131167,
+        0.07013813118835144
+      ],
+      [
+        0.3250219483908161,
+        -0.14132119125117004
+      ],
+      [
+        0.45151519054315514,
+        0.26120483428032915
+      ],
+      [
+        -0.3394073771001346,
+        0.14976326339024715
+      ]
+    ],
+    "weights": [
+      [
+        {
+          "real": 1.9612717990667805,
+          "imag": 0.3791556453218176
+        },
+        {
+          "real": -1.0422656546308746,
+          "imag": -0.922471695446131
+        },
+        {
+          "real": -0.3569660980078024,
+          "imag": 2.1360036570781338
+        },
+        {
+          "real": 0.4943488741280506,
+          "imag": -0.6450124708377746
+        },
+        {
+          "real": 0.41581970187768824,
+          "imag": -0.4906749203788761
+        },
+        {
+          "real": -1.5329556727950262,
+          "imag": -1.8922644837055191
+        },
+        {
+          "real": 1.4339334656482476,
+          "imag": 1.7169851603512205
+        },
+        {
+          "real": -0.07974358321612761,
+          "imag": -0.7984754032854091
+        },
+        {
+          "real": -1.6764581272306613,
+          "imag": 1.049950225988033
+        },
+        {
+          "real": 0.08880883958948319,
+          "imag": 0.7585244379228613
+        },
+        {
+          "real": 0.0013658422782607184,
+          "imag": -1.245629117174446
+        },
+        {
+          "real": -2.5700072424266613,
+          "imag": -0.2554021470615582
+        },
+        {
+          "real": 1.25331560948159,
+          "imag": -1.6742974108133217
+        },
+        {
+          "real": 0.4417848529341953,
+          "imag": 1.3034928079952965
+        },
+        {
+          "real": -0.769760859324275,
+          "imag": -0.5318484204647186
+        },
+        {
+          "real": -0.5963246633194197,
+          "imag": -0.24346035224726836
+        },
+        {
+          "real": 0.24784354226363312,
+          "imag": -1.4086067833619234
+        },
+        {
+          "real": -0.17784235181259903,
+          "imag": 0.4337177150723136
+        },
+        {
+          "real": -0.07248196232942482,
+          "imag": 0.5370528188010886
+        },
+        {
+          "real": -1.1112212907161492,
+          "imag": -1.1720073099751427
+        },
+        {
+          "real": 0.9639730366544647,
+          "imag": 0.467001970535737
+        },
+        {
+          "real": 0.0700159898048546,
+          "imag": -1.336420277085183
+        },
+        {
+          "real": -1.4850826190626,
+          "imag": 0.9173706407569828
+        },
+        {
+          "real": -1.1462235915138386,
+          "imag": 0.2510623404724748
+        },
+        {
+          "real": 0.9244500695634226,
+          "imag": 0.7783599927415638
+        },
+        {
+          "real": -0.41954463505895484,
+          "imag": -0.06769342775855412
+        },
+        {
+          "real": 0.8627235423179677,
+          "imag": 0.5911674796194051
+        },
+        {
+          "real": -0.5126793473850837,
+          "imag": -0.6584040471187435
+        },
+        {
+          "real": 0.8641476777202964,
+          "imag": 1.1626016411997395
+        },
+        {
+          "real": 0.7090286726585104,
+          "imag": -0.9344137009891117
+        },
+        {
+          "real": -0.41329915745958057,
+          "imag": 0.5004614611922177
+        }
+      ],
+      [
+        {
+          "real": -0.785162707807228,
+          "imag": -0.4352215946492357
+        },
+        {
+          "real": 0.5189388654756871,
+          "imag": -0.33637483349418
+        },
+        {
+          "real": 0.32111287247375475,
+          "imag": -0.22395084246499936
+        },
+        {
+          "real": -1.0189497816862114,
+          "imag": 0.04463911717836048
+        },
+        {
+          "real": -1.9929610468034178,
+          "imag": 1.509198433488476
+        },
+        {
+          "real": 1.6493941190984593,
+          "imag": -0.28308817620375915
+        },
+        {
+          "real": 0.4805116344665303,
+          "imag": -0.1234597111102538
+        },
+        {
+          "real": 0.033586124220170564,
+          "imag": -0.5258797757824368
+        },
+        {
+          "real": 0.5457243181110814,
+          "imag": 1.4007738405245245
+        },
+        {
+          "real": -0.4774762845872268,
+          "imag": 0.5363544193378423
+        },
+        {
+          "real": 1.808249481840332,
+          "imag": -1.146208864467037
+        },
+        {
+          "real": -1.2481077101684892,
+          "imag": 0.35583204832753107
+        },
+        {
+          "real": 1.255158118104252,
+          "imag": -0.6586898965146768
+        },
+        {
+          "real": -0.6601840751544056,
+          "imag": 0.3512064061166889
+        },
+        {
+          "real": -1.4514812328362638,
+          "imag": -0.3902648584604324
+        },
+        {
+          "real": 0.006851660481596698,
+          "imag": 0.878345470357747
+        },
+        {
+          "real": -0.36091964087247647,
+          "imag": 0.19976953895730157
+        },
+        {
+          "real": 0.9291944805032616,
+          "imag": 0.06981264701200697
+        },
+        {
+          "real": 0.9462776571098024,
+          "imag": -0.33125133939429563
+        },
+        {
+          "real": -2.2566041511824992,
+          "imag": 1.9656029336345233
+        },
+        {
+          "real": 0.8727761507334773,
+          "imag": -0.9071572769204955
+        },
+        {
+          "real": 0.7047245854851202,
+          "imag": -1.6873405749824133
+        },
+        {
+          "real": 2.6687541681737503,
+          "imag": -1.3186786208607135
+        },
+        {
+          "real": -0.16659783460614372,
+          "imag": 0.45635797205237627
+        },
+        {
+          "real": -2.8439027969478015,
+          "imag": 1.102812012043994
+        },
+        {
+          "real": 0.7469094451954427,
+          "imag": -0.11683797898304552
+        },
+        {
+          "real": 0.21193319993454726,
+          "imag": -0.23070402404987284
+        },
+        {
+          "real": 0.39300230105096673,
+          "imag": 0.7036220647177641
+        },
+        {
+          "real": -0.21235880501182108,
+          "imag": -1.1994748937203583
+        },
+        {
+          "real": -0.7471772125663769,
+          "imag": 0.6884104106806921
+        },
+        {
+          "real": 0.095159615796541,
+          "imag": 0.11827126657789412
+        }
+      ]
+    ],
+    "images_sha256": "dd2ab17ce7dcb66608e2042241a5781d76a669f6403e11adc87ccbc3d87e6238"
+  },
+  "runs": {
+    "matched": {
+      "inputs": {
+        "labels": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "echoes": 4,
+        "spokes": 96,
+        "points": 32,
+        "echo_spacing_s": 0.008,
+        "tr_s": 0.4,
+        "t2_s": [
+          0.04,
+          0.12
+        ],
+        "basis_t2_s": [
+          0.04,
+          0.12
+        ],
+        "refocusing_angle": 180.0,
+        "refocusing_end_angle": 180.0,
+        "echo_order": "forward",
+        "display_echo": 2,
+        "backend": "exact",
+        "inverse_max_iterations": 6000,
+        "inverse_tolerance": 1e-10,
+        "nufft_eps": 1e-13,
+        "control_iterations": 1000,
+        "component_phase_rad": [
+          0.0,
+          0.0
+        ],
+        "max_samples": 24576,
+        "max_work": 20000000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 100.0,
+        "target_image_error": 1e-06,
+        "target_coefficient_error": 1e-06,
+        "target_min_contrast": 0.005,
+        "target_max_rf_energy": 200.0
+      },
+      "validation": {
+        "passed": true,
+        "max_image_error": 5.254807705816013e-08,
+        "target_image_error": 1e-06,
+        "coefficient_error": 6.013219518067739e-07,
+        "target_coefficient_error": 1e-06,
+        "data_residual": 9.598591930302874e-11,
+        "target_data_residual": 1e-10,
+        "roi_contrast": 0.02660534947351914,
+        "target_min_contrast": 0.005,
+        "rf_energy_relative": 102.0,
+        "target_max_rf_energy": 200.0,
+        "total_duration_s": 10.400000000000002,
+        "max_duration_s": 100.0
+      },
+      "quality": {
+        "nrmse": 5.254807705816013e-08,
+        "max_absolute_error": 2.750422187017381e-08,
+        "threshold": 1e-06,
+        "passed": true
+      },
+      "complete_result_sha256": "f7dbfe5d77401c5ee1c0175bd6c8f108af9bdf854ba375637716ac9cdc46adff",
+      "sample_sha256": "55304689e5de345327094011ab7c4d96cd41a670aae04d4c695f250c10fcec0c",
+      "image_sha256": "c74b5e51be9d0ce3de3fb79e0037bb6eea6d12f1570317c0976a7a136f9553e2",
+      "component_sha256": "569242ade0bdf1be98294d54936ed5bfdecdb17deb6274fcadeb41ba34208364",
+      "estimated_work": 15806026350,
+      "estimated_peak_memory_bytes": 51888128,
+      "tissue_echo_weights": [
+        [
+          0.23016265155780732,
+          0.18844124104034873,
+          0.15428263918791418,
+          0.12631594136917948
+        ],
+        [
+          0.17299271342671346,
+          0.1618358917702634,
+          0.1513986071799023,
+          0.14163445454085666
+        ]
+      ],
+      "temporal_basis": [
+        [
+          -0.6036700840127406,
+          -0.5222665059074194,
+          -0.45381158964510887,
+          -0.39607469949377694
+        ],
+        [
+          -0.6407038225768447,
+          -0.07918713988876838,
+          0.3518201450443206,
+          0.6778278499387944
+        ]
+      ],
+      "basis_singular_values": [
+        0.4755849832026863,
+        0.03408684175355385
+      ],
+      "solver": {
+        "method": "temporal-basis Fourier CGLS",
+        "iterations": 4501,
+        "tolerance": 1e-10,
+        "stop_reason": "data_residual",
+        "converged": true,
+        "relative_data_residual": 9.598591930302874e-11,
+        "estimated_work": 14225814528,
+        "estimated_memory_bytes": 51314688,
+        "gain_fit": false,
+        "regularization": 0.0,
+        "identifiability": "not certified; data convergence does not certify image recovery",
+        "operator": {
+          "backend": "exact",
+          "temporal_condition": 1.0000000000000075,
+          "components": 2,
+          "spatial_shape": [
+            16,
+            16
+          ],
+          "fourier": {
+            "backend": "exact-centered-DFT",
+            "normalization": "unnormalized Fourier sum"
+          },
+          "model": "sum_k weights[k,m] * Fourier(coefficients[k])[kz,m]",
+          "gain_fit": false,
+          "regularization": 0.0,
+          "spatial_support": "not supplied"
+        }
+      },
+      "residual_history_sha256": "9d855124eeef61cbf663bf2dd3494d81f942fe92d5bd3c1cea445bcdd797518f",
+      "residual_history_endpoints": [
+        1.0,
+        9.598590900713176e-11
+      ],
+      "static_control_quality": {
+        "nrmse": 9.142046551224372,
+        "max_absolute_error": 5.3610127772716965,
+        "threshold": 1e-06,
+        "passed": false
+      },
+      "static_solver_stop": "max_iterations"
+    },
+    "lower_rf": {
+      "inputs": {
+        "labels": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "echoes": 4,
+        "spokes": 96,
+        "points": 32,
+        "echo_spacing_s": 0.008,
+        "tr_s": 0.4,
+        "t2_s": [
+          0.04,
+          0.12
+        ],
+        "basis_t2_s": [
+          0.04,
+          0.12
+        ],
+        "refocusing_angle": 140.0,
+        "refocusing_end_angle": 110.0,
+        "echo_order": "forward",
+        "display_echo": 2,
+        "backend": "exact",
+        "inverse_max_iterations": 6000,
+        "inverse_tolerance": 1e-10,
+        "nufft_eps": 1e-13,
+        "control_iterations": 1000,
+        "component_phase_rad": [
+          0.0,
+          0.0
+        ],
+        "max_samples": 24576,
+        "max_work": 20000000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 100.0,
+        "target_image_error": 1e-06,
+        "target_coefficient_error": 1e-06,
+        "target_min_contrast": 0.005,
+        "target_max_rf_energy": 200.0
+      },
+      "validation": {
+        "passed": true,
+        "max_image_error": 5.76992886334337e-08,
+        "target_image_error": 1e-06,
+        "coefficient_error": 7.204017072109819e-07,
+        "target_coefficient_error": 1e-06,
+        "data_residual": 9.860442543896657e-11,
+        "target_data_residual": 1e-10,
+        "roi_contrast": 0.033019254900058886,
+        "target_min_contrast": 0.005,
+        "rf_energy_relative": 52.66666666666667,
+        "target_max_rf_energy": 200.0,
+        "total_duration_s": 10.400000000000002,
+        "max_duration_s": 100.0
+      },
+      "quality": {
+        "nrmse": 5.76992886334337e-08,
+        "max_absolute_error": 2.8993481808908072e-08,
+        "threshold": 1e-06,
+        "passed": true
+      },
+      "complete_result_sha256": "881026539ba400d804c293edb8e0d8f0be5cab9600daf6a2a1d7ef11591c159b",
+      "sample_sha256": "3808a6e166d23eb45530873fafcd88ca937c49d5d06a0abed9c683d2814b094c",
+      "image_sha256": "1bd0d26e84f6dd4e7dd5fdc464d886cb7c4bf5ee252833782ec877ede71a4aa6",
+      "component_sha256": "3a26376b474047e7f42ea8490a54969746479a3a1a27e5804046e5ca47327dda",
+      "estimated_work": 14794805870,
+      "estimated_peak_memory_bytes": 51888128,
+      "tissue_echo_weights": [
+        [
+          0.20499775538366172,
+          0.19448257810327868,
+          0.13755090934051437,
+          0.12354970765821359
+        ],
+        [
+          0.1544145582933037,
+          0.16146332325134638,
+          0.13367716406281077,
+          0.12833036037181358
+        ]
+      ],
+      "temporal_basis": [
+        [
+          -0.5762153816943598,
+          -0.5685974033433566,
+          -0.43069823784216205,
+          -0.3989634754331179
+        ],
+        [
+          -0.6146979307383185,
+          -0.15713585058905077,
+          0.4432602306413133,
+          0.6332259836247205
+        ]
+      ],
+      "basis_singular_values": [
+        0.44449318521771347,
+        0.026658399599403696
+      ],
+      "solver": {
+        "method": "temporal-basis Fourier CGLS",
+        "iterations": 4181,
+        "tolerance": 1e-10,
+        "stop_reason": "data_residual",
+        "converged": true,
+        "relative_data_residual": 9.860442543896657e-11,
+        "estimated_work": 13214594048,
+        "estimated_memory_bytes": 51314688,
+        "gain_fit": false,
+        "regularization": 0.0,
+        "identifiability": "not certified; data convergence does not certify image recovery",
+        "operator": {
+          "backend": "exact",
+          "temporal_condition": 1.0000000000000027,
+          "components": 2,
+          "spatial_shape": [
+            16,
+            16
+          ],
+          "fourier": {
+            "backend": "exact-centered-DFT",
+            "normalization": "unnormalized Fourier sum"
+          },
+          "model": "sum_k weights[k,m] * Fourier(coefficients[k])[kz,m]",
+          "gain_fit": false,
+          "regularization": 0.0,
+          "spatial_support": "not supplied"
+        }
+      },
+      "residual_history_sha256": "7fa499dee55e41d0ab996b2aeb874e1b002999c9c0d0bc3beb4cae964e02683e",
+      "residual_history_endpoints": [
+        1.0,
+        9.860441696638573e-11
+      ],
+      "static_control_quality": {
+        "nrmse": 7.570545227360207,
+        "max_absolute_error": 4.563284751045586,
+        "threshold": 1e-06,
+        "passed": false
+      },
+      "static_solver_stop": "max_iterations"
+    },
+    "lowest_rf_component_failure": {
+      "inputs": {
+        "labels": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "echoes": 4,
+        "spokes": 96,
+        "points": 32,
+        "echo_spacing_s": 0.008,
+        "tr_s": 0.4,
+        "t2_s": [
+          0.04,
+          0.12
+        ],
+        "basis_t2_s": [
+          0.04,
+          0.12
+        ],
+        "refocusing_angle": 100.0,
+        "refocusing_end_angle": 80.0,
+        "echo_order": "forward",
+        "display_echo": 2,
+        "backend": "exact",
+        "inverse_max_iterations": 6000,
+        "inverse_tolerance": 1e-10,
+        "nufft_eps": 1e-13,
+        "control_iterations": 1000,
+        "component_phase_rad": [
+          0.0,
+          0.0
+        ],
+        "max_samples": 24576,
+        "max_work": 20000000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 100.0,
+        "target_image_error": 1e-06,
+        "target_coefficient_error": 1e-06,
+        "target_min_contrast": 0.005,
+        "target_max_rf_energy": 200.0
+      },
+      "validation": {
+        "passed": false,
+        "max_image_error": 7.289145667016679e-08,
+        "target_image_error": 1e-06,
+        "coefficient_error": 1.3748548361063679e-06,
+        "target_coefficient_error": 1e-06,
+        "data_residual": 9.784959178452481e-11,
+        "target_data_residual": 1e-10,
+        "roi_contrast": 0.03587109382486714,
+        "target_min_contrast": 0.005,
+        "rf_energy_relative": 30.16460905349794,
+        "target_max_rf_energy": 200.0,
+        "total_duration_s": 10.400000000000002,
+        "max_duration_s": 100.0
+      },
+      "quality": {
+        "nrmse": 7.289145667016679e-08,
+        "max_absolute_error": 3.40556444946891e-08,
+        "threshold": 1e-06,
+        "passed": true
+      },
+      "complete_result_sha256": "bab6a81e6c639ae73af959aafbec1b7256c5aee487605de5a737100dd4a36f49",
+      "sample_sha256": "3e70e7020995afe9d6f907aaa356c4f948f72d41c7631905ecfbb750e5bea9a7",
+      "image_sha256": "bc0d2c51605cbfc21b47830b74d10a427660cd1e1944705f6dd0d8d93816f87d",
+      "component_sha256": "3285f94a42d6b0d3e8e14de4c8ea753e6b4d961489e02dfcf5ae52da26e55ce6",
+      "estimated_work": 14286035566,
+      "estimated_peak_memory_bytes": 51888128,
+      "tissue_echo_weights": [
+        [
+          0.13776381135118923,
+          0.17399580420562558,
+          0.13438012251903073,
+          0.10836425439933062
+        ],
+        [
+          0.10402070506040796,
+          0.13812471021521558,
+          0.12199999691191084,
+          0.10496841813641831
+        ]
+      ],
+      "temporal_basis": [
+        [
+          -0.46993866889939345,
+          -0.6053577103933444,
+          -0.4943872979542091,
+          -0.41022053771347156
+        ],
+        [
+          -0.531800032028532,
+          -0.3633321622377956,
+          0.4197286506872169,
+          0.639536023700267
+        ]
+      ],
+      "basis_singular_values": [
+        0.3668439974362909,
+        0.01675794765934575
+      ],
+      "solver": {
+        "method": "temporal-basis Fourier CGLS",
+        "iterations": 4020,
+        "tolerance": 1e-10,
+        "stop_reason": "data_residual",
+        "converged": true,
+        "relative_data_residual": 9.784959178452481e-11,
+        "estimated_work": 12705823744,
+        "estimated_memory_bytes": 51314688,
+        "gain_fit": false,
+        "regularization": 0.0,
+        "identifiability": "not certified; data convergence does not certify image recovery",
+        "operator": {
+          "backend": "exact",
+          "temporal_condition": 1.0000000000000182,
+          "components": 2,
+          "spatial_shape": [
+            16,
+            16
+          ],
+          "fourier": {
+            "backend": "exact-centered-DFT",
+            "normalization": "unnormalized Fourier sum"
+          },
+          "model": "sum_k weights[k,m] * Fourier(coefficients[k])[kz,m]",
+          "gain_fit": false,
+          "regularization": 0.0,
+          "spatial_support": "not supplied"
+        }
+      },
+      "residual_history_sha256": "b0682d1efafab822837be60b9e31c02b5f8198014f0f7e6408baa2afefb6c559",
+      "residual_history_endpoints": [
+        1.0,
+        9.784958731598348e-11
+      ],
+      "static_control_quality": {
+        "nrmse": 2.3407858005722737,
+        "max_absolute_error": 1.3996738640620876,
+        "threshold": 1e-06,
+        "passed": false
+      },
+      "static_solver_stop": "max_iterations"
+    },
+    "work_stop": {
+      "inputs": {
+        "labels": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "echoes": 4,
+        "spokes": 96,
+        "points": 32,
+        "echo_spacing_s": 0.008,
+        "tr_s": 0.4,
+        "t2_s": [
+          0.04,
+          0.12
+        ],
+        "basis_t2_s": [
+          0.04,
+          0.12
+        ],
+        "refocusing_angle": 180.0,
+        "refocusing_end_angle": 180.0,
+        "echo_order": "forward",
+        "display_echo": 2,
+        "backend": "exact",
+        "inverse_max_iterations": 6000,
+        "inverse_tolerance": 1e-10,
+        "nufft_eps": 1e-13,
+        "control_iterations": 1000,
+        "component_phase_rad": [
+          0.0,
+          0.0
+        ],
+        "max_samples": 24576,
+        "max_work": 4000000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 100.0,
+        "target_image_error": 1e-06,
+        "target_coefficient_error": 1e-06,
+        "target_min_contrast": 0.005,
+        "target_max_rf_energy": 200.0
+      },
+      "validation": {
+        "passed": false,
+        "max_image_error": 0.002409201775925314,
+        "target_image_error": 1e-06,
+        "coefficient_error": 0.02492116147196188,
+        "target_coefficient_error": 1e-06,
+        "data_residual": 7.831710269760118e-07,
+        "target_data_residual": 1e-10,
+        "roi_contrast": 0.026560471754173337,
+        "target_min_contrast": 0.005,
+        "rf_energy_relative": 102.0,
+        "target_max_rf_energy": 200.0,
+        "total_duration_s": 10.400000000000002,
+        "max_duration_s": 100.0
+      },
+      "quality": {
+        "nrmse": 0.002409201775925314,
+        "max_absolute_error": 0.0010071841732803865,
+        "threshold": 1e-06,
+        "passed": false
+      },
+      "complete_result_sha256": "9513c998b65578610648fec6c9fd4b1f8a442d0c14f33956c639fd244c80f1a2",
+      "sample_sha256": "55304689e5de345327094011ab7c4d96cd41a670aae04d4c695f250c10fcec0c",
+      "image_sha256": "123060a67486010a421721b07e4054cbb9b6f76e877f7058642aa01bcb1d0156",
+      "component_sha256": "0cb39112453b8fecc9adfba0ad26850116ca9e59a161ec0d22cae2634ed36ad0",
+      "estimated_work": 3998447214,
+      "estimated_peak_memory_bytes": 51888128,
+      "tissue_echo_weights": [
+        [
+          0.23016265155780732,
+          0.18844124104034873,
+          0.15428263918791418,
+          0.12631594136917948
+        ],
+        [
+          0.17299271342671346,
+          0.1618358917702634,
+          0.1513986071799023,
+          0.14163445454085666
+        ]
+      ],
+      "temporal_basis": [
+        [
+          -0.6036700840127406,
+          -0.5222665059074194,
+          -0.45381158964510887,
+          -0.39607469949377694
+        ],
+        [
+          -0.6407038225768447,
+          -0.07918713988876838,
+          0.3518201450443206,
+          0.6778278499387944
+        ]
+      ],
+      "basis_singular_values": [
+        0.4755849832026863,
+        0.03408684175355385
+      ],
+      "solver": {
+        "method": "temporal-basis Fourier CGLS",
+        "iterations": 764,
+        "tolerance": 1e-10,
+        "stop_reason": "max_work",
+        "converged": false,
+        "relative_data_residual": 7.831710269760118e-07,
+        "estimated_work": 2418235392,
+        "estimated_memory_bytes": 51314688,
+        "gain_fit": false,
+        "regularization": 0.0,
+        "identifiability": "not certified; data convergence does not certify image recovery",
+        "operator": {
+          "backend": "exact",
+          "temporal_condition": 1.0000000000000075,
+          "components": 2,
+          "spatial_shape": [
+            16,
+            16
+          ],
+          "fourier": {
+            "backend": "exact-centered-DFT",
+            "normalization": "unnormalized Fourier sum"
+          },
+          "model": "sum_k weights[k,m] * Fourier(coefficients[k])[kz,m]",
+          "gain_fit": false,
+          "regularization": 0.0,
+          "spatial_support": "not supplied"
+        }
+      },
+      "residual_history_sha256": "6754fd06e0c1e1f4558c4b6f19d71acf32618608700b5628547642cb61431f39",
+      "residual_history_endpoints": [
+        1.0,
+        7.831710269744179e-07
+      ],
+      "static_control_quality": {
+        "nrmse": 9.142046551224372,
+        "max_absolute_error": 5.3610127772716965,
+        "threshold": 1e-06,
+        "passed": false
+      },
+      "static_solver_stop": "max_iterations"
+    },
+    "t2_basis_mismatch": {
+      "inputs": {
+        "labels": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "echoes": 4,
+        "spokes": 96,
+        "points": 32,
+        "echo_spacing_s": 0.008,
+        "tr_s": 0.4,
+        "t2_s": [
+          0.04,
+          0.12
+        ],
+        "basis_t2_s": [
+          0.03,
+          0.12
+        ],
+        "refocusing_angle": 180.0,
+        "refocusing_end_angle": 180.0,
+        "echo_order": "forward",
+        "display_echo": 2,
+        "backend": "exact",
+        "inverse_max_iterations": 6000,
+        "inverse_tolerance": 1e-10,
+        "nufft_eps": 1e-13,
+        "control_iterations": 1000,
+        "component_phase_rad": [
+          0.0,
+          0.0
+        ],
+        "max_samples": 24576,
+        "max_work": 20000000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 100.0,
+        "target_image_error": 1e-06,
+        "target_coefficient_error": 1e-06,
+        "target_min_contrast": 0.005,
+        "target_max_rf_energy": 200.0
+      },
+      "validation": {
+        "passed": false,
+        "max_image_error": 0.6585285863912462,
+        "target_image_error": 1e-06,
+        "coefficient_error": 3.0496338941767163,
+        "target_coefficient_error": 1e-06,
+        "data_residual": 0.0030940006341887228,
+        "target_data_residual": 1e-10,
+        "roi_contrast": 0.02393292612229242,
+        "target_min_contrast": 0.005,
+        "rf_energy_relative": 102.0,
+        "target_max_rf_energy": 200.0,
+        "total_duration_s": 10.400000000000002,
+        "max_duration_s": 100.0
+      },
+      "quality": {
+        "nrmse": 0.6585285863912462,
+        "max_absolute_error": 0.38502076266589713,
+        "threshold": 1e-06,
+        "passed": false
+      },
+      "complete_result_sha256": "b161b436ede93459830574171b7b476fe08287dd2a73aa00a98750d4cc4f9a06",
+      "sample_sha256": "55304689e5de345327094011ab7c4d96cd41a670aae04d4c695f250c10fcec0c",
+      "image_sha256": "e15eb12ddbdeedbd860f2b33327f3b17d102fb572310ea5d9bb794ed82e70725",
+      "component_sha256": "0da2578c318eb458395235ea111e81fe1cc643f784227f7266240cf76271c857",
+      "estimated_work": 19997875420,
+      "estimated_peak_memory_bytes": 51888128,
+      "tissue_echo_weights": [
+        [
+          0.23016265155780732,
+          0.18844124104034873,
+          0.15428263918791418,
+          0.12631594136917948
+        ],
+        [
+          0.17299271342671346,
+          0.1618358917702634,
+          0.1513986071799023,
+          0.14163445454085666
+        ]
+      ],
+      "temporal_basis": [
+        [
+          -0.6205594594109582,
+          -0.5222155676211351,
+          -0.4438657304373349,
+          -0.3810250275415597
+        ],
+        [
+          -0.6382230558760809,
+          -0.04906194076992735,
+          0.3738310836049662,
+          0.6712038273481625
+        ]
+      ],
+      "basis_singular_values": [
+        0.4424401376919257,
+        0.04714190569545106
+      ],
+      "solver": {
+        "method": "temporal-basis Fourier CGLS",
+        "iterations": 5827,
+        "tolerance": 1e-10,
+        "stop_reason": "max_work",
+        "converged": false,
+        "relative_data_residual": 0.0030940006341887228,
+        "estimated_work": 18417639424,
+        "estimated_memory_bytes": 51314688,
+        "gain_fit": false,
+        "regularization": 0.0,
+        "identifiability": "not certified; data convergence does not certify image recovery",
+        "operator": {
+          "backend": "exact",
+          "temporal_condition": 1.0000000000000147,
+          "components": 2,
+          "spatial_shape": [
+            16,
+            16
+          ],
+          "fourier": {
+            "backend": "exact-centered-DFT",
+            "normalization": "unnormalized Fourier sum"
+          },
+          "model": "sum_k weights[k,m] * Fourier(coefficients[k])[kz,m]",
+          "gain_fit": false,
+          "regularization": 0.0,
+          "spatial_support": "not supplied"
+        }
+      },
+      "residual_history_sha256": "df815db4f5e443d388122015366dc7c89c55d4debb286922e6c28d16f6ad7d65",
+      "residual_history_endpoints": [
+        1.0,
+        0.0030940006341887414
+      ],
+      "static_control_quality": {
+        "nrmse": 9.142046551224372,
+        "max_absolute_error": 5.3610127772716965,
+        "threshold": 1e-06,
+        "passed": false
+      },
+      "static_solver_stop": "max_iterations"
+    },
+    "finufft": {
+      "inputs": {
+        "labels": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "echoes": 4,
+        "spokes": 96,
+        "points": 32,
+        "echo_spacing_s": 0.008,
+        "tr_s": 0.4,
+        "t2_s": [
+          0.04,
+          0.12
+        ],
+        "basis_t2_s": [
+          0.04,
+          0.12
+        ],
+        "refocusing_angle": 180.0,
+        "refocusing_end_angle": 180.0,
+        "echo_order": "forward",
+        "display_echo": 2,
+        "backend": "finufft",
+        "inverse_max_iterations": 6000,
+        "inverse_tolerance": 1e-10,
+        "nufft_eps": 1e-13,
+        "control_iterations": 1000,
+        "component_phase_rad": [
+          0.0,
+          0.0
+        ],
+        "max_samples": 24576,
+        "max_work": 50000000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 100.0,
+        "target_image_error": 1e-06,
+        "target_coefficient_error": 1e-06,
+        "target_min_contrast": 0.005,
+        "target_max_rf_energy": 200.0
+      },
+      "validation": {
+        "passed": true,
+        "max_image_error": 7.106827198057776e-08,
+        "target_image_error": 1e-06,
+        "coefficient_error": 7.037962312065612e-07,
+        "target_coefficient_error": 1e-06,
+        "data_residual": 9.954616595055736e-11,
+        "target_data_residual": 1e-10,
+        "roi_contrast": 0.026605349331635414,
+        "target_min_contrast": 0.005,
+        "rf_energy_relative": 102.0,
+        "target_max_rf_energy": 200.0,
+        "total_duration_s": 10.400000000000002,
+        "max_duration_s": 100.0
+      },
+      "quality": {
+        "nrmse": 7.106827198057776e-08,
+        "max_absolute_error": 3.584960178660607e-08,
+        "threshold": 1e-06,
+        "passed": true
+      },
+      "complete_result_sha256": "4132befdd50ea7202d42927f5293bd85b0d0797e9b1688127427c88c63c68d2d",
+      "sample_sha256": "75f67590312d873abb959a2fef07e39314f989dc4bc40df9da38ab678d16ee6d",
+      "image_sha256": "d2554f4f83e0cb223b80fe936d777952401844d93307baf627c827b5dd349d0e",
+      "component_sha256": "066466128da59088aab7eed614b3274e53a0f101e183d02d667af87d838204e3",
+      "estimated_work": 26565612142,
+      "estimated_peak_memory_bytes": 36585472,
+      "tissue_echo_weights": [
+        [
+          0.23016265155780732,
+          0.18844124104034873,
+          0.15428263918791418,
+          0.12631594136917948
+        ],
+        [
+          0.17299271342671346,
+          0.1618358917702634,
+          0.1513986071799023,
+          0.14163445454085666
+        ]
+      ],
+      "temporal_basis": [
+        [
+          -0.6036700840127406,
+          -0.5222665059074194,
+          -0.45381158964510887,
+          -0.39607469949377694
+        ],
+        [
+          -0.6407038225768447,
+          -0.07918713988876838,
+          0.3518201450443206,
+          0.6778278499387944
+        ]
+      ],
+      "basis_singular_values": [
+        0.4755849832026863,
+        0.03408684175355385
+      ],
+      "solver": {
+        "method": "temporal-basis Fourier CGLS",
+        "iterations": 4387,
+        "tolerance": 1e-10,
+        "stop_reason": "data_residual",
+        "converged": true,
+        "relative_data_residual": 9.954616595055736e-11,
+        "estimated_work": 23841507328,
+        "estimated_memory_bytes": 36012032,
+        "gain_fit": false,
+        "regularization": 0.0,
+        "identifiability": "not certified; data convergence does not certify image recovery",
+        "operator": {
+          "backend": "finufft",
+          "temporal_condition": 1.0000000000000075,
+          "components": 2,
+          "spatial_shape": [
+            16,
+            16
+          ],
+          "fourier": {
+            "backend": "finufft",
+            "backend_version": "2.5.0",
+            "eps": 1e-13,
+            "dtype": "complex128",
+            "nthreads": 1,
+            "modeord": 0,
+            "upsampfac": 2.0,
+            "normalization": "unnormalized centered Fourier sum",
+            "budget_model": "nufft-plan-proxy-v1; estimates, not native RSS/time guarantees"
+          },
+          "model": "sum_k weights[k,m] * Fourier(coefficients[k])[kz,m]",
+          "gain_fit": false,
+          "regularization": 0.0,
+          "spatial_support": "not supplied"
+        }
+      },
+      "residual_history_sha256": "cb975d7ac9b8181389f36267454d547caef18e5e4e402dbbf5cad02d9f55289b",
+      "residual_history_endpoints": [
+        1.0,
+        9.954616512544916e-11
+      ],
+      "static_control_quality": {
+        "nrmse": 9.142046541379855,
+        "max_absolute_error": 5.361013010196545,
+        "threshold": 1e-06,
+        "passed": false
+      },
+      "static_solver_stop": "max_iterations"
+    },
+    "stack_of_stars_rf_failure": {
+      "inputs": {
+        "labels": [
+          [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              1,
+              1,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          ]
+        ],
+        "echoes": 4,
+        "spokes": 96,
+        "points": 32,
+        "echo_spacing_s": 0.008,
+        "tr_s": 0.4,
+        "t2_s": [
+          0.04,
+          0.12
+        ],
+        "basis_t2_s": [
+          0.04,
+          0.12
+        ],
+        "refocusing_angle": 180.0,
+        "refocusing_end_angle": 180.0,
+        "echo_order": "forward",
+        "display_echo": 2,
+        "backend": "exact",
+        "inverse_max_iterations": 6000,
+        "inverse_tolerance": 1e-10,
+        "nufft_eps": 1e-13,
+        "control_iterations": 1000,
+        "component_phase_rad": [
+          0.0,
+          0.0
+        ],
+        "max_samples": 24576,
+        "max_work": 50000000000,
+        "max_memory_bytes": 134217728,
+        "max_duration_s": 100.0,
+        "target_image_error": 1e-06,
+        "target_coefficient_error": 1e-06,
+        "target_min_contrast": 0.005,
+        "target_max_rf_energy": 200.0
+      },
+      "validation": {
+        "passed": false,
+        "max_image_error": 5.673119635119069e-08,
+        "target_image_error": 1e-06,
+        "coefficient_error": 6.074022861654889e-07,
+        "target_coefficient_error": 1e-06,
+        "data_residual": 9.65805373301722e-11,
+        "target_data_residual": 1e-10,
+        "roi_contrast": 0.02660534937822101,
+        "target_min_contrast": 0.005,
+        "rf_energy_relative": 204.0,
+        "target_max_rf_energy": 200.0,
+        "total_duration_s": 20.000000000000004,
+        "max_duration_s": 100.0
+      },
+      "quality": {
+        "nrmse": 5.673119635119069e-08,
+        "max_absolute_error": 3.012692778827283e-08,
+        "threshold": 1e-06,
+        "passed": true
+      },
+      "complete_result_sha256": "086b3b8d13d5a06280c669e940919644ca8ead10f1c65090962f98b9d250362f",
+      "sample_sha256": "a7ea4fb5e4bc83b8bbad9ac75905fb1a46e510bd568f5be1f4b2470fe445ff4a",
+      "image_sha256": "c3a5b75cba3c84890af4c26b291e06ac09a697dcbff78e25024e5e87d464b72e",
+      "component_sha256": "e920e8474fb82d5f7eefa6f2845d514127747e5216844c1810571cd0e5e489b4",
+      "estimated_work": 31551215214,
+      "estimated_peak_memory_bytes": 53346304,
+      "tissue_echo_weights": [
+        [
+          0.23016265155780732,
+          0.18844124104034873,
+          0.15428263918791418,
+          0.12631594136917948
+        ],
+        [
+          0.17299271342671346,
+          0.1618358917702634,
+          0.1513986071799023,
+          0.14163445454085666
+        ]
+      ],
+      "temporal_basis": [
+        [
+          -0.6036700840127406,
+          -0.5222665059074194,
+          -0.45381158964510887,
+          -0.39607469949377694
+        ],
+        [
+          -0.6407038225768447,
+          -0.07918713988876838,
+          0.3518201450443206,
+          0.6778278499387944
+        ]
+      ],
+      "basis_singular_values": [
+        0.4755849832026863,
+        0.03408684175355385
+      ],
+      "solver": {
+        "method": "temporal-basis Fourier CGLS",
+        "iterations": 4492,
+        "tolerance": 1e-10,
+        "stop_reason": "data_residual",
+        "converged": true,
+        "relative_data_residual": 9.65805373301722e-11,
+        "estimated_work": 28393961472,
+        "estimated_memory_bytes": 52199424,
+        "gain_fit": false,
+        "regularization": 0.0,
+        "identifiability": "not certified; data convergence does not certify image recovery",
+        "operator": {
+          "backend": "exact",
+          "temporal_condition": 1.0000000000000075,
+          "components": 2,
+          "spatial_shape": [
+            2,
+            16,
+            16
+          ],
+          "fourier": {
+            "backend": "exact-centered-DFT",
+            "normalization": "unnormalized Fourier sum"
+          },
+          "model": "sum_k weights[k,m] * Fourier(coefficients[k])[kz,m]",
+          "gain_fit": false,
+          "regularization": 0.0,
+          "spatial_support": "not supplied"
+        }
+      },
+      "residual_history_sha256": "cb7ef9da757577b12df59b2556573f361ff27322577869b3574c1d5913aeb388",
+      "residual_history_endpoints": [
+        1.0,
+        9.658054310856619e-11
+      ],
+      "static_control_quality": {
+        "nrmse": 8.774270693117302,
+        "max_absolute_error": 5.3610123640797855,
+        "threshold": 1e-06,
+        "passed": false
+      },
+      "static_solver_stop": "max_iterations"
+    }
+  },
+  "selected_pulse_case": "lower_rf"
+}

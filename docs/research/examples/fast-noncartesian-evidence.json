@@ -1,0 +1,247 @@
+{
+  "schema": "mrqlab-fast-nufft-evidence-1",
+  "scope": "teaching/research, no scanner or clinical certification; no gain fit or regularization",
+  "source_manifest": {
+    "files": {
+      "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+      "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+      "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+      "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+      "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+      "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+      "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+      "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+      "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "654d6b1a65cfac5c162a148fef2a5473c9f3fe8334c76f9b175bd524f5b2d60a",
+      "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+      "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+      "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+      "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+      "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+      "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+      "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+      "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+      "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+      "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+      "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+      "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "d78e9d8d5fc24fc6355b8594dc7676cae255eeef7b31d928ced90ae7b4643b06",
+      "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+      "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+      "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+      "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+      "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+      "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+      "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+      "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+      "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+      "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+      "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+      "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+      "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+      "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+      "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+      "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+      "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+      "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+      "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+      "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+      "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+      "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+      "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+      "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+      "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+      "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+      "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+      "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+      "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+      "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+      "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+      "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+      "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+      "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+      "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+      "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+      "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+      "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+      "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+      "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+      "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+      "services/api/mrqlab_api/__init__.py": "037f47825ff6d0902897e8ba0746f111c4c1a19d5a8cfd4cda370b317115698f",
+      "services/api/mrqlab_api/main.py": "826d1140337d984349d7319306b64d78d9e26e54ae73f2901970c44ff4713523",
+      "services/api/mrqlab_api/research.py": "17aa5f522d750a59ffc60c4fe154a7678921868239df47387e6ffcf642935917",
+      "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+      "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+      "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+    },
+    "sha256": "569245a64b781375d57ce223637496913816e4820d0b37340d01553d9af01ce7"
+  },
+  "script_sha256": "34ac6fecf8c3951b5671be298fd6006e944817cfa5f13303c85feccb3e3c6140",
+  "runtime": {
+    "python": "3.12.14",
+    "numpy": "2.5.2",
+    "platform": "macOS-27.0.1-arm64-arm-64bit"
+  },
+  "cases": [
+    {
+      "name": "direct DFT complex radial reference",
+      "shape": [
+        16,
+        16
+      ],
+      "samples": 1536,
+      "input_sha256": "81ca8510553c61b541e50aa596a073b962c7d594bc3e8b4b1cbeb4c98d3f9d22",
+      "acquisition": "independent direct DFT",
+      "independent_check": {
+        "samples": 37,
+        "relative_error": 1.0786029391287103e-14,
+        "absolute_l2_error": 2.0393829909950156e-12,
+        "full_dft_relative_error": 1.043539480360663e-14
+      },
+      "operator": {
+        "backend": "finufft",
+        "backend_version": "2.5.0",
+        "eps": 1e-13,
+        "dtype": "complex128",
+        "nthreads": 1,
+        "modeord": 0,
+        "upsampfac": 2.0,
+        "normalization": "unnormalized centered Fourier sum",
+        "budget_model": "nufft-plan-proxy-v1; estimates, not native RSS/time guarantees"
+      },
+      "estimated_memory_bytes": 35061760,
+      "acquire_elapsed_s": 0.004884625086560845,
+      "solves": [
+        {
+          "requested_iterations": 1500,
+          "iterations": 912,
+          "stop_reason": "data_residual",
+          "data_converged": true,
+          "relative_data_residual": 7.63119045520244e-11,
+          "image_nrmse": 4.631519986650485e-09,
+          "image_target": 1e-06,
+          "image_target_passed": true,
+          "estimated_work": 1463003136,
+          "elapsed_s": 0.18736125016584992
+        }
+      ]
+    },
+    {
+      "name": "smooth radial 128",
+      "shape": [
+        128,
+        128
+      ],
+      "samples": 49152,
+      "input_sha256": "c0fc5a4077d06536dc40d494d1137ac333fbacf5db44e7e79757518e8b33509f",
+      "acquisition": "same FINUFFT model; closed-model inverse, independent subset sums only",
+      "independent_check": {
+        "samples": 37,
+        "relative_error": 1.251191243599105e-13,
+        "absolute_l2_error": 2.723617916374514e-11
+      },
+      "operator": {
+        "backend": "finufft",
+        "backend_version": "2.5.0",
+        "eps": 1e-13,
+        "dtype": "complex128",
+        "nthreads": 1,
+        "modeord": 0,
+        "upsampfac": 2.0,
+        "normalization": "unnormalized centered Fourier sum",
+        "budget_model": "nufft-plan-proxy-v1; estimates, not native RSS/time guarantees"
+      },
+      "estimated_memory_bytes": 117440512,
+      "acquire_elapsed_s": 0.003573416033759713,
+      "solves": [
+        {
+          "requested_iterations": 300,
+          "iterations": 300,
+          "stop_reason": "max_iterations",
+          "data_converged": false,
+          "relative_data_residual": 4.725945222518123e-09,
+          "image_nrmse": 1.0234241422082203e-06,
+          "image_target": 1e-06,
+          "image_target_passed": false,
+          "estimated_work": 24987238400,
+          "elapsed_s": 1.752068624831736
+        },
+        {
+          "requested_iterations": 2200,
+          "iterations": 1912,
+          "stop_reason": "data_residual",
+          "data_converged": true,
+          "relative_data_residual": 9.995709160522615e-11,
+          "image_nrmse": 1.841615666091872e-07,
+          "image_target": 1e-06,
+          "image_target_passed": true,
+          "estimated_work": 158321459200,
+          "elapsed_s": 11.145201209001243
+        }
+      ]
+    },
+    {
+      "name": "square-coverage jittered lattice 128",
+      "shape": [
+        128,
+        128
+      ],
+      "samples": 16384,
+      "input_sha256": "ae91a8806a38e8d03dd6af6fdf7c32970fe9ea463a11549c3c6e792aeb042bd8",
+      "acquisition": "same FINUFFT model; closed-model inverse, independent subset sums only",
+      "independent_check": {
+        "samples": 37,
+        "relative_error": 8.72870500346668e-14,
+        "absolute_l2_error": 9.072271863611792e-11
+      },
+      "operator": {
+        "backend": "finufft",
+        "backend_version": "2.5.0",
+        "eps": 1e-13,
+        "dtype": "complex128",
+        "nthreads": 1,
+        "modeord": 0,
+        "upsampfac": 2.0,
+        "normalization": "unnormalized centered Fourier sum",
+        "budget_model": "nufft-plan-proxy-v1; estimates, not native RSS/time guarantees"
+      },
+      "estimated_memory_bytes": 109051904,
+      "acquire_elapsed_s": 0.0021382500417530537,
+      "solves": [
+        {
+          "requested_iterations": 100,
+          "iterations": 17,
+          "stop_reason": "data_residual",
+          "data_converged": true,
+          "relative_data_residual": 2.6837124453984442e-11,
+          "image_nrmse": 2.96534471222644e-11,
+          "image_target": 1e-06,
+          "image_target_passed": true,
+          "estimated_work": 1092993024,
+          "elapsed_s": 0.05673791607841849
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "large-grid inverse uses closed-model samples with independent exact subset checks",
+    "radial case is smooth, not evidence of arbitrary-image identifiability",
+    "time and planning memory/work proxies are not hard resource guarantees",
+    "coil/noise/trajectory/off-resonance/echo-weighted TSE remain absent"
+  ]
+}

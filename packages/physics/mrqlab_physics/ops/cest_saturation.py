@@ -1,4 +1,4 @@
-"""Single-voxel, two-liquid-pool rectangular Bloch--McConnell saturation."""
+"""Single-voxel N-liquid-pool rectangular Bloch--McConnell saturation."""
 
 import math
 
@@ -10,47 +10,73 @@ from .types import Relax, SaturationOp
 
 
 def _matrix_exp(generator: np.ndarray, duration_s: float) -> np.ndarray:
-    values, vectors = np.linalg.eig(generator)
-    return np.real_if_close(vectors @ np.diag(np.exp(values * duration_s)) @ np.linalg.inv(vectors))
+    a = np.asarray(generator)*duration_s
+    scale = max(0, int(np.ceil(np.log2(max(float(np.linalg.norm(a, ord=np.inf)), 1.)))))
+    a = a / 2**scale
+    result = np.eye(a.shape[0], dtype=a.dtype)
+    term = result.copy()
+    for k in range(1, 80):
+        term = term @ a / k
+        result += term
+        if np.linalg.norm(term, ord=np.inf) < 1e-16:
+            break
+    for _ in range(scale):
+        result = result @ result
+    return np.real_if_close(result)
+
+
+def liquid_bm_generator(system, offset_hz: float, b1_ut: float) -> np.ndarray:
+    """Affine Cartesian BM generator, RF along x, source-last convention.
+
+    Rates/densities and detailed balance belong to LiquidPoolSystem. Zero RF
+    is allowed here for coupled-model controls and unsaturated equilibrium.
+    """
+    from ..models import LiquidPoolSystem
+    if not isinstance(system, LiquidPoolSystem):
+        raise TypeError("LiquidPoolSystem required")
+    if not np.isfinite([offset_hz, b1_ut]).all() or b1_ut < 0:
+        raise ValueError("finite offset and nonnegative RF power required")
+    n = system.count
+    w1 = 2 * np.pi * GAMMA_BAR_HZ_T * b1_ut * 1e-6
+    g = np.zeros((3*n+1, 3*n+1))
+    for i in range(n):
+        base = 3*i
+        delta = 2*np.pi*(offset_hz-system.offset_hz[i])
+        g[base:base+3, base:base+3] = np.array([
+            [-1/system.t2[i], delta, 0], [-delta, -1/system.t2[i], w1],
+            [0, -w1, -1/system.t1[i]]])
+        for j in range(n):
+            g[base:base+3, 3*j:3*j+3] += np.eye(3)*system.exchange[i,j]
+        g[base+2, -1] = system.density[i]/system.t1[i]
+    return g
 
 
 def apply_cw_bloch_mcconnell_saturation(
     state: np.ndarray, duration_s: float, offset_hz: float, b1_ut: float,
     pools: BlochMcConnellPools,
 ) -> None:
-    """Evolve only k=0 in the existing 6-row EPG-X BM layout.
+    """Evolve k=0 via an affine (3N+1)-dimensional BM generator.
 
-    A homogeneous affine 7x7 generator evolves ``(Mx, My, Mz)`` for water and
-    solute plus a constant equilibrium coordinate.  Other configuration orders
-    are intentionally untouched.
+    Other configuration orders are intentionally untouched. Two-pool models
+    adapt to the same generator with their historical parameter semantics.
     """
-    if state.shape[0] != 6 or duration_s <= 0 or b1_ut <= 0:
-        raise ValueError("CEST saturation requires a 6-row state and positive duration/power")
+    from ..models import LiquidPoolSystem
+    system = pools if isinstance(pools, LiquidPoolSystem) else LiquidPoolSystem.from_two(pools)
+    n = system.count
+    if state.ndim != 2 or state.shape[0] != 3*n or duration_s <= 0 or b1_ut <= 0:
+        raise ValueError("CEST requires a 3N-row state and positive duration/power")
     if not all(np.isfinite(v) for v in (duration_s, offset_hz, b1_ut)):
         raise ValueError("CEST saturation values must be finite")
     zero = state.shape[1] // 2
-    w1 = 2 * np.pi * GAMMA_BAR_HZ_T * b1_ut * 1e-6
-    dw = 2 * np.pi * offset_hz
-    ds = 2 * np.pi * (offset_hz - pools.delta_b_hz)
-    g = np.zeros((7, 7), dtype=float)
-    for base, t1, t2, loss, gain, delta, pd in (
-        (0, pools.t1_a, pools.t2_a, pools.k_ab_hz, pools.k_ba_hz, dw, pools.pd_a),
-        (3, pools.t1_b, pools.t2_b, pools.k_ba_hz, pools.k_ab_hz, ds, pools.pd_b),
-    ):
-        other = 3 - base
-        g[base, base] = g[base + 1, base + 1] = -1 / t2 - loss
-        g[base + 2, base + 2] = -1 / t1 - loss
-        g[base, base + 1], g[base + 1, base] = delta, -delta
-        g[base + 1, base + 2], g[base + 2, base + 1] = w1, -w1
-        g[base:base + 3, other:other + 3] += np.eye(3) * gain
-        g[base + 2, 6] = pd / t1
-    vector = np.array([
-        state[0, zero].real, state[0, zero].imag, state[2, zero].real,
-        state[3, zero].real, state[3, zero].imag, state[5, zero].real, 1.0,
-    ])
+    g = liquid_bm_generator(system, offset_hz, b1_ut)
+    vector = np.ones(3*n+1)
+    for i in range(n):
+        vector[3*i:3*i+3] = (state[3*i,zero].real, state[3*i,zero].imag, state[3*i+2,zero].real)
     out = _matrix_exp(g, duration_s) @ vector
-    state[0, zero], state[1, zero], state[2, zero] = out[0] + 1j*out[1], out[0] - 1j*out[1], out[2]
-    state[3, zero], state[4, zero], state[5, zero] = out[3] + 1j*out[4], out[3] - 1j*out[4], out[5]
+    for i in range(n):
+        state[3*i,zero] = out[3*i]+1j*out[3*i+1]
+        state[3*i+1,zero] = out[3*i]-1j*out[3*i+1]
+        state[3*i+2,zero] = out[3*i+2]
 
 
 def validate_cest_timing(cest: dict) -> tuple[str, int, float, float, float, float]:

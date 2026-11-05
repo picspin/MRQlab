@@ -1,0 +1,751 @@
+{
+  "schema": "mrqlab-calibrated-radial-evidence-1",
+  "sources": {
+    "files": {
+      "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+      "packages/mrqlab_experiment/mrqlab_experiment/calibrated_radial.py": "b8025472c67badfe8506ee21ffe7414b33a2d0b713742b16e11257490b3861fe",
+      "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+      "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "f384680d88f3f8ecbb64dca27ebb623a5e4785327d77f7dd5955fcad58c1dcc3",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+      "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+      "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+      "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+      "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+      "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+      "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+      "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+      "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "bdd88535b51731da8ce024971d1d7f4587988c47219462d31e124394200e4489",
+      "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "5ab6b56b0bf7be0d2ad6e82142ff3811b2dc5af62e20ed7e0164c8b814329d7f",
+      "packages/mrqlab_experiment/mrqlab_experiment/models.py": "37d051b3f7c52b90a1c3fdb1bf5712f07f9c2806622743b0947da81d2c777b98",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_press.py": "b46158933b3ee30de8eb78877a1f3fca27b3f1da88b9632a1eda81b5872460dd",
+      "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "54b3bc3e83826763ca93beaf2d8619fbf9f6aefd9d1c10bb489e4974cc4ef9f4",
+      "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "7b2a4cd981dfbf1c48c609cee7a7a889a31c8e9e8506268c7744957be6cea530",
+      "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+      "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+      "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+      "packages/mrqlab_experiment/mrqlab_experiment/radial_tse.py": "334f10c2656cd4553e0ddeb7441e49bb3019b825c3efe4291f8ac9aa5a4c9cb2",
+      "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "a18687abab8adbfe197d306aaa674be8b971b3e142bd278cc71722f3384cae5f",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+      "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+      "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+      "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "20f277de5ce44b6716de8ae939ecfc22ae525c91c0504a53f93236cfcab0512d",
+      "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+      "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+      "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+      "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+      "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+      "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+      "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+      "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+      "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+      "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+      "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+      "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+      "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+      "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+      "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+      "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+      "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+      "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+      "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+      "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+      "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+      "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+      "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+      "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+      "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+      "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+      "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+      "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+      "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+      "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+      "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+      "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+      "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+      "packages/recon/mrqlab_recon/echo_subspace.py": "63cfcdda8654686b3e4d07663cf8bb9e7dd732c9739223ccb3ec782f2309c5bc",
+      "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+      "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+      "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+      "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+      "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+      "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+      "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+      "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+      "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+      "services/api/mrqlab_api/__init__.py": "b7447d3f3581173624e78cdcbd56b4e1807c9883d07c56e928f2f9f65ee20efd",
+      "services/api/mrqlab_api/main.py": "dee84fa8fd8735d200be2f09765bdb0a6e98c330ed1c01af567a814cd62d8d70",
+      "services/api/mrqlab_api/research.py": "7d4272567d98d73e5b6a6eb4c67209a89122cff320d433a6cd5b89a8671eb7d1",
+      "services/api/mrqlab_api/scientific_records.py": "661ee3d666a07d4a9827de5e01dc6eb9b457c721521143788f9a55e556d0ef25",
+      "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+      "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+      "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+    },
+    "sha256": "e2e6ac303f3c6279507de5468615632ae60408b7cb011f8477a6c617cf2b66fa"
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "system": "Darwin",
+    "machine": "arm64",
+    "packages": {
+      "numpy": "2.5.2",
+      "pydantic": "2.13.4",
+      "fastapi": "0.141.1",
+      "uvicorn": "0.52.3",
+      "finufft": "2.5.0"
+    },
+    "blas_configuration": {
+      "Compilers": {
+        "c": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "cc"
+        },
+        "cython": {
+          "name": "cython",
+          "linker": "cython",
+          "version": "3.2.9",
+          "commands": "cython"
+        },
+        "c++": {
+          "name": "clang",
+          "linker": "ld64",
+          "version": "15.0.0",
+          "commands": "c++"
+        }
+      },
+      "Machine Information": {
+        "host": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        },
+        "build": {
+          "cpu": "aarch64",
+          "family": "aarch64",
+          "endian": "little",
+          "system": "darwin"
+        }
+      },
+      "Build Dependencies": {
+        "blas": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        },
+        "lapack": {
+          "name": "accelerate",
+          "found": true,
+          "version": "unknown",
+          "detection method": "system",
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown"
+        }
+      },
+      "Python Information": {
+        "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+        "version": "3.12"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "NEON",
+          "NEON_FP16",
+          "NEON_VFPV4",
+          "ASIMD"
+        ],
+        "found": [
+          "ASIMDHP",
+          "ASIMDDP"
+        ],
+        "not found": [
+          "ASIMDFHM"
+        ]
+      }
+    }
+  },
+  "script_sha256": "ff0757e797dd495ae15ed0a08e5fa78e9a4ac39d4a7ac3049042ed104e4901cb",
+  "parent_record_sha256": "bf8102c5a1fb07660b3e36e08fbd249a4740bc65f76ea5017c798d4b91168d30",
+  "record_sha256": "756477f83ae0080a7886f5ea5df215ad7461c3e6c5baa748d69e900af9b304e7",
+  "payload_sha256": "9ece677b093c5df9da70baa1ba0823d064478603991e00fd1b7e98c28a97f121",
+  "parent_revalidation": {
+    "actual_sha256": "cb8e8737a0692bd50aae54c5593e60711282cd398fe7dc94bb00d6c1ef4f7783",
+    "expected_sha256": "cb8e8737a0692bd50aae54c5593e60711282cd398fe7dc94bb00d6c1ef4f7783",
+    "full_parent_record_replay": false,
+    "matches": true,
+    "scope": "current numerical revalidation from original measurements, not relabeling the old source/runtime record"
+  },
+  "parameter_bindings": [
+    {
+      "component": 0,
+      "parameter": "basis_t2_s",
+      "parent_calibration_sha256": "0cca23e41cdd766ddcfebf6e33c6f68dbce0c2f93443a97eb2051bcdda6905db",
+      "standard_uncertainty_s": 0.00013157458491211448,
+      "stress_interval_s": [
+        0.03973685083017578,
+        0.040263149169824236
+      ],
+      "tissue_id": "white_matter",
+      "unit": "s",
+      "value": 0.04000000000000001
+    },
+    {
+      "component": 1,
+      "parameter": "basis_t2_s",
+      "parent_calibration_sha256": "489379b19af5a75ef29bcd51cf37134b249924c575d6e5d4cde67357fa3e372f",
+      "standard_uncertainty_s": 0.0006619951021615966,
+      "stress_interval_s": [
+        0.11867600979567682,
+        0.1213239902043232
+      ],
+      "tissue_id": "gray_matter",
+      "unit": "s",
+      "value": 0.12000000000000001
+    }
+  ],
+  "validation": {
+    "calibrated_parameters_applied": true,
+    "calibration_and_holdout_passed": true,
+    "complete_budgeted_search": true,
+    "parent_result_revalidated": true,
+    "selected_design_passed": false
+  },
+  "targets": {
+    "component_nrmse": 1e-06,
+    "image_nrmse": 1e-06,
+    "max_prepared_duration_s": 100.0,
+    "max_total_rf_energy": 200.0,
+    "min_magnitude_contrast": 0.005
+  },
+  "provenance": {
+    "current_parent_result_sha256": "cb8e8737a0692bd50aae54c5593e60711282cd398fe7dc94bb00d6c1ef4f7783",
+    "dataset_sha256": "93d71c5aaad3160d0d55c2ecae5099ae54afd1995d3a30339745184d4402f2e8",
+    "estimated_work": 190780643022,
+    "planned_work": 201000000000,
+    "reserved_work": 201000000000,
+    "selection": "minimum worst preparation+acquisition RF proxy among candidates passing all fixed-prior nominal/corner targets",
+    "stages": [
+      {
+        "parents": [],
+        "sha256": "bdcab24c27c4a668c956a9e19e10875f3b06ae63cb5800c21b4a41bd037b0823",
+        "stage": "parent_numerical_revalidation",
+        "value_sha256": "4a42cf58bf48b0bb066481ec4135169195202487ff544a2c16a151d7b432ba98"
+      },
+      {
+        "parents": [
+          "bdcab24c27c4a668c956a9e19e10875f3b06ae63cb5800c21b4a41bd037b0823"
+        ],
+        "sha256": "40b16eb4911fb84855f3b4c2da7cbfb6d2577b69453aaf932a37440dd76e55f9",
+        "stage": "calibrated_parameter_bindings",
+        "value_sha256": "fce179a6550ab3176a634ff632c40df8738ced494f1fab8cb2af9bd50d84bf12"
+      },
+      {
+        "parents": [
+          "40b16eb4911fb84855f3b4c2da7cbfb6d2577b69453aaf932a37440dd76e55f9"
+        ],
+        "sha256": "bc59a39a39e22ba9db2e1f9904e220f0b2b3480afa984a9bd165acf3400df83b",
+        "stage": "fixed_prior_uncertainty_search",
+        "value_sha256": "53d5ded296ea202c4bcf7adc5d2f6c577a20ddde1cc7dd0d6ecc69ed44337ee6"
+      },
+      {
+        "parents": [
+          "bc59a39a39e22ba9db2e1f9904e220f0b2b3480afa984a9bd165acf3400df83b"
+        ],
+        "sha256": "7d23e0e8b5e6f05d4f21699d7e568026931955894b1a58b30cfe73ee4d293144",
+        "stage": "target_validation",
+        "value_sha256": "9c3f2156cecf3bb55659b3ae264879a0925ef64f124f40696d551528ab120a34"
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "design": {
+        "echo_order": "forward",
+        "echo_spacing_s": 0.008,
+        "echoes": 4,
+        "refocusing_angle": 180.0,
+        "refocusing_end_angle": 180.0,
+        "tr_s": 0.4
+      },
+      "eligible": false,
+      "executed": true,
+      "index": 0,
+      "reasons": [
+        "one or more fixed-prior stress scenarios fail the declared targets"
+      ],
+      "worst_component_nrmse": 0.043750742192855276,
+      "worst_image_nrmse": 0.0061717011606562035,
+      "worst_total_rf_energy": 110.5,
+      "scenarios": [
+        {
+          "basis_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "checks": {
+            "components": true,
+            "contrast": true,
+            "data": true,
+            "duration": true,
+            "image": true,
+            "total_rf": true
+          },
+          "estimated_work": 16030390894,
+          "executable": true,
+          "name": "nominal",
+          "passed": true,
+          "preparation_trains": 2,
+          "run_hash": "cb144909d3e4b807b7732114fc8305a8cd28a634f9f4e5f817e116e2fe3c35c4",
+          "sample_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "total_rf_energy_relative": 110.5,
+          "validation": {
+            "coefficient_error": 4.92138147518809e-07,
+            "data_residual": 9.589732284652022e-11,
+            "max_duration_s": 100.0,
+            "max_image_error": 2.842265591116872e-08,
+            "passed": true,
+            "rf_energy_relative": 102.0,
+            "roi_contrast": 0.026605349460176814,
+            "target_coefficient_error": 1e-06,
+            "target_data_residual": 1e-10,
+            "target_image_error": 1e-06,
+            "target_max_rf_energy": 200.0,
+            "target_min_contrast": 0.005,
+            "total_duration_s": 10.400000000000002
+          },
+          "samples_sha256": "58c007816e2775bc843d7aea6431baa0ee28dea717fa7f4c577ae918bb26654f",
+          "basis_sha256": "71e49d6da32698ca34f7cebc45678cf6ad3d2a3b43862ad7f561c32b0c6c3c6c"
+        },
+        {
+          "basis_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "checks": {
+            "components": false,
+            "contrast": true,
+            "data": false,
+            "duration": true,
+            "image": false,
+            "total_rf": true
+          },
+          "estimated_work": 19997875420,
+          "executable": true,
+          "name": "corner-0",
+          "passed": false,
+          "preparation_trains": 2,
+          "run_hash": "0c5ba3a5be446c0d92cfe0cee7e5bc0f39d1eed18e3c11d922c884526ab15d97",
+          "sample_t2_s": [
+            0.03973685083017578,
+            0.11867600979567682
+          ],
+          "total_rf_energy_relative": 110.5,
+          "validation": {
+            "coefficient_error": 0.043750742192855276,
+            "data_residual": 5.8251264496168066e-05,
+            "max_duration_s": 100.0,
+            "max_image_error": 0.0061717011606562035,
+            "passed": false,
+            "rf_energy_relative": 102.0,
+            "roi_contrast": 0.02629503340902964,
+            "target_coefficient_error": 1e-06,
+            "target_data_residual": 1e-10,
+            "target_image_error": 1e-06,
+            "target_max_rf_energy": 200.0,
+            "target_min_contrast": 0.005,
+            "total_duration_s": 10.400000000000002
+          },
+          "samples_sha256": "4fe122a2c42156840d6a3dc23baefd1f386c3747cf2a0078dba7fa9791e8b3de",
+          "basis_sha256": "71e49d6da32698ca34f7cebc45678cf6ad3d2a3b43862ad7f561c32b0c6c3c6c"
+        },
+        {
+          "basis_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "checks": {
+            "components": false,
+            "contrast": true,
+            "data": false,
+            "duration": true,
+            "image": false,
+            "total_rf": true
+          },
+          "estimated_work": 19997875420,
+          "executable": true,
+          "name": "corner-1",
+          "passed": false,
+          "preparation_trains": 2,
+          "run_hash": "2f5b1757c836ffa0ebfe60adfbb36d53abd6b625b464324ef5faddc15f8513c9",
+          "sample_t2_s": [
+            0.03973685083017578,
+            0.1213239902043232
+          ],
+          "total_rf_energy_relative": 110.5,
+          "validation": {
+            "coefficient_error": 0.013780138323498269,
+            "data_residual": 7.59343479568696e-05,
+            "max_duration_s": 100.0,
+            "max_image_error": 0.00339696857503934,
+            "passed": false,
+            "rf_energy_relative": 102.0,
+            "roi_contrast": 0.025839706159943104,
+            "target_coefficient_error": 1e-06,
+            "target_data_residual": 1e-10,
+            "target_image_error": 1e-06,
+            "target_max_rf_energy": 200.0,
+            "target_min_contrast": 0.005,
+            "total_duration_s": 10.400000000000002
+          },
+          "samples_sha256": "68a7fc2cbf19b481c3473e86d3044a7b099ae9bd360c9b8d0a1f0e2277af0ebb",
+          "basis_sha256": "71e49d6da32698ca34f7cebc45678cf6ad3d2a3b43862ad7f561c32b0c6c3c6c"
+        },
+        {
+          "basis_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "checks": {
+            "components": false,
+            "contrast": true,
+            "data": false,
+            "duration": true,
+            "image": false,
+            "total_rf": true
+          },
+          "estimated_work": 19997875420,
+          "executable": true,
+          "name": "corner-2",
+          "passed": false,
+          "preparation_trains": 2,
+          "run_hash": "9b4bfa29d52320a4ba0d73730f756df4eb1523416f8a2d39d58d83e874598192",
+          "sample_t2_s": [
+            0.040263149169824236,
+            0.11867600979567682
+          ],
+          "total_rf_energy_relative": 110.5,
+          "validation": {
+            "coefficient_error": 0.013502795804236937,
+            "data_residual": 7.406361729687314e-05,
+            "max_duration_s": 100.0,
+            "max_image_error": 0.0032633999037691122,
+            "passed": false,
+            "rf_energy_relative": 102.0,
+            "roi_contrast": 0.027369675042994673,
+            "target_coefficient_error": 1e-06,
+            "target_data_residual": 1e-10,
+            "target_image_error": 1e-06,
+            "target_max_rf_energy": 200.0,
+            "target_min_contrast": 0.005,
+            "total_duration_s": 10.400000000000002
+          },
+          "samples_sha256": "b8efa260c0812f300c02972ad591255a0cb7a2c38d00aa241afd5d2ae9a27500",
+          "basis_sha256": "71e49d6da32698ca34f7cebc45678cf6ad3d2a3b43862ad7f561c32b0c6c3c6c"
+        },
+        {
+          "basis_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "checks": {
+            "components": false,
+            "contrast": true,
+            "data": false,
+            "duration": true,
+            "image": false,
+            "total_rf": true
+          },
+          "estimated_work": 19997875420,
+          "executable": true,
+          "name": "corner-3",
+          "passed": false,
+          "preparation_trains": 2,
+          "run_hash": "24576dd74977970489b30b6d84417d1b762acb2691e8d581222e0be051316de9",
+          "sample_t2_s": [
+            0.040263149169824236,
+            0.1213239902043232
+          ],
+          "total_rf_energy_relative": 110.5,
+          "validation": {
+            "coefficient_error": 0.042983086982664225,
+            "data_residual": 5.633082921377065e-05,
+            "max_duration_s": 100.0,
+            "max_image_error": 0.006009192961093718,
+            "passed": false,
+            "rf_energy_relative": 102.0,
+            "roi_contrast": 0.02691421218183873,
+            "target_coefficient_error": 1e-06,
+            "target_data_residual": 1e-10,
+            "target_image_error": 1e-06,
+            "target_max_rf_energy": 200.0,
+            "target_min_contrast": 0.005,
+            "total_duration_s": 10.400000000000002
+          },
+          "samples_sha256": "676f7bf895ae8af9e5404d05eeb90d98be4579046f7449aad55f3d5edd21fd61",
+          "basis_sha256": "71e49d6da32698ca34f7cebc45678cf6ad3d2a3b43862ad7f561c32b0c6c3c6c"
+        }
+      ]
+    },
+    {
+      "design": {
+        "echo_order": "forward",
+        "echo_spacing_s": 0.008,
+        "echoes": 4,
+        "refocusing_angle": 140.0,
+        "refocusing_end_angle": 110.0,
+        "tr_s": 0.4
+      },
+      "eligible": false,
+      "executed": true,
+      "index": 1,
+      "reasons": [
+        "one or more fixed-prior stress scenarios fail the declared targets"
+      ],
+      "worst_component_nrmse": 0.02171317019392352,
+      "worst_image_nrmse": 0.0044031391284435764,
+      "worst_total_rf_energy": 57.05555555555556,
+      "scenarios": [
+        {
+          "basis_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "checks": {
+            "components": true,
+            "contrast": true,
+            "data": true,
+            "duration": true,
+            "image": true,
+            "total_rf": true
+          },
+          "estimated_work": 14766365294,
+          "executable": true,
+          "name": "nominal",
+          "passed": true,
+          "preparation_trains": 2,
+          "run_hash": "defcbbe3b980ba8ce1ec3a4c94cdb945d77d0198ea7dbe0c74cc42b42a8e2bba",
+          "sample_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "total_rf_energy_relative": 57.05555555555556,
+          "validation": {
+            "coefficient_error": 9.305639972451783e-07,
+            "data_residual": 9.965050437566757e-11,
+            "max_duration_s": 100.0,
+            "max_image_error": 8.956590927189809e-08,
+            "passed": true,
+            "rf_energy_relative": 52.66666666666667,
+            "roi_contrast": 0.03301925496934885,
+            "target_coefficient_error": 1e-06,
+            "target_data_residual": 1e-10,
+            "target_image_error": 1e-06,
+            "target_max_rf_energy": 200.0,
+            "target_min_contrast": 0.005,
+            "total_duration_s": 10.400000000000002
+          },
+          "samples_sha256": "20e32f356303f9f02c54f259164a824a69a0f098ac025d28dbe27e4aaca59fc2",
+          "basis_sha256": "277bc5114d131f7cf7bdd26dade0ac8b40ad3ab1643ec477db02eba1604a91c9"
+        },
+        {
+          "basis_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "checks": {
+            "components": false,
+            "contrast": true,
+            "data": false,
+            "duration": true,
+            "image": false,
+            "total_rf": true
+          },
+          "estimated_work": 19997875420,
+          "executable": true,
+          "name": "corner-0",
+          "passed": false,
+          "preparation_trains": 2,
+          "run_hash": "414f1b62b09961ab6f6d916a8b57c3af30aaefb4ef2c71ad00b0ca0940028688",
+          "sample_t2_s": [
+            0.03973685083017578,
+            0.11867600979567682
+          ],
+          "total_rf_energy_relative": 57.05555555555556,
+          "validation": {
+            "coefficient_error": 0.02171317019392352,
+            "data_residual": 4.571986912652397e-05,
+            "max_duration_s": 100.0,
+            "max_image_error": 0.0044031391284435764,
+            "passed": false,
+            "rf_energy_relative": 52.66666666666667,
+            "roi_contrast": 0.03274220024238886,
+            "target_coefficient_error": 1e-06,
+            "target_data_residual": 1e-10,
+            "target_image_error": 1e-06,
+            "target_max_rf_energy": 200.0,
+            "target_min_contrast": 0.005,
+            "total_duration_s": 10.400000000000002
+          },
+          "samples_sha256": "a37316d23922493f96f0f44da3a05d7824efbb8ca37063909c91b2f5a2b793a7",
+          "basis_sha256": "277bc5114d131f7cf7bdd26dade0ac8b40ad3ab1643ec477db02eba1604a91c9"
+        },
+        {
+          "basis_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "checks": {
+            "components": false,
+            "contrast": true,
+            "data": false,
+            "duration": true,
+            "image": false,
+            "total_rf": true
+          },
+          "estimated_work": 19997875420,
+          "executable": true,
+          "name": "corner-1",
+          "passed": false,
+          "preparation_trains": 2,
+          "run_hash": "adf5622a6b3ac929fa6c905f435bbe6b2c2d07133bb4fc07c728191194b0539c",
+          "sample_t2_s": [
+            0.03973685083017578,
+            0.1213239902043232
+          ],
+          "total_rf_energy_relative": 57.05555555555556,
+          "validation": {
+            "coefficient_error": 0.014635510516520633,
+            "data_residual": 5.8171873748796266e-05,
+            "max_duration_s": 100.0,
+            "max_image_error": 0.0028715798327840028,
+            "passed": false,
+            "rf_energy_relative": 52.66666666666667,
+            "roi_contrast": 0.03233951131876084,
+            "target_coefficient_error": 1e-06,
+            "target_data_residual": 1e-10,
+            "target_image_error": 1e-06,
+            "target_max_rf_energy": 200.0,
+            "target_min_contrast": 0.005,
+            "total_duration_s": 10.400000000000002
+          },
+          "samples_sha256": "9f10d214113d10088a985aee1fb1e04403f54d2fa363d88431e4f9465e9f83aa",
+          "basis_sha256": "277bc5114d131f7cf7bdd26dade0ac8b40ad3ab1643ec477db02eba1604a91c9"
+        },
+        {
+          "basis_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "checks": {
+            "components": false,
+            "contrast": true,
+            "data": false,
+            "duration": true,
+            "image": false,
+            "total_rf": true
+          },
+          "estimated_work": 19997875420,
+          "executable": true,
+          "name": "corner-2",
+          "passed": false,
+          "preparation_trains": 2,
+          "run_hash": "241afbff435ab76ad24b589636c694a62829214add67040009879754e528950d",
+          "sample_t2_s": [
+            0.040263149169824236,
+            0.11867600979567682
+          ],
+          "total_rf_energy_relative": 57.05555555555556,
+          "validation": {
+            "coefficient_error": 0.01450789384132627,
+            "data_residual": 5.674477364871859e-05,
+            "max_duration_s": 100.0,
+            "max_image_error": 0.002761947879402963,
+            "passed": false,
+            "rf_energy_relative": 52.66666666666667,
+            "roi_contrast": 0.033697535197110884,
+            "target_coefficient_error": 1e-06,
+            "target_data_residual": 1e-10,
+            "target_image_error": 1e-06,
+            "target_max_rf_energy": 200.0,
+            "target_min_contrast": 0.005,
+            "total_duration_s": 10.400000000000002
+          },
+          "samples_sha256": "9d7ba96061cc3013e7178149e0e82ba49697499e1c924393c86a106eb45dfa7b",
+          "basis_sha256": "277bc5114d131f7cf7bdd26dade0ac8b40ad3ab1643ec477db02eba1604a91c9"
+        },
+        {
+          "basis_t2_s": [
+            0.04000000000000001,
+            0.12000000000000001
+          ],
+          "checks": {
+            "components": false,
+            "contrast": true,
+            "data": false,
+            "duration": true,
+            "image": false,
+            "total_rf": true
+          },
+          "estimated_work": 19997875420,
+          "executable": true,
+          "name": "corner-3",
+          "passed": false,
+          "preparation_trains": 2,
+          "run_hash": "c532810afd747e77ea2339243a99a9ec16af28ab3d9897e18b5a4d2e3fcd76f4",
+          "sample_t2_s": [
+            0.040263149169824236,
+            0.1213239902043232
+          ],
+          "total_rf_energy_relative": 57.05555555555556,
+          "validation": {
+            "coefficient_error": 0.021355218549253034,
+            "data_residual": 4.425821186612111e-05,
+            "max_duration_s": 100.0,
+            "max_image_error": 0.0042838691526885485,
+            "passed": false,
+            "rf_energy_relative": 52.66666666666667,
+            "roi_contrast": 0.03329484630683793,
+            "target_coefficient_error": 1e-06,
+            "target_data_residual": 1e-10,
+            "target_image_error": 1e-06,
+            "target_max_rf_energy": 200.0,
+            "target_min_contrast": 0.005,
+            "total_duration_s": 10.400000000000002
+          },
+          "samples_sha256": "e40746df38aade0dfb7451af78ac397a5a4a4b08b3a27b87626f237a31a0ffa3",
+          "basis_sha256": "277bc5114d131f7cf7bdd26dade0ac8b40ad3ab1643ec477db02eba1604a91c9"
+        }
+      ]
+    }
+  ],
+  "scope": "teaching/research measurement-derived T2 priors; T1/PD authored; local rectangular stress corners are not joint confidence or clinical bounds; no scanner validation/clinical quality certification; B/C parked"
+}

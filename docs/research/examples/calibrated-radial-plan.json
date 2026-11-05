@@ -1,0 +1,19 @@
+{
+  "context": {
+    "study_id": "fixed-prior-radial-pilot",
+    "research_question": "Which radial TSE pulse candidates preserve the declared echo and component targets under the measured-T2 uncertainty model?",
+    "target_rationale": "Retain the 1e-6 image/component and 1e-10 residual targets. Fit the inverse basis at nominal calibrated T2 and stress only sample T2 at all four inherited corners. Keep every failure.",
+    "assumptions": "Synthetic CPMG example; only T2 is calibrated. T1/PD remain authored; rectangular local uncertainty corners are not clinical confidence bounds.",
+    "intended_use": "research"
+  },
+  "execution": {
+    "type": "calibrated_radial_tse",
+    "parent_record_sha256": "bf8102c5a1fb07660b3e36e08fbd249a4740bc65f76ea5017c798d4b91168d30",
+    "study": {
+      "candidates": [
+        {},
+        { "refocusing_angle": 140.0, "refocusing_end_angle": 110.0 }
+      ]
+    }
+  }
+}

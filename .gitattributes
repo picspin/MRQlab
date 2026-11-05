@@ -1,0 +1,3 @@
+
+# Keep the replay example byte hash stable across checkouts.
+docs/research/examples/tse-lab-echoes.csv text eol=lf

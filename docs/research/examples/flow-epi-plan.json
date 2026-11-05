@@ -1,0 +1,19 @@
+{
+  "context": {
+    "study_id": "causal-flow-epi-pilot",
+    "research_question": "Can slice-selective DIR and causal cardiac scheduling retain complex EPI image fidelity and phase-encoded through-plane flow in an authored pulsatile pipe?",
+    "target_rationale": "Keep 0.002 m/s moment-reference velocity RMSE, 0.05 complex frozen-image NRMSE, blood |Mz| <=0.1, wall |Mz| >=0.7 and zero interrupted fraction. Preserve every failed/infeasible candidate and select none unless all declared targets pass.",
+    "assumptions": "Synthetic computational phantom and authored pressure; rigid Newtonian pipe, fixed transverse voxel centers, finite sinc RF, sample-and-hold gradient ramps, point ADC, no receiver renormalization or fitted image gain. Opposite encodings occur at different trigger times; moment and instantaneous references differ.",
+    "intended_use": "research"
+  },
+  "execution": {
+    "type": "search",
+    "kind": "flow_epi",
+    "parameters": { "axial_spins": 401 },
+    "candidates": [
+      { "inversion_time_s": 0.6 },
+      { "inversion_time_s": 0.9 },
+      { "dwell_s": 0.00001 }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+measurement_id,acquisition_id,tissue_id,split,echo_time_s,signal_a_u,std_a_u
+white_matter-1,calibration,white_matter,calibration,0.008,0.3274923012311928,0.0005
+white_matter-3,calibration,white_matter,calibration,0.024,0.21952465443761057,0.0005
+white_matter-5,calibration,white_matter,calibration,0.04,0.14715177646857694,0.0005
+white_matter-7,calibration,white_matter,calibration,0.056,0.0986387855766426,0.0005
+white_matter-2,holdout,white_matter,holdout,0.016,0.26812801841425576,0.0005
+white_matter-4,holdout,white_matter,holdout,0.032,0.17973158564688863,0.0005
+white_matter-6,holdout,white_matter,holdout,0.048,0.12047768476488085,0.0005
+white_matter-8,holdout,white_matter,holdout,0.064,0.08075860719786215,0.0005
+gray_matter-1,calibration,gray_matter,calibration,0.008,0.3742027940126471,0.0005
+gray_matter-3,calibration,gray_matter,calibration,0.024,0.3274923012311928,0.0005
+gray_matter-5,calibration,gray_matter,calibration,0.04,0.2866125242295157,0.0005
+gray_matter-7,calibration,gray_matter,calibration,0.056,0.25083563410922244,0.0005
+gray_matter-2,holdout,gray_matter,holdout,0.016,0.350069327617179,0.0005
+gray_matter-4,holdout,gray_matter,holdout,0.032,0.3063713353458595,0.0005
+gray_matter-6,holdout,gray_matter,holdout,0.048,0.26812801841425576,0.0005
+gray_matter-8,holdout,gray_matter,holdout,0.064,0.23465848780401274,0.0005

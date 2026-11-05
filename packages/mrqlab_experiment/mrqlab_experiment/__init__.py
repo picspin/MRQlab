@@ -56,6 +56,7 @@ from .objectives import (
     evaluate_multi_tissue_contrast,
     evaluate_objective,
 )
+from .clinical_search import ClinicalSearchResult, SearchPoint, search_clinical_parameters
 from .optimizer import (
     OptimizeAnalysis,
     OptimizeGoal,
@@ -168,6 +169,9 @@ __all__ = [
     "ClinicalProtocolRecipe",
     "ParameterState",
     "ClinicalCNRTerm",
+    "ClinicalSearchResult",
+    "SearchPoint",
+    "search_clinical_parameters",
     "OptimizeAnalysis",
     "OptimizeGoal",
     "ParetoPoint",
@@ -211,3 +215,7 @@ __all__ = [
     "SequencePatchRequest",
     "patch_sequence",
 ]
+
+from .family_search import search_family_parameters, evaluate_family, peak_integrals
+from .family_execution import ssfp_steady_state, adc_map
+__all__ += ["search_family_parameters", "evaluate_family", "peak_integrals", "ssfp_steady_state", "adc_map"]

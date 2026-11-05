@@ -1,0 +1,769 @@
+{
+  "browser_numeric_boundary": {
+    "browser_run_result_hash": "0e856e06260f18fba00c71bf902078939693fd5278bf33d0694dccf5ab692e09",
+    "child_record_sha256": "040e65a9b3c6ae6e4e7420050d96b4848a62f183c7010fd4c42695b498bc3ff1",
+    "complete_pair_identical": true,
+    "convention": "original raw JSON graph/plan/result hashes retain numeric-token distinctions in free metadata; lossless scientific requests replay each exact record; image/signal pair uses typed binary64 canonicalization",
+    "pair_sha256": "94a9808c77e3dfabf4eb395083b5628bcc691c0456a13d101541a2de310b2e44",
+    "parent_record_sha256": "a1f15837a49503979b14c56720f5049dfe498a6e5412d0318fe71e13a221509c",
+    "python_run_result_hash": "9e735b0218b8b8802d372db7e97991e3a0b9c4953d5bd0660c16f7d1cfccc41a"
+  },
+  "cases": {
+    "0.0": {
+      "contrast_bindings": [
+        [
+          {
+            "assumptions": "uniform static per-tissue concentration; supplied dilute linear relaxivity at the declared field/temperature/medium; origin is user-declared",
+            "baseline_r1_s_inv": 1.1764705882352942,
+            "baseline_r2_s_inv": 12.5,
+            "baseline_t1_s": 0.85,
+            "baseline_t2_s": 0.08,
+            "effective_r1_s_inv": 1.1764705882352942,
+            "effective_r2_s_inv": 12.5,
+            "effective_t1_s": 0.85,
+            "effective_t2_s": 0.08,
+            "exposure": {
+              "concentration_mmol_l": 0.0,
+              "concentration_unit": "mmol/L",
+              "medium": "synthetic uniform water tissue surrogate",
+              "model": "static_linear_R1_R2",
+              "origin": "synthetic",
+              "r1_l_mmol_s": 4.0,
+              "r2_l_mmol_s": 5.0,
+              "reference_b0_t": 3.0,
+              "reference_temperature_k": 310.0,
+              "relaxivity_unit": "L/(mmol*s)",
+              "source_ref": "synthetic:constant-relaxivity-teaching-example",
+              "valid_concentration_max_mmol_l": 1.0
+            },
+            "tissue_id": "white_matter",
+            "unchanged": "PD, geometry, diffusion ADC, exchange rates and chemical shifts remain authored; no concentration-time or susceptibility model"
+          }
+        ],
+        [
+          {
+            "assumptions": "uniform static per-tissue concentration; supplied dilute linear relaxivity at the declared field/temperature/medium; origin is user-declared",
+            "baseline_r1_s_inv": 0.7142857142857143,
+            "baseline_r2_s_inv": 12.5,
+            "baseline_t1_s": 1.4,
+            "baseline_t2_s": 0.08,
+            "effective_r1_s_inv": 0.7142857142857143,
+            "effective_r2_s_inv": 12.5,
+            "effective_t1_s": 1.4,
+            "effective_t2_s": 0.08,
+            "exposure": {
+              "concentration_mmol_l": 0.0,
+              "concentration_unit": "mmol/L",
+              "medium": "synthetic uniform water tissue surrogate",
+              "model": "static_linear_R1_R2",
+              "origin": "synthetic",
+              "r1_l_mmol_s": 4.0,
+              "r2_l_mmol_s": 5.0,
+              "reference_b0_t": 3.0,
+              "reference_temperature_k": 310.0,
+              "relaxivity_unit": "L/(mmol*s)",
+              "source_ref": "synthetic:constant-relaxivity-teaching-example",
+              "valid_concentration_max_mmol_l": 1.0
+            },
+            "tissue_id": "gray_matter",
+            "unchanged": "PD, geometry, diffusion ADC, exchange rates and chemical shifts remain authored; no concentration-time or susceptibility model"
+          }
+        ]
+      ],
+      "image_quality": {
+        "max_absolute_error": 0.0340608837061423,
+        "nrmse": 0.1534697817340591,
+        "passed": false,
+        "threshold": 1e-10
+      },
+      "independent": {
+        "complete_samples": 256,
+        "effective_rates": [
+          {
+            "r1_s_inv": 1.1764705882352942,
+            "r2_s_inv": 12.5
+          },
+          {
+            "r1_s_inv": 0.7142857142857143,
+            "r2_s_inv": 12.5
+          }
+        ],
+        "max_echo_error": 1.1102230246251565e-16,
+        "max_image_direct_inverse_error": 6.661388657967042e-16,
+        "max_sample_absolute_error": 2.1871393636838186e-14,
+        "max_sample_error_per_voxel": 8.543513139389917e-17,
+        "max_schedule_time_error_s": 0.0,
+        "normalized_coordinates_equal": true,
+        "pair_check": {
+          "complex_sample_count": 256,
+          "integrity_passed": true,
+          "max_absolute_transform_error": 0.0,
+          "scope": "pair integrity and Fourier relationship only; no independent physical/model/clinical revalidation",
+          "transform_passed": true
+        }
+      },
+      "pair_sha256": "881fd36932314e7ac0854725aec00654394118bf899595cdaf00b90a8ffac412",
+      "psf_quality": {
+        "max_absolute_error": 1.1233410332922723e-16,
+        "nrmse": 1.6842409262958555e-16,
+        "passed": true,
+        "threshold": 1e-10
+      },
+      "record_sha256": "7b3aa22c396f2c1963b9856729c7dfd807bbc1491ba3e246fe81e55113f4d2a5",
+      "result_sha256": "f56cf219edcc912da77a976223a13d6568fa03fb9263c47beaa6eea528ec5574"
+    },
+    "0.05": {
+      "contrast_bindings": [
+        [
+          {
+            "assumptions": "uniform static per-tissue concentration; supplied dilute linear relaxivity at the declared field/temperature/medium; origin is user-declared",
+            "baseline_r1_s_inv": 1.1764705882352942,
+            "baseline_r2_s_inv": 12.5,
+            "baseline_t1_s": 0.85,
+            "baseline_t2_s": 0.08,
+            "effective_r1_s_inv": 1.1764705882352942,
+            "effective_r2_s_inv": 12.5,
+            "effective_t1_s": 0.85,
+            "effective_t2_s": 0.08,
+            "exposure": {
+              "concentration_mmol_l": 0.0,
+              "concentration_unit": "mmol/L",
+              "medium": "synthetic uniform water tissue surrogate",
+              "model": "static_linear_R1_R2",
+              "origin": "synthetic",
+              "r1_l_mmol_s": 4.0,
+              "r2_l_mmol_s": 5.0,
+              "reference_b0_t": 3.0,
+              "reference_temperature_k": 310.0,
+              "relaxivity_unit": "L/(mmol*s)",
+              "source_ref": "synthetic:constant-relaxivity-teaching-example",
+              "valid_concentration_max_mmol_l": 1.0
+            },
+            "tissue_id": "white_matter",
+            "unchanged": "PD, geometry, diffusion ADC, exchange rates and chemical shifts remain authored; no concentration-time or susceptibility model"
+          }
+        ],
+        [
+          {
+            "assumptions": "uniform static per-tissue concentration; supplied dilute linear relaxivity at the declared field/temperature/medium; origin is user-declared",
+            "baseline_r1_s_inv": 0.7142857142857143,
+            "baseline_r2_s_inv": 12.5,
+            "baseline_t1_s": 1.4,
+            "baseline_t2_s": 0.08,
+            "effective_r1_s_inv": 0.9142857142857144,
+            "effective_r2_s_inv": 12.75,
+            "effective_t1_s": 1.09375,
+            "effective_t2_s": 0.0784313725490196,
+            "exposure": {
+              "concentration_mmol_l": 0.05,
+              "concentration_unit": "mmol/L",
+              "medium": "synthetic uniform water tissue surrogate",
+              "model": "static_linear_R1_R2",
+              "origin": "synthetic",
+              "r1_l_mmol_s": 4.0,
+              "r2_l_mmol_s": 5.0,
+              "reference_b0_t": 3.0,
+              "reference_temperature_k": 310.0,
+              "relaxivity_unit": "L/(mmol*s)",
+              "source_ref": "synthetic:constant-relaxivity-teaching-example",
+              "valid_concentration_max_mmol_l": 1.0
+            },
+            "tissue_id": "gray_matter",
+            "unchanged": "PD, geometry, diffusion ADC, exchange rates and chemical shifts remain authored; no concentration-time or susceptibility model"
+          }
+        ]
+      ],
+      "image_quality": {
+        "max_absolute_error": 0.0340608837061423,
+        "nrmse": 0.15499791004579452,
+        "passed": false,
+        "threshold": 1e-10
+      },
+      "independent": {
+        "complete_samples": 256,
+        "effective_rates": [
+          {
+            "r1_s_inv": 1.1764705882352942,
+            "r2_s_inv": 12.5
+          },
+          {
+            "r1_s_inv": 0.9142857142857144,
+            "r2_s_inv": 12.75
+          }
+        ],
+        "max_echo_error": 1.1102230246251565e-16,
+        "max_image_direct_inverse_error": 6.661792185161312e-16,
+        "max_sample_absolute_error": 2.2065696245673288e-14,
+        "max_sample_error_per_voxel": 8.619412595966128e-17,
+        "max_schedule_time_error_s": 0.0,
+        "normalized_coordinates_equal": true,
+        "pair_check": {
+          "complex_sample_count": 256,
+          "integrity_passed": true,
+          "max_absolute_transform_error": 0.0,
+          "scope": "pair integrity and Fourier relationship only; no independent physical/model/clinical revalidation",
+          "transform_passed": true
+        }
+      },
+      "pair_sha256": "72e36839e8aa249b01181dc046819563fd765a597b61e96df4311f3f6e2040db",
+      "psf_quality": {
+        "max_absolute_error": 1.1935051949495827e-16,
+        "nrmse": 1.8187193579355781e-16,
+        "passed": true,
+        "threshold": 1e-10
+      },
+      "record_sha256": "5fd2711454253ca7d929cc7b3ac054c290fc95662165665e56e6787cffbe261d",
+      "result_sha256": "835e386430c88df458ad36e0f4466c6a85952ee42452c41a71fbe2eef5edfa75"
+    },
+    "0.2": {
+      "contrast_bindings": [
+        [
+          {
+            "assumptions": "uniform static per-tissue concentration; supplied dilute linear relaxivity at the declared field/temperature/medium; origin is user-declared",
+            "baseline_r1_s_inv": 1.1764705882352942,
+            "baseline_r2_s_inv": 12.5,
+            "baseline_t1_s": 0.85,
+            "baseline_t2_s": 0.08,
+            "effective_r1_s_inv": 1.1764705882352942,
+            "effective_r2_s_inv": 12.5,
+            "effective_t1_s": 0.85,
+            "effective_t2_s": 0.08,
+            "exposure": {
+              "concentration_mmol_l": 0.0,
+              "concentration_unit": "mmol/L",
+              "medium": "synthetic uniform water tissue surrogate",
+              "model": "static_linear_R1_R2",
+              "origin": "synthetic",
+              "r1_l_mmol_s": 4.0,
+              "r2_l_mmol_s": 5.0,
+              "reference_b0_t": 3.0,
+              "reference_temperature_k": 310.0,
+              "relaxivity_unit": "L/(mmol*s)",
+              "source_ref": "synthetic:constant-relaxivity-teaching-example",
+              "valid_concentration_max_mmol_l": 1.0
+            },
+            "tissue_id": "white_matter",
+            "unchanged": "PD, geometry, diffusion ADC, exchange rates and chemical shifts remain authored; no concentration-time or susceptibility model"
+          }
+        ],
+        [
+          {
+            "assumptions": "uniform static per-tissue concentration; supplied dilute linear relaxivity at the declared field/temperature/medium; origin is user-declared",
+            "baseline_r1_s_inv": 0.7142857142857143,
+            "baseline_r2_s_inv": 12.5,
+            "baseline_t1_s": 1.4,
+            "baseline_t2_s": 0.08,
+            "effective_r1_s_inv": 1.5142857142857142,
+            "effective_r2_s_inv": 13.5,
+            "effective_t1_s": 0.6603773584905661,
+            "effective_t2_s": 0.07407407407407407,
+            "exposure": {
+              "concentration_mmol_l": 0.2,
+              "concentration_unit": "mmol/L",
+              "medium": "synthetic uniform water tissue surrogate",
+              "model": "static_linear_R1_R2",
+              "origin": "synthetic",
+              "r1_l_mmol_s": 4.0,
+              "r2_l_mmol_s": 5.0,
+              "reference_b0_t": 3.0,
+              "reference_temperature_k": 310.0,
+              "relaxivity_unit": "L/(mmol*s)",
+              "source_ref": "synthetic:constant-relaxivity-teaching-example",
+              "valid_concentration_max_mmol_l": 1.0
+            },
+            "tissue_id": "gray_matter",
+            "unchanged": "PD, geometry, diffusion ADC, exchange rates and chemical shifts remain authored; no concentration-time or susceptibility model"
+          }
+        ]
+      ],
+      "image_quality": {
+        "max_absolute_error": 0.04188202264566684,
+        "nrmse": 0.15873213956199095,
+        "passed": false,
+        "threshold": 1e-10
+      },
+      "independent": {
+        "complete_samples": 256,
+        "effective_rates": [
+          {
+            "r1_s_inv": 1.1764705882352942,
+            "r2_s_inv": 12.5
+          },
+          {
+            "r1_s_inv": 1.5142857142857142,
+            "r2_s_inv": 13.5
+          }
+        ],
+        "max_echo_error": 1.3877787807814457e-16,
+        "max_image_direct_inverse_error": 6.6613475712371e-16,
+        "max_sample_absolute_error": 2.281526623599202e-14,
+        "max_sample_error_per_voxel": 8.912213373434383e-17,
+        "max_schedule_time_error_s": 0.0,
+        "normalized_coordinates_equal": true,
+        "pair_check": {
+          "complex_sample_count": 256,
+          "integrity_passed": true,
+          "max_absolute_transform_error": 0.0,
+          "scope": "pair integrity and Fourier relationship only; no independent physical/model/clinical revalidation",
+          "transform_passed": true
+        }
+      },
+      "pair_sha256": "3931ad19a116a8eb4b241356c5ee72cacb465ac52f3ce220770b2f793d71a0b1",
+      "psf_quality": {
+        "max_absolute_error": 1.680955476790112e-16,
+        "nrmse": 2.0321236221423992e-16,
+        "passed": true,
+        "threshold": 1e-10
+      },
+      "record_sha256": "2d8f43fe04ce0123f7490e6a1f4083bdd9f84a1a7dc297e4550618656b2a9d7b",
+      "result_sha256": "5a46465ad5c70d450b1cfd9a90911549d5e39a5330adf0318d399ca259c4f204"
+    },
+    "0.5": {
+      "contrast_bindings": [
+        [
+          {
+            "assumptions": "uniform static per-tissue concentration; supplied dilute linear relaxivity at the declared field/temperature/medium; origin is user-declared",
+            "baseline_r1_s_inv": 1.1764705882352942,
+            "baseline_r2_s_inv": 12.5,
+            "baseline_t1_s": 0.85,
+            "baseline_t2_s": 0.08,
+            "effective_r1_s_inv": 1.1764705882352942,
+            "effective_r2_s_inv": 12.5,
+            "effective_t1_s": 0.85,
+            "effective_t2_s": 0.08,
+            "exposure": {
+              "concentration_mmol_l": 0.0,
+              "concentration_unit": "mmol/L",
+              "medium": "synthetic uniform water tissue surrogate",
+              "model": "static_linear_R1_R2",
+              "origin": "synthetic",
+              "r1_l_mmol_s": 4.0,
+              "r2_l_mmol_s": 5.0,
+              "reference_b0_t": 3.0,
+              "reference_temperature_k": 310.0,
+              "relaxivity_unit": "L/(mmol*s)",
+              "source_ref": "synthetic:constant-relaxivity-teaching-example",
+              "valid_concentration_max_mmol_l": 1.0
+            },
+            "tissue_id": "white_matter",
+            "unchanged": "PD, geometry, diffusion ADC, exchange rates and chemical shifts remain authored; no concentration-time or susceptibility model"
+          }
+        ],
+        [
+          {
+            "assumptions": "uniform static per-tissue concentration; supplied dilute linear relaxivity at the declared field/temperature/medium; origin is user-declared",
+            "baseline_r1_s_inv": 0.7142857142857143,
+            "baseline_r2_s_inv": 12.5,
+            "baseline_t1_s": 1.4,
+            "baseline_t2_s": 0.08,
+            "effective_r1_s_inv": 2.7142857142857144,
+            "effective_r2_s_inv": 15.0,
+            "effective_t1_s": 0.3684210526315789,
+            "effective_t2_s": 0.06666666666666667,
+            "exposure": {
+              "concentration_mmol_l": 0.5,
+              "concentration_unit": "mmol/L",
+              "medium": "synthetic uniform water tissue surrogate",
+              "model": "static_linear_R1_R2",
+              "origin": "synthetic",
+              "r1_l_mmol_s": 4.0,
+              "r2_l_mmol_s": 5.0,
+              "reference_b0_t": 3.0,
+              "reference_temperature_k": 310.0,
+              "relaxivity_unit": "L/(mmol*s)",
+              "source_ref": "synthetic:constant-relaxivity-teaching-example",
+              "valid_concentration_max_mmol_l": 1.0
+            },
+            "tissue_id": "gray_matter",
+            "unchanged": "PD, geometry, diffusion ADC, exchange rates and chemical shifts remain authored; no concentration-time or susceptibility model"
+          }
+        ]
+      ],
+      "image_quality": {
+        "max_absolute_error": 0.06422473149695299,
+        "nrmse": 0.16709967168449194,
+        "passed": false,
+        "threshold": 1e-10
+      },
+      "independent": {
+        "complete_samples": 256,
+        "effective_rates": [
+          {
+            "r1_s_inv": 1.1764705882352942,
+            "r2_s_inv": 12.5
+          },
+          {
+            "r1_s_inv": 2.7142857142857144,
+            "r2_s_inv": 15.0
+          }
+        ],
+        "max_echo_error": 1.6653345369377348e-16,
+        "max_image_direct_inverse_error": 6.662869518690267e-16,
+        "max_sample_absolute_error": 2.842170943040401e-14,
+        "max_sample_error_per_voxel": 1.1102230246251565e-16,
+        "max_schedule_time_error_s": 0.0,
+        "normalized_coordinates_equal": true,
+        "pair_check": {
+          "complex_sample_count": 256,
+          "integrity_passed": true,
+          "max_absolute_transform_error": 0.0,
+          "scope": "pair integrity and Fourier relationship only; no independent physical/model/clinical revalidation",
+          "transform_passed": true
+        }
+      },
+      "pair_sha256": "94a9808c77e3dfabf4eb395083b5628bcc691c0456a13d101541a2de310b2e44",
+      "psf_quality": {
+        "max_absolute_error": 1.7242019119011549e-16,
+        "nrmse": 1.7099568511404925e-16,
+        "passed": true,
+        "threshold": 1e-10
+      },
+      "record_sha256": "cf78f72a24df801513e0d99e6a1a1a3bf35ad61331d74b5170675f46d4114030",
+      "result_sha256": "9e735b0218b8b8802d372db7e97991e3a0b9c4953d5bd0660c16f7d1cfccc41a"
+    },
+    "1.0": {
+      "contrast_bindings": [
+        [
+          {
+            "assumptions": "uniform static per-tissue concentration; supplied dilute linear relaxivity at the declared field/temperature/medium; origin is user-declared",
+            "baseline_r1_s_inv": 1.1764705882352942,
+            "baseline_r2_s_inv": 12.5,
+            "baseline_t1_s": 0.85,
+            "baseline_t2_s": 0.08,
+            "effective_r1_s_inv": 1.1764705882352942,
+            "effective_r2_s_inv": 12.5,
+            "effective_t1_s": 0.85,
+            "effective_t2_s": 0.08,
+            "exposure": {
+              "concentration_mmol_l": 0.0,
+              "concentration_unit": "mmol/L",
+              "medium": "synthetic uniform water tissue surrogate",
+              "model": "static_linear_R1_R2",
+              "origin": "synthetic",
+              "r1_l_mmol_s": 4.0,
+              "r2_l_mmol_s": 5.0,
+              "reference_b0_t": 3.0,
+              "reference_temperature_k": 310.0,
+              "relaxivity_unit": "L/(mmol*s)",
+              "source_ref": "synthetic:constant-relaxivity-teaching-example",
+              "valid_concentration_max_mmol_l": 1.0
+            },
+            "tissue_id": "white_matter",
+            "unchanged": "PD, geometry, diffusion ADC, exchange rates and chemical shifts remain authored; no concentration-time or susceptibility model"
+          }
+        ],
+        [
+          {
+            "assumptions": "uniform static per-tissue concentration; supplied dilute linear relaxivity at the declared field/temperature/medium; origin is user-declared",
+            "baseline_r1_s_inv": 0.7142857142857143,
+            "baseline_r2_s_inv": 12.5,
+            "baseline_t1_s": 1.4,
+            "baseline_t2_s": 0.08,
+            "effective_r1_s_inv": 4.714285714285714,
+            "effective_r2_s_inv": 17.5,
+            "effective_t1_s": 0.21212121212121213,
+            "effective_t2_s": 0.05714285714285714,
+            "exposure": {
+              "concentration_mmol_l": 1.0,
+              "concentration_unit": "mmol/L",
+              "medium": "synthetic uniform water tissue surrogate",
+              "model": "static_linear_R1_R2",
+              "origin": "synthetic",
+              "r1_l_mmol_s": 4.0,
+              "r2_l_mmol_s": 5.0,
+              "reference_b0_t": 3.0,
+              "reference_temperature_k": 310.0,
+              "relaxivity_unit": "L/(mmol*s)",
+              "source_ref": "synthetic:constant-relaxivity-teaching-example",
+              "valid_concentration_max_mmol_l": 1.0
+            },
+            "tissue_id": "gray_matter",
+            "unchanged": "PD, geometry, diffusion ADC, exchange rates and chemical shifts remain authored; no concentration-time or susceptibility model"
+          }
+        ]
+      ],
+      "image_quality": {
+        "max_absolute_error": 0.09257077609566926,
+        "nrmse": 0.18494557314875174,
+        "passed": false,
+        "threshold": 1e-10
+      },
+      "independent": {
+        "complete_samples": 256,
+        "effective_rates": [
+          {
+            "r1_s_inv": 1.1764705882352942,
+            "r2_s_inv": 12.5
+          },
+          {
+            "r1_s_inv": 4.714285714285714,
+            "r2_s_inv": 17.5
+          }
+        ],
+        "max_echo_error": 1.1102230246251565e-16,
+        "max_image_direct_inverse_error": 9.995665849454016e-16,
+        "max_sample_absolute_error": 2.842170943040401e-14,
+        "max_sample_error_per_voxel": 1.1102230246251565e-16,
+        "max_schedule_time_error_s": 0.0,
+        "normalized_coordinates_equal": true,
+        "pair_check": {
+          "complex_sample_count": 256,
+          "integrity_passed": true,
+          "max_absolute_transform_error": 0.0,
+          "scope": "pair integrity and Fourier relationship only; no independent physical/model/clinical revalidation",
+          "transform_passed": true
+        }
+      },
+      "pair_sha256": "c3302133dcdd55c9a1000add4e1369630f34ec6c504e73d78716d8df8c1cb18a",
+      "psf_quality": {
+        "max_absolute_error": 2.2487429915110773e-16,
+        "nrmse": 1.7681119417938867e-16,
+        "passed": true,
+        "threshold": 1e-10
+      },
+      "record_sha256": "801bda9610de572c2c2d16ab6036583bb51b8a34ab53f8b462fa658d471dce33",
+      "result_sha256": "c5f99c811fb44f8bb471b574cc2b4fe0a565257492b5dbb79e3b4292abc6db0a"
+    },
+    "3d": {
+      "independent": {
+        "complete_samples": 128,
+        "effective_rates": [
+          {
+            "r1_s_inv": 1.1764705882352942,
+            "r2_s_inv": 12.5
+          },
+          {
+            "r1_s_inv": 1.5142857142857142,
+            "r2_s_inv": 13.5
+          }
+        ],
+        "max_echo_error": 1.3877787807814457e-16,
+        "max_image_direct_inverse_error": 3.3313042880129457e-16,
+        "max_sample_absolute_error": 7.993826049699537e-15,
+        "max_sample_error_per_voxel": 6.245176601327763e-17,
+        "max_schedule_time_error_s": 0.0,
+        "normalized_coordinates_equal": true,
+        "pair_check": {
+          "complex_sample_count": 128,
+          "integrity_passed": true,
+          "max_absolute_transform_error": 0.0,
+          "scope": "pair integrity and Fourier relationship only; no independent physical/model/clinical revalidation",
+          "transform_passed": true
+        }
+      },
+      "record_sha256": "5913314f6dc9522018a90f56a32cc3f49a06df44e751d4009b0c5c2132dfd5a6"
+    }
+  },
+  "child_record_sha256": "cf78f72a24df801513e0d99e6a1a1a3bf35ad61331d74b5170675f46d4114030",
+  "parent_record_sha256": "df08427ec60dc6e2d45f680946bb1e19b3a59966038bf0ca40d089b6e6890eba",
+  "rejected_cases": {
+    "above_valid_concentration": "422: [{'type': 'model_type', 'loc': ['experiment', 'tissue', 'TissueModel'], 'msg': 'Input should be a valid dictionary or instance of TissueModel', 'input': [{'id': 'white_matter', 'label': 'Tissue', 'role': 'target', 't1': 0.85, 't2': 0.08, 't2_star': None, 'proton_density': 0.8, 'flow_velocity_mps': 0.0, 'exchange_rate_hz': 0.0, 'pool_fraction': 1.0, 'bound_pool': False, 'diffusion_adc_mm2_s': None, 'chemical_shift_ppm': 0.0, 'contrast_exposure': {'model': 'static_linear_R1_R2', 'concentration_mmol_l': 0.0, 'concentration_unit': 'mmol/L', 'r1_l_mmol_s': 4.0, 'r2_l_mmol_s': 5.0, 'relaxivity_unit': 'L/(mmol*s)', 'reference_b0_t': 3.0, 'reference_temperature_k': 310.0, 'medium': 'synthetic uniform water tissue surrogate', 'valid_concentration_max_mmol_l': 1.0, 'source_ref': 'synthetic:constant-relaxivity-teaching-example', 'origin': 'synthetic'}}, {'id': 'gray_matter', 'label': 'Tissue', 'role': 'reference', 't1': 1.4, 't2': 0.08, 't2_star': None, 'proton_density': 0.8, 'flow_velocity_mps': 0.0, 'exchange_rate_hz': 0.0, 'pool_fraction': 1.0, 'bound_pool': False, 'diffusion_adc_mm2_s': None, 'chemical_shift_ppm': 0.0, 'contrast_exposure': {'model': 'static_linear_R1_R2', 'concentration_mmol_l': 2.0, 'concentration_unit': 'mmol/L', 'r1_l_mmol_s': 4.0, 'r2_l_mmol_s': 5.0, 'relaxivity_unit': 'L/(mmol*s)', 'reference_b0_t': 3.0, 'reference_temperature_k': 310.0, 'medium': 'synthetic uniform water tissue surrogate', 'valid_concentration_max_mmol_l': 1.0, 'source_ref': 'synthetic:constant-relaxivity-teaching-example', 'origin': 'synthetic'}}], 'ctx': {'class_name': 'TissueModel'}}, {'type': 'value_error', 'loc': ['experiment', 'tissue', 'tuple[TissueModel, ...]', 1, 'contrast_exposure'], 'msg': 'Value error, concentration exceeds supplied relaxivity validity range; no extrapolation', 'input': {'model': 'static_linear_R1_R2', 'concentration_mmol_l': 2.0, 'concentration_unit': 'mmol/L', 'r1_l_mmol_s': 4.0, 'r2_l_mmol_s': 5.0, 'relaxivity_unit': 'L/(mmol*s)', 'reference_b0_t': 3.0, 'reference_temperature_k': 310.0, 'medium': 'synthetic uniform water tissue surrogate', 'valid_concentration_max_mmol_l': 1.0, 'source_ref': 'synthetic:constant-relaxivity-teaching-example', 'origin': 'synthetic'}, 'ctx': {'error': 'concentration exceeds supplied relaxivity validity range; no extrapolation'}}]",
+    "field_mismatch": "422: relaxivity reference B0 differs from effective scanner field; no field interpolation",
+    "legacy_unbound_concentration": "422: two independent tissues without physiology/disturbances required"
+  },
+  "runtime": {
+    "blas_configuration": {
+      "Build Dependencies": {
+        "blas": {
+          "detection method": "system",
+          "found": true,
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "name": "accelerate",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown",
+          "version": "unknown"
+        },
+        "lapack": {
+          "detection method": "system",
+          "found": true,
+          "include directory": "unknown",
+          "lib directory": "unknown",
+          "name": "accelerate",
+          "openblas configuration": "unknown",
+          "pc file directory": "unknown",
+          "version": "unknown"
+        }
+      },
+      "Compilers": {
+        "c": {
+          "commands": "cc",
+          "linker": "ld64",
+          "name": "clang",
+          "version": "15.0.0"
+        },
+        "c++": {
+          "commands": "c++",
+          "linker": "ld64",
+          "name": "clang",
+          "version": "15.0.0"
+        },
+        "cython": {
+          "commands": "cython",
+          "linker": "cython",
+          "name": "cython",
+          "version": "3.2.9"
+        }
+      },
+      "Machine Information": {
+        "build": {
+          "cpu": "aarch64",
+          "endian": "little",
+          "family": "aarch64",
+          "system": "darwin"
+        },
+        "host": {
+          "cpu": "aarch64",
+          "endian": "little",
+          "family": "aarch64",
+          "system": "darwin"
+        }
+      },
+      "Python Information": {
+        "path": "/private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-re3_temx/bin/python",
+        "version": "3.12"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "NEON",
+          "NEON_FP16",
+          "NEON_VFPV4",
+          "ASIMD"
+        ],
+        "found": [
+          "ASIMDHP",
+          "ASIMDDP"
+        ],
+        "not found": [
+          "ASIMDFHM"
+        ]
+      }
+    },
+    "implementation": "CPython",
+    "machine": "arm64",
+    "packages": {
+      "fastapi": "0.141.1",
+      "finufft": "2.5.0",
+      "numpy": "2.5.2",
+      "pydantic": "2.13.4",
+      "uvicorn": "0.52.3"
+    },
+    "python": "3.12.14",
+    "system": "Darwin"
+  },
+  "schema": "mrqlab-contrast-image-signal-evidence-1",
+  "scope": "synthetic static dilute relaxivity and ideal echo-held Cartesian TSE; complete image/signal pair, conditional typed edits and replay; no clinical/scanner or concentration-estimation claim",
+  "script_sha256": "84d8113fc688b619881426679ded0c11320106851c8bbb3b2c12a6a7d3eae418",
+  "sources": {
+    "files": {
+      "packages/mrqlab_experiment/mrqlab_experiment/__init__.py": "08b7362fd409e50f34d1e1a35a1103345292911a12f0ecca6315dc9b7b5d7be9",
+      "packages/mrqlab_experiment/mrqlab_experiment/calibrated_radial.py": "e2e11f8a1d35cce81d3d8bb57964126fa20afdd934811f683c1e4e40aa762eeb",
+      "packages/mrqlab_experiment/mrqlab_experiment/capabilities.py": "def82bb018cb76a4582f3edfdc69fbc2109ef31178c2f452c943856889812be6",
+      "packages/mrqlab_experiment/mrqlab_experiment/causal_gating.py": "1affbfe6407a09ac88e1509e92b47ffcafc1c770354521f204fdb3e22371f09a",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_memory.py": "2730771f57642eba2bf7d422a35fd081fe56d46ce7d06189e040758b93703a61",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_mt_noe.py": "31995a5bb4160db4ff217e5e660b4c962ac0e46903cad131f63ecda40b884b50",
+      "packages/mrqlab_experiment/mrqlab_experiment/cest_solomon.py": "aa827309423af15552fb434eeddbb02bbecff3ea79d7d6dfeb74daea35700ac1",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical.py": "0ad84664d2a9b630e2f1cd438d799eddb7f82ef42b32012bf1f034df663a8e65",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_catalog.py": "b65a6a1c64a75cf00beaa8b10c197bc26abd3b0819e188ee18643133d4bd25d6",
+      "packages/mrqlab_experiment/mrqlab_experiment/clinical_search.py": "4fd7b87f60c92d58e5fe9f78e04101808957e600ee2831efae37327f75100e84",
+      "packages/mrqlab_experiment/mrqlab_experiment/cockpit_signals.py": "ca6678ac5ac2fb711da37a8c3a0983e849b089c4ac92397862a159d535c3650c",
+      "packages/mrqlab_experiment/mrqlab_experiment/compare.py": "412e9b756a67bfe498325b100ec8557584d49a7c072bd3ca0b9e00ae5178ece3",
+      "packages/mrqlab_experiment/mrqlab_experiment/compiler.py": "3e8542b8a9d9acfc5cdec3f508de849974499a0249885aa315a44f6ca6d5f738",
+      "packages/mrqlab_experiment/mrqlab_experiment/contrast_relaxation.py": "5cdff3752a505cd9011d343f9e854eac47e8cd97c5fff8ab6968da6349cee276",
+      "packages/mrqlab_experiment/mrqlab_experiment/disturbances.py": "d8627931c324d2240af073b120023a9775742a8458a9b97bfa592d6d193486a2",
+      "packages/mrqlab_experiment/mrqlab_experiment/executable_sequence.py": "437e34b56ac4ab879ebe4038b615a079a60826a1f5bed1e06fceb5293d4cd536",
+      "packages/mrqlab_experiment/mrqlab_experiment/execution_provider.py": "5b5d84a733cbd89957db0a6edc0fd34b25916c44fa4125c7ad97ffe1c6d4164a",
+      "packages/mrqlab_experiment/mrqlab_experiment/export_ir.py": "ff707dba7d0ce75ada9d1cf05ddfab5fab58eaa05bea7a296c609760064d4eca",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_execution.py": "b0353840c48509f1a4f0fad538cc60363eb651ec02b696d632439bdc2295d9d2",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_recipes.py": "cd9efb076e703ee3ed930934099b0b4223debb54ab16c1351a9a6cb9f1958f86",
+      "packages/mrqlab_experiment/mrqlab_experiment/family_search.py": "328b1583f72e39f1e2004c144c4901a81b543f3c9b54960634ce3c3c366b00a1",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_epi.py": "d1d54a732ac6ff62a3a39b3d84e29f0ae38ea1157d3550f6dd8fff041b9abdb3",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_imaging.py": "0ae1b2d025e6b9b35d3732863eddcf13951379492be6214869b5425bfed05f09",
+      "packages/mrqlab_experiment/mrqlab_experiment/flow_study.py": "375c62a87081150a8de7b3c539b62f7063219d872f1ca987b9fb7d2f3917a7b1",
+      "packages/mrqlab_experiment/mrqlab_experiment/gradient.py": "c64c3b58573dc0860b2f723314d13426cd2105259f035c6856a4e978bffb92c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/kernel.py": "de85f2286d712f4a8dd2fa048366336dffc5621425394852693ad215d01c8a0f",
+      "packages/mrqlab_experiment/mrqlab_experiment/lab_study.py": "063df1af06e319db7e1bc46e5f27f70ab10128f628e2d99e12100932d13367b7",
+      "packages/mrqlab_experiment/mrqlab_experiment/linked_readout.py": "c89aa0efeee03d22967eda8559df4da5df55b8adffccd601f66352047d55ebf4",
+      "packages/mrqlab_experiment/mrqlab_experiment/models.py": "96185821b483f09015151a504993a34efd938f92141b8f4387c95dce594c1d84",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_basis.py": "6e39b9fc6669afb9a31aecac75c396275d51c19d110f85e7bd603df6a9f32397",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_press.py": "b46158933b3ee30de8eb78877a1f3fca27b3f1da88b9632a1eda81b5872460dd",
+      "packages/mrqlab_experiment/mrqlab_experiment/mrs_quantum.py": "c1e568598f8636ccf2617fd9af74b1f04673850682e06062d05e90e77ad8ed10",
+      "packages/mrqlab_experiment/mrqlab_experiment/navigator_radial.py": "ab9de5a46765519f58f19d3fde13b6e891752b6b9e99f5421791b28660239747",
+      "packages/mrqlab_experiment/mrqlab_experiment/objectives.py": "553e2d89e8bb9830eb9c5d4a4f1cc107f7df04bfa83a018633814635ba162582",
+      "packages/mrqlab_experiment/mrqlab_experiment/observations.py": "6e72a51b8e68239478503983db8d59574c96c84a4bca9614a1ae1b315b2c7e52",
+      "packages/mrqlab_experiment/mrqlab_experiment/optimizer.py": "1426e7bf91466b8476960729d7ddd61a3290c9c936a455dac0a2673e8acf6c75",
+      "packages/mrqlab_experiment/mrqlab_experiment/physics_ir.py": "9125ec555827b35b0ac558ace6586c5e213a9752af94151358841ef4cab392a5",
+      "packages/mrqlab_experiment/mrqlab_experiment/presets.py": "85b0693f1db4d21c7a5287d7d34a9f72b54e27c3306df0dfab994e6149b5ad86",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_dir.py": "cfae8a5f0e1f84e92c03563fa063295a8d7e891d9a3588604d111bb17455966c",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulsatile_flow.py": "4316f49e3142b63e094b756d20b278644e9d16711d8e98e2af986f51db1c28be",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse.py": "e060d414bff3070b39583b47324049747f84b67fa5b5a37119650b3eba04e2df",
+      "packages/mrqlab_experiment/mrqlab_experiment/pulse_inspector.py": "2626c1446cbec2e35607e3959ac64e3204b47a55f86ab3379bfe8e07f3d15629",
+      "packages/mrqlab_experiment/mrqlab_experiment/radial_readout.py": "867924df12d94e166ed8edae2f2fa549a80b73b9383f25e6e189512728b0f886",
+      "packages/mrqlab_experiment/mrqlab_experiment/radial_tse.py": "b9ac4b174bf0e91caeb09456c9c1c59106d3b8fa0a493ecd037d1983589ac691",
+      "packages/mrqlab_experiment/mrqlab_experiment/resolution.py": "e26ad219314d7772fdcaa845e6d57265390b4bdae7c3b7926988e2726d3c31e2",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_compose.py": "cf8ff5bad3055b3da21c45b20951763fe1e7f8a31888fa6784ae2bc88833550a",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_lowering.py": "a088411affbb9786dd11f01db3c9f3b9838a8c513452a440dfc15d8cab18a9c5",
+      "packages/mrqlab_experiment/mrqlab_experiment/sequence_patch.py": "1953f574435758e3ac5aebd4f3777ba89edb3c54f798122c5e70d650df758117",
+      "packages/mrqlab_experiment/mrqlab_experiment/spatial_imaging.py": "18c97bfd7ad9582ff3097c228be2181a28124569030716eeb560ef607b7eade9",
+      "packages/mrqlab_experiment/mrqlab_experiment/study_records.py": "7b3be7efc9087f44057119d146386e7730258224e11c169a70cd6f8411762deb",
+      "packages/mrqlab_experiment/mrqlab_experiment/tse_control.py": "b8d8f8592b94090b9d65977540da50464cd5725a26813d23b9114248d2c937b2",
+      "packages/mrqlab_experiment/mrqlab_experiment/tse_imaging.py": "2e49a4565cbf72919d0f8cb589554ec5e4fe76a3b38b37198f05be6ee5d247f4",
+      "packages/physics/mrqlab_physics/__init__.py": "d036e427bd56685ea0082cdd0f6a5dbb8bd094b7063bae40dc0723cb2bf961ae",
+      "packages/physics/mrqlab_physics/backends/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/backends/bloch.py": "3e34c37d2219da101efe52b81276070d4f8a39d492a653e9a24b46516ff2b71b",
+      "packages/physics/mrqlab_physics/backends/epg.py": "590fd450d67bf36e6dde288544a9813928d6a803b732dc993d6c52bc4aae380d",
+      "packages/physics/mrqlab_physics/backends/epg_x.py": "5dc1d916832973380bbadf897c137ee7e93e42e503e0d6c9f55791a501d37679",
+      "packages/physics/mrqlab_physics/backends/pdg.py": "7a58b0efc1b8cc85a11076af053c4ba607f663aa19de480e4e660990b1673350",
+      "packages/physics/mrqlab_physics/backends/protocol.py": "cefb0757af321847010b2699db86a8260c9aef606f65a3a872e306c3e5487abe",
+      "packages/physics/mrqlab_physics/backends/spectral.py": "f31a3f45696d5cfba2047b14534b9fe965f2410b7455c96f44332e86329d7856",
+      "packages/physics/mrqlab_physics/base.py": "f3326539a06807b2b06d45a6eba7677bf1c61819973399d7d6d9a837b9b27a1f",
+      "packages/physics/mrqlab_physics/engines/__init__.py": "280754791626849f9f1fa9e70c02633a3fe3c38177ef4bcefd89e1f8babe9108",
+      "packages/physics/mrqlab_physics/engines/bloch_engine.py": "cf5044f6d80954c63d64e931742e0b0836de1c5c6466104df04f17811bbc648f",
+      "packages/physics/mrqlab_physics/engines/epg_engine.py": "bb76053ca2843c74204e9a4eeb9e8409909fad3d36c00b7f4e49c8da0443ad18",
+      "packages/physics/mrqlab_physics/engines/epg_x_engine.py": "e5f1d0e66df7ec825b61975e021eec96cca031c3037d8ef3fa74703902265690",
+      "packages/physics/mrqlab_physics/engines/hybrid_engine.py": "96a586f1d32978d2913047b7d76c38a6e8ea707b6fcf5848a017876f60476ca4",
+      "packages/physics/mrqlab_physics/engines/pdg_engine.py": "798648f8bbe4353580213380889a390ac20a571207d5a63c17fbf656aee438f0",
+      "packages/physics/mrqlab_physics/engines/spectral_engine.py": "04024adc72bce9adae5836bccd015cba4d706dc9aa9def88ccb9d6a7bd04de31",
+      "packages/physics/mrqlab_physics/engines/ssepg_engine.py": "6ffa7aaa10379af697c2819773b8de0a01e228075eb0807356ac59f1cc7c8425",
+      "packages/physics/mrqlab_physics/kernel/__init__.py": "8eea9df4f6d7b38ca0e39ccc27b04700e3d08dbeec8046d613d22706d19985fa",
+      "packages/physics/mrqlab_physics/kernel/caps.py": "dd72156d6437cfbd6f7ff87af2c8cefad4411d9acdf0cd3cf87df059a61f572b",
+      "packages/physics/mrqlab_physics/kernel/conventions.py": "8de6dc1d542b88764634a515e12afaf54a22384b8dc2bc616f13f52929f80b76",
+      "packages/physics/mrqlab_physics/kernel/runner.py": "9f1c738badc50de07acb582d3769ea66e9ae492038bae31f3416f65928ed1f91",
+      "packages/physics/mrqlab_physics/kernel/scheduler.py": "011cfc1f1b7dc57fad9cb881f8ed801bc17a69bcfa5b7be306e5ec3ce5f00ee5",
+      "packages/physics/mrqlab_physics/kernel/units.py": "d92350bbb229c6dc6c6d681a69945a2d57aca76ce7f6045266bf33e5e5955b07",
+      "packages/physics/mrqlab_physics/models.py": "567e45a52a1576a81e4f091032b4b54cb1a8693ae9c5aad3eb19821f3bd2bc46",
+      "packages/physics/mrqlab_physics/ops/__init__.py": "1140c01a3d3162e307f0b5b4127db2b17e4f686610628d4a0e8d6ee8697c97c2",
+      "packages/physics/mrqlab_physics/ops/cest_saturation.py": "e3aab1d3a0e35ed0330977c1c5a564ec5aaee6303f02c97af70066e9f138980b",
+      "packages/physics/mrqlab_physics/ops/diffuse.py": "5d1230d54d09a0824155fcc55b1d60cf16e44829d748a892eb0e866a04875a46",
+      "packages/physics/mrqlab_physics/ops/dipolar_solomon.py": "cb9216475228636c9ed7efbcb82dafe486d6e8e3ec79b8ee2d39a40e703685d6",
+      "packages/physics/mrqlab_physics/ops/generalized_mt.py": "d90499e03b07f9a9f6546c16bf99b90d0d2979e5bee0a421ffbe4a98172bda76",
+      "packages/physics/mrqlab_physics/ops/quantum_relaxation.py": "13ddc2f5c3d5a8ebb01d5bd6c4673d9c256eb174b603a9f11a76ee365573b09f",
+      "packages/physics/mrqlab_physics/ops/relax.py": "74eeb079daa45c6b488374491604757473afee959e03f0aa7a66a9a3de01d007",
+      "packages/physics/mrqlab_physics/ops/rf.py": "4336088271a4106f951663e69b7a6036eb8444fcf048ffc69cd780a94309be4f",
+      "packages/physics/mrqlab_physics/ops/sample.py": "72f6ad98d6e86adb450015e054d0dfc45145837a0799fadb89a38f41995a1dee",
+      "packages/physics/mrqlab_physics/ops/super_lorentzian.py": "174d145766c848f4ec86d61636d1b53ec0e656526fe2039359374ba20a40080d",
+      "packages/physics/mrqlab_physics/ops/types.py": "fcf70eb486286f97ad6495cf9ca3e51fbb619906fba8f06fa9a4f73abb6b3dce",
+      "packages/physics/mrqlab_physics/registry.py": "cad05e66b354f4a587e20f30293a15b27744f1402551722b6f842965d7943bdc",
+      "packages/recon/mrqlab_recon/__init__.py": "052913a681d0a7760bdbd7c036fa0ebbd2c935881fb575583be1ef973bd7795c",
+      "packages/recon/mrqlab_recon/echo_subspace.py": "63cfcdda8654686b3e4d07663cf8bb9e7dd732c9739223ccb3ec782f2309c5bc",
+      "packages/recon/mrqlab_recon/noncartesian.py": "5757ffa245bd0306c452748902f7095998302a2699f1cfbf035c9cbbf7de2b9a",
+      "packages/recon/mrqlab_recon/nufft.py": "ed2ca49e5d272336249ee42ef7bc45e364cdde67379fc1712a660b5c743b2d01",
+      "packages/recon/mrqlab_recon/readout_encoding.py": "7560b5f203072f41ca64f36b000cc3b64bf0f7209adb7eabbe0dc8b2e7ad26d5",
+      "packages/recon/mrqlab_recon/spatial.py": "ab8e4e11b6ccf9b2b09dd0a8f99effafba1b72baa52239cce0d962af448c9b75",
+      "packages/recon/mrqlab_recon/trajectories.py": "a0d332605e753306d72739f5a9b5d29bd6b8b4780e3536203dd8e262c2266190",
+      "packages/sequence-ir/export_schema.py": "348b63a22c6b059642920dbacaac67c0b4e642db89736701ba512cb2a2520e94",
+      "packages/sequence-ir/mrqlab_sequence/__init__.py": "8aea331976b683fe0027c3f6a7ee44761593432f07c5a979686ac892b13fe10c",
+      "packages/sequence-ir/mrqlab_sequence/family_templates.py": "cc0cd9c9189ce02a44c74451f36a194a89c9725808448dc9663e07d1f68aeb5a",
+      "packages/sequence-ir/mrqlab_sequence/models.py": "0131432e96c5dfe6adeb269df267f37ae6f0e1ecd3212cfee896fec72222ff23",
+      "packages/sequence-ir/mrqlab_sequence/templates.py": "c57adf4abe0c050775baf7947f82274ddce09366e16b4caa97edb625bdb67b3e",
+      "pyproject.toml": "6b8ba7e02e2e3c763949eb3888532057675ff898f6d839e28400b4ab2c9dc4b4",
+      "services/api/mrqlab_api/__init__.py": "b7447d3f3581173624e78cdcbd56b4e1807c9883d07c56e928f2f9f65ee20efd",
+      "services/api/mrqlab_api/main.py": "dee84fa8fd8735d200be2f09765bdb0a6e98c330ed1c01af567a814cd62d8d70",
+      "services/api/mrqlab_api/research.py": "57c48649f4aee47a8403389b8c63318013baf95770000ac22e38c1d383ed98f5",
+      "services/api/mrqlab_api/scientific_records.py": "dd3b9253ba1f4653d01e6b8760c5aa6ffe59b3517c57144ada85bd746367d859",
+      "services/api/mrqlab_api/v043_endpoints.py": "225024bc8de27464cca84495963049f7097369740164a969aeecc458b43d4c4d",
+      "uv.lock": "b22b17b907e8010005a7d4df4b7617e11da659c3e7bf94baf14cde354b12ceee"
+    },
+    "sha256": "26328687d206c751308e81728a3e05874abaa5fbcc174e302945a5093fd7318f"
+  }
+}

@@ -15,7 +15,7 @@ class FrozenDict(dict):
     def _immutable(self, *args, **kwargs):
         raise TypeError("resolved mappings are immutable")
 
-    __setitem__ = __delitem__ = clear = pop = popitem = setdefault = update = _immutable
+    __ior__ = __setitem__ = __delitem__ = clear = pop = popitem = setdefault = update = _immutable
 
 
 def _deep_freeze(value):
@@ -60,6 +60,11 @@ class ResolvedExecutionPlan(BaseModel):
 
 
 _UNITS = {
+    "voxel_size_m": "m",
+    "partitions": "count", "repetitions": "count", "refocusing_end_angle": "deg",
+    "inversion_time_s": "s", "inflow_fraction": "dimensionless", "double_inversion": "dimensionless",
+    "delta_s": "s", "separation_s": "s", "diffusion_gradient_mt_m": "mT/m",
+    "epi_lines": "count", "echo_spacing_s": "s", "readout_s": "s",
     "te": "s",
     "tr": "s",
     "echoes": "count",
@@ -76,6 +81,7 @@ _UNITS = {
 
 
 def resolve_parameter_states(graph: ExperimentGraph, sequence) -> tuple[ParameterState, ...]:
+    from .contrast_relaxation import contrast_bindings
     authored = graph.sequence.params if isinstance(graph.sequence, TemplateRef) else {}
     derived = {
         key: value
@@ -94,6 +100,20 @@ def resolve_parameter_states(graph: ExperimentGraph, sequence) -> tuple[Paramete
         for name, value in sorted(values.items())
         if name in _UNITS
     ]
+    for binding in contrast_bindings(graph):
+        exposure=binding['exposure'];prefix='tissue.'+binding['tissue_id']+'.'
+        for name,unit in [('concentration_mmol_l','mmol/L'),('r1_l_mmol_s','L/(mmol*s)'),('r2_l_mmol_s','L/(mmol*s)')]:
+            states.append(ParameterState(name=prefix+name,value=exposure[name],unit=unit,state='authored',source='ExperimentGraph.tissue.contrast_exposure; '+exposure['source_ref']))
+        for name in ['baseline_t1_s','baseline_t2_s','effective_t1_s','effective_t2_s']:
+            states.append(ParameterState(name=prefix+name,value=binding[name],unit='s',state='derived' if name.startswith('effective') else 'authored',source='static_linear_R1_R2; original tissue times remain baseline'))
+    cest = sequence.metadata.get("cest")
+    if cest:
+        for name, unit in (("saturation_power_uT", "uT"), ("saturation_duration_s", "s")):
+            states.append(ParameterState(name=name, value=cest[name], unit=unit, state="authored",
+                source="ExperimentGraph.sequence.metadata.cest"))
+        tissue_values = graph.tissue if isinstance(graph.tissue, tuple) else ()
+        states.append(ParameterState(name="liquid_pool_count", value=len(tissue_values), unit="count",
+            state="derived", source="ExperimentGraph.tissue"))
     scanner = graph.effective_scanner
     states.extend(
         (

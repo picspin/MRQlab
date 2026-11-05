@@ -175,10 +175,14 @@ _CLINICAL_RECIPES: dict[str, ClinicalRecipeSpec] = {
 
 
 def list_clinical_recipes() -> list[str]:
-    return [*_CLINICAL_RECIPES.keys(), "cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum", "cest_amine_z_spectrum"]
+    from .family_recipes import FAMILY_RECIPES
+    return [*FAMILY_RECIPES, *_CLINICAL_RECIPES.keys(), "cest_amide_z_spectrum", "cest_amide_pulsed_z_spectrum", "cest_amine_z_spectrum"]
 
 
 def build_clinical_recipe(name: str) -> ExperimentGraph:
+    from .family_recipes import FAMILY_RECIPES, build_family_recipe
+    if name in FAMILY_RECIPES:
+        return build_family_recipe(name)
     cest_recipes = {
         "cest_amide_z_spectrum": ("amide", 3.5, False),
         "cest_amide_pulsed_z_spectrum": ("amide", 3.5, True),

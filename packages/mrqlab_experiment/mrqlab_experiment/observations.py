@@ -6,6 +6,8 @@ import numpy as np
 from pydantic import BaseModel, Field
 
 from mrqlab_recon import fft_reconstruct
+from mrqlab_physics import EngineOptions
+from mrqlab_physics.kernel.scheduler import preflight_schedule
 
 from .clinical import ParameterState
 from .objectives import evaluate_multi_tissue_contrast, evaluate_objective
@@ -42,6 +44,7 @@ class ObservationProvenance(BaseModel):
     seed: int
     n_ops: int
     estimated_work: int
+    contrast_relaxation_bindings: tuple[dict[str, Any], ...] = ()
 
 
 class Observation(BaseModel):
@@ -78,6 +81,30 @@ def _derived_from(product: str, emitted: frozenset[str]) -> tuple[str, ...]:
     return ()
 
 
+def _echo_observation(run, provenance, emitted):
+    """One echo per nonempty ADC window, sampled at its declared start.
+
+    Raw signal retains all dwell samples; ADC dwell count is not echo count.
+    """
+    schedule = preflight_schedule(run.sequence, EngineOptions(**dict(run.plan.options)))
+    indices, times = [], []
+    offset = 0
+    for window in schedule.adc_windows:
+        if window.count:
+            indices.append(offset)
+            times.append(window.start)
+        offset += window.count
+    if offset != run.sim_result.signal.size:
+        raise ValueError("echo_train ADC schedule does not match simulated signal")
+    return Observation(
+        id="echo_train", kind="echo_train",
+        data=np.abs(run.sim_result.signal[indices]).tolist(),
+        axes={"echo": list(range(1, len(indices) + 1)), "time_s": times},
+        units={"value": "a.u.", "time_s": "s"},
+        derived_from=_derived_from("echo_train", emitted), provenance=provenance,
+    )
+
+
 def build_result_graph(run) -> ResultGraph:
     raw = run.experiment.model_dump(mode="json")
     digest = hashlib.sha256(
@@ -101,6 +128,7 @@ def build_result_graph(run) -> ResultGraph:
         seed=run.experiment.provenance.seed,
         n_ops=int(meta.get("n_ops", 0)),
         estimated_work=int(meta.get("estimated_work", 0)),
+        contrast_relaxation_bindings=tuple(meta.get('contrast_relaxation_bindings',())),
     )
     products = run.experiment.readout.products
     if run.sim_result.slice_profile is not None and "slice_profile" not in products:
@@ -151,7 +179,7 @@ def build_result_graph(run) -> ResultGraph:
             id="k_trajectory",
             kind="k_trajectory",
             data=run.sim_result.k_trajectory.tolist(),
-            units={"k": "teaching-gradient·s"},
+            units={"k": "cycles/m" if run.sequence.metadata.get("gradient_units") == "mt_m" else "teaching-gradient·s"},
             provenance=provenance,
         ),
         "image": lambda emitted: Observation(
@@ -171,7 +199,10 @@ def build_result_graph(run) -> ResultGraph:
             kind="objective_score",
             data=evaluate_objective(
                 run.experiment.objective,
-                {"signal": run.sim_result.signal},
+                {"signal": run.sim_result.signal, **(
+                    {"multi_tissue_contrast": evaluate_multi_tissue_contrast(run.experiment)}
+                    if run.experiment.objective.kind in {"clinical_cnr", "clinical_vector"} else {}
+                )},
             ),
             units={"value": "score"},
             derived_from=_derived_from("objective_score", emitted),
@@ -191,14 +222,7 @@ def build_result_graph(run) -> ResultGraph:
             derived_from=_derived_from("configurations", emitted),
             provenance=provenance,
         ),
-        "echo_train": lambda emitted: Observation(
-            id="echo_train",
-            kind="echo_train",
-            data=np.abs(run.sim_result.signal).tolist(),
-            axes={"echo": list(range(1, int(run.sim_result.signal.size) + 1))},
-            derived_from=_derived_from("echo_train", emitted),
-            provenance=provenance,
-        ),
+        "echo_train": lambda emitted: _echo_observation(run, provenance, emitted),
         "tissue_contrast": lambda emitted: Observation(
             id="tissue_contrast",
             kind="tissue_contrast",
