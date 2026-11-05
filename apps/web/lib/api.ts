@@ -369,3 +369,19 @@ export async function patchSequence(req: {
   if (!response.ok) throw new Error(`sequence patch failed: ${await response.text()}`);
   return response.json();
 }
+
+export async function runResearch(request: import("./research").ResearchRequest, signal?: AbortSignal): Promise<import("./research").ResearchRun> {
+  const response = await fetch(`${BASE}/research/run`, {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal,
+  });
+  if (!response.ok) throw new Error(`研究运行失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
+
+export async function searchResearch(request: import("./research").ResearchRequest & { candidates: Record<string, unknown>[] }, signal?: AbortSignal): Promise<import("./research").ResearchSearch> {
+  const response = await fetch(`${BASE}/research/search`, {
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(request), signal,
+  });
+  if (!response.ok) throw new Error(`网格搜索失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}

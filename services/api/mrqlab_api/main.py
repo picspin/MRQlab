@@ -435,3 +435,8 @@ def simulate(request: SimulateRequest):
         return _legacy_response(run_experiment(graph).sim_result)
     except (ValueError, TypeError, NotImplementedError) as exc:
         raise HTTPException(422, str(exc)) from exc
+
+# Research extensions have their own bounded contract; locked protocol catalog
+# and scanner/licensed execution milestones remain unchanged.
+from .research import router as research_router
+app.include_router(research_router)
