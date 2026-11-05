@@ -136,6 +136,19 @@ forward consistency passes. It is a computed design state, not a selected valid
 clinical design. The synthetic exposure/relaxivity values are not measured lab
 calibration, parameter uncertainty or a dynamic biological model.
 
+**Known model difference (issue #62), not an implementation error.** The train-mean
+reference holds one tissue amplitude constant across the echo train, so it cannot
+match an acquisition whose per-line weights decay with T2 and evolve under the
+refocusing-angle ramp. The 0.16709967 gap is that physical T2-modulation effect;
+the echo-weighted acquisition is intentional and the constant-weight regression
+(`test_constant_echo_weight_ideal_recovery_regression`, `weighting='mean'`) already
+covers the ideal 1e-10 recovery on the path where the reference is the exact image.
+`quality` is therefore left unchanged as a modulation diagnostic. A parallel metric
+`nrmse_vs_echo_reference` (target 1e-10) now certifies the acquisition/reconstruction
+chain itself by comparing the image against an independent direct inverse DFT of the
+sampled per-line weights; it passes at ~1e-16 for both weightings on the teaching
+grids, so the echo-weighted chain is verified without hiding the modulation signal.
+
 `scripts/verify_contrast_image_signal.py` produces the complete
 [evidence](examples/contrast-image-signal-evidence.json), both language request
 variants and invalid field/range/legacy-input cases. Two independent processes

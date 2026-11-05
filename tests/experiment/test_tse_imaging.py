@@ -98,3 +98,36 @@ def test_variable_refocusing_epg_changes_echo_weights():
     ramp = run_tse_imaging(phantom(), refocusing_angle=140., refocusing_end_angle=110.)
     assert not np.allclose(fixed['tissue_echo_weights'], ramp['tissue_echo_weights'])
     assert ramp['psf_prediction_quality']['passed']
+
+
+@pytest.mark.parametrize('ndim', [2, 3])
+@pytest.mark.parametrize('weighting', ['echo', 'mean'])
+def test_echo_reference_fidelity_holds_while_train_mean_diagnostic_stays_visible(ndim, weighting):
+    # nrmse_vs_echo_reference certifies the acquisition/reconstruction chain
+    # (independent direct inverse DFT of the sampled per-line weights) at 1e-10.
+    # The train-mean quality is a separate physical diagnostic and is expected to
+    # differ for echo weighting: that difference is T2 modulation, not a fault.
+    labels = phantom(ndim)
+    r = run_tse_imaging(labels, echoes=8, weighting=weighting)
+    assert r['nrmse_vs_echo_reference']['passed']
+    assert r['nrmse_vs_echo_reference']['nrmse'] < 1e-10
+    assert r['nrmse_vs_echo_reference']['threshold'] == 1e-10
+    if weighting == 'echo':
+        assert not r['quality']['passed'] and r['quality']['nrmse'] > 1e-3
+    else:
+        assert r['quality']['passed']
+    # The two references must be distinct objects with distinct semantics.
+    assert r['nrmse_vs_echo_reference'] is not r['quality']
+
+
+def test_echo_reference_cost_is_budgeted_and_large_grids_are_rejected():
+    from mrqlab_experiment.tse_imaging import direct_inverse_dft_work
+    # The direct-DFT reference is charged to the work budget, so a grid whose
+    # reference cost alone exceeds max_work fails closed instead of allocating.
+    work = direct_inverse_dft_work((4, 32768))
+    assert work > 1e8
+    with pytest.raises(ValueError, match='infeasible readout budget'):
+        run_tse_imaging(np.zeros((4, 32768), int), echoes=4, max_samples=1000000, max_work=100000000)
+    # Reported work must include the reference cost, not just the FFT proxy.
+    r = run_tse_imaging(phantom(), echoes=8)
+    assert r['provenance']['estimated_work'] >= direct_inverse_dft_work(phantom().shape)

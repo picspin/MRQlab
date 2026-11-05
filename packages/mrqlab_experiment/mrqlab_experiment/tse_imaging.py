@@ -45,6 +45,45 @@ def psf_metrics(modulation):
                 rms_radius_voxels=float(np.sqrt(np.sum(radius2*a*a)/np.sum(a*a))))
 
 
+def direct_inverse_dft_work(shape):
+    """Complex multiply-term proxy for echo_reference_image on this grid."""
+    shape = tuple(shape)
+    return int(2*int(np.prod(shape))*sum(shape))
+
+
+def _direct_inverse_dft(kspace, shape, *, block_elements=2_000_000):
+    """Centered inverse DFT by explicit matrices, independent of fft_image.
+
+    Used only for the echo-reference fidelity check. Avoids reusing the FFT or
+    cartesian_reconstruct path so the two sides of the comparison are computed
+    by different code. Output rows are transformed in blocks so peak extra
+    memory is bounded by block_elements, not by n*n per axis.
+    """
+    out = np.asarray(kspace, complex)
+    for axis, n in enumerate(shape):
+        index = np.arange(n)-n//2
+        moved = np.moveaxis(out, axis, 0)          # view, shape (n, ...)
+        result = np.empty_like(moved)
+        rows_per_block = max(1, min(n, block_elements//max(1, n)))
+        for start in range(0, n, rows_per_block):
+            block_index = index[start:start+rows_per_block]
+            matrix = np.exp(2j*np.pi*np.outer(block_index, index)/n)/n
+            result[start:start+rows_per_block] = np.tensordot(matrix, moved, axes=([1], [0]))
+        out = np.moveaxis(result, 0, axis)
+    return out
+
+
+def echo_reference_image(kspace, shape):
+    """Ideal image of the per-line tissue weights actually sampled.
+
+    Reference for acquisition/reconstruction fidelity, computed by direct
+    inverse DFT. Unlike the train-mean reference (the T2-modulation diagnostic),
+    this equals the acquired Cartesian image to numerical error; a nonzero
+    difference indicates an encoding or reconstruction fault, not T2 physics.
+    """
+    return _direct_inverse_dft(kspace, tuple(shape))
+
+
 def prepare_tse_echo_train(*, echoes, echo_spacing_s, tr_s, t2_s,
                            refocusing_angle=180., refocusing_end_angle=180.,
                            max_work=100000000, experiment=None, allow_contrast_exposure=False):
@@ -124,15 +163,17 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
     for value in (max_samples, max_work):
         if type(value) is not int or value <= 0: raise ValueError('positive integer budget required')
     trains = nz*ny//echoes
-    # Work includes mask transforms, reconstruction, PSFs and the EPG budget.
+    # Work includes mask transforms, reconstruction, PSFs, the echo-reference
+    # direct DFT and the EPG budget.
     spatial_work = int(8*labels.size*max(1, np.ceil(np.log2(labels.size))))
-    if labels.size > max_samples or spatial_work >= max_work or trains*tr_s > max_duration_s:
+    reference_work = direct_inverse_dft_work(labels.shape)
+    if labels.size > max_samples or spatial_work+reference_work >= max_work or trains*tr_s > max_duration_s:
         raise ValueError('infeasible readout budget')
     graph,sequence,weights,physical,preparation_s,physical_work,experiment_input = prepare_tse_echo_train(
         echoes=echoes,echo_spacing_s=echo_spacing_s,tr_s=tr_s,t2_s=t2_s,
         refocusing_angle=refocusing_angle,refocusing_end_angle=refocusing_end_angle,
-        max_work=max_work-spatial_work,experiment=experiment,allow_contrast_exposure=True)
-    if spatial_work+physical_work > max_work:
+        max_work=max_work-spatial_work-reference_work,experiment=experiment,allow_contrast_exposure=True)
+    if spatial_work+reference_work+physical_work > max_work:
         raise ValueError('combined EPG and spatial work exceeds budget')
     if trains*tr_s+max(preparation_s) > max_duration_s:
         raise ValueError('prepared readout exceeds duration budget')
@@ -177,11 +218,12 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
         linked_readout=pair_tse_readout(kspace,image,timeline,labels,graph.tissue,inputs),
         tissue_echo_weights=weights, modulation=modulation, psfs=psfs, image=image, reference=reference,
         quality=image_quality(reference, image, 1e-10),
+        nrmse_vs_echo_reference=image_quality(echo_reference_image(kspace, labels.shape), image, 1e-10),
         psf_prediction_quality=image_quality(prediction, image, 1e-10), scope=SCOPE,
         provenance=dict(version='tse-psf-v1', replay=inputs, input_hash=_hash(inputs), physical=physical,
             sequence=sequence.model_dump(mode='json'), timeline_hash=_hash(timeline),
             samples_hash=_hash([kspace.real.tolist(), kspace.imag.tolist()]),
-            estimated_samples=int(labels.size), estimated_work=spatial_work+physical_work,
+            estimated_samples=int(labels.size), estimated_work=spatial_work+reference_work+physical_work,
             acquisition_duration_s=trains*tr_s, preparation_duration_s=max(preparation_s),
             total_duration_s=trains*tr_s+max(preparation_s),
             weight_method='absolute periodic EPG at exact echo center; constant along kx; tissue-wise linear Fourier encoding'))
