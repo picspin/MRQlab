@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 from mrqlab_experiment.family_recipes import build_family_recipe
 from mrqlab_experiment.lab_study import (EchoDataset,LabStudy,StudyTargets,calibrate_t2,
-    import_echo_csv,run_lab_study,fingerprint)
+    StudyBudget,build_lab_study_example,import_echo_csv,run_lab_study,fingerprint)
 from mrqlab_experiment.study_records import (create_study_record,replay_study_record,
     verify_study_record,save_study_record)
 
@@ -94,6 +94,20 @@ def test_budgets_and_failed_targets_do_not_select_partial_grid(spec):
     result=run_lab_study(spec)
     assert result['validation']['calibration_and_holdout_passed'] and result['selected_index'] is None
     assert all(not p['eligible'] for p in result['candidates'])
+
+    example=build_lab_study_example()
+    example.budget=StudyBudget(max_total_work=1000000000,max_work_per_simulation=20000)
+    result=run_lab_study(example)
+    assert len(result['candidates'])==3
+    assert all(not p['scenarios'] for p in result['candidates'])
+    assert not result['validation']['complete_budgeted_search']
+
+    example.budget=StudyBudget(max_total_work=70000,max_work_per_simulation=30000)
+    result=run_lab_study(example)
+    assert any(p['scenarios'] for p in result['candidates'])
+    assert any(p['scenarios'] and not p['executed'] for p in result['candidates'])
+    assert not result['validation']['complete_budgeted_search']
+    assert result['selected_index'] is None
 
 
 def test_csv_exact_units_byte_hash_and_independent_acquisitions(spec):

@@ -305,6 +305,7 @@ def run_lab_study(study: LabStudy | dict):
                 if name=='nominal': nominal=run
             except ValueError as exc:
                 work+=cap  # Failed calls may consume the cap; never account them as free.
+                budget_incomplete=True
                 entry['reasons'].append(str(exc)); break
         entry['executed']=len(entry['scenarios'])==len(scenarios)
         if entry['executed']:
