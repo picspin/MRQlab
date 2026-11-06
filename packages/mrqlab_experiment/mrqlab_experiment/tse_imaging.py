@@ -3,6 +3,7 @@ import numpy as np
 from mrqlab_sequence import build_sequence
 from mrqlab_recon.spatial import fft_image, ifft_image, cartesian_indices, cartesian_reconstruct, image_quality
 from .spatial_imaging import _hash
+from .family_execution import FamilyWorkError
 from .family_recipes import build_family_recipe
 from .kernel import run_experiment
 from .observations import build_result_graph
@@ -12,6 +13,20 @@ SCOPE = ('Teaching/research spoiled periodic EPG, ideal hard CPMG RF and Cartesi
          'encoding; no scanner validation or clinical quality certification; no B1 '
          'inhomogeneity, physical gradient timing, motion, parallel imaging or slice selection. '
          'One echo-center tissue amplitude is held constant across each ideal Fourier line.')
+
+
+class ReadoutWorkError(ValueError):
+    """A readout failed after consuming simulation work.
+
+    ``estimated_work`` is the EPG work actually spent before the failure, so a
+    caller budgeting many attempts can account a failed call honestly instead of
+    assuming it consumed only its declared per-call cap. A failed call can exceed
+    that cap because the cap is split across the per-tissue EPG runs.
+    """
+
+    def __init__(self, message, estimated_work):
+        super().__init__(message)
+        self.estimated_work = int(estimated_work)
 
 
 def psf_metrics(modulation):
@@ -82,7 +97,9 @@ def prepare_tse_echo_train(*, echoes, echo_spacing_s, tr_s, t2_s,
     for tissue, t2 in zip(graph.tissue, t2_s):
         tissue.t2 = t2
         g = graph.model_copy(deep=True); g.tissue = tissue
-        result = run_experiment(g)
+        try: result = run_experiment(g)
+        except FamilyWorkError as exc:
+            raise ReadoutWorkError(str(exc),physical_work+exc.estimated_work) from exc
         signal = np.abs(result.sim_result.signal)
         if signal.shape != (echoes,) or not np.isfinite(signal).all() or signal.max() <= 0:
             raise ValueError('EPG echo/ADC count mismatch or invalid signal')
@@ -91,7 +108,7 @@ def prepare_tse_echo_train(*, echoes, echo_spacing_s, tr_s, t2_s,
         physical_work += result.sim_result.meta['estimated_work']
         preparation_s.append(result.sim_result.meta['preparation_duration_s'])
     if physical_work > max_work:
-        raise ValueError('combined EPG work exceeds budget')
+        raise ReadoutWorkError('combined EPG and spatial work exceeds budget',physical_work)
     return graph,sequence,np.array(weights),physical,preparation_s,physical_work,experiment_input
 
 
@@ -128,14 +145,19 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
     spatial_work = int(8*labels.size*max(1, np.ceil(np.log2(labels.size))))
     if labels.size > max_samples or spatial_work >= max_work or trains*tr_s > max_duration_s:
         raise ValueError('infeasible readout budget')
-    graph,sequence,weights,physical,preparation_s,physical_work,experiment_input = prepare_tse_echo_train(
-        echoes=echoes,echo_spacing_s=echo_spacing_s,tr_s=tr_s,t2_s=t2_s,
-        refocusing_angle=refocusing_angle,refocusing_end_angle=refocusing_end_angle,
-        max_work=max_work-spatial_work,experiment=experiment,allow_contrast_exposure=True)
+    try:
+        graph,sequence,weights,physical,preparation_s,physical_work,experiment_input = prepare_tse_echo_train(
+            echoes=echoes,echo_spacing_s=echo_spacing_s,tr_s=tr_s,t2_s=t2_s,
+            refocusing_angle=refocusing_angle,refocusing_end_angle=refocusing_end_angle,
+            max_work=max_work-spatial_work,experiment=experiment,allow_contrast_exposure=True)
+    except ReadoutWorkError:
+        raise
+    except ValueError as exc:
+        raise ReadoutWorkError(str(exc),0) from exc
     if spatial_work+physical_work > max_work:
-        raise ValueError('combined EPG and spatial work exceeds budget')
+        raise ReadoutWorkError('combined EPG and spatial work exceeds budget',physical_work)
     if trains*tr_s+max(preparation_s) > max_duration_s:
-        raise ValueError('prepared readout exceeds duration budget')
+        raise ReadoutWorkError('prepared readout exceeds duration budget',physical_work)
     weights = np.array(weights)
     ky = list(range(ny)); kz = sorted(range(nz), key=lambda z:(abs(z-nz//2), z))
     if order == 'centric': ky.sort(key=lambda y:(abs(y-ny//2), y))

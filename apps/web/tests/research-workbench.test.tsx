@@ -90,6 +90,20 @@ it("imports a pinned run without displaying it as a fresh measurement", async ()
   expect(vi.mocked(runResearch).mock.calls[0][0]).toEqual(result.replay_request);
 });
 
+it("imports this page's own multi-MB export without rejecting it", async () => {
+  // A 4-candidate MRS search record at the API's 1024-point maximum serializes
+  // to about 6.4 MB, which the old 5 MB import limit rejected.
+  const padding = "x".repeat(6_400_000);
+  const big = { ...result, result: { ...result.result, export_padding: padding }, replay_request: { ...result.replay_request, parameters: { points: 1024 } } };
+  const file = new File(["record"], "mrs-search.json", { type: "application/json" });
+  Object.defineProperty(file, "size", { value: 6_400_000 });
+  Object.defineProperty(file, "text", { value: async () => JSON.stringify(big) });
+  render(<ResearchPage />); fireEvent.change(screen.getByLabelText("导入回放记录"), { target: { files: [file] } });
+  await screen.findByText("记录已载入。运行将核对源码指纹和结果哈希。");
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect((screen.getByLabelText("完整参数 JSON") as HTMLTextAreaElement).value).toContain('"points": 1024');
+});
+
 
 it("submits the explicitly selected NUFFT inverse and clears stale results", async () => {
   vi.mocked(runResearch).mockResolvedValue(result); render(<ResearchPage />);

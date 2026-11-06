@@ -14,7 +14,7 @@ import json
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from .models import ExperimentGraph, TemplateRef
-from .tse_imaging import run_tse_imaging
+from .tse_imaging import ReadoutWorkError, run_tse_imaging
 from .clinical import TissuePrior, TissuePriorSet
 
 Number = Annotated[float, Field(allow_inf_nan=False)]
@@ -303,6 +303,12 @@ def run_lab_study(study: LabStudy | dict):
                     run_hash=fingerprint(run),provenance=run['provenance'])
                 entry['scenarios'].append(evidence)
                 if name=='nominal': nominal=run
+            except ReadoutWorkError as exc:
+                # The failed call already spent this EPG work; the reservation is
+                # only an upper cap. Charge whichever is larger so a failed
+                # attempt is never under-reported.
+                work+=max(cap,exc.estimated_work)
+                entry['reasons'].append(str(exc)); break
             except ValueError as exc:
                 work+=cap  # Failed calls may consume the cap; never account them as free.
                 entry['reasons'].append(str(exc)); break

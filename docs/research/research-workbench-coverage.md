@@ -41,6 +41,9 @@ JSON export/import and a source-pinned replay request preserve every run.
 - JSON import checks type/source fields and displays no measurement before the
   backend executes. Editing controls clears old measurements; aborted or stale
   responses cannot overwrite a newer design. Errors do not fabricate results.
+  The 64 MiB import guard accepts this page's own exports: a four-candidate MRS
+  search record at the API's 1024-point maximum serializes to about 6.4 MB, while
+  still rejecting oversized records before their contents are read.
 - Shared-scale images preserve absolute amplitude comparisons; 3D previews show
   the center slice and exports retain the whole volume. Curves have numeric
   table alternatives. Server-side complex results retain real/imag components.

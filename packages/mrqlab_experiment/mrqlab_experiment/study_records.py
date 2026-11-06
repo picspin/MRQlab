@@ -31,7 +31,19 @@ def source_manifest():
     return dict(files=files,sha256=fingerprint(files))
 
 
-IMPORTED_SOURCE_HASH=source_manifest()['sha256']
+def _startup_source_hash():
+    """Capture the source anchor at import without requiring a source checkout.
+
+    A non-editable (wheel/site-packages) install has no repository manifest, so
+    recording or replaying study records must fail later, at use time, rather
+    than making the whole API module unimportable. A missing anchor is kept as
+    None so ``_checked_sources`` can reject use with a clear message.
+    """
+    try: return source_manifest()['sha256']
+    except (ValueError,OSError): return None
+
+
+IMPORTED_SOURCE_HASH=_startup_source_hash()
 
 
 def runtime_manifest():
@@ -46,6 +58,8 @@ def runtime_manifest():
 
 
 def _checked_sources():
+    if IMPORTED_SOURCE_HASH is None:
+        raise ValueError('study replay requires an editable source checkout; this install has no source manifest')
     sources=source_manifest()
     if sources['sha256']!=IMPORTED_SOURCE_HASH:
         raise ValueError('source changed since process startup; restart before recording or replaying')
