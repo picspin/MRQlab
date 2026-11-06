@@ -29,8 +29,32 @@ function extent(values: number[], emptyLow: number, emptyHigh: number): [number,
 function ownLabel(map: Record<string, string>, key: string): string | undefined {
   return Object.prototype.hasOwnProperty.call(map, key) ? map[key] : undefined;
 }
+const hasOwn = (value: object, key: PropertyKey) => Object.prototype.hasOwnProperty.call(value, key);
+const numberArray = (value: unknown): value is number[] => Array.isArray(value) && value.every(item => typeof item === "number" && Number.isFinite(item));
+const MAX_IMAGES = 8, MAX_CURVES = 32, MAX_SIDE = 128, MAX_POINTS = 10000;
+
+function renderable(view: unknown): view is ResearchRun["view"] {
+  if (!view || typeof view !== "object") return false;
+  const candidate = view as ResearchRun["view"];
+  if (!Array.isArray(candidate.images) || candidate.images.length > MAX_IMAGES || !Array.isArray(candidate.curves) || candidate.curves.length > MAX_CURVES ||
+      typeof candidate.x_label !== "string" || typeof candidate.y_label !== "string" || !candidate.validation || typeof candidate.validation !== "object" ||
+      typeof candidate.validation.passed !== "boolean" || !candidate.metrics || typeof candidate.metrics !== "object" || Array.isArray(candidate.metrics)) return false;
+  if (!Object.values(candidate.metrics).every(value => typeof value === "number" && Number.isFinite(value))) return false;
+  if (!Object.entries(candidate.validation).every(([key, value]) => typeof value === "boolean" ||
+      (typeof value === "number" && Number.isFinite(value) && hasOwn(TARGET_LABELS, key)))) return false;
+  if (!candidate.images.every(image => image && typeof image.label === "string" && Number.isInteger(image.width) && image.width > 0 && image.width <= MAX_SIDE &&
+      Number.isInteger(image.height) && image.height > 0 && image.height <= MAX_SIDE && numberArray(image.values) && image.values.length === image.width * image.height &&
+      (image.scale_group === undefined || typeof image.scale_group === "string"))) return false;
+  let totalPoints = 0;
+  return candidate.curves.every(curve => {
+    if (!curve || typeof curve.label !== "string" || !numberArray(curve.x) || !numberArray(curve.y) || curve.x.length !== curve.y.length || curve.x.length > MAX_POINTS) return false;
+    totalPoints += curve.x.length;
+    return totalPoints <= MAX_POINTS;
+  });
+}
 
 export default function Measurements({ view, validationLabel = "目标验证" }: { view: ResearchRun["view"]; validationLabel?: string }) {
+  if (!renderable(view)) return <p role="alert">记录载荷缺少可安全显示的测量结构。</p>;
   const { images, curves, x_label, y_label } = view;
   const scaleGroups = new Map<string, number[]>();
   for (const image of images) {

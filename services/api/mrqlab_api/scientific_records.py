@@ -2,7 +2,7 @@
 
 A record checksum is integrity, not authenticity or scientific revalidation.
 Lossless JSON strings preserve original numeric tokens across browser transport.
-No scanner execution, arbitrary code/path endpoint, or Milestone B/C promotion.
+No scanner execution or arbitrary code/path endpoint.
 """
 from __future__ import annotations
 import argparse
@@ -27,6 +27,7 @@ from mrqlab_experiment.study_records import (
 from mrqlab_experiment.calibrated_radial import CalibratedRadialStudy, run_calibrated_radial_study
 from mrqlab_experiment.flow_study import FlowStudy,VelocityDataset,run_flow_study
 from mrqlab_experiment.tse_control import apply_tse_edits
+from mrqlab_experiment.sequence_operations import OperationSequence, apply_operation_edits, run_operation_sequence
 from mrqlab_experiment.linked_readout import LinkedEdit, verify_linked_readout
 from mrqlab_experiment.agentic_inference import infer_tissue_modalities, verify_agentic_inference
 from .research import (
@@ -36,7 +37,7 @@ from .research import (
 SCHEMA='mrqlab-scientific-record-1'
 MAX_BYTES=128*1024*1024
 HASH=re.compile(r'^[a-f0-9]{64}$')
-SCOPE='teaching/research only; model targets and local replay, not scanner validation or clinical quality certification; B/C parked'
+SCOPE='teaching/research only; model targets and local replay, not scanner validation or clinical quality certification'
 router=APIRouter(prefix='/research/records',tags=['local scientific records'])
 
 
@@ -79,8 +80,8 @@ class MeasuredFlowPlan(Strict):
     study: FlowStudy
 
 
-class EditedTSEPlan(Strict):
-    type: Literal['edited_tse']='edited_tse'
+class LinkedParentEdits(Strict):
+    """Common bounded parent/edit carrier; physics is chosen by the adapter."""
     parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
     parent_record: dict | None=None
     updates: list[LinkedEdit]=Field(min_length=1,max_length=8)
@@ -91,6 +92,17 @@ class AgenticInferencePlan(Strict):
     parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
     parent_record: dict | None=None
     reference_tissue_id: str | None=Field(default=None,min_length=1,max_length=128)
+class EditedTSEPlan(LinkedParentEdits):
+    type: Literal['edited_tse']='edited_tse'
+
+
+class OperationSequencePlan(Strict):
+    type: Literal['operation_sequence']='operation_sequence'
+    parameters: OperationSequence
+
+
+class EditedOperationsPlan(LinkedParentEdits):
+    type: Literal['edited_operations']='edited_operations'
 
 
 class CalibratedRadialPlan(Strict):
@@ -102,7 +114,7 @@ class CalibratedRadialPlan(Strict):
 
 class ScientificPlan(Strict):
     context: StudyContext
-    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan,Field(discriminator='type')]
+    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan | OperationSequencePlan | EditedOperationsPlan,Field(discriminator='type')]
     expected_execution_hash: str | None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
 
 
@@ -160,7 +172,7 @@ def _validate_run(run, source):
     # This is the original API hash convention, applied to the lossless payload.
     actual=sha256(json.dumps(run['result'],sort_keys=True,allow_nan=False).encode()).hexdigest()
     if run.get('result_hash')!=actual: raise ValueError('nested research result hash mismatch')
-    if run.get('kind')=='tse' and 'linked_readout' in run['result']:
+    if run.get('kind') in {'tse','sequence_operations'} and 'linked_readout' in run['result']:
         pair=run['result']['linked_readout'];verify_linked_readout(pair)
         if pair['provenance']['inputs_sha256']!=fingerprint(run['replay_request']['parameters']):
             raise ValueError('linked input pin differs from retained computation')
@@ -200,26 +212,46 @@ def _agentic_view(inference):
 def _edit_parent(execution):
     parent=execution['parent_record']
     if not isinstance(parent,dict) or parent.get('record_sha256')!=execution['parent_record_sha256']: raise ValueError('edit parent record identity mismatch')
+    operation_mode=execution['type']=='edited_operations'
+    edit_mode='edited_operations' if operation_mode else 'edited_tse'
     cursor=parent;depth=1
-    while _loads(cursor['request_json'])['execution']['type']=='edited_tse':
+    while _loads(cursor['request_json'])['execution']['type'] in {'edited_tse','edited_operations'}:
+        if _loads(cursor['request_json'])['execution']['type']!=edit_mode:
+            raise ValueError('edit parent adapter lineage differs; mixed edit chains are unsupported')
         depth+=1
-        if depth>3: raise ValueError('at most three TSE edit generations are supported; no unbounded parent replay')
+        if depth>3: raise ValueError('at most three '+('operation' if operation_mode else 'TSE')+' edit generations are supported; no unbounded parent replay')
         cursor=_loads(cursor['request_json'])['execution']['parent_record']
     verify_scientific_record(parent)
     payload=_loads(parent['payload_json'])
-    if parent['summary']['mode']=='edited_tse': run=payload['run']
-    elif parent['summary']['mode']=='run' and parent['summary']['kind']=='tse': run=payload
-    else: raise ValueError('semantic edits require a TSE run or edited TSE parent')
+    if parent['summary']['mode']==edit_mode: run=payload['run']
+    elif operation_mode and parent['summary']['mode']=='operation_sequence': run=payload
+    elif not operation_mode and parent['summary']['mode']=='run' and parent['summary']['kind']=='tse': run=payload
+    else: raise ValueError('semantic edits require a matching operation sequence parent' if operation_mode else 'semantic edits require a TSE run or edited TSE parent')
+    if run['kind']!=('sequence_operations' if operation_mode else 'tse'):
+        raise ValueError('edit parent adapter kind differs')
     if 'linked_readout' not in run['result']: raise ValueError('parent lacks complete linked image/signal data')
     return parent,run
 
 
 def _run_origins(run):
     origins={'authored_model_inputs'}
+    if run.get('kind')=='sequence_operations': origins.add('synthetic')
     if run.get('kind')=='tse':
         for physical in run['result']['provenance']['physical']:
             for binding in physical.get('contrast_relaxation_bindings',[]): origins.add(binding['exposure']['origin'])
     return sorted(origins)
+
+
+def _operation_run(parameters, source):
+    result=run_operation_sequence(parameters)
+    pair=result['linked_readout'];image=pair['image'];values=image['values']
+    magnitude=[abs(complex(re,im)) for re,im in zip(values['real'],values['imag'])]
+    view=dict(images=[dict(label='Static transverse snapshot magnitude',width=image['shape'][1],height=image['shape'][0],values=magnitude)],
+              curves=[],x_label='voxel',y_label='a.u.',metrics=dict(preparation_duration_s=result['duration_s']),validation=result['validation'])
+    run=dict(kind='sequence_operations',result=result,view=view,source_hash=source,
+             replay_request=dict(kind='sequence_operations',parameters=result['provenance']['replay'],expected_source_hash=source))
+    run['result_hash']=sha256(json.dumps(result,sort_keys=True,allow_nan=False).encode()).hexdigest()
+    return run
 
 
 
@@ -237,20 +269,21 @@ def _parent_measurement(execution):
 
 def _summary(request,payload,source):
     execution=request['execution']; mode=execution['type']
-    if mode=='run':
-        if execution.get('kind')!=payload.get('kind'): raise ValueError('execution kind differs from payload')
+    if mode in {'run','operation_sequence'}:
+        if (execution.get('kind') if mode=='run' else 'sequence_operations')!=payload.get('kind'): raise ValueError('execution kind differs from payload')
         _validate_run(payload,source)
         points=[dict(index=0,input_parameters_sha256=fingerprint(payload['replay_request']['parameters']),executable=True,
             model_reported_passed=payload['view']['validation']['passed'],validation=payload['view']['validation'])]
         kind=payload['kind'];selected=0;reported=points[0]['model_reported_passed']
         execution_hash=payload['result_hash'];origins=_run_origins(payload)
-    elif mode=='edited_tse':
+    elif mode in {'edited_tse','edited_operations'}:
         parent,original=_edit_parent(execution);run=payload['run'];_validate_run(run,source)
-        if payload['parent_record_sha256']!=parent['record_sha256'] or parent['api_source_hash']!=source: raise ValueError('edited TSE parent/source differs')
+        if payload['parent_record_sha256']!=parent['record_sha256'] or parent['api_source_hash']!=source: raise ValueError('edited linked parent/source differs')
+        if run['kind']!=original['kind']: raise ValueError('edited run adapter kind differs from parent')
         if fingerprint(payload['updates'])!=fingerprint(execution['updates']): raise ValueError('applied semantic edits differ from retained request')
         if payload['parameters_before_sha256']!=fingerprint(original['replay_request']['parameters']) or payload['parameters_after_sha256']!=fingerprint(run['replay_request']['parameters']):
             raise ValueError('edit parameter dependency hashes differ')
-        reported=run['view']['validation']['passed'];kind='tse';selected=0;execution_hash=run['result_hash'];origins=_run_origins(run)
+        reported=run['view']['validation']['passed'];kind=original['kind'];selected=0;execution_hash=run['result_hash'];origins=_run_origins(run)
         points=[dict(index=0,executable=True,model_reported_passed=reported,validation=run['view']['validation'])]
     elif mode=='search':
         if execution.get('kind')!=payload.get('kind'): raise ValueError('execution kind differs from payload')
@@ -318,8 +351,8 @@ def _summary(request,payload,source):
         mode=mode,kind=kind,selected_index=selected,model_reported_passed=bool(reported),
         candidate_count=len(points),candidates=points,execution_hash=execution_hash,input_origins=origins,
         background_references_applied=False,scope=SCOPE)
-    if mode in {'calibrated_radial_tse','edited_tse','agentic_inference'}: summary['parent_record_sha256']=execution['parent_record_sha256']
-    if mode=='edited_tse': summary['applied_edits_sha256']=fingerprint(execution['updates'])
+    if mode in {'calibrated_radial_tse','edited_tse','edited_operations','agentic_inference'}: summary['parent_record_sha256']=execution['parent_record_sha256']
+    if mode in {'edited_tse','edited_operations'}: summary['applied_edits_sha256']=fingerprint(execution['updates'])
     if mode=='agentic_inference':
         summary['inference_sha256']=fingerprint(payload['inference'])
         summary['parent_pair_sha256']=payload['parent_pair_sha256']
@@ -332,7 +365,7 @@ def _stages(request,request_hash,payload_hash,summary,environment):
             ('source_and_runtime',fingerprint(environment)),('computed_execution',payload_hash),('reported_validation',fingerprint(summary))]
     if request['execution']['type']=='calibrated_radial_tse':
         values.insert(1,('parent_measurement_record',request['execution']['parent_record_sha256']))
-    if request['execution']['type']=='edited_tse':
+    if request['execution']['type'] in {'edited_tse','edited_operations'}:
         values[1:1]=[('parent_image_signal_record',request['execution']['parent_record_sha256']),('typed_parameter_edits',summary['applied_edits_sha256'])]
     if request['execution']['type']=='agentic_inference':
         values[1:1]=[('parent_image_signal_record',request['execution']['parent_record_sha256']),
@@ -350,16 +383,18 @@ def _stages(request,request_hash,payload_hash,summary,environment):
 
 def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
     plan=ScientificPlan.model_validate(plan).model_copy(deep=True)
-    if isinstance(plan.execution,(CalibratedRadialPlan,EditedTSEPlan,AgenticInferencePlan)) and plan.execution.parent_record is None:
+    if isinstance(plan.execution,(CalibratedRadialPlan,LinkedParentEdits,AgenticInferencePlan)) and plan.execution.parent_record is None:
         plan.execution.parent_record=(store or ScientificStore()).get(plan.execution.parent_record_sha256)
     sources=_checked_sources();api_source=checked_source_hash();runtime=runtime_manifest()
     request=plan.model_dump(mode='json');request_json=_dump(request)
     execution=plan.execution
-    if isinstance(execution,EditedTSEPlan):
+    if isinstance(execution,LinkedParentEdits):
         parent,original=_edit_parent(request['execution'])
         replay_scientific_record(parent)  # never derive from an uncomputed imported result
-        parameters=apply_tse_edits(original['replay_request']['parameters'],execution.updates,pair=original['result']['linked_readout'])
-        run=execute(RunRequest(kind='tse',parameters=parameters,expected_source_hash=api_source),api_source)
+        operation_mode=isinstance(execution,EditedOperationsPlan)
+        apply_edits=apply_operation_edits if operation_mode else apply_tse_edits
+        parameters=apply_edits(original['replay_request']['parameters'],execution.updates,pair=original['result']['linked_readout'])
+        run=_operation_run(parameters,api_source) if operation_mode else execute(RunRequest(kind='tse',parameters=parameters,expected_source_hash=api_source),api_source)
         payload=dict(parent_record_sha256=parent['record_sha256'],updates=[u.model_dump(mode='json') for u in execution.updates],parent_computationally_replayed=True,
             parameters_before_sha256=fingerprint(original['replay_request']['parameters']),parameters_after_sha256=fingerprint(run['replay_request']['parameters']),run=run)
     elif isinstance(execution,AgenticInferencePlan):
@@ -369,6 +404,8 @@ def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
         inference=infer_tissue_modalities(pair,reference_tissue_id=execution.reference_tissue_id)
         payload=dict(parent_record_sha256=parent['record_sha256'],parent_computationally_replayed=True,
             parent_pair_sha256=pair['pair_sha256'],inference=inference,view=_agentic_view(inference))
+    elif isinstance(execution,OperationSequencePlan):
+        payload=_operation_run(execution.parameters,api_source)
     elif isinstance(execution,CalibratedRadialPlan):
         parent,legacy=_parent_measurement(request['execution'])
         derived=run_calibrated_radial_study(legacy,execution.study)
@@ -429,7 +466,7 @@ def verify_scientific_record(record):
         request=_loads(record['request_json']);payload=_loads(record['payload_json'])
         StudyContext.model_validate(request['context'])
         mode=request['execution']['type']
-        runs=([payload] if mode=='run' else [payload['run']] if mode=='edited_tse' else
+        runs=([payload] if mode in {'run','operation_sequence'} else [payload['run']] if mode in {'edited_tse','edited_operations'} else
               [p['run'] for p in payload['candidates'] if p['feasible']] if mode=='search' else [])
         for run in runs:
             pair=run.get('result',{}).get('linked_readout')
@@ -480,7 +517,7 @@ class ScientificStore:
         verify_scientific_record(record);raw=_dump(record);size=len(raw.encode())
         if size>MAX_BYTES: raise ValueError('scientific record exceeds 128 MiB storage limit')
         identity=record['record_sha256']
-        if record['summary']['mode']=='edited_tse':
+        if record['summary']['mode'] in {'edited_tse','edited_operations'}:
             parent,_=_edit_parent(_loads(record['request_json'])['execution'])
             self.save(parent)
         if record['summary']['mode']=='calibrated_radial_tse':
@@ -521,8 +558,8 @@ class ScientificStore:
 
 def _response(record):
     payload=_loads(record['payload_json']);mode=record['summary']['mode']
-    if mode in {'measured_tse','measured_flow','calibrated_radial_tse','agentic_inference'}: view=payload['view']
-    elif mode=='edited_tse': view=payload['run']['view']
+    if mode in {'measured_tse','measured_flow','calibrated_radial_tse','agentic_inference','operation_sequence'}: view=payload['view']
+    elif mode in {'edited_tse','edited_operations'}: view=payload['run']['view']
     elif mode=='run': view=payload['view']
     else:
         selected=payload['best'] or next((p for p in payload['candidates'] if p['feasible']),None)
