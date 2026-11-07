@@ -88,6 +88,9 @@ def evaluate_multi_tissue_contrast(graph) -> dict[str, Any]:
     ids = [t["id"] for t in tissue_info]
     if graph.clinical_recipe is not None:
         for term in graph.clinical_recipe.objective.terms:
+            missing = [tissue_id for tissue_id in (term.target_tissue_id, term.reference_tissue_id) if tissue_id not in ids]
+            if missing:
+                raise ValueError(f"clinical recipe objective references unavailable tissue id(s): {', '.join(dict.fromkeys(missing))}")
             a = float(np.mean(np.abs(signals[ids.index(term.target_tissue_id)])))
             b = float(np.mean(np.abs(signals[ids.index(term.reference_tissue_id)])))
             difference = abs(a - b)
@@ -139,6 +142,9 @@ def evaluate_objective(objective: ObjectiveFunction, products: dict[str, object]
         means = {t["id"]: float(np.mean(np.abs(s))) for t, s in zip(data["tissues"], data["tissue_signals"])}
         total = 0.0
         for term in objective.clinical_vector.terms:
+            missing = [tissue_id for tissue_id in (term.target_tissue_id, term.reference_tissue_id) if tissue_id not in means]
+            if missing:
+                raise ValueError(f"clinical objective references unavailable tissue id(s): {', '.join(dict.fromkeys(missing))}")
             a, b = means[term.target_tissue_id], means[term.reference_tissue_id]
             measured = {"absolute_signal_difference": abs(a-b), "signal_ratio": a/max(1e-6,b), "normalized_cnr_proxy": abs(a-b)/0.05}[term.metric]
             if term.direction == "target":
