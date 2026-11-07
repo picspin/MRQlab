@@ -211,38 +211,56 @@ The research index links to the new page.
 
 New Python cases:
 
-- `tests/experiment/test_agentic_inference.py` (7): complete-signal/Parseval and
+- `tests/experiment/test_agentic_inference.py` (15): complete-signal/Parseval and
   exact structure/image proportions on the real TSE pair; deterministic
   non-mutating reads; DC-only absolute amplitudes checked against the TSE
   amplitude table; rank/nullity per echo; same-T2 synthetic relative-decay
-  recovery; generic link without echo membership; non-static signal rejection;
-  reference/bound errors; integrity-hash versus replay distinction.
+  recovery; a 3D static-partition volume and its center-plane preview (see
+  below); generic link without echo membership; non-static signal rejection;
+  reference/bound errors; integrity-hash versus replay distinction; scale-aware
+  rejection of small complex and negative amplitudes; zero-DC and empty-label
+  survival.
 - `tests/test_agentic_inference_replay.py` (4): seven-stage child, parent/pair/
   source pins and replay identity; explicit/unknown reference over HTTP and
   immutable store totals; portable child-only import with parent navigation;
   self-consistent forged inference passing integrity but failing replay.
 
-New frontend cases: `apps/web/tests/agentic-study.test.tsx` (7) covers typed
+3D coverage. `test_three_d_label_grid_infers_the_same_identifiable_quantities`
+builds an independent `[4,4,4]` three-tissue static-partition pair whose four
+z partitions are the four echoes, so the center partition carries the single DC
+sample. It confirms the 3D path returns exact whole-volume structure counts and
+fractions, exactly one DC-bearing echo at full rank (`T`) with the others at
+`T-1`, exact absolute amplitudes at that echo, an independent same-T2
+relative-decay recovery, and full-volume (not pre-collapsed) modality values.
+`test_three_d_view_takes_the_center_plane_not_a_collapsed_volume` then drives the
+bounded API view on the same pair: the preview images are `shape[1]×shape[2]`
+with `shape[1]*shape[2]` values and the coefficient curves stay one point per
+echo.
+
+New frontend cases: `apps/web/tests/agentic-study.test.tsx` (61) covers typed
 parent→inference flow and default reference, proportion/echo/coefficient/decay
 rendering, reference-change stale hiding and explicit re-inference, unavailable
 coefficients without a fabricated table, malformed/wrong-mode rejection, replay
-receipt and failure hiding, baseline-edit invalidation, and invalid initial plans
-never reaching the API. `apps/web/tests/research-workbench.test.tsx` continues to
-cover the existing research index; its assertions are not weakened.
+receipt and failure hiding, baseline-edit invalidation, invalid initial plans
+never reaching the API, and the render-boundary hardening rounds (nested payload,
+own-property label, resource-bound and complete outer-view validation).
+`apps/web/tests/research-workbench.test.tsx` continues to cover the existing
+research index; its assertions are not weakened.
 
-Fresh dual-end verification (this worktree, branch `herdr/claude-agentic`):
+Fresh dual-end verification (this worktree, branch `herdr/claude-agentic`, head
+`7edfdac` plus the local 3D-coverage commit):
 
 | Check | Result |
 |---|---|
-| Python `pytest -q` | 1061 passed, 15 skipped, 0 failed (1076 collected) |
-| Frontend `npm test` | 19 files, 141 tests passed |
+| Python `pytest -q` | 1069 passed, 15 skipped, 0 failed |
+| Frontend `npm test` | 19 files, 195 tests passed |
 | TypeScript `tsc --noEmit` | 0 errors |
 | `git diff --check` | 0 whitespace errors |
 
-The frontend dependency tree was absent in this fresh worktree; `npm ci` was run
-inside `apps/web` to install it. No symlink, permission or test configuration was
-changed. The EPERM `vitest results.json` failure mode described by the operator
-did not occur in this run.
+The frontend dependency tree was absent in the first fresh worktree; `npm ci` was
+run inside `apps/web` to install it. No symlink, permission or test configuration
+was changed. The EPERM `vitest results.json` failure mode described by the
+operator did not occur in these runs.
 
 ## Remaining gaps
 
@@ -265,9 +283,10 @@ did not occur in this run.
   multi-subject cohort or physician usability study exists.
 - The parent graph is bounded to one agentic generation over a TSE run/edit;
   arbitrary multi-modal or recursive agentic derivation is not supported.
-- The inference tests exercise 2D pairs. 3D label grids use the same `fftn` code
-  path and the preview takes a center plane, but no independent 3D agentic
-  fixture was added in this round.
+- The inference tests exercise 2D and one independent 3D pair. 3D uses the same
+  `fftn` code path and the preview takes a center plane; the 3D fixture covers
+  `[4,4,4]` only, so larger volumes, anisotropic grids and other 3D echo
+  groupings remain untested.
 - No native browser run, screenshot or physician review was performed in this
   round. Frontend evidence is component tests plus TypeScript, not a clinical
   usability claim.

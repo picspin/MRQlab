@@ -106,11 +106,53 @@ def _weighted_pair(*, weights, echoes, labels=None, scope='weighted static parti
         provenance=_provenance(['a','b']),scope=scope)
 
 
+def _weighted_pair_3d(*, weights, shape, labels, tissues):
+    """Static partition pair on a 3D grid; each z partition is one echo, so the
+    center partition carries the single DC sample."""
+    indices=cartesian_indices(shape)
+    echoes=len(next(iter(weights.values())))
+    echo_numbers=indices[:,0]+1
+    assert sorted(set(echo_numbers.tolist()))==list(range(1,echoes+1))
+    grid=np.zeros(shape,complex)
+    for echo in range(1,echoes+1):
+        selected=echo_numbers==echo
+        full=sum(fft_image((labels==index).astype(float))*weights[index][echo-1] for index in range(len(weights)))
+        grid[tuple(indices[selected].T)]=full[tuple(indices[selected].T)]
+    image=cartesian_reconstruct(indices,grid[tuple(indices.T)],shape)
+    axes=['z','y','x']
+    coords=((indices-np.array(shape)//2)/np.array(shape)).tolist()
+    times=(echo_numbers*.008).tolist()
+    return create_linked_readout(
+        image=dict(id='complex_map',shape=list(shape),axes=axes,index_unit='voxel',flatten_order='C',
+                   value_unit='a.u.',values=complex_values(image)),
+        signal_vector=dict(id='signal',axis='acquisition_sample',value_unit='a.u.',
+                           complex_convention='real + i*imag',values=complex_values(grid[tuple(indices.T)]),
+                           grid_indices=indices.tolist(),grid_index_axes=axes,normalized_coordinates=coords,
+                           coordinate_unit='cycles/voxel',sample_times_s=times,time_unit='s',
+                           extensions=dict(echo_numbers=echo_numbers.tolist())),
+        structure=dict(shape=list(shape),label_grid=np.asarray(labels).tolist(),label_to_tissue_id=list(tissues),
+                       origin='synthetic'),
+        controls=[dict(field='model.fraction',tissue_id=tissues[-1],kind='number',value=.5,
+                       unit='fraction',min=0.,max=1.)],
+        links=[dict(source='signal',target='complex_map',transform='centered_inverse_dft',
+                    normalization='1/product(shape); no fitted gain')],
+        provenance=_provenance(list(tissues)),scope='3D static partition fixture')
+
+
 @pytest.fixture(scope='module')
 def same_t2_pair():
     t2=.05
     weights={0:.2*np.exp(-np.arange(1,5)*.008/t2),1:.12*np.exp(-np.arange(1,5)*.008/t2)}
     return _weighted_pair(weights=weights,echoes=4,scope='same-T2 synthetic fixture')
+
+
+@pytest.fixture(scope='module')
+def three_d_pair():
+    tissues=['a','b','c']
+    labels=(np.indices((4,4,4)).sum(axis=0)%3)
+    weights={0:.20*np.exp(-np.arange(1,5)*.008/.05),1:.12*np.exp(-np.arange(1,5)*.008/.05),
+             2:.30*np.exp(-np.arange(1,5)*.008/.09)}
+    return _weighted_pair_3d(weights=weights,shape=[4,4,4],labels=labels,tissues=tissues)
 
 
 @pytest.fixture(scope='module')
@@ -302,6 +344,51 @@ def test_non_static_partition_signal_is_not_forced_into_the_amplitude_model(nons
     assert inference['validation']['passed'] is False
     assert len(inference['ingestion']['echo_bins'])==2
     assert all(entry['relative_residual']>1e-8 for entry in inference['ingestion']['echo_bins'])
+
+
+def test_three_d_label_grid_infers_the_same_identifiable_quantities(three_d_pair):
+    """3D uses the same fftn path: exact proportions, one DC-bearing echo and an
+    independent relative-decay recovery, with a center-plane preview downstream."""
+    inference=infer_tissue_modalities(three_d_pair)
+    assert inference['source']['shape']==[4,4,4]
+    assert inference['source']['axes']==['z','y','x']
+    assert inference['ingestion']['sample_count']==inference['ingestion']['voxel_count']==64
+    assert inference['ingestion']['parseval_relative_error']<=1e-12
+    assert inference['validation']['passed'] and inference['proportions']['acquisition']['available']
+    # Per-tissue 3D structure proportions are exact counts over the whole volume.
+    labels=np.asarray(three_d_pair['structure']['label_grid']);tissues=three_d_pair['structure']['label_to_tissue_id']
+    for index,tissue in enumerate(tissues):
+        item=inference['proportions']['structure'][tissue]
+        assert item['voxel_count']==int(np.count_nonzero(labels==index))
+        assert item['voxel_fraction']==pytest.approx(item['voxel_count']/64,abs=1e-15)
+    # Exactly one echo carries the DC sample, and its absolute amplitudes are exact.
+    bins=inference['ingestion']['echo_bins']
+    absolute=[entry for entry in bins if entry['absolute_amplitude_identified']]
+    assert len(absolute)==1 and absolute[0]['rank']==3 and absolute[0]['nullity']==0
+    assert all(entry['rank']==2 and entry['nullity']==1 for entry in bins if not entry['absolute_amplitude_identified'])
+    echo=str(absolute[0]['echo'])
+    assert set(inference['proportions']['acquisition']['absolute_dc_echo'])=={echo}
+    # Tissue 'b' is a clean same-T2 pair against 'a' (both 0.05 s), so its
+    # relative contrast recovers that decay without being a per-tissue T2 map.
+    assert inference['proportions']['acquisition']['apparent_relative_contrast_decay_s']['b']==pytest.approx(.05,rel=1e-9)
+    assert inference['proportions']['acquisition']['apparent_relative_contrast_decay_s']['a'] is None
+    # Every modality is a full 64-value volume, not a pre-collapsed 2D plane.
+    assert all(len(item['values'])==64 for item in inference['modalities'])
+    assert verify_agentic_inference(inference)['integrity_passed']
+
+
+def test_three_d_view_takes_the_center_plane_not_a_collapsed_volume(three_d_pair):
+    """The bounded human preview must slice the 3D volume, not flatten it."""
+    from mrqlab_api.scientific_records import _agentic_view, _validate_view
+    inference=infer_tissue_modalities(three_d_pair)
+    view=_agentic_view(inference)
+    _validate_view(view)
+    shape=inference['source']['shape']
+    assert [image['width'] for image in view['images']]==[shape[2]]*len(view['images'])
+    assert [image['height'] for image in view['images']]==[shape[1]]*len(view['images'])
+    assert all(len(image['values'])==shape[1]*shape[2] for image in view['images'])
+    assert [curve['label'] for curve in view['curves']]==['a','b','c']
+    assert all(len(curve['x'])==len(curve['y'])==4 for curve in view['curves'])
 
 
 def test_reference_and_bounds_are_rejected_explicitly(generic_pair,tse_pair):
