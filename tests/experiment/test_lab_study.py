@@ -86,7 +86,7 @@ def test_uncertainty_corners_can_reject_nominally_passing_design(spec):
     assert result['selected_index'] is None
 
 
-def test_budgets_and_failed_targets_do_not_select_partial_grid(spec):
+def test_total_budget_and_failed_targets_do_not_select_partial_grid(spec):
     spec['budget']={'max_total_work':15000000,'max_work_per_simulation':10000000}
     result=run_lab_study(spec)
     assert not result['validation']['complete_budgeted_search'] and result['selected_index'] is None
@@ -95,13 +95,22 @@ def test_budgets_and_failed_targets_do_not_select_partial_grid(spec):
     assert result['validation']['calibration_and_holdout_passed'] and result['selected_index'] is None
     assert all(not p['eligible'] for p in result['candidates'])
 
+
+def test_readout_work_error_marks_budgeted_search_incomplete():
     example=build_lab_study_example()
+    # A 20k per-call cap causes runtime readout work failures; the large total
+    # budget ensures this exercises ReadoutWorkError rather than reservation truncation.
     example.budget=StudyBudget(max_total_work=1000000000,max_work_per_simulation=20000)
     result=run_lab_study(example)
     assert len(result['candidates'])==3
     assert all(not p['scenarios'] for p in result['candidates'])
+    assert all(p['reasons'] for p in result['candidates'])
     assert not result['validation']['complete_budgeted_search']
 
+
+def test_total_budget_truncating_scenario_grid_prevents_selection():
+    example=build_lab_study_example()
+    # 30k reservations fit once but not for the full five-scenario grid.
     example.budget=StudyBudget(max_total_work=70000,max_work_per_simulation=30000)
     result=run_lab_study(example)
     assert any(p['scenarios'] for p in result['candidates'])

@@ -88,6 +88,7 @@ def evaluate_multi_tissue_contrast(graph) -> dict[str, Any]:
     ids = [t["id"] for t in tissue_info]
     if graph.clinical_recipe is not None:
         for term in graph.clinical_recipe.objective.terms:
+            # Defense in depth: recipe validation checks declared priors, while runtime tissues may differ.
             missing = [tissue_id for tissue_id in (term.target_tissue_id, term.reference_tissue_id) if tissue_id not in ids]
             if missing:
                 raise ValueError(f"clinical recipe objective references unavailable tissue id(s): {', '.join(dict.fromkeys(missing))}")
@@ -142,6 +143,7 @@ def evaluate_objective(objective: ObjectiveFunction, products: dict[str, object]
         means = {t["id"]: float(np.mean(np.abs(s))) for t, s in zip(data["tissues"], data["tissue_signals"])}
         total = 0.0
         for term in objective.clinical_vector.terms:
+            # Defense in depth: validate against the tissue rows actually evaluated for this run.
             missing = [tissue_id for tissue_id in (term.target_tissue_id, term.reference_tissue_id) if tissue_id not in means]
             if missing:
                 raise ValueError(f"clinical objective references unavailable tissue id(s): {', '.join(dict.fromkeys(missing))}")
@@ -171,6 +173,16 @@ def evaluate_objective(objective: ObjectiveFunction, products: dict[str, object]
     elif objective.kind == "clinical_cnr" and objective.cnr_term is not None:
         term = objective.cnr_term
         contrast_data = products.get("multi_tissue_contrast")
+        if term.target_tissue_id is not None or term.reference_tissue_id is not None:
+            # Defense in depth: a named CN-R term must bind to this run's tissue rows, not fallback indices.
+            if not isinstance(contrast_data, dict):
+                raise ValueError("named clinical_cnr tissue ids require multi_tissue_contrast tissue metadata")
+            tissues = contrast_data.get("tissues", [])
+            tissue_ids = [t.get("id") for t in tissues if isinstance(t, dict)]
+            missing = [tissue_id for tissue_id in (term.target_tissue_id, term.reference_tissue_id)
+                       if tissue_id is not None and tissue_id not in tissue_ids]
+            if missing:
+                raise ValueError(f"clinical_cnr objective references unavailable tissue id(s): {', '.join(dict.fromkeys(missing))}")
         if contrast_data is not None and isinstance(contrast_data, dict):
             tissues = contrast_data.get("tissues", [])
             signals = [np.asarray(s) for s in contrast_data.get("tissue_signals", [])]
