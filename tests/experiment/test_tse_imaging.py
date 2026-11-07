@@ -133,21 +133,42 @@ def test_variable_refocusing_epg_changes_echo_weights():
 @pytest.mark.parametrize('ndim', [2, 3])
 @pytest.mark.parametrize('weighting', ['echo', 'mean'])
 def test_echo_reference_fidelity_holds_while_train_mean_diagnostic_stays_visible(ndim, weighting):
-    # nrmse_vs_echo_reference certifies the acquisition/reconstruction chain
-    # (independent direct inverse DFT of the sampled per-line weights) at 1e-10.
+    # nrmse_vs_echo_reference certifies the reconstruction step (independent direct
+    # inverse DFT of the sampled per-line weights) at 1e-10. Both sides share the
+    # same kspace, so it proves the reconstruction paths agree, not the encoding.
     # The train-mean quality is a separate physical diagnostic and is expected to
     # differ for echo weighting: that difference is T2 modulation, not a fault.
     labels = phantom(ndim)
     r = run_tse_imaging(labels, echoes=8, weighting=weighting)
     assert r['nrmse_vs_echo_reference']['passed']
-    assert r['nrmse_vs_echo_reference']['nrmse'] < 1e-10
-    assert r['nrmse_vs_echo_reference']['threshold'] == 1e-10
+    # An order of magnitude below the 1e-10 target: the teaching grids sit at
+    # ~1.6e-16..2.1e-16, so a regression to the threshold itself fails here.
+    assert r['nrmse_vs_echo_reference']['nrmse'] < 1e-12
     if weighting == 'echo':
         assert not r['quality']['passed'] and r['quality']['nrmse'] > 1e-3
     else:
         assert r['quality']['passed']
-    # The two references must be distinct objects with distinct semantics.
-    assert r['nrmse_vs_echo_reference'] is not r['quality']
+    # The metric must be deterministic: an identical design reproduces its value.
+    again = run_tse_imaging(labels, echoes=8, weighting=weighting)
+    assert again['nrmse_vs_echo_reference'] == r['nrmse_vs_echo_reference']
+
+
+@pytest.mark.parametrize('shape,echoes', [((5, 7), 5), ((5, 5), 5), ((3, 5, 7), 5)])
+def test_echo_reference_direct_dft_handles_odd_grid_shapes(shape, echoes):
+    # The centered index convention (arange(n)-n//2) must match np.fft's shift
+    # behavior for odd n too; otherwise a future change to the centering would
+    # silently break the reference on odd grids with no test noticing.
+    from mrqlab_experiment.tse_imaging import echo_reference_image
+    from mrqlab_recon.spatial import ifft_image
+    rng = np.random.default_rng(0)
+    kspace = rng.normal(size=shape) + 1j*rng.normal(size=shape)
+    np.testing.assert_allclose(echo_reference_image(kspace, shape), ifft_image(kspace), atol=1e-14)
+    # End to end: an odd grid still reconstructs through the FFT path and passes.
+    labels = np.zeros(shape, int); labels.reshape(-1)[0] = 1
+    r = run_tse_imaging(labels, echoes=echoes)
+    assert np.asarray(r['image']).shape == shape
+    assert r['nrmse_vs_echo_reference']['passed']
+    assert r['nrmse_vs_echo_reference']['nrmse'] < 1e-12
 
 
 def test_echo_reference_cost_is_budgeted_and_large_grids_are_rejected():
