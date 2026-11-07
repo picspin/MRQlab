@@ -225,5 +225,10 @@ __marimo__/
 # Submission artifacts belong to their independent manuscript worktrees.
 /docs/ismrm/
 
+<<<<<<< HEAD
 # Local immutable scientific execution records, separate from source/evidence fixtures.
+=======
+# Local MRQlab orchestration/control records and registered auxiliary worktrees.
+# Git owns their metadata in .git/worktrees; never stage their contents here.
+>>>>>>> 56e830e (docs: align workspace layout and research platform objective)
 /.mrqlab/

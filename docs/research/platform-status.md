@@ -4,8 +4,42 @@ This is the current project-facing status of the MRI pulse design/optimization
 platform. It records evidence, rather than redefining the goal around implemented
 models. The broader lab-to-clinical teaching/research platform goal remains active.
 No scanner validation, clinical quality certification or patient recommendation
-claim is made. Milestones B (Executable Sequence) and C (Licensed Local Compute)
-remain parked; the existing Milestone A protocol catalog still has two entries.
+claim is made. The existing Milestone A protocol catalog still has two entries.
+
+## 2026-11-07 goal realignment and local workspace boundary
+
+The project objective is now stated uniformly as a research-use, replayable MRI
+pulse-design and optimization platform. It preserves two linked review surfaces:
+
+- **Human-readable:** images, parameter/proportion views, declared assumptions,
+  targets and constraint status for expert review.
+- **Agent-readable:** complete retained acquisition signal vectors, linked
+  image/vector provenance, bounded identifiable structure/tissue proportions and
+  typed modality proxies. The current inference is deterministic numerical code
+  for later LLM consumption; it does not claim that an LLM performed inference or
+  diagnosis.
+
+The desired evidence chain is `lab measurement → declared/calibrated biophysical
+state → sequence design → signal/image simulation → bounded optimization → target
+and hard-constraint validation → provenance-pinned computational replay`. A
+missing calibration, mapping, scanner profile, physical model or uncertainty model
+is an explicit unavailable/unsupported state, never a silent fallback. Human and
+agent displays are research outputs, not scanner export, clinical readiness,
+diagnostic decision support or patient recommendation.
+
+Milestone B (operation-level sequence editing/lowering) and Milestone C (licensed
+local execution plus agent-readable inference) are separate branch-scoped slices;
+their verified state must be taken from their commits and review records, not
+inferred from this historical status page. Cross-modality measured calibration,
+production GPU execution, scanner-specific export, phantom validation and clinical
+validation remain open evidence gates.
+
+Local orchestration artifacts are kept outside tracked product files in
+`.mrqlab/control/`, while registered auxiliary worktrees are under
+`.mrqlab/worktrees/`. Both are ignored; Git records worktree registration under
+`.git/worktrees/`. This relocation does not copy, merge or promote their source
+content. Submission-only worktrees remain separate and `docs/ismrm/` remains
+excluded.
 
 ## Local anchors, in requested order
 
