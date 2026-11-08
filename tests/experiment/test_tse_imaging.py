@@ -82,11 +82,14 @@ def test_failed_readout_reports_epg_work_actually_consumed():
 def test_failed_tse_preparation_reports_partial_tissue_work():
     """A family preparation failure exposes its already executed EPG work."""
     from mrqlab_experiment.family_recipes import build_family_recipe
-    from mrqlab_experiment.tse_imaging import ReadoutWorkError
+    from mrqlab_experiment.tse_imaging import ReadoutWorkError, direct_inverse_dft_work
     graph=build_family_recipe('brain_t1_3d_tse').model_dump(mode='json')
     graph['tissue'][0]['t1']=.001
+    # Include the new direct-DFT reference charge so the EPG allocation remains
+    # 33,616, matching the partial-preparation scenario this regression pins.
+    reference_work=direct_inverse_dft_work(phantom().shape)
     with pytest.raises(ReadoutWorkError) as caught:
-        run_tse_imaging(phantom(), echoes=8, max_work=50000, experiment=graph)
+        run_tse_imaging(phantom(), echoes=8, max_work=50000+reference_work, experiment=graph)
     assert str(caught.value)=='TSE steady preparation exceeds max_work'
     assert caught.value.estimated_work==59796
 
