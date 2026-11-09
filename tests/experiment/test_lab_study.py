@@ -149,17 +149,21 @@ def test_failed_simulation_charges_work_actually_consumed_not_just_the_cap(spec)
 def test_failed_tse_preparation_charges_partial_tissue_work(spec):
     """A failure inside one tissue's preparation still charges its spent work."""
     spec['experiment']['tissue'][0]['t1']=.001
-    spec['candidates']=[{'echoes':8}]
-    spec['budget']={'max_total_work':5000000000,'max_work_per_simulation':50000}
+    # A 2x2 readout costs 96 spatial/reference units, leaving 6,000 EPG units
+    # under this cap. The failed first-tissue warmup consumes 8,772 EPG units,
+    # so this fixture still tests charging partial work above the call cap after
+    # the direct-DFT reference cost was added.
+    spec['labels']=[[0,1],[0,1]]
+    spec['candidates']=[{'echoes':2}]
+    spec['budget']={'max_total_work':5000000000,'max_work_per_simulation':6096}
     result=run_lab_study(spec)
     candidate=result['candidates'][0]
     assert not candidate['executed']
     assert candidate['reasons']==['TSE steady preparation exceeds max_work']
     fit_work=sum(f['estimated_work'] for f in result['calibration'])
-    # The failed first tissue executes 59,796 EPG operations before rejecting
-    # its preparation. It must not be reduced to the 50,000 reservation.
+    # The reported work is the partial EPG work, not the 6,096 call reservation.
     assert fit_work==2584
-    assert result['provenance']['estimated_work']==fit_work+59796
+    assert result['provenance']['estimated_work']==fit_work+8772
 
 
 def test_csv_exact_units_byte_hash_and_independent_acquisitions(spec):
