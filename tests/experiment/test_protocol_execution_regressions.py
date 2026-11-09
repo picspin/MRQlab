@@ -54,6 +54,54 @@ def test_api_emits_named_vector_score_and_aggregate(recipe):
     np.testing.assert_allclose(actual, aggregate, atol=1e-12)
 
 
+def test_recipe_tissue_guard_rejects_runtime_tissues_missing_from_recipe_objective():
+    from mrqlab_experiment.objectives import evaluate_multi_tissue_contrast
+
+    graph = build_protocol_experiment(IDS[0])
+    term = graph.clinical_recipe.objective.terms[0]
+    missing_term = term.model_copy(update={"target_tissue_id": "wall", "reference_tissue_id": "blood"})
+    recipe_objective = graph.clinical_recipe.objective.model_copy(update={"terms": (missing_term,)})
+    graph.clinical_recipe = graph.clinical_recipe.model_copy(update={"objective": recipe_objective})
+    graph.tissue = None
+
+    with pytest.raises(ValueError, match="wall, blood"):
+        evaluate_multi_tissue_contrast(graph)
+
+
+@pytest.mark.parametrize("objective_kind", ["clinical_vector", "clinical_cnr"])
+def test_api_rejects_named_objective_tissues_missing_from_sample_only_graph(objective_kind):
+    from fastapi.testclient import TestClient
+    from mrqlab_api.main import app
+    from mrqlab_experiment.clinical import ObjectiveVector
+    from mrqlab_experiment.objectives import ClinicalCNRTerm, ObjectiveFunction, evaluate_objective
+
+    graph = build_protocol_experiment(IDS[0])
+    term = graph.clinical_recipe.objective.terms[0]
+    missing_term = term.model_copy(update={"target_tissue_id": "wall", "reference_tissue_id": "blood"})
+    # Keep recipe terms empty and valid so only the runtime objective exercises the missing-ID path.
+    recipe_objective = graph.clinical_recipe.objective.model_copy(update={"terms": ()})
+    graph.clinical_recipe = graph.clinical_recipe.model_copy(update={"objective": recipe_objective})
+    if objective_kind == "clinical_vector":
+        graph.objective = ObjectiveFunction(kind="clinical_vector", clinical_vector=ObjectiveVector(terms=(missing_term,)))
+        expected_error = "clinical objective references unavailable tissue id(s): wall, blood"
+    else:
+        graph.objective = ObjectiveFunction(kind="clinical_cnr", cnr_term=ClinicalCNRTerm(
+            target_tissue_id="wall", reference_tissue_id="blood"))
+        expected_error = "clinical_cnr objective references unavailable tissue id(s): wall, blood"
+    graph.tissue = None
+
+    with pytest.raises(ValueError) as error:
+        evaluate_objective(graph.objective, {"multi_tissue_contrast": {
+            "tissues": [{"id": "sample"}], "tissue_signals": [[1 + 0j]]
+        }})
+    assert str(error.value) == expected_error
+
+    response = TestClient(app).post("/experiments/run", json=graph.model_dump(mode="json"))
+
+    assert response.status_code == 422
+    assert expected_error in response.json()["detail"]
+
+
 def test_echo_alias_conflicts_rejected():
     from mrqlab_sequence.templates import build_sequence
     with pytest.raises(ValueError, match='must agree'):

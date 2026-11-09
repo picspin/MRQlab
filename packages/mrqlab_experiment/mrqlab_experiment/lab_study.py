@@ -308,9 +308,11 @@ def run_lab_study(study: LabStudy | dict):
                 # only an upper cap. Charge whichever is larger so a failed
                 # attempt is never under-reported.
                 work+=max(cap,exc.estimated_work)
+                budget_incomplete=True
                 entry['reasons'].append(str(exc)); break
             except ValueError as exc:
                 work+=cap  # Failed calls may consume the cap; never account them as free.
+                budget_incomplete=True
                 entry['reasons'].append(str(exc)); break
         entry['executed']=len(entry['scenarios'])==len(scenarios)
         if entry['executed']:
