@@ -70,6 +70,25 @@ class JobStore:
             self.append(job_id, status, error or "")
             return updated
 
+    def start_if_queued(self, job_id: str) -> bool:
+        """Atomically claim a queued job, or observe its prior cancellation."""
+        with self._lock:
+            current = self.get_job(job_id)
+            if current.status == "cancelled":
+                return False
+            self.transition(job_id, "running")
+            return True
+
+    def cancel_if_queued(self, job_id: str) -> JobRecord:
+        """Cancel only before a worker has claimed the job."""
+        with self._lock:
+            current = self.get_job(job_id)
+            if current.status == "running":
+                raise ValueError("running NumPy jobs are not preemptible; cooperative cancellation is a later provider capability")
+            if current.status != "queued":
+                raise ValueError(f"cannot cancel job in state {current.status}")
+            return self.transition(job_id, "cancelled")
+
     def append(self, job_id: str, kind: str, message: str = "") -> JobEvent:
         events = self._events[job_id]
         event = JobEvent(sequence=len(events) + 1, job_id=job_id, kind=kind, message=message)

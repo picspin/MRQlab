@@ -135,3 +135,29 @@ def test_lowering_rejects_adc_overlapping_post_quantization_rf_guard():
     ))
     with pytest.raises(ValueError, match="ADC acquisition overlaps with RF pulse, dead time, or ringdown"):
         lower_sequence(logical, RESEARCH_3T)
+
+
+@pytest.mark.parametrize("channel", ["rf", "gx", "adc"])
+def test_lowering_rejects_same_channel_overlap_after_quantization(channel):
+    rf = RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6)
+    gradient = GradientWaveform(axis="gx", samples_mt_m=(0, 1), raster_s=10e-6)
+    adc = AdcWindow(delay_s=0, dwell_s=1e-6, sample_count=2)
+    content = {"rf": {"rf": rf}, "gx": {"gradients": (gradient,)}, "adc": {"adc": adc}}[channel]
+    # Distinct logical times quantize to the same hardware raster start.
+    logical = LogicalSequenceIR(id="collision", duration_s=.01, blocks=(
+        LogicalBlock(id="a", start_s=0, **content),
+        LogicalBlock(id="b", start_s=0.4e-6, **content),
+    ))
+    with pytest.raises(ValueError, match=f"overlapping {channel} channel"):
+        lower_sequence(logical, RESEARCH_3T)
+
+
+def test_lowering_allows_parallel_distinct_gradient_axes_and_adjacent_blocks():
+    gx = GradientWaveform(axis="gx", samples_mt_m=(0, 1), raster_s=10e-6)
+    gy = GradientWaveform(axis="gy", samples_mt_m=(0, 1), raster_s=10e-6)
+    logical = LogicalSequenceIR(id="parallel", duration_s=.01, blocks=(
+        LogicalBlock(id="x1", start_s=0, gradients=(gx,)),
+        LogicalBlock(id="y", start_s=0, gradients=(gy,)),
+        LogicalBlock(id="x2", start_s=20e-6, gradients=(gx,)),
+    ))
+    assert len(lower_sequence(logical, RESEARCH_3T).blocks) == 3

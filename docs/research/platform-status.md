@@ -1,5 +1,9 @@
 # Platform goal: verified anchors and remaining requirements
 
+**2026-11-11 status update:** The user authorized continuing Milestones B/C.
+Earlier parked-status statements below are historical. Both remain incomplete;
+see [B/C continuation](milestone-bc-continuation.md) for the current scope.
+
 This is the current project-facing status of the MRI pulse design/optimization
 platform. It records evidence, rather than redefining the goal around implemented
 models. The broader lab-to-clinical teaching/research platform goal remains active.
@@ -26,7 +30,7 @@ The original TSE worktree's unrelated `.DS_Store` was excluded from its commit.
 
 | Requirement | Current evidence | Status / missing evidence |
 |---|---|---|
-| RF/gradient orchestration matched to standard sequence schemes | SequenceIR, family templates/composition/lowering and finite research timelines exist; ideal TSE RF/timing/ky controls now share a bounded human/agent edit contract | General operation-level RF/physical-gradient control across paired imaging runners, uniform constraints and cross-engine equivalence remain incomplete; B/C stay parked |
+| RF/gradient orchestration matched to standard sequence schemes | SequenceIR, family templates/composition/lowering and finite research timelines exist; ideal TSE RF/timing/ky controls now share a bounded human/agent edit contract | General operation-level RF/physical-gradient control across paired imaging runners, uniform constraints and cross-engine equivalence remain incomplete; B/C are active but incomplete |
 | Tissue biophysics under intrinsic/extrinsic influence | Explicit static per-tissue concentration/relaxivity now reaches common Bloch/EPG, scoring and TSE; PGSE diffusion and liquid-water CEST parameter-binding checks pass | Legacy unitless `PhysiologyModel.contrast_agent_concentration` is rejected rather than ignored. Dynamic kinetics, agent-induced diffusion/exchange, spatial joint state, measured relaxivity/uncertainty and biological validation remain incomplete |
 | Doctor MR Image / Agent Signal Vector bidirectional reading and control | A complete complex TSE pair has units/axes/tissue bindings and an inverse-transform check; both use the same source-pinned parent-preserving semantic edits with actual browser/CLI replay | This is one declared ideal TSE adapter, not a universal cross-modality contract, real-anatomy validation or proven physician/LLM usability. General waveform control and multimodal state/optimization remain incomplete |
 | Clinical question → pulse/design → physical simulation | Twelve backend chains carry explicit research questions, design/timing parameters, physical provenance and scientific boundaries | Implemented for declared teaching chains with common question/context and execution-record stages; general clinical target translation, measurement bindings and calibrated priors remain incomplete |

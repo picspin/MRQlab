@@ -41,9 +41,8 @@ class CpuExecutionProvider:
         return JobHandle(id=job.id, provider_id=self.descriptor.id, plan_fingerprint=plan.fingerprint, status=job.status, artifact_id=job.artifact_id, error=job.error)
 
     def _run(self, job_id, plan):
-        if self.store.get_job(job_id).status == "cancelled":
+        if not self.store.start_if_queued(job_id):
             return
-        self.store.transition(job_id, "running")
         try:
             graph = ExperimentGraph.model_validate(dict(plan.experiment_snapshot))
             result = build_result_graph(run_experiment(graph))
@@ -55,16 +54,10 @@ class CpuExecutionProvider:
             self.store.transition(job_id, "failed", error=str(exc))
 
     def cancel(self, job_id: str) -> None:
-        current = self.store.get_job(job_id)
-        if current.status == "queued":
-            self.store.transition(job_id, "cancelled")
-            future = self.futures.get(job_id)
-            if future is not None:
-                future.cancel()
-            return
-        if current.status == "running":
-            raise ValueError("running NumPy jobs are not preemptible; cooperative cancellation is a later provider capability")
-        raise ValueError(f"cannot cancel job in state {current.status}")
+        self.store.cancel_if_queued(job_id)
+        future = self.futures.get(job_id)
+        if future is not None:
+            future.cancel()
 
     def shutdown(self):
         if self.executor is not None:
@@ -89,9 +82,8 @@ class GpuExecutionProvider(CpuExecutionProvider):
         return CapabilitySet(features=frozenset({"gpu.batch", "jobs", "cancel", "artifacts"}))
 
     def _run(self, job_id, plan):
-        if self.store.get_job(job_id).status == "cancelled":
+        if not self.store.start_if_queued(job_id):
             return
-        self.store.transition(job_id, "running")
         try:
             result = self.backend.execute(plan)
             content = result.model_dump_json().encode()

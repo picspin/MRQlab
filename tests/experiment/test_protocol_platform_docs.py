@@ -32,10 +32,11 @@ def test_architecture_and_physics_agree_ssepg_and_pdg_are_available():
     assert "| PDG | yes |" in physics
 
 
-def test_roadmap_locks_two_a_verticals_and_parks_b_and_c():
+def test_roadmap_locks_two_a_verticals_and_marks_b_and_c_active_incomplete():
     text = (ROOT / "docs/ROADMAP.md").read_text()
     assert "Brain lesion T2/TSE" in text
     assert "Knee cartilage/meniscus PD/T2 TSE" in text
     assert "Dixon / TOF / CEST research" in text
-    assert "Milestone B — Executable Sequence (parked)" in text
-    assert "Milestone C — Licensed Local Compute (parked)" in text
+    assert "Milestone B — Executable Sequence (active; incomplete)" in text
+    assert "Milestone C — Licensed Local Compute (active; incomplete)" in text
+    assert "HARDWARE_REVIEW_REQUIRED" in text

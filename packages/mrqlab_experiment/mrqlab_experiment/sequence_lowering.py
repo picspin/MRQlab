@@ -48,6 +48,7 @@ def lower_sequence(logical: LogicalSequenceIR, profile: ScannerProfile) -> Execu
     # Pass 1: derive actual quantized executable start_s for each block, and build RF guards from THAT exact start
     block_starts: dict[str, float] = {}
     rf_guards: list[tuple[float, float]] = []
+    channel_intervals: dict[str, list[tuple[float, float, str]]] = {}
 
     for block in logical.blocks:
         raster = _block_raster(block, profile)
@@ -57,6 +58,22 @@ def lower_sequence(logical: LogicalSequenceIR, profile: ScannerProfile) -> Execu
             r_dur = len(block.rf.samples_ut) * block.rf.raster_s
             r_end = actual_start + r_dur + profile.rf_dead_time_s + profile.rf_ringdown_time_s
             rf_guards.append((actual_start, r_end))
+            channel_intervals.setdefault("rf", []).append((actual_start, actual_start + r_dur, block.id))
+        for gradient in block.gradients:
+            end = actual_start + len(gradient.samples_mt_m) * gradient.raster_s
+            channel_intervals.setdefault(gradient.axis, []).append((actual_start, end, block.id))
+        if block.adc is not None:
+            adc_start = actual_start + block.adc.delay_s
+            adc_end = adc_start + block.adc.dwell_s * block.adc.sample_count
+            channel_intervals.setdefault("adc", []).append((adc_start, adc_end, block.id))
+
+    # Distinct channels may overlap, but two blocks cannot drive the same
+    # physical channel at the same time. Check quantized, not logical, times.
+    for channel, intervals in channel_intervals.items():
+        ordered = sorted(intervals)
+        for previous, current in zip(ordered, ordered[1:]):
+            if current[0] < previous[1]:
+                raise ValueError(f"overlapping {channel} channel in blocks {previous[2]!r} and {current[2]!r}")
 
     blocks = []
     adjustments = []

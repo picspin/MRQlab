@@ -42,17 +42,21 @@ The v0.67 Control Bank overlays saturation B1, offset span, and pulsed duty cycl
 - Dixon / TOF / CEST research are A+ candidates, not A verticals.
 - Resolve immutable, unit-explicit `ResolvedExecutionPlan` values and preserve honest UI parameter states.
 
-### Milestone B — Executable Sequence (parked)
+### Milestone B — Executable Sequence (active; incomplete)
 
 `LogicalSequenceIR → ExecutableSequenceIR → ExportIR`; frontend does not author Pulseq.
 
 Frontend components author `LogicalSequenceIR`, never Pulseq. Lowering produces `ExecutableSequenceIR`, then adapter-neutral `ExportIR`; even `TARGET_PROFILE_VALID` always advances to `HARDWARE_REVIEW_REQUIRED`, never to a scanner-ready claim. A Pulseq adapter is a later separately reviewed wave.
 
-Frontend components author `LogicalSequenceIR`, never Pulseq. Lowering produces `ExecutableSequenceIR`, then adapter-neutral `ExportIR`; even `TARGET_PROFILE_VALID` always advances to `HARDWARE_REVIEW_REQUIRED`, never to a scanner-ready claim. A Pulseq adapter is a later separately reviewed wave.
-
-### Milestone C — Licensed Local Compute (parked)
+### Milestone C — Licensed Local Compute (active; incomplete)
 
 New `ExecutionProvider` jobs, CPU then optional GPU, with capability separate from execution-gateway entitlement.
+
+The user authorized continuing B/C on 2026-11-11. This changes priority, not
+the evidence or deployment status: both remain incomplete research software.
+See [B/C continuation](research/milestone-bc-continuation.md) for the current
+scope, tests, and limitations. Historical reports describing B/C as parked record
+their status at the time and are not retroactive claims about this decision.
 
 ## Delivery
 
