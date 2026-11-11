@@ -17,6 +17,11 @@ magnetization is a physical-state snapshot, not a reconstructed MR image. This
 adapter does not claim an inverse-DFT relationship between the two. The existing
 complete Cartesian linked image/vector adapter is unchanged.
 
+A later [bounded sequential Cartesian adapter](waveform-cartesian-coverage.md)
+checks the actual gradient moment at every ADC sample before reconstructing and
+linking a complex image. It retains the temporal modulation and deliberately
+supports only a single RF block without pre/during-RF gradients.
+
 `POST /research/records` accepts `execution.type=waveform_bloch` and typed
 `parameters`. Scientific records preserve the question, declared sequence,
 tissue labels, numerical settings and optional authored scalar ADC target,

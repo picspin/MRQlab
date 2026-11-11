@@ -30,6 +30,7 @@ from mrqlab_experiment.tse_control import apply_tse_edits
 from mrqlab_experiment.sequence_operations import OperationSequence, apply_operation_edits, run_operation_sequence
 from mrqlab_experiment.waveform_bloch import WaveformBlochPlan, run_waveform_bloch
 from mrqlab_experiment.waveform_search import WaveformSearch, search_waveform_bloch
+from mrqlab_experiment.waveform_cartesian import CartesianWaveformPlan, run_waveform_cartesian
 from mrqlab_experiment.linked_readout import LinkedEdit, verify_linked_readout
 from mrqlab_experiment.agentic_inference import infer_tissue_modalities, verify_agentic_inference
 from .research import (
@@ -113,6 +114,11 @@ class WaveformSearchPlan(Strict):
     parameters: WaveformSearch
 
 
+class WaveformCartesianPlan(Strict):
+    type: Literal['waveform_cartesian']='waveform_cartesian'
+    parameters: CartesianWaveformPlan
+
+
 class EditedOperationsPlan(LinkedParentEdits):
     type: Literal['edited_operations']='edited_operations'
 
@@ -126,7 +132,7 @@ class CalibratedRadialPlan(Strict):
 
 class ScientificPlan(Strict):
     context: StudyContext
-    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan | OperationSequencePlan | EditedOperationsPlan | WaveformPlan | WaveformSearchPlan,Field(discriminator='type')]
+    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan | OperationSequencePlan | EditedOperationsPlan | WaveformPlan | WaveformSearchPlan | WaveformCartesianPlan,Field(discriminator='type')]
     expected_execution_hash: str | None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
 
 
@@ -184,7 +190,26 @@ def _validate_run(run, source):
     # This is the original API hash convention, applied to the lossless payload.
     actual=sha256(json.dumps(run['result'],sort_keys=True,allow_nan=False).encode()).hexdigest()
     if run.get('result_hash')!=actual: raise ValueError('nested research result hash mismatch')
-    if run.get('kind') in {'tse','sequence_operations'} and 'linked_readout' in run['result']:
+    if run.get('kind')=='waveform_cartesian':
+        result=run['result'];pair=result.get('linked_readout')
+        if pair is None: raise ValueError('waveform Cartesian result requires the linked image/signal pair')
+        image=result['image'];samples=result['waveform']['samples'];signal=pair['signal_vector']
+        expected_curves=[dict(label='ADC real',x=[s['time_s'] for s in samples],y=[s['real'] for s in samples]),
+                         dict(label='ADC imaginary',x=[s['time_s'] for s in samples],y=[s['imag'] for s in samples])]
+        if (image['shape']!=pair['image']['shape'] or
+                image['real']!=pair['image']['values']['real'] or image['imag']!=pair['image']['values']['imag'] or
+                len(image['magnitude'])!=len(image['real']) or
+                any(not math.isclose(m,abs(complex(re,im)),rel_tol=1e-12,abs_tol=1e-12)
+                    for m,re,im in zip(image['magnitude'],image['real'],image['imag'])) or
+                [s['real'] for s in samples]!=signal['values']['real'] or
+                [s['imag'] for s in samples]!=signal['values']['imag'] or
+                [s['time_s'] for s in samples]!=signal['sample_times_s'] or
+                result['encoding']['grid_indices']!=signal['grid_indices'] or
+                run['view']['images'][0]['values']!=image['magnitude'] or
+                run['view']['curves']!=expected_curves or
+                run['view']['validation']!=result['validation']):
+            raise ValueError('waveform Cartesian image, signal and preview differ from the linked pair')
+    if run.get('kind') in {'tse','sequence_operations','waveform_cartesian'} and 'linked_readout' in run['result']:
         pair=run['result']['linked_readout'];verify_linked_readout(pair)
         if pair['provenance']['inputs_sha256']!=fingerprint(run['replay_request']['parameters']):
             raise ValueError('linked input pin differs from retained computation')
@@ -247,7 +272,7 @@ def _edit_parent(execution):
 
 def _run_origins(run):
     origins={'authored_model_inputs'}
-    if run.get('kind') in {'sequence_operations','waveform_bloch'}: origins.add('synthetic')
+    if run.get('kind') in {'sequence_operations','waveform_bloch','waveform_cartesian'}: origins.add('synthetic')
     if run.get('kind')=='tse':
         for physical in run['result']['provenance']['physical']:
             for binding in physical.get('contrast_relaxation_bindings',[]): origins.add(binding['exposure']['origin'])
@@ -298,6 +323,21 @@ def _waveform_search_run(parameters, source):
     return run
 
 
+def _waveform_cartesian_run(parameters, source):
+    result=run_waveform_cartesian(parameters)
+    image=result['image'];samples=result['waveform']['samples'];times=[s['time_s'] for s in samples]
+    view=dict(images=[dict(label='Sequential ADC reconstruction magnitude',width=image['shape'][1],height=image['shape'][0],values=image['magnitude'])],
+              curves=[dict(label='ADC real',x=times,y=[s['real'] for s in samples]),
+                      dict(label='ADC imaginary',x=times,y=[s['imag'] for s in samples])],
+              x_label='Time (s)',y_label='Signal (a.u.)',
+              metrics={'ADC samples':float(len(samples)), 'Cartesian trajectory error (cycles/m)':result['encoding']['max_error_cycles_m']},
+              validation=result['validation'])
+    run=dict(kind='waveform_cartesian',result=result,view=view,source_hash=source,
+             replay_request=dict(kind='waveform_cartesian',parameters=result['provenance']['replay'],expected_source_hash=source))
+    run['result_hash']=sha256(json.dumps(result,sort_keys=True,allow_nan=False).encode()).hexdigest()
+    return run
+
+
 
 def _parent_measurement(execution):
     parent=execution.get('parent_record')
@@ -332,11 +372,11 @@ def _summary(request,payload,source):
                      model_reported_passed=p['eligible'],reasons=p['reasons']) for p in candidates]
         reported=best is not None;kind=payload['kind'];execution_hash=payload['result_hash']
         origins=['authored_model_inputs','synthetic']
-    elif mode in {'run','operation_sequence','waveform_bloch'}:
-        expected_kind=execution.get('kind') if mode=='run' else 'sequence_operations' if mode=='operation_sequence' else 'waveform_bloch'
+    elif mode in {'run','operation_sequence','waveform_bloch','waveform_cartesian'}:
+        expected_kind=execution.get('kind') if mode=='run' else 'sequence_operations' if mode=='operation_sequence' else mode
         if expected_kind!=payload.get('kind'): raise ValueError('execution kind differs from payload')
         _validate_run(payload,source)
-        if mode=='waveform_bloch':
+        if mode in {'waveform_bloch','waveform_cartesian'}:
             inputs=fingerprint(execution['parameters'])
             if (fingerprint(payload['replay_request']['parameters'])!=inputs or
                     fingerprint(payload['result']['provenance']['replay'])!=inputs):
@@ -479,6 +519,8 @@ def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
         payload=_waveform_run(execution.parameters,api_source)
     elif isinstance(execution,WaveformSearchPlan):
         payload=_waveform_search_run(execution.parameters,api_source)
+    elif isinstance(execution,WaveformCartesianPlan):
+        payload=_waveform_cartesian_run(execution.parameters,api_source)
     elif isinstance(execution,CalibratedRadialPlan):
         parent,legacy=_parent_measurement(request['execution'])
         derived=run_calibrated_radial_study(legacy,execution.study)
@@ -539,7 +581,7 @@ def verify_scientific_record(record):
         request=_loads(record['request_json']);payload=_loads(record['payload_json'])
         StudyContext.model_validate(request['context'])
         mode=request['execution']['type']
-        runs=([payload] if mode in {'run','operation_sequence','waveform_bloch','waveform_search'} else [payload['run']] if mode in {'edited_tse','edited_operations'} else
+        runs=([payload] if mode in {'run','operation_sequence','waveform_bloch','waveform_search','waveform_cartesian'} else [payload['run']] if mode in {'edited_tse','edited_operations'} else
               [p['run'] for p in payload['candidates'] if p['feasible']] if mode=='search' else [])
         for run in runs:
             pair=run.get('result',{}).get('linked_readout')
@@ -631,7 +673,7 @@ class ScientificStore:
 
 def _response(record):
     payload=_loads(record['payload_json']);mode=record['summary']['mode']
-    if mode in {'measured_tse','measured_flow','calibrated_radial_tse','agentic_inference','operation_sequence','waveform_bloch','waveform_search'}: view=payload['view']
+    if mode in {'measured_tse','measured_flow','calibrated_radial_tse','agentic_inference','operation_sequence','waveform_bloch','waveform_search','waveform_cartesian'}: view=payload['view']
     elif mode in {'edited_tse','edited_operations'}: view=payload['run']['view']
     elif mode=='run': view=payload['view']
     else:
