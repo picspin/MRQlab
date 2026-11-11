@@ -30,7 +30,7 @@ from mrqlab_experiment.tse_control import apply_tse_edits
 from mrqlab_experiment.sequence_operations import OperationSequence, apply_operation_edits, run_operation_sequence
 from mrqlab_experiment.waveform_bloch import WaveformBlochPlan, run_waveform_bloch
 from mrqlab_experiment.waveform_search import WaveformSearch, search_waveform_bloch
-from mrqlab_experiment.waveform_cartesian import CartesianWaveformPlan, run_waveform_cartesian
+from mrqlab_experiment.waveform_cartesian import CartesianWaveformPlan, apply_waveform_cartesian_edits, run_waveform_cartesian
 from mrqlab_experiment.linked_readout import LinkedEdit, verify_linked_readout
 from mrqlab_experiment.agentic_inference import infer_tissue_modalities, verify_agentic_inference
 from .research import (
@@ -123,6 +123,10 @@ class EditedOperationsPlan(LinkedParentEdits):
     type: Literal['edited_operations']='edited_operations'
 
 
+class EditedWaveformCartesianPlan(LinkedParentEdits):
+    type: Literal['edited_waveform_cartesian']='edited_waveform_cartesian'
+
+
 class CalibratedRadialPlan(Strict):
     type: Literal['calibrated_radial_tse']='calibrated_radial_tse'
     parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
@@ -132,7 +136,7 @@ class CalibratedRadialPlan(Strict):
 
 class ScientificPlan(Strict):
     context: StudyContext
-    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan | OperationSequencePlan | EditedOperationsPlan | WaveformPlan | WaveformSearchPlan | WaveformCartesianPlan,Field(discriminator='type')]
+    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan | OperationSequencePlan | EditedOperationsPlan | WaveformPlan | WaveformSearchPlan | WaveformCartesianPlan | EditedWaveformCartesianPlan,Field(discriminator='type')]
     expected_execution_hash: str | None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
 
 
@@ -249,22 +253,30 @@ def _agentic_view(inference):
 def _edit_parent(execution):
     parent=execution['parent_record']
     if not isinstance(parent,dict) or parent.get('record_sha256')!=execution['parent_record_sha256']: raise ValueError('edit parent record identity mismatch')
-    operation_mode=execution['type']=='edited_operations'
-    edit_mode='edited_operations' if operation_mode else 'edited_tse'
+    edit_mode=execution['type'] if execution['type'] in {'edited_operations','edited_waveform_cartesian'} else 'edited_tse'
+    edit_modes={'edited_tse','edited_operations','edited_waveform_cartesian'}
     cursor=parent;depth=1
-    while _loads(cursor['request_json'])['execution']['type'] in {'edited_tse','edited_operations'}:
+    while _loads(cursor['request_json'])['execution']['type'] in edit_modes:
         if _loads(cursor['request_json'])['execution']['type']!=edit_mode:
             raise ValueError('edit parent adapter lineage differs; mixed edit chains are unsupported')
         depth+=1
-        if depth>3: raise ValueError('at most three '+('operation' if operation_mode else 'TSE')+' edit generations are supported; no unbounded parent replay')
+        if depth>3:
+            name={'edited_operations':'operation','edited_tse':'TSE','edited_waveform_cartesian':'waveform Cartesian'}[edit_mode]
+            raise ValueError('at most three '+name+' edit generations are supported; no unbounded parent replay')
         cursor=_loads(cursor['request_json'])['execution']['parent_record']
     verify_scientific_record(parent)
     payload=_loads(parent['payload_json'])
     if parent['summary']['mode']==edit_mode: run=payload['run']
-    elif operation_mode and parent['summary']['mode']=='operation_sequence': run=payload
-    elif not operation_mode and parent['summary']['mode']=='run' and parent['summary']['kind']=='tse': run=payload
-    else: raise ValueError('semantic edits require a matching operation sequence parent' if operation_mode else 'semantic edits require a TSE run or edited TSE parent')
-    if run['kind']!=('sequence_operations' if operation_mode else 'tse'):
+    elif edit_mode=='edited_operations' and parent['summary']['mode']=='operation_sequence': run=payload
+    elif edit_mode=='edited_waveform_cartesian' and parent['summary']['mode']=='waveform_cartesian': run=payload
+    elif edit_mode=='edited_tse' and parent['summary']['mode']=='run' and parent['summary']['kind']=='tse': run=payload
+    else:
+        messages={'edited_operations':'semantic edits require a matching operation sequence parent',
+                  'edited_tse':'semantic edits require a TSE run or edited TSE parent',
+                  'edited_waveform_cartesian':'semantic edits require a waveform Cartesian parent'}
+        raise ValueError(messages[edit_mode])
+    expected_kind={'edited_operations':'sequence_operations','edited_waveform_cartesian':'waveform_cartesian','edited_tse':'tse'}[edit_mode]
+    if run['kind']!=expected_kind:
         raise ValueError('edit parent adapter kind differs')
     if 'linked_readout' not in run['result']: raise ValueError('parent lacks complete linked image/signal data')
     return parent,run
@@ -385,7 +397,7 @@ def _summary(request,payload,source):
             model_reported_passed=payload['view']['validation']['passed'],validation=payload['view']['validation'])]
         kind=payload['kind'];selected=0;reported=points[0]['model_reported_passed']
         execution_hash=payload['result_hash'];origins=_run_origins(payload)
-    elif mode in {'edited_tse','edited_operations'}:
+    elif mode in {'edited_tse','edited_operations','edited_waveform_cartesian'}:
         parent,original=_edit_parent(execution);run=payload['run'];_validate_run(run,source)
         if payload['parent_record_sha256']!=parent['record_sha256'] or parent['api_source_hash']!=source: raise ValueError('edited linked parent/source differs')
         if run['kind']!=original['kind']: raise ValueError('edited run adapter kind differs from parent')
@@ -460,8 +472,8 @@ def _summary(request,payload,source):
         mode=mode,kind=kind,selected_index=selected,model_reported_passed=bool(reported),
         candidate_count=len(points),candidates=points,execution_hash=execution_hash,input_origins=origins,
         background_references_applied=False,scope=SCOPE)
-    if mode in {'calibrated_radial_tse','edited_tse','edited_operations','agentic_inference'}: summary['parent_record_sha256']=execution['parent_record_sha256']
-    if mode in {'edited_tse','edited_operations'}: summary['applied_edits_sha256']=fingerprint(execution['updates'])
+    if mode in {'calibrated_radial_tse','edited_tse','edited_operations','edited_waveform_cartesian','agentic_inference'}: summary['parent_record_sha256']=execution['parent_record_sha256']
+    if mode in {'edited_tse','edited_operations','edited_waveform_cartesian'}: summary['applied_edits_sha256']=fingerprint(execution['updates'])
     if mode=='agentic_inference':
         summary['inference_sha256']=fingerprint(payload['inference'])
         summary['parent_pair_sha256']=payload['parent_pair_sha256']
@@ -474,7 +486,7 @@ def _stages(request,request_hash,payload_hash,summary,environment):
             ('source_and_runtime',fingerprint(environment)),('computed_execution',payload_hash),('reported_validation',fingerprint(summary))]
     if request['execution']['type']=='calibrated_radial_tse':
         values.insert(1,('parent_measurement_record',request['execution']['parent_record_sha256']))
-    if request['execution']['type'] in {'edited_tse','edited_operations'}:
+    if request['execution']['type'] in {'edited_tse','edited_operations','edited_waveform_cartesian'}:
         values[1:1]=[('parent_image_signal_record',request['execution']['parent_record_sha256']),('typed_parameter_edits',summary['applied_edits_sha256'])]
     if request['execution']['type']=='agentic_inference':
         values[1:1]=[('parent_image_signal_record',request['execution']['parent_record_sha256']),
@@ -501,9 +513,11 @@ def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
         parent,original=_edit_parent(request['execution'])
         replay_scientific_record(parent)  # never derive from an uncomputed imported result
         operation_mode=isinstance(execution,EditedOperationsPlan)
-        apply_edits=apply_operation_edits if operation_mode else apply_tse_edits
+        waveform_mode=isinstance(execution,EditedWaveformCartesianPlan)
+        apply_edits=apply_operation_edits if operation_mode else apply_waveform_cartesian_edits if waveform_mode else apply_tse_edits
         parameters=apply_edits(original['replay_request']['parameters'],execution.updates,pair=original['result']['linked_readout'])
-        run=_operation_run(parameters,api_source) if operation_mode else execute(RunRequest(kind='tse',parameters=parameters,expected_source_hash=api_source),api_source)
+        run=(_operation_run(parameters,api_source) if operation_mode else _waveform_cartesian_run(parameters,api_source) if waveform_mode
+             else execute(RunRequest(kind='tse',parameters=parameters,expected_source_hash=api_source),api_source))
         payload=dict(parent_record_sha256=parent['record_sha256'],updates=[u.model_dump(mode='json') for u in execution.updates],parent_computationally_replayed=True,
             parameters_before_sha256=fingerprint(original['replay_request']['parameters']),parameters_after_sha256=fingerprint(run['replay_request']['parameters']),run=run)
     elif isinstance(execution,AgenticInferencePlan):
@@ -581,7 +595,7 @@ def verify_scientific_record(record):
         request=_loads(record['request_json']);payload=_loads(record['payload_json'])
         StudyContext.model_validate(request['context'])
         mode=request['execution']['type']
-        runs=([payload] if mode in {'run','operation_sequence','waveform_bloch','waveform_search','waveform_cartesian'} else [payload['run']] if mode in {'edited_tse','edited_operations'} else
+        runs=([payload] if mode in {'run','operation_sequence','waveform_bloch','waveform_search','waveform_cartesian'} else [payload['run']] if mode in {'edited_tse','edited_operations','edited_waveform_cartesian'} else
               [p['run'] for p in payload['candidates'] if p['feasible']] if mode=='search' else [])
         for run in runs:
             pair=run.get('result',{}).get('linked_readout')
@@ -632,7 +646,7 @@ class ScientificStore:
         verify_scientific_record(record);raw=_dump(record);size=len(raw.encode())
         if size>MAX_BYTES: raise ValueError('scientific record exceeds 128 MiB storage limit')
         identity=record['record_sha256']
-        if record['summary']['mode'] in {'edited_tse','edited_operations'}:
+        if record['summary']['mode'] in {'edited_tse','edited_operations','edited_waveform_cartesian'}:
             parent,_=_edit_parent(_loads(record['request_json'])['execution'])
             self.save(parent)
         if record['summary']['mode']=='calibrated_radial_tse':
@@ -674,7 +688,7 @@ class ScientificStore:
 def _response(record):
     payload=_loads(record['payload_json']);mode=record['summary']['mode']
     if mode in {'measured_tse','measured_flow','calibrated_radial_tse','agentic_inference','operation_sequence','waveform_bloch','waveform_search','waveform_cartesian'}: view=payload['view']
-    elif mode in {'edited_tse','edited_operations'}: view=payload['run']['view']
+    elif mode in {'edited_tse','edited_operations','edited_waveform_cartesian'}: view=payload['run']['view']
     elif mode=='run': view=payload['view']
     else:
         selected=payload['best'] or next((p for p in payload['candidates'] if p['feasible']),None)

@@ -29,9 +29,34 @@ cannot prove that temporally distinct data are a static object, that the
 acquisition physics are independently correct, or that an image is clinically
 accurate. Record integrity checks require the pair and compare the retained
 image, magnitude preview, complex samples, times, grid indices and curves
-against it. Controls are deliberately empty: both views are readable but this
-adapter does **not** yet implement bidirectional waveform editing. No generic
-LLM or doctor usability claim is made.
+against it. The controls described below are exposed identically to both
+views. No generic LLM or doctor usability claim is made.
+
+## Bounded semantic edits
+
+`edited_waveform_cartesian` accepts one to eight typed edits from the image or
+signal-vector view. RF waveforms with at most 32 samples expose each sample's
+amplitude (uT) and phase (rad). Larger RF waveforms remain readable but expose
+no partial RF sample controls. Each named tissue exposes proton density, T1, T2,
+B0 and B1 within explicitly declared research bounds. The unchanged parent
+pair supplies the adapter-owned control descriptors; input fingerprint,
+descriptor equality and pair integrity are checked before an atomic edit.
+Duplicate or out-of-bounds edits, unbound tissue IDs and forged capabilities
+fail closed. Gradients, geometry, label grid, acquisition order, numerical
+settings and the declared image and signal targets are read-only in an edit.
+
+The parent is computationally replayed first, then the edited inputs are fully
+lowered, simulated, trajectory-checked, reconstructed and target-checked. A
+child embeds its parent and records both parameter fingerprints, typed edits,
+results and source/runtime pins. Both views produce identical numerical results
+for the same edit; the parent is not mutated. Up to three same-adapter edit
+generations are supported, with mixed lineages rejected. These are semantic API
+controls over a synthetic study, not a verified clinical UI or an LLM agent.
+
+In the 2×2 fixture, setting all three RF samples from 15 to 0.1 uT changes the
+target/reference magnitude difference from `0.0484674` to `0.000323898 a.u.`;
+the unchanged 0.01 a.u. image target then fails. Both image and signal views
+produce this same failed result; no target is relaxed or fallback selected.
 
 An optional authored image target compares the mean reconstructed **magnitude**
 in two declared synthetic label regions using `ge` or `le`. If a waveform point
@@ -62,15 +87,21 @@ These results apply to this synthetic fixture, not a universal accuracy bound.
 Tests reject incomplete/duplicate grids, incorrect trajectory mapping,
 pre/during-RF nonzero gradients and unbound target tissues, and preserve failed
 or absent targets. They check API output and source-bound computational replay.
-The source-bound Python suite passed **1180 tests**, with one existing
+At the preceding `fe4dd5b` anchor, the source-bound Python suite passed **1180 tests**, with one existing
 Starlette/httpx deprecation warning; the focused waveform and linked-readout
 set passed **21 tests**. A separate fresh CLI process replayed the complete
 image/signal record identically. Frontend files were unchanged and frontend
 tests were not rerun in this round.
 
+After adding the bounded parent/child edit contract, the full source-bound
+Python suite passed **1186 tests** with the same warning. The focused
+waveform, operation and linked-edit set passed **54 tests**. A fresh CLI
+process recomputed an edited child and its embedded parent and returned an
+identical record. Frontend tests were not rerun because no frontend changed.
+
 Remaining work includes realistic RF slice selection, multiple RF/refocusing
 and coherence pathways, finite ADC aperture, coils, motion/flow/diffusion,
 non-Cartesian trajectories, realistic B0/B1 maps, measured input, uncertainty,
-image-objective optimization and bidirectional control, as well as external
+image-objective optimization and general waveform/gradient control, as well as external
 phantom/scanner evaluation. This is teaching/research software, not scanner
 validation or clinical quality certification.

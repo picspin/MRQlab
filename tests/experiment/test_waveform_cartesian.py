@@ -72,7 +72,7 @@ def test_cartesian_waveform_acquires_complex_samples_and_reconstructs_direct_dft
     assert out['validation']['passed'] is True
     assert out['validation']['image_target']['measured']>0
     assert verify_linked_readout(out['linked_readout'])['transform_passed']
-    assert out['linked_readout']['controls']==[]
+    assert any(c['field']=='rf.samples.0.amplitude_ut' for c in out['linked_readout']['controls'])
     assert out['linked_readout']['signal_vector']['sample_times_s']==[s['time_s'] for s in samples]
     with pytest.raises(ValueError,match='unsupported or unbound control'):
         validate_linked_edits(out['linked_readout'],[dict(field='rf.amplitude',value=10.,view='image')])

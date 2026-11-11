@@ -14,7 +14,7 @@ from .clinical_catalog import RESEARCH_3T
 from .sequence_lowering import lower_sequence
 from .waveform_bloch import WaveformBlochPlan, run_waveform_bloch
 from .lab_study import fingerprint
-from .linked_readout import complex_values, create_linked_readout
+from .linked_readout import complex_values, create_linked_readout, validate_linked_edits
 from .study_records import _checked_sources, runtime_manifest
 
 
@@ -73,6 +73,48 @@ def _check_preparation(sequence):
                 raise ValueError('nonzero gradients before or during RF are unsupported by this Cartesian adapter')
 
 
+def waveform_cartesian_controls(plan):
+    """Adapter-owned writable fields; indices refer to the retained RF samples."""
+    controls=[]
+    rf_blocks=[b for b in plan.waveform.sequence.blocks if b.rf is not None]
+    if len(rf_blocks)==1 and len(rf_blocks[0].rf.samples_ut)<=32:
+        rf=rf_blocks[0].rf
+        for index,(amplitude,phase) in enumerate(zip(rf.samples_ut,rf.phase_rad)):
+            controls.extend([
+                dict(field=f'rf.samples.{index}.amplitude_ut',value=amplitude,unit='uT',kind='number',min=-1000.,max=1000.),
+                dict(field=f'rf.samples.{index}.phase_rad',value=phase,unit='rad',kind='number',min=-1e6,max=1e6),
+            ])
+    domains={'proton_density':('a.u.',1e-12,2.),'t1_s':('s',.01,10.),'t2_s':('s',.001,2.),
+             'b0_hz':('Hz',-2000.,2000.),'b1_scale':('relative',0.,2.)}
+    for tissue in plan.waveform.tissues:
+        for field,(unit,low,high) in domains.items():
+            controls.append(dict(field=f'tissue.{field}',tissue_id=tissue.id,value=float(getattr(tissue,field)),
+                                 unit=unit,kind='number',min=low,max=high))
+    return controls
+
+
+def apply_waveform_cartesian_edits(parameters, updates, *, pair):
+    """Validate semantic edits against an immutable parent before rewriting inputs."""
+    plan=CartesianWaveformPlan.model_validate(parameters)
+    if pair['provenance']['inputs_sha256']!=fingerprint(plan.model_dump(mode='json')):
+        raise ValueError('waveform Cartesian pair input pin differs from retained plan')
+    if (pair['provenance']['adapter']!='waveform-cartesian-point-adc-1' or
+            pair['controls']!=waveform_cartesian_controls(plan)):
+        raise ValueError('waveform Cartesian capabilities differ from retained plan')
+    checked=validate_linked_edits(pair,updates)
+    result=plan.model_dump(mode='json')
+    blocks=[b for b in result['waveform']['sequence']['blocks'] if b['rf'] is not None]
+    tissues={t['id']:t for t in result['waveform']['tissues']}
+    for edit in checked:
+        parts=edit.field.split('.')
+        if parts[0]=='rf':
+            index=int(parts[2]);field='samples_ut' if parts[3]=='amplitude_ut' else 'phase_rad'
+            blocks[0]['rf'][field][index]=edit.value
+        else:
+            tissues[edit.tissue_id][parts[1]]=edit.value
+    return CartesianWaveformPlan.model_validate(result).model_dump(mode='json')
+
+
 def run_waveform_cartesian(parameters):
     plan = CartesianWaveformPlan.model_validate(parameters)
     sequence = lower_sequence(plan.waveform.sequence, RESEARCH_3T)
@@ -117,7 +159,7 @@ def run_waveform_cartesian(parameters):
                                            max_trajectory_error_cycles_m=max_error)),
         structure=dict(shape=list(shape),label_grid=plan.waveform.labels,
                        label_to_tissue_id=[t.id for t in plan.waveform.tissues],origin='authored synthetic static voxel grid'),
-        controls=[],
+        controls=waveform_cartesian_controls(plan),
         links=[dict(source='sequential_adc',target='sequential_adc_image',transform='centered_inverse_dft',normalization='1/product(shape); no fitted gain')],
         provenance=dict(adapter='waveform-cartesian-point-adc-1',source_sha256=source['sha256'],runtime=runtime,
                         inputs_sha256=fingerprint(plan.model_dump(mode='json')),origin='authored synthetic inputs',
