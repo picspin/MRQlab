@@ -94,6 +94,40 @@ def test_failed_tse_preparation_reports_partial_tissue_work():
     assert caught.value.estimated_work==59796
 
 
+def test_generic_simulation_failure_reports_prior_tissue_work(monkeypatch):
+    """A non-FamilyWorkError failure must not discard a completed tissue's work.
+
+    The second tissue can fail with a plain ValueError (for example the
+    'did not converge' path) after the first tissue already ran; the error must
+    still carry that spent work instead of reporting zero.
+    """
+    from mrqlab_experiment.family_recipes import build_family_recipe
+    from mrqlab_experiment.tse_imaging import ReadoutWorkError
+    import mrqlab_experiment.tse_imaging as tse
+    spent={'work':0}; original=tse.run_experiment; calls={'n':0}
+    def patched(graph):
+        calls['n']+=1
+        if calls['n']==2: raise ValueError('TSE steady preparation did not converge')
+        result=original(graph); spent['work']+=result.sim_result.meta['estimated_work']; return result
+    monkeypatch.setattr(tse,'run_experiment',patched)
+    with pytest.raises(ReadoutWorkError) as caught:
+        run_tse_imaging(phantom(), echoes=8)
+    assert str(caught.value)=='TSE steady preparation did not converge'
+    assert caught.value.estimated_work==spent['work']>0
+
+
+def test_rejected_experiment_chassis_stays_plain_valueerror():
+    """A design rejected before any EPG run must not become a ReadoutWorkError.
+
+    Callers use ReadoutWorkError to debit consumed work; a rejected request
+    consumed none and must stay a plain ValueError.
+    """
+    from mrqlab_experiment.tse_imaging import ReadoutWorkError
+    with pytest.raises(ValueError) as caught:
+        run_tse_imaging(phantom(), echoes=8, experiment={'y': 1})
+    assert not isinstance(caught.value, ReadoutWorkError)
+
+
 def test_discrete_psf_metrics_known_delta_and_lowpass():
     delta = psf_metrics(np.ones((16, 16)))
     assert delta['half_amplitude_width_voxels'] == [1, 1]
