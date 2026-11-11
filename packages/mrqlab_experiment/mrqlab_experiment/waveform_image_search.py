@@ -47,7 +47,7 @@ def candidate_parameters(search,scale,scenario,refined):
     return parameters
 
 
-def search_waveform_image(request):
+def search_waveform_image(request, *, _preflight_only=False):
     search=WaveformImageSearch.model_validate(request)
     # Trajectory and sequence timing are invariant across the allowed edits.
     preflight_cartesian_trajectory(search.base)
@@ -69,6 +69,9 @@ def search_waveform_image(request):
         prepared.append(entry)
     if total>search.max_total_work:
         raise ValueError(f'complete image search work {total} exceeds max_total_work {search.max_total_work}; no candidates were integrated')
+    if _preflight_only:
+        return dict(total_voxel_steps=total, max_total_work=search.max_total_work,
+                    candidates=[dict(index=e['index'],scale=e['scale'],estimated_work=e['estimated_work'],error=e.get('error')) for e in prepared])
     results=[]
     for entry in prepared:
         item=dict(index=entry['index'],scale=entry['scale'],executable='error' not in entry,
