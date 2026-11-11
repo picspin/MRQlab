@@ -5,6 +5,7 @@ import { getScientificRecord, importScientificRecord, listScientificRecords, rep
 import type { ScientificList, ScientificRecord, ScientificResponse } from "../../../lib/scientific-records";
 import Measurements from "../../../components/research/Measurements";
 import { DeriveRadialStudy, DerivedRadialEvidence } from "../../../components/research/DerivedRadialStudy";
+import { DeriveWaveformStudy, DerivedWaveformEvidence, parseWaveformEvidence } from "../../../components/research/DerivedWaveformStudy";
 import styles from "../research.module.css";
 
 const EMPTY: ScientificList = { total: 0, offset: 0, limit: 20, records: [] };
@@ -75,9 +76,13 @@ export default function ScientificRecordsPage() {
   }
   const record = response?.record;
   const derived = useMemo(() => record?.summary.mode === "calibrated_radial_tse" ? JSON.parse(record.payload_json).derivation : null, [record?.payload_json, record?.summary.mode]);
+  const waveform = useMemo(() => record?.summary.mode === "measured_waveform_image" ? parseWaveformEvidence(record.payload_json) : null, [record?.payload_json, record?.summary.mode]);
+  const waveformViewValid = !!waveform && !!response?.view && typeof response.view.validation?.passed === "boolean" &&
+    response.view.validation.passed === waveform.validation.passed && Array.isArray(response.view.images) && Array.isArray(response.view.curves) &&
+    (waveform.selected_index === null ? response.view.images.length === 0 && response.view.curves.length === 0 : response.view.images.length > 0);
   return <div className={styles.workbench}>
     <header className={styles.heading}><div><h1>本地实验记录</h1><p>把研究问题、设计、模型结果和验证依据保存在同一份可回放记录中。</p></div><Link className={styles.scope} href="/research">脉冲设计研究台</Link></header>
-    <p className={styles.boundary}>教学 / 研究用途。历史报告、完整性检查与完整计算回放分别标注；不是扫描仪验证或临床质量认证。B/C 保持 parked。</p>
+    <p className={styles.boundary}>教学 / 研究用途。历史报告、完整性检查与完整计算回放分别标注；不是扫描仪验证或临床质量认证。B/C 进行中，尚未完成。</p>
     <div className={styles.instrument}>
       <section className={styles.design} aria-label="已保存实验">
         <h2>已保存实验</h2><label>筛选实验编号<input value={filter} disabled={busy} onChange={e => setFilter(e.target.value)} placeholder="留空查看全部" /></label>
@@ -99,16 +104,23 @@ export default function ScientificRecordsPage() {
           {record.summary.mode === "search" && record.summary.selected_index === null && <p>原记录未选出设计；全部候选保留在下表。</p>}
           {record.summary.mode === "search" && response.view && <p>下方展示候选 {(record.summary.selected_index ?? record.summary.candidates?.find(point => point.executable)?.index ?? 0) + 1} 的历史测量；展示不会改变原选择。</p>}
           <p>输入来源：{record.summary.input_origins.join("、")}。背景引用不会自动用于校准。</p>
-          {record.summary.parent_record_sha256 && <button disabled={busy} onClick={() => void perform(signal => open(record.summary.parent_record_sha256!, signal))}>{record.summary.mode === "edited_tse" ? "打开父图像 / 信号记录" : "打开父测量记录"}</button>}
+          {record.summary.parent_record_sha256 && <button disabled={busy} onClick={() => void perform(signal => open(record.summary.parent_record_sha256!, signal))}>{["edited_tse", "edited_operations", "edited_waveform_cartesian"].includes(record.summary.mode) ? "打开父图像 / 信号记录" : "打开父测量记录"}</button>}
           <div className={styles.actions}><button disabled={busy} onClick={() => void replay()}>在当前环境完整重算</button><button disabled={busy} onClick={download}>导出完整实验记录</button></div>
           <ol className={styles.recordStages}>{record.stages.map(stage => <li key={stage.sha256}><strong>{STAGES[stage.stage] ?? stage.stage}</strong><code>{stage.sha256}</code></li>)}</ol>
           <div className={styles.scroll}><table><caption>完整候选与模型历史报告</caption><thead><tr><th>候选</th><th>计算完成</th><th>声明目标</th><th>说明</th></tr></thead><tbody>{record.summary.candidates?.map(point => <tr key={point.index}><td>{point.index + 1}{point.index === record.summary.selected_index ? "（原结果）" : ""}</td><td>{point.executable ? "是" : "否"}</td><td>{point.model_reported_passed ? "通过" : "未通过"}</td><td>{point.reasons?.join("；") ?? (point.reason ? JSON.stringify(point.reason) : "")}</td></tr>)}</tbody></table></div>
           {derived && <DerivedRadialEvidence evidence={derived} />}
+          {record.summary.mode === "measured_waveform_image" && (waveform ? <DerivedWaveformEvidence evidence={waveform} /> : <p role="alert" className={styles.error}>波形研究证据结构不完整，无法安全显示。</p>)}
+          {record.summary.mode === "measured_waveform_image" && waveform && response.view && !waveformViewValid && <p role="alert" className={styles.error}>波形预览与验证结果不一致，已隐藏测量视图。</p>}
           {derived && response.view && <p>下图仅展示名义情景的单次逆解；是否通过不确定性验证以上方全部情景为准。</p>}
-          {response.view && <><h3>{replayed ? "重算一致的测量" : "历史记录中的测量（尚未重算）"}</h3><Measurements view={response.view} validationLabel={derived ? "仅名义情景的目标报告" : "模型当时的目标报告"} /></>}
+          {waveformViewValid && Array.isArray(response.view?.images) && response.view.images.length > 0 ? <p>下图为已选候选的名义 T2、首个 B0/B1 场景；全部压力场景见上表。</p> : null}
+          {response.view && (record.summary.mode !== "measured_waveform_image" || waveformViewValid) && <><h3>{replayed ? "重算一致的测量" : "历史记录中的测量（尚未重算）"}</h3><Measurements view={record.summary.mode === "measured_waveform_image" ? { ...response.view, validation: { passed: response.view.validation.passed } } : response.view} validationLabel={waveform ? "整体目标报告" : derived ? "仅名义情景的目标报告" : "模型当时的目标报告"} /></>}
           {record.summary.mode === "measured_tse" && <DeriveRadialStudy key={record.record_sha256} parent={record} onCreated={async result => {
             setResponse(result); setReplayed(false);
             await perform(async signal => { await refresh(signal); if (!signal.aborted) setMessage("派生实验已保存；全部不确定性情景的目标结果独立报告。"); });
+          }} />}
+          {record.summary.mode === "measured_tse" && <DeriveWaveformStudy key={`waveform-${record.record_sha256}`} parent={record} onCreated={async result => {
+            setResponse(result); setReplayed(false);
+            await perform(async signal => { await refresh(signal); if (!signal.aborted) setMessage("波形研究已保存；全部 T2 与 B0/B1 情景独立报告。"); });
           }} />}
           <section className={styles.provenance}><h3>可移交的来源与环境</h3><p>{record.summary.scope}</p><dl><dt>记录哈希</dt><dd>{record.record_sha256}</dd><dt>源码与依赖</dt><dd>{record.sources.sha256}</dd><dt>完整计算结果</dt><dd>{record.payload_sha256}</dd></dl>
             <details><summary>问题、设计与输入快照</summary><pre>{record.request_json}</pre></details><details><summary>运行环境与阶段依赖</summary><pre>{JSON.stringify({ runtime: record.runtime, stages: record.stages }, null, 2)}</pre></details>

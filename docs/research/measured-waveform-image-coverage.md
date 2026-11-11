@@ -84,3 +84,34 @@ dynamic biology, measured B0/B1, more general pulse/trajectory optimization,
 finite ADC aperture, multi-coil/3D/flow/diffusion, physician/agent-facing UI and
 external validation. This is teaching/research software and is neither scanner
 validation nor clinical quality certification.
+
+## Records workbench and local HTTP verification
+
+The records workbench can load a synthetic waveform template for a saved T2
+parent, edit its JSON, state the research question and target rationale, and
+save the derived study against that parent's hash. The endpoint
+`GET /research/records/{sha256}/waveform-example` only constructs the template;
+it does not simulate or assert that the parent's calibration passed. The child
+run and replay revalidate the parent. Template geometry, RF, T1, proton density
+and thresholds are authored synthetic examples even when the parent origin is
+user-declared measured data.
+
+The child record presents parent provenance and revalidation, fitted T2 and
+uncertainties, actual T2 corner values, all RF candidates and their T2/B0/B1
+outcomes, and separate parent-work and voxel-step budgets. A preview is shown
+only for a selected candidate when the view agrees with the record's validation;
+malformed or inconsistent evidence is withheld. Records remain historical until
+computational replay succeeds. The fixed small Cartesian example is a research
+entry point, not a clinical protocol or an unconstrained pulse optimizer.
+
+An isolated local API/database run verified parent creation, template retrieval,
+child creation, retrieval and full replay over HTTP, including the frontend
+origin's CORS header. The frontend route returned HTTP 200 and a production
+build completed; browser-window inspection could not be performed because the
+computer-use browser host was unavailable. Component tests cover the UI and its
+failure states but do not replace a visual or interactive browser assessment.
+Frontend validation for this workbench change: **209 tests passed**, TypeScript
+checking passed, and the Next.js production build passed in a temporary copy so
+that generated output in the worktree was not overwritten.
+The full Python regression after adding the template endpoint passed **1200
+tests**, with one existing Starlette/httpx deprecation warning.

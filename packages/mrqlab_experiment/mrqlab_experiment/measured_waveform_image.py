@@ -8,12 +8,38 @@ from .lab_study import LabStudy, fingerprint, run_lab_study
 from .study_records import _checked_sources, runtime_manifest, verify_study_record
 from .waveform_image_search import WaveformImageSearch, search_waveform_image
 from .linked_readout import verify_linked_readout
+from mrqlab_physics.kernel.units import GAMMA_BAR_HZ_T
 
 
 class MeasuredWaveformStudy(BaseModel):
     model_config=ConfigDict(extra='forbid',strict=True,allow_inf_nan=False)
     search: WaveformImageSearch
     max_parent_work: int=Field(default=1_000_000_000,ge=1,le=5_000_000_000,strict=True)
+
+
+def build_measured_waveform_example(parent_study):
+    """Explicit synthetic 2x2 design bound to a lab study's tissue IDs."""
+    parent=LabStudy.model_validate(parent_study);ids=parent.tissue_order;fov=.22
+    amplitude=1/(fov*GAMMA_BAR_HZ_T*1e-3*21*1e-5)
+    gx=[0.]*130;gy=[0.]*130
+    for start,sign in [(2,1),(35,-1),(65,1),(95,-1)]: gx[start:start+21]=[sign*amplitude]*21
+    for start,sign in [(2,1),(65,-1)]: gy[start:start+21]=[sign*amplitude]*21
+    blocks=[dict(id='rf',start_s=0.,rf=dict(samples_ut=[15.,15.,15.],phase_rad=[0.,0.,0.],raster_s=1e-5)),
+            dict(id='encoding',start_s=.0002,gradients=[dict(axis='gx',samples_mt_m=gx,raster_s=1e-5),
+                                                        dict(axis='gy',samples_mt_m=gy,raster_s=1e-5)])]
+    for index,center in enumerate([.0005,.0008,.0011,.0014]):
+        blocks.append(dict(id=f'adc{index}',start_s=center-1e-6,adc=dict(delay_s=0.,dwell_s=2e-6,sample_count=1)))
+    base=dict(waveform=dict(sequence=dict(id='synthetic-cartesian',duration_s=.0016,blocks=blocks),
+        labels=[[0,1],[1,0]],tissues=[dict(id=ids[0],proton_density=1.,t1_s=1.,t2_s=.08),
+                                      dict(id=ids[1],proton_density=.6,t1_s=.7,t2_s=.03)],
+        fov_m=fov,max_step_s=1e-6,max_work=100000),
+        grid_indices=[[0,0],[0,1],[1,0],[1,1]],trajectory_tolerance_cycles_m=1e-7,
+        image_target=dict(target_tissue_id=ids[0],reference_tissue_id=ids[1],operator='ge',value=.01))
+    search=dict(base=base,rf_block_id='rf',scales=[.1,.5,1.],
+        scenarios=[dict(id='nominal',b0_delta_hz=0.,b1_scale_factor=1.),
+                   dict(id='shifted',b0_delta_hz=20.,b1_scale_factor=.8)],
+        signal_refinement_tolerance=1e-6,image_refinement_tolerance=1e-6,max_total_work=1_000_000)
+    return MeasuredWaveformStudy.model_validate(dict(search=search,max_parent_work=parent.budget.max_total_work)).model_dump(mode='json')
 
 
 def lab_t2_binding(parent_record,dataset,fit,stress_id,used_t2):

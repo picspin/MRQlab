@@ -33,7 +33,7 @@ from mrqlab_experiment.waveform_bloch import WaveformBlochPlan, run_waveform_blo
 from mrqlab_experiment.waveform_search import WaveformSearch, search_waveform_bloch
 from mrqlab_experiment.waveform_cartesian import CartesianWaveformPlan, apply_waveform_cartesian_edits, run_waveform_cartesian, waveform_cartesian_controls
 from mrqlab_experiment.waveform_image_search import WaveformImageSearch, candidate_parameters as image_candidate_parameters, search_waveform_image
-from mrqlab_experiment.measured_waveform_image import MeasuredWaveformStudy, lab_t2_binding, run_measured_waveform_study
+from mrqlab_experiment.measured_waveform_image import MeasuredWaveformStudy, build_measured_waveform_example, lab_t2_binding, run_measured_waveform_study
 from mrqlab_experiment.linked_readout import LinkedEdit, verify_linked_readout
 from mrqlab_experiment.agentic_inference import infer_tissue_modalities, verify_agentic_inference
 from .research import (
@@ -995,6 +995,18 @@ def import_record(record: dict):
 
 @router.get('/{identity}')
 def get_record(identity: str): return _api(lambda:_response(ScientificStore().get(identity)),True)
+
+
+@router.get('/{identity}/waveform-example')
+def measured_waveform_example(identity: str):
+    def action():
+        parent=ScientificStore().get(identity)
+        _,legacy=_parent_measurement(dict(parent_record=parent,parent_record_sha256=identity))
+        study=LabStudy.model_validate(_loads(legacy['request_json']))
+        return dict(study=build_measured_waveform_example(study),
+                    parent=dict(tissue_ids=study.tissue_order,origin=study.dataset.origin,source_ref=study.dataset.source_ref),
+                    scope='synthetic 2x2 geometry, authored T1/PD and waveform; T2 is applied only after parent revalidation')
+    return _api(action,True)
 
 
 @router.post('/{identity}/replay')

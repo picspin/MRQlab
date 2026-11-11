@@ -149,7 +149,11 @@ def test_api_preserves_parent_origin_and_no_fallback(tmp_path,monkeypatch):
     monkeypatch.setattr(records,'default_store_path',lambda:tmp_path/'records.sqlite3')
     client=TestClient(app);root=client.post('/research/records',json=parent_plan())
     assert root.status_code==200,root.text
-    parent=root.json()['record'];plan=derived_plan(parent);plan['execution'].pop('parent_record')
+    parent=root.json()['record'];template=client.get('/research/records/'+parent['record_sha256']+'/waveform-example')
+    assert template.status_code==200,template.text
+    assert template.json()['parent']['origin']=='synthetic'
+    assert template.json()['parent']['tissue_ids']==json.loads(parent['request_json'])['execution']['study']['tissue_order']
+    plan=derived_plan(parent);plan['execution'].pop('parent_record');plan['execution']['study']=template.json()['study']
     child=client.post('/research/records',json=plan)
     assert child.status_code==200,child.text
     body=child.json();assert body['record']['summary']['parent_record_sha256']==parent['record_sha256']
