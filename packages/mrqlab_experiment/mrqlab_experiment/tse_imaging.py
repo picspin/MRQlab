@@ -142,15 +142,25 @@ def prepare_tse_echo_train(*, echoes, echo_spacing_s, tr_s, t2_s,
         try: result = run_experiment(g)
         except FamilyWorkError as exc:
             raise ReadoutWorkError(str(exc),physical_work+exc.estimated_work) from exc
+        except ValueError as exc:
+            # A generic simulation failure after earlier tissues completed still
+            # spent their work; report it rather than pretending the attempt was
+            # free. Validation errors happen before this loop and stay plain.
+            raise ReadoutWorkError(str(exc),physical_work) from exc
+        consumed = physical_work+result.sim_result.meta['estimated_work']
         signal = np.abs(result.sim_result.signal)
         if signal.shape != (echoes,) or not np.isfinite(signal).all() or signal.max() <= 0:
-            raise ValueError('EPG echo/ADC count mismatch or invalid signal')
+            raise ReadoutWorkError('EPG echo/ADC count mismatch or invalid signal',consumed)
         weights.append(signal)
-        physical.append(build_result_graph(result).observations[0].provenance.model_dump(mode='json'))
-        physical_work += result.sim_result.meta['estimated_work']
+        try: physical.append(build_result_graph(result).observations[0].provenance.model_dump(mode='json'))
+        except ValueError as exc:
+            raise ReadoutWorkError(str(exc),consumed) from exc
+        physical_work = consumed
         preparation_s.append(result.sim_result.meta['preparation_duration_s'])
     if physical_work > max_work:
-        raise ReadoutWorkError('combined EPG and spatial work exceeds budget',physical_work)
+        # This helper computes only EPG work; "spatial" would misdirect the
+        # direct callers (radial_tse, radial_readout, navigator_radial).
+        raise ReadoutWorkError('combined EPG work exceeds budget',physical_work)
     return graph,sequence,np.array(weights),physical,preparation_s,physical_work,experiment_input
 
 
@@ -196,15 +206,14 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
     reference_work = direct_inverse_dft_work(labels.shape)
     if labels.size > max_samples or spatial_work+reference_work >= max_work or trains*tr_s > max_duration_s:
         raise ValueError('infeasible readout budget')
-    try:
-        graph,sequence,weights,physical,preparation_s,physical_work,experiment_input = prepare_tse_echo_train(
-            echoes=echoes,echo_spacing_s=echo_spacing_s,tr_s=tr_s,t2_s=t2_s,
-            refocusing_angle=refocusing_angle,refocusing_end_angle=refocusing_end_angle,
-            max_work=max_work-spatial_work-reference_work,experiment=experiment,allow_contrast_exposure=True)
-    except ReadoutWorkError:
-        raise
-    except ValueError as exc:
-        raise ReadoutWorkError(str(exc),0) from exc
+    # prepare_tse_echo_train raises ReadoutWorkError itself for every failure
+    # that consumed simulation work; anything else it raises is pre-execution
+    # validation and stays a plain ValueError, so callers cannot mistake a
+    # rejected request for an attempted readout.
+    graph,sequence,weights,physical,preparation_s,physical_work,experiment_input = prepare_tse_echo_train(
+        echoes=echoes,echo_spacing_s=echo_spacing_s,tr_s=tr_s,t2_s=t2_s,
+        refocusing_angle=refocusing_angle,refocusing_end_angle=refocusing_end_angle,
+        max_work=max_work-spatial_work-reference_work,experiment=experiment,allow_contrast_exposure=True)
     if spatial_work+reference_work+physical_work > max_work:
         raise ReadoutWorkError('combined EPG and spatial work exceeds budget',physical_work)
     if trains*tr_s+max(preparation_s) > max_duration_s:

@@ -140,7 +140,7 @@ def test_failed_simulation_charges_work_actually_consumed_not_just_the_cap(spec)
     try: result=run_lab_study(spec)
     finally: tse.run_experiment=original
     candidate=result['candidates'][0]
-    assert not candidate['executed'] and candidate['reasons']==['combined EPG and spatial work exceeds budget']
+    assert not candidate['executed'] and candidate['reasons']==['combined EPG work exceeds budget']
     fit_work=sum(f['estimated_work'] for f in result['calibration'])
     # The cap is 80,000 but the failed call spent 89,694 EPG work. Together
     # with 2,584 fit work, the ledger must report 92,278 rather than 82,584.
