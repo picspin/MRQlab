@@ -17,7 +17,9 @@ moment must match `(-(ix-nx//2)/FOV, -(iy-ny//2)/FOV)` in cycles/m for each
 claimed index; the z moment must be zero. The user-declared absolute tolerance
 is capped at `1e-3 cycles/m` and all actual and expected moments and the maximum
 error are retained. A mismatch is an error, not a gridding or gain-fitting step.
-The inverse DFT acts on the *actual acquired sequential samples*, not on the
+The trajectory is checked by independently integrating the declared gradient
+holds before spin evolution, and the simulated moments are checked against that
+preflight. The inverse DFT acts on the *actual acquired sequential samples*, not on the
 final spin snapshot. T1/T2, B0 and B1 influence the Bloch signals, and temporal
 modulation is retained. ADC samples remain instantaneous dwell midpoints.
 
@@ -102,6 +104,9 @@ identical record. Frontend tests were not rerun because no frontend changed.
 Remaining work includes realistic RF slice selection, multiple RF/refocusing
 and coherence pathways, finite ADC aperture, coils, motion/flow/diffusion,
 non-Cartesian trajectories, realistic B0/B1 maps, measured input, uncertainty,
-image-objective optimization and general waveform/gradient control, as well as external
+general waveform/gradient optimization and control, as well as external
 phantom/scanner evaluation. This is teaching/research software, not scanner
 validation or clinical quality certification.
+
+A later [finite RF-scale image-objective search](waveform-image-search-coverage.md)
+uses this adapter, while retaining these physical restrictions.

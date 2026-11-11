@@ -9,6 +9,7 @@ from typing import Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, model_validator
 
+from mrqlab_physics.kernel.units import GAMMA_BAR_HZ_T
 from mrqlab_recon.spatial import cartesian_reconstruct
 from .clinical_catalog import RESEARCH_3T
 from .sequence_lowering import lower_sequence
@@ -73,6 +74,43 @@ def _check_preparation(sequence):
                 raise ValueError('nonzero gradients before or during RF are unsupported by this Cartesian adapter')
 
 
+def preflight_cartesian_trajectory(parameters):
+    """Integrate declared gradient holds independently before spin evolution."""
+    plan=CartesianWaveformPlan.model_validate(parameters)
+    sequence=lower_sequence(plan.waveform.sequence,RESEARCH_3T)
+    _check_preparation(sequence)
+    gradient_holds=[];adc=[]
+    for block in sequence.blocks:
+        start=Decimal(str(block.start_s))
+        for gradient in block.gradients:
+            raster=Decimal(str(gradient.raster_s))
+            for i,value in enumerate(gradient.samples_mt_m):
+                if value:
+                    begin=start+i*raster
+                    gradient_holds.append((gradient.axis,begin,begin+raster,Decimal(str(value))))
+        if block.adc:
+            dwell=Decimal(str(block.adc.dwell_s));delay=Decimal(str(block.adc.delay_s))
+            for index in range(block.adc.sample_count):
+                adc.append((start+delay+(Decimal(index)+Decimal('.5'))*dwell,block.id,index))
+    adc.sort()
+    gamma=Decimal(str(GAMMA_BAR_HZ_T))*Decimal('0.001')
+    observed=[]
+    for at,_,_ in adc:
+        k={axis:Decimal(0) for axis in ('gx','gy','gz')}
+        for axis,begin,end,amplitude in gradient_holds:
+            duration=max(Decimal(0),min(at,end)-begin)
+            k[axis]+=amplitude*duration*gamma
+        observed.append([float(k[axis]) for axis in ('gx','gy','gz')])
+    shape=(len(plan.waveform.labels),len(plan.waveform.labels[0]));indices=np.asarray(plan.grid_indices,dtype=int)
+    expected=np.column_stack((-(indices[:,1]-shape[1]//2)/plan.waveform.fov_m,
+                              -(indices[:,0]-shape[0]//2)/plan.waveform.fov_m,np.zeros(len(indices))))
+    max_error=float(np.max(np.abs(np.asarray(observed)-expected)))
+    if max_error>plan.trajectory_tolerance_cycles_m:
+        raise ValueError(f'ADC gradient moment differs from declared Cartesian grid: max error {max_error:.12g} cycles/m')
+    return dict(adc=[dict(time_s=float(t),block_id=block,index=i) for t,block,i in adc],
+                observed_k_cycles_m=observed,expected_k_cycles_m=expected.tolist(),max_error_cycles_m=max_error)
+
+
 def waveform_cartesian_controls(plan):
     """Adapter-owned writable fields; indices refer to the retained RF samples."""
     controls=[]
@@ -117,12 +155,14 @@ def apply_waveform_cartesian_edits(parameters, updates, *, pair):
 
 def run_waveform_cartesian(parameters):
     plan = CartesianWaveformPlan.model_validate(parameters)
-    sequence = lower_sequence(plan.waveform.sequence, RESEARCH_3T)
-    _check_preparation(sequence)
+    preflight=preflight_cartesian_trajectory(plan)
     result = run_waveform_bloch(plan.waveform)
     samples = result['samples']; shape = tuple(result['voxel_shape'])
     indices = np.asarray(plan.grid_indices, dtype=int)
     actual = np.asarray([s['k_cycles_m'] for s in samples])
+    if ([dict(time_s=s['time_s'],block_id=s['block_id'],index=s['sample_index']) for s in samples] != preflight['adc'] or
+            not np.allclose(actual,preflight['observed_k_cycles_m'],rtol=1e-12,atol=1e-12)):
+        raise ValueError('simulated ADC timing or gradient moment differs from independent preflight')
     # Bloch uses +i gamma integral(G). A centered forward DFT uses -i k.x.
     expected = np.column_stack((-(indices[:,1]-shape[1]//2)/plan.waveform.fov_m,
                                 -(indices[:,0]-shape[0]//2)/plan.waveform.fov_m,

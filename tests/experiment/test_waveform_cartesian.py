@@ -39,7 +39,9 @@ def independent_signal(plan,sample,index):
     gamma=42_577_478.92; shape=(2,2); labels=plan['waveform']['labels']; fov=plan['waveform']['fov_m']
     ky,kx=index; total=0j; elapsed=sample['time_s']-30e-6
     for y,x in np.ndindex(shape):
-        t=plan['waveform']['tissues'][labels[y][x]];w=2*np.pi*gamma*15e-6
+        t=plan['waveform']['tissues'][labels[y][x]]
+        rf_amplitude=plan['waveform']['sequence']['blocks'][0]['rf']['samples_ut'][0]
+        w=2*np.pi*gamma*rf_amplitude*1e-6
         r1=1/t['t1_s'];r2=1/t['t2_s']
         generator=np.array([[-r2,0,0,0],[0,-r2,-w,0],[0,w,-r1,r1*t['proton_density']],[0,0,0,0.]])
         state=_expm_taylor(generator*30e-6)@np.array([0.,0.,t['proton_density'],1.])
