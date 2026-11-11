@@ -104,7 +104,10 @@ def simulate_family(sequence, phantom, scanner, options):
                 raise FamilyWorkError('TSE steady preparation exceeds max_work',warm_ops*width)
             if np.max(np.abs(backend.omega-previous))<1e-9:
                 break
-        else: raise ValueError('TSE steady preparation did not converge')
+        else:
+            # All 256 preparation trains ran before convergence was rejected;
+            # preserve their work for callers that keep an attempt ledger.
+            raise FamilyWorkError('TSE steady preparation did not converge',warm_ops*width)
         backend=_PartitionBackend(backend,m['tr'])
         assumptions=['spoiled periodic TSE preparation','ideal hard CPMG pulses',m['flip_strategy'],'sparse ky train per kz; no 3D image reconstruction']
         extra['steady_preparation_trains']=iteration+1
