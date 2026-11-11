@@ -25,7 +25,8 @@ API/CLI replay uses the same source-bound record mechanism. An omitted target
 reports `passed=false`; a target checks only one declared real, imaginary or
 magnitude point-signal threshold, in a.u. It is not a clinical target or image
 quality certification. A failure remains visible, with no best-candidate or
-fallback. No optimizer, bidirectional image editing or physical MR image is
+fallback. A later [finite RF-scale search](waveform-search-coverage.md) reuses
+this adapter. Bidirectional image editing and a physical MR image are not
 claimed for this adapter.
 
 Preflight bounds include 32 blocks, 4096 combined waveform/ADC samples, a maximum
@@ -55,6 +56,10 @@ bound. The default maximum step is 10 microseconds and the conservative angular
 step preflight can further subdivide intervals; it is not an adaptive error
 estimator and a passing signal target does not establish numerical convergence.
 The user must refine the time step for the actual study.
+The optional `substeps_per_interval` setting multiplies the number of steps in
+every event interval after its time and angular limits have been applied. A
+factor of two therefore halves each actual step, including intervals which
+would otherwise already be shorter than `max_step_s`.
 
 On the source-bound aligned worktree, the complete Python suite passed **1167
 tests** with one existing Starlette/httpx deprecation warning. The related
@@ -64,7 +69,7 @@ Frontend files did not change and frontend tests were not rerun in this round.
 
 Remaining work includes finite ADC aperture, RF and receiver frequency/phase
 offsets, full 3D volumes and multi-coil reception, measured B0/B1, diffusion,
-flow, exchange and contrast dynamics, pulse/trajectory optimization, explicit
+flow, exchange and contrast dynamics, general pulse/trajectory optimization, explicit
 encoding models and reconstructed image linkage, independent scanner/phantom
 comparisons, uncertainty and browser-facing entry. This is teaching/research
 simulation, not scanner validation or clinical quality certification.

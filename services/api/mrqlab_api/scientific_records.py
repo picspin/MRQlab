@@ -29,6 +29,7 @@ from mrqlab_experiment.flow_study import FlowStudy,VelocityDataset,run_flow_stud
 from mrqlab_experiment.tse_control import apply_tse_edits
 from mrqlab_experiment.sequence_operations import OperationSequence, apply_operation_edits, run_operation_sequence
 from mrqlab_experiment.waveform_bloch import WaveformBlochPlan, run_waveform_bloch
+from mrqlab_experiment.waveform_search import WaveformSearch, search_waveform_bloch
 from mrqlab_experiment.linked_readout import LinkedEdit, verify_linked_readout
 from mrqlab_experiment.agentic_inference import infer_tissue_modalities, verify_agentic_inference
 from .research import (
@@ -107,6 +108,11 @@ class WaveformPlan(Strict):
     parameters: WaveformBlochPlan
 
 
+class WaveformSearchPlan(Strict):
+    type: Literal['waveform_search']='waveform_search'
+    parameters: WaveformSearch
+
+
 class EditedOperationsPlan(LinkedParentEdits):
     type: Literal['edited_operations']='edited_operations'
 
@@ -120,7 +126,7 @@ class CalibratedRadialPlan(Strict):
 
 class ScientificPlan(Strict):
     context: StudyContext
-    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan | OperationSequencePlan | EditedOperationsPlan | WaveformPlan,Field(discriminator='type')]
+    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan | OperationSequencePlan | EditedOperationsPlan | WaveformPlan | WaveformSearchPlan,Field(discriminator='type')]
     expected_execution_hash: str | None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
 
 
@@ -274,6 +280,24 @@ def _waveform_run(parameters, source):
     return run
 
 
+def _waveform_search_run(parameters, source):
+    result=search_waveform_bloch(parameters)
+    selected=result['selected_index'];curves=[]
+    if selected is not None:
+        scenario=result['candidates'][selected]['scenarios'][0]
+        samples=scenario['refined']['samples']
+        times=[s['time_s'] for s in samples]
+        curves=[dict(label='ADC real · '+scenario['id'],x=times,y=[s['real'] for s in samples]),
+                dict(label='ADC imaginary · '+scenario['id'],x=times,y=[s['imag'] for s in samples])]
+    view=dict(images=[],curves=curves,x_label='Time (s)',y_label='Signal (a.u.)',
+              metrics={'Candidates':float(len(result['candidates'])), 'Voxel steps':float(result['work']['total_voxel_steps'])},
+              validation=result['validation'])
+    run=dict(kind='waveform_search',result=result,view=view,source_hash=source,
+             replay_request=dict(kind='waveform_search',parameters=result['provenance']['replay'],expected_source_hash=source))
+    run['result_hash']=sha256(json.dumps(result,sort_keys=True,allow_nan=False).encode()).hexdigest()
+    return run
+
+
 
 def _parent_measurement(execution):
     parent=execution.get('parent_record')
@@ -289,7 +313,26 @@ def _parent_measurement(execution):
 
 def _summary(request,payload,source):
     execution=request['execution']; mode=execution['type']
-    if mode in {'run','operation_sequence','waveform_bloch'}:
+    if mode=='waveform_search':
+        if payload.get('kind')!='waveform_search': raise ValueError('waveform search kind differs')
+        _validate_run(payload,source)
+        result=payload['result'];inputs=fingerprint(execution['parameters'])
+        if (fingerprint(payload['replay_request']['parameters'])!=inputs or
+                fingerprint(result['provenance']['replay'])!=inputs):
+            raise ValueError('waveform search request and retained replay inputs differ')
+        candidates=result['candidates'];scales=execution['parameters']['scales']
+        if len(candidates)!=len(scales) or any(p['index']!=i or p['scale']!=scales[i] for i,p in enumerate(candidates)):
+            raise ValueError('waveform search candidates differ from declared grid')
+        eligible=[p for p in candidates if p['eligible']]
+        best=min(eligible,key=lambda p:(p['rf_energy_proxy_ut2_s'],p['index'])) if eligible else None
+        selected=best['index'] if best is not None else None
+        if result['selected_index']!=selected or result['validation']['passed']!=(best is not None):
+            raise ValueError('waveform search selection differs from eligible candidates')
+        points=[dict(index=p['index'],parameters={'rf_scale':p['scale']},executable=p['executable'],
+                     model_reported_passed=p['eligible'],reasons=p['reasons']) for p in candidates]
+        reported=best is not None;kind=payload['kind'];execution_hash=payload['result_hash']
+        origins=['authored_model_inputs','synthetic']
+    elif mode in {'run','operation_sequence','waveform_bloch'}:
         expected_kind=execution.get('kind') if mode=='run' else 'sequence_operations' if mode=='operation_sequence' else 'waveform_bloch'
         if expected_kind!=payload.get('kind'): raise ValueError('execution kind differs from payload')
         _validate_run(payload,source)
@@ -434,6 +477,8 @@ def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
         payload=_operation_run(execution.parameters,api_source)
     elif isinstance(execution,WaveformPlan):
         payload=_waveform_run(execution.parameters,api_source)
+    elif isinstance(execution,WaveformSearchPlan):
+        payload=_waveform_search_run(execution.parameters,api_source)
     elif isinstance(execution,CalibratedRadialPlan):
         parent,legacy=_parent_measurement(request['execution'])
         derived=run_calibrated_radial_study(legacy,execution.study)
@@ -494,7 +539,7 @@ def verify_scientific_record(record):
         request=_loads(record['request_json']);payload=_loads(record['payload_json'])
         StudyContext.model_validate(request['context'])
         mode=request['execution']['type']
-        runs=([payload] if mode in {'run','operation_sequence','waveform_bloch'} else [payload['run']] if mode in {'edited_tse','edited_operations'} else
+        runs=([payload] if mode in {'run','operation_sequence','waveform_bloch','waveform_search'} else [payload['run']] if mode in {'edited_tse','edited_operations'} else
               [p['run'] for p in payload['candidates'] if p['feasible']] if mode=='search' else [])
         for run in runs:
             pair=run.get('result',{}).get('linked_readout')
@@ -586,7 +631,7 @@ class ScientificStore:
 
 def _response(record):
     payload=_loads(record['payload_json']);mode=record['summary']['mode']
-    if mode in {'measured_tse','measured_flow','calibrated_radial_tse','agentic_inference','operation_sequence','waveform_bloch'}: view=payload['view']
+    if mode in {'measured_tse','measured_flow','calibrated_radial_tse','agentic_inference','operation_sequence','waveform_bloch','waveform_search'}: view=payload['view']
     elif mode in {'edited_tse','edited_operations'}: view=payload['run']['view']
     elif mode=='run': view=payload['view']
     else:

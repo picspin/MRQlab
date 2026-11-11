@@ -45,6 +45,7 @@ class WaveformBlochPlan(_Strict):
     fov_m: float = Field(default=.22, ge=.01, le=1)
     z_m: float = Field(default=0, ge=-.5, le=.5)
     max_step_s: float = Field(default=10e-6, ge=.1e-6, le=100e-6)
+    substeps_per_interval: int = Field(default=1, ge=1, le=8, strict=True)
     max_work: int = Field(default=2_000_000, ge=1, le=2_000_000, strict=True)
     target: SignalTarget | None = None
 
@@ -89,7 +90,7 @@ class WaveformBlochPlan(_Strict):
         return self
 
 
-def run_waveform_bloch(parameters):
+def run_waveform_bloch(parameters, *, _preflight_only=False):
     plan = WaveformBlochPlan.model_validate(parameters)
     sequence = lower_sequence(plan.sequence, RESEARCH_3T)
     labels = np.asarray(plan.labels, dtype=int)
@@ -138,10 +139,13 @@ def run_waveform_bloch(parameters):
     max_position = np.max(np.abs(coords), axis=0)
     max_hz = float(max(np.abs(b0))) + GAMMA_BAR_HZ_T * (max_rf + float(np.dot(max_g, max_position)))
     dt_limit = min(plan.max_step_s, .2 / (2*np.pi*max_hz + max(float(max(r1)), float(max(r2)))))
-    steps = [max(1, ceil(float(b-a)/dt_limit)) for a,b in zip(times, times[1:])]
+    steps = [max(1, ceil(float(b-a)/dt_limit))*plan.substeps_per_interval for a,b in zip(times, times[1:])]
     work = int(sum(steps)*labels.size)
     if work > plan.max_work:
         raise ValueError(f'complete waveform work {work} exceeds max_work {plan.max_work}; no time steps were coarsened')
+    if _preflight_only:
+        return dict(voxel_steps=work, max_work=plan.max_work, max_step_s=plan.max_step_s,
+                    substeps_per_interval=plan.substeps_per_interval, intervals=len(steps))
 
     state = np.zeros((labels.size, 3)); state[:, 2] = pd
     rf = (0., 0.); gradient = np.zeros(3); k = np.zeros(3)
@@ -185,9 +189,15 @@ def run_waveform_bloch(parameters):
     return dict(model='sample_hold_rk4_point_adc_v1', samples=output, sample_count=adc_count,
         final_magnetization=state.tolist(), voxel_shape=list(shape), voxel_positions_m=coords.tolist(),
         executed_sequence=sequence.model_dump(mode='json'),
-        work=dict(voxel_steps=work, max_work=plan.max_work, max_step_s=plan.max_step_s, intervals=len(steps)),
+        work=dict(voxel_steps=work, max_work=plan.max_work, max_step_s=plan.max_step_s,
+                  substeps_per_interval=plan.substeps_per_interval, intervals=len(steps)),
         validation=validation,
         provenance=dict(replay=plan.model_dump(mode='json'), profile=f'{RESEARCH_3T.id}@{RESEARCH_3T.version}',
             signal_convention='sum(Mx + i My), instantaneous dwell midpoint',
             trajectory_convention='gamma_bar integral of G from sequence start, cycles/m; not necessarily encoding coordinates after RF',
             scope='authored static 2D voxel plane, finite RF/gradient holds and T1/T2/B0/B1; teaching/research only'))
+
+
+def estimate_waveform_work(parameters):
+    """Run the same validation and work preflight without integrating spins."""
+    return run_waveform_bloch(parameters, _preflight_only=True)
