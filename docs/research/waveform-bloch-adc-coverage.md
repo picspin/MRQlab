@@ -40,7 +40,8 @@ steps; a budget failure does not coarsen time steps. RF amplitudes are bounded
 at 1000 uT solely as a computational input domain, not as a scanner or SAR
 limit. Lowering applies the named `research-3t` profile; successful lowering
 still requires hardware review and is not scanner authorization. Unsupported RF
-carrier frequency and ADC receiver frequency/phase offsets fail closed.
+carrier frequency and ADC receiver frequency offsets fail closed. A bounded
+constant ADC phase offset is supported as described below.
 
 ## Independent check and numerical limits
 
@@ -72,9 +73,36 @@ waveform, operation and scientific-record tests passed **73 tests**; a separate
 fresh CLI process also replayed an exported waveform record successfully.
 Frontend files did not change and frontend tests were not rerun in this round.
 
-Remaining work includes finite ADC aperture, RF and receiver frequency/phase
+Remaining work includes finite ADC aperture, RF carrier and receiver frequency
 offsets, full 3D volumes and multi-coil reception, measured B0/B1, diffusion,
 flow, exchange and contrast dynamics, general pulse/trajectory optimization, explicit
 encoding models and reconstructed image linkage, independent scanner/phantom
 comparisons, uncertainty and browser-facing entry. This is teaching/research
 simulation, not scanner validation or clinical quality certification.
+
+## Constant receiver phase
+
+Each ADC window can declare a constant `phase_offset_rad` in the bounded
+research domain `[-1e6, 1e6]` radians. At every dwell midpoint this adapter
+returns `sum(Mx + i My) * exp(-i * phase_offset_rad)`. The phase is a receiver
+coordinate convention: it does not alter spin evolution, gradient moments,
+sampling times or the preflight work budget. Real and imaginary targets apply
+to the resulting receiver-frame signal; magnitudes are invariant. Distinct ADC
+windows may declare distinct phases. The original sequence and phase are kept
+in the replay input and the convention is included in the result provenance.
+
+A Cartesian inverse DFT uses those acquired complex samples directly: varying
+phase across samples can change the image and is not automatically corrected.
+The test compares the rotated complex samples and reconstructed image against
+an independently assembled direct DFT and checks the linked signal/image pair;
+a separate record test recomputes a nonzero-phase input. Pulseq describes ADC
+phase as a receiver offset and samples at dwell centers ([specification](https://pulseq.github.io/specification.pdf),
+[timing](https://pulseq.github.io/pulseq_shapes_and_times.pdf)); this adapter's
+explicit sign convention is a project model and has not been compared with a
+scanner or external Pulseq interpreter. Receiver frequency, phase modulation,
+finite aperture and scanner-specific phase conventions remain unsupported.
+
+For this change, the focused waveform/Bloch/Cartesian/search/lab-derived set
+passed **26 tests** and the source-bound full Python suite passed **1202 tests**,
+with one existing Starlette/httpx deprecation warning. Frontend files did not
+change and frontend tests were not rerun for this backend change.

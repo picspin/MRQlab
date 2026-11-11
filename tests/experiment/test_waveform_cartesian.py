@@ -80,6 +80,22 @@ def test_cartesian_waveform_acquires_complex_samples_and_reconstructs_direct_dft
         validate_linked_edits(out['linked_readout'],[dict(field='rf.amplitude',value=10.,view='image')])
 
 
+def test_receiver_phase_is_retained_in_sequential_image_and_linked_vector():
+    plan=parameters(); phases=[0.,np.pi/2,np.pi,-np.pi/2]
+    for block,phase in zip(plan['waveform']['sequence']['blocks'][2:],phases):
+        block['adc']['phase_offset_rad']=phase
+    out=run_waveform_cartesian(plan); samples=out['waveform']['samples']; indices=plan['grid_indices']
+    expected=np.array([independent_signal(plan,s,index)*np.exp(-1j*phase)
+                       for s,index,phase in zip(samples,indices,phases)])
+    actual=np.array([complex(s['real'],s['imag']) for s in samples])
+    np.testing.assert_allclose(actual,expected,atol=1e-9,rtol=0)
+    direct=np.array([sum(expected[j]*np.exp(2j*np.pi*((ky-1)*(y-1)/2+(kx-1)*(x-1)/2))
+                         for j,(ky,kx) in enumerate(indices))/4 for y,x in np.ndindex(2,2)])
+    image=np.array(out['image']['real'])+1j*np.array(out['image']['imag'])
+    np.testing.assert_allclose(image,direct,atol=1e-9,rtol=0)
+    assert verify_linked_readout(out['linked_readout'])['transform_passed']
+
+
 def test_time_step_refinement_reduces_error_against_independent_signal():
     fine=parameters();coarse=copy.deepcopy(fine);coarse['waveform']['max_step_s']=1e-6
     results=[run_waveform_cartesian(p) for p in (coarse,fine)];errors=[]

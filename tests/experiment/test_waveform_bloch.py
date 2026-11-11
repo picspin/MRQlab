@@ -81,8 +81,8 @@ def test_unsupported_offsets_and_boolean_labels_fail_closed():
     plan=parameters();plan['sequence']['blocks'][0]['rf']['carrier_offset_hz']=10.
     with pytest.raises(ValueError,match='RF carrier offset'):
         run_waveform_bloch(plan)
-    plan=parameters();plan['sequence']['blocks'][2]['adc']['phase_offset_rad']=.2
-    with pytest.raises(ValueError,match='ADC receiver offsets'):
+    plan=parameters();plan['sequence']['blocks'][2]['adc']['frequency_offset_hz']=10.
+    with pytest.raises(ValueError,match='ADC receiver frequency offset'):
         run_waveform_bloch(plan)
     plan=parameters();plan['labels'][0][0]=True
     with pytest.raises(ValueError): run_waveform_bloch(plan)
@@ -92,6 +92,23 @@ def test_unsupported_offsets_and_boolean_labels_fail_closed():
     plan=parameters();plan['sequence']['blocks'][0]['rf']['samples_ut'][0]=1e308
     with pytest.raises(ValueError,match='bounded 1000 uT research input domain'):
         run_waveform_bloch(plan)
+
+
+def test_receiver_phase_rotates_each_complex_sample_without_changing_spin_or_trajectory():
+    base=parameters(); shifted=copy.deepcopy(base)
+    shifted['sequence']['blocks'][2]['adc']['phase_offset_rad']=np.pi/2
+    reference=run_waveform_bloch(base); result=run_waveform_bloch(shifted)
+    for original,observed in zip(reference['samples'],result['samples']):
+        expected=complex(original['imag'],-original['real'])
+        assert complex(observed['real'],observed['imag'])==pytest.approx(expected,abs=1e-13)
+        assert observed['k_cycles_m']==original['k_cycles_m'] and observed['time_s']==original['time_s']
+    assert result['final_magnetization']==reference['final_magnetization']
+    assert result['work']==reference['work']
+    shifted['target']=dict(sample_index=0,metric='real',operator='ge',value=0.)
+    assert run_waveform_bloch(shifted)['validation']['measured']==pytest.approx(reference['samples'][0]['imag'],abs=1e-13)
+    shifted['sequence']['blocks'][2]['adc']['phase_offset_rad']=1e7
+    with pytest.raises(ValueError,match='ADC receiver phase exceeds'):
+        run_waveform_bloch(shifted)
 
 
 def test_signal_target_reports_success_failure_and_invalid_index():
@@ -111,6 +128,7 @@ def test_scientific_record_api_and_full_replay(tmp_path,monkeypatch):
     plan=dict(context=dict(study_id='waveform-demo',research_question='How do RF and readout evolve synthetic tissue?',
                            target_rationale='Verify complex point ADC against declared waveform.'),
               execution=dict(type='waveform_bloch',parameters=parameters()))
+    plan['execution']['parameters']['sequence']['blocks'][2]['adc']['phase_offset_rad']=.7
     client=TestClient(app);response=client.post('/research/records',json=plan)
     assert response.status_code==200,response.text
     body=response.json();record=body['record'];payload=json.loads(record['payload_json'])

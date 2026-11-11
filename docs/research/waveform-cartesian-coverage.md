@@ -22,6 +22,9 @@ holds before spin evolution, and the simulated moments are checked against that
 preflight. The inverse DFT acts on the *actual acquired sequential samples*, not on the
 final spin snapshot. T1/T2, B0 and B1 influence the Bloch signals, and temporal
 modulation is retained. ADC samples remain instantaneous dwell midpoints.
+Constant per-window receiver phase is applied to the complex samples before
+reconstruction; no automatic phase correction is performed, so changing phase
+across windows can alter the reconstructed image.
 
 The result contains a full complex reconstructed image and complete complex
 signal vector in acquisition order, with real sample times. They also use the
