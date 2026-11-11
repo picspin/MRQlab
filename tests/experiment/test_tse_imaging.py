@@ -71,7 +71,7 @@ def test_failed_readout_reports_epg_work_actually_consumed():
     with pytest.raises(ReadoutWorkError) as caught:
         run_tse_imaging(phantom(), echoes=8, max_work=80000)
     assert caught.value.estimated_work > 80000
-    assert str(caught.value)=='combined EPG and spatial work exceeds budget'
+    assert str(caught.value)=='combined EPG work exceeds budget'
     # A design error rejected before any EPG run consumes no work and stays a
     # plain ValueError, so callers cannot charge budget for a rejected request.
     with pytest.raises(ValueError) as early:
@@ -114,6 +114,28 @@ def test_generic_simulation_failure_reports_prior_tissue_work(monkeypatch):
         run_tse_imaging(phantom(), echoes=8)
     assert str(caught.value)=='TSE steady preparation did not converge'
     assert caught.value.estimated_work==spent['work']>0
+
+
+def test_nonconvergence_charges_its_warmup_trains(monkeypatch):
+    """The 'did not converge' path must carry the 256 spent preparation trains.
+
+    It is raised by family_execution after the whole warm-up loop ran, so it has
+    consumed work like the max_work branch; FamilyWorkError exposes it so the
+    ledger cannot treat the failed tissue as free.
+    """
+    from mrqlab_experiment.family_execution import FamilyWorkError
+    import mrqlab_experiment.family_execution as fe
+    import numpy as np
+    # Force the loop to exhaust without converging: make every iteration differ.
+    real=np.max
+    monkeypatch.setattr(fe.np,'max',lambda *a,**k: 1.0)
+    from mrqlab_experiment.family_recipes import build_family_recipe
+    from mrqlab_experiment.kernel import run_experiment
+    graph=build_family_recipe('brain_t1_3d_tse')
+    with pytest.raises(FamilyWorkError) as caught:
+        run_experiment(graph)
+    assert str(caught.value)=='TSE steady preparation did not converge'
+    assert caught.value.estimated_work>0
 
 
 def test_rejected_experiment_chassis_stays_plain_valueerror():

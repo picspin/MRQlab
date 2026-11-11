@@ -158,7 +158,9 @@ def prepare_tse_echo_train(*, echoes, echo_spacing_s, tr_s, t2_s,
         physical_work = consumed
         preparation_s.append(result.sim_result.meta['preparation_duration_s'])
     if physical_work > max_work:
-        raise ReadoutWorkError('combined EPG and spatial work exceeds budget',physical_work)
+        # This helper computes only EPG work; "spatial" would misdirect the
+        # direct callers (radial_tse, radial_readout, navigator_radial).
+        raise ReadoutWorkError('combined EPG work exceeds budget',physical_work)
     return graph,sequence,np.array(weights),physical,preparation_s,physical_work,experiment_input
 
 
