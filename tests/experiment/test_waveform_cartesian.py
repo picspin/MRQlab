@@ -81,12 +81,12 @@ def test_cartesian_waveform_acquires_complex_samples_and_reconstructs_direct_dft
 
 
 def test_receiver_phase_is_retained_in_sequential_image_and_linked_vector():
-    plan=parameters(); phases=[0.,np.pi/2,np.pi,-np.pi/2]
-    for block,phase in zip(plan['waveform']['sequence']['blocks'][2:],phases):
-        block['adc']['phase_offset_rad']=phase
+    plan=parameters(); phases=[0.,np.pi/2,np.pi,-np.pi/2]; frequencies=[0.,25000.,-75000.,125000.]
+    for block,phase,frequency in zip(plan['waveform']['sequence']['blocks'][2:],phases,frequencies):
+        block['adc'].update(phase_offset_rad=phase,frequency_offset_hz=frequency)
     out=run_waveform_cartesian(plan); samples=out['waveform']['samples']; indices=plan['grid_indices']
-    expected=np.array([independent_signal(plan,s,index)*np.exp(-1j*phase)
-                       for s,index,phase in zip(samples,indices,phases)])
+    expected=np.array([independent_signal(plan,s,index)*np.exp(-1j*(phase+2*np.pi*frequency*1e-6))
+                       for s,index,phase,frequency in zip(samples,indices,phases,frequencies)])
     actual=np.array([complex(s['real'],s['imag']) for s in samples])
     np.testing.assert_allclose(actual,expected,atol=1e-9,rtol=0)
     direct=np.array([sum(expected[j]*np.exp(2j*np.pi*((ky-1)*(y-1)/2+(kx-1)*(x-1)/2))

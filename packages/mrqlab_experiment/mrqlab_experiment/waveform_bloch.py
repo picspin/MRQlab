@@ -83,8 +83,8 @@ class WaveformBlochPlan(_Strict):
                 raise ValueError('RF phase exceeds the bounded research input domain')
             if b.rf and b.rf.carrier_offset_hz != 0:
                 raise ValueError('RF carrier offset is not supported in the common rotating frame')
-            if b.adc and b.adc.frequency_offset_hz != 0:
-                raise ValueError('ADC receiver frequency offset is not supported')
+            if b.adc and abs(b.adc.frequency_offset_hz) > 1e6:
+                raise ValueError('ADC receiver frequency exceeds the bounded research input domain')
             if b.adc and abs(b.adc.phase_offset_rad) > 1e6:
                 raise ValueError('ADC receiver phase exceeds the bounded research input domain')
         if not any(b.adc for b in self.sequence.blocks):
@@ -128,7 +128,9 @@ def run_waveform_bloch(parameters, *, _preflight_only=False):
             delay, dwell = Decimal(str(block.adc.delay_s)), Decimal(str(block.adc.dwell_s))
             for i in range(block.adc.sample_count):
                 at = start + delay + (Decimal(i)+Decimal('.5'))*dwell
-                events.setdefault(at, []).append(('adc', block.id, i, block.adc.phase_offset_rad))
+                elapsed = float((Decimal(i)+Decimal('.5'))*dwell)
+                events.setdefault(at, []).append(('adc', block.id, i, block.adc.phase_offset_rad,
+                                                   block.adc.frequency_offset_hz, elapsed))
                 adc_count += 1
 
     times = sorted(events)
@@ -167,7 +169,8 @@ def run_waveform_bloch(parameters, *, _preflight_only=False):
             if action[0] == 'rf': rf = (action[1], action[2])
             else: gradient[('gx','gy','gz').index(action[0])] = action[1]
         for action in (a for a in actions if a[0] == 'adc'):
-            signal = np.sum(state[:,0] + 1j*state[:,1]) * np.exp(-1j*action[3])
+            receiver_phase = action[3] + 2*np.pi*action[4]*action[5]
+            signal = np.sum(state[:,0] + 1j*state[:,1]) * np.exp(-1j*receiver_phase)
             output.append(dict(block_id=action[1], sample_index=action[2], time_s=float(at),
                                real=float(signal.real), imag=float(signal.imag), k_cycles_m=k.tolist()))
         if i == len(steps): break
@@ -195,7 +198,7 @@ def run_waveform_bloch(parameters, *, _preflight_only=False):
                   substeps_per_interval=plan.substeps_per_interval, intervals=len(steps)),
         validation=validation,
         provenance=dict(replay=plan.model_dump(mode='json'), profile=f'{RESEARCH_3T.id}@{RESEARCH_3T.version}',
-            signal_convention='sum(Mx + i My) * exp(-i ADC phase_offset_rad), instantaneous dwell midpoint',
+            signal_convention='sum(Mx + i My) * exp(-i*(ADC phase_offset_rad + 2*pi*frequency_offset_hz*elapsed_s)), instantaneous dwell midpoint; elapsed_s is since start of ADC window after delay',
             trajectory_convention='gamma_bar integral of G from sequence start, cycles/m; not necessarily encoding coordinates after RF',
             scope='authored static 2D voxel plane, finite RF/gradient holds and T1/T2/B0/B1; teaching/research only'))
 

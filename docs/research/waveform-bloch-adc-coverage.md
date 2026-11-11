@@ -40,8 +40,8 @@ steps; a budget failure does not coarsen time steps. RF amplitudes are bounded
 at 1000 uT solely as a computational input domain, not as a scanner or SAR
 limit. Lowering applies the named `research-3t` profile; successful lowering
 still requires hardware review and is not scanner authorization. Unsupported RF
-carrier frequency and ADC receiver frequency offsets fail closed. A bounded
-constant ADC phase offset is supported as described below.
+carrier frequency fails closed. Bounded constant ADC receiver phase and
+frequency offsets are supported as described below.
 
 ## Independent check and numerical limits
 
@@ -73,8 +73,7 @@ waveform, operation and scientific-record tests passed **73 tests**; a separate
 fresh CLI process also replayed an exported waveform record successfully.
 Frontend files did not change and frontend tests were not rerun in this round.
 
-Remaining work includes finite ADC aperture, RF carrier and receiver frequency
-offsets, full 3D volumes and multi-coil reception, measured B0/B1, diffusion,
+Remaining work includes finite ADC aperture, RF carrier offsets, full 3D volumes and multi-coil reception, measured B0/B1, diffusion,
 flow, exchange and contrast dynamics, general pulse/trajectory optimization, explicit
 encoding models and reconstructed image linkage, independent scanner/phantom
 comparisons, uncertainty and browser-facing entry. This is teaching/research
@@ -99,10 +98,35 @@ a separate record test recomputes a nonzero-phase input. Pulseq describes ADC
 phase as a receiver offset and samples at dwell centers ([specification](https://pulseq.github.io/specification.pdf),
 [timing](https://pulseq.github.io/pulseq_shapes_and_times.pdf)); this adapter's
 explicit sign convention is a project model and has not been compared with a
-scanner or external Pulseq interpreter. Receiver frequency, phase modulation,
-finite aperture and scanner-specific phase conventions remain unsupported.
+scanner or external Pulseq interpreter. ADC phase modulation, finite aperture and scanner-specific phase conventions remain unsupported.
 
 For this change, the focused waveform/Bloch/Cartesian/search/lab-derived set
 passed **26 tests** and the source-bound full Python suite passed **1202 tests**,
 with one existing Starlette/httpx deprecation warning. Frontend files did not
 change and frontend tests were not rerun for this backend change.
+
+## Constant receiver frequency
+
+Each ADC window also accepts `frequency_offset_hz` in the research domain
+`[-1e6, 1e6]`. Its receiver phase is
+`phase_offset_rad + 2*pi*frequency_offset_hz*(sample_index + 0.5)*dwell_s`.
+The elapsed-time origin is the start of that ADC window **after its delay**;
+it resets at each window and is independent of absolute sequence time. As for
+constant phase, this rotates only the measured complex signal. No spin dynamics,
+ADC timing, gradient moments or integration work are changed. Sequential
+Cartesian reconstruction uses the demodulated samples without phase correction.
+
+Independent tests cover positive and negative frequencies, nonzero ADC delay,
+window resets, amplitude preservation, independent affine-Bloch samples, a direct
+Cartesian inverse DFT with different per-window offsets, linked image/vector
+integrity, and a scientific record with nonzero phase and frequency replay. The
+[Pulseq specification](https://pulseq.github.io/specification.pdf) identifies
+ADC receiver frequency and phase offsets, but the exact time-origin and sign used
+here are an explicit MRQlab model convention; compatibility with an external
+interpreter or scanner is not established. Finite aperture, RF carrier offset,
+phase modulation and hardware-specific receiver behavior remain unsupported.
+
+For the receiver-frequency extension, the focused waveform/Bloch/Cartesian/
+search/lab-derived set passed **29 tests**; the source-bound full Python suite
+passed **1205 tests**, with the existing Starlette/httpx deprecation warning.
+Frontend files did not change and frontend tests were not rerun in this round.

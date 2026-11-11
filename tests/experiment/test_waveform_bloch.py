@@ -81,8 +81,8 @@ def test_unsupported_offsets_and_boolean_labels_fail_closed():
     plan=parameters();plan['sequence']['blocks'][0]['rf']['carrier_offset_hz']=10.
     with pytest.raises(ValueError,match='RF carrier offset'):
         run_waveform_bloch(plan)
-    plan=parameters();plan['sequence']['blocks'][2]['adc']['frequency_offset_hz']=10.
-    with pytest.raises(ValueError,match='ADC receiver frequency offset'):
+    plan=parameters();plan['sequence']['blocks'][2]['adc']['frequency_offset_hz']=1e7
+    with pytest.raises(ValueError,match='ADC receiver frequency exceeds'):
         run_waveform_bloch(plan)
     plan=parameters();plan['labels'][0][0]=True
     with pytest.raises(ValueError): run_waveform_bloch(plan)
@@ -111,6 +111,36 @@ def test_receiver_phase_rotates_each_complex_sample_without_changing_spin_or_tra
         run_waveform_bloch(shifted)
 
 
+@pytest.mark.parametrize('frequency', [25000., -25000.])
+def test_receiver_frequency_uses_each_window_dwell_midpoint(frequency):
+    base=parameters(); shifted=copy.deepcopy(base)
+    # The same physical sampling instants with a nonzero ADC block delay.
+    for plan in (base,shifted):
+        plan['sequence']['blocks'][2]['start_s']=.00019
+        plan['sequence']['blocks'][2]['adc']['delay_s']=.00001
+    shifted['sequence']['blocks'][2]['adc'].update(frequency_offset_hz=frequency,phase_offset_rad=.3)
+    reference=run_waveform_bloch(base); result=run_waveform_bloch(shifted)
+    for index,(original,observed) in enumerate(zip(reference['samples'],result['samples'])):
+        elapsed=(index+.5)*.00001
+        expected=complex(original['real'],original['imag'])*complex(np.cos(.3+2*np.pi*frequency*elapsed),-np.sin(.3+2*np.pi*frequency*elapsed))
+        assert complex(observed['real'],observed['imag'])==pytest.approx(expected,abs=1e-13)
+        assert observed['time_s']==original['time_s'] and observed['k_cycles_m']==original['k_cycles_m']
+        assert abs(complex(observed['real'],observed['imag']))==pytest.approx(abs(complex(original['real'],original['imag'])),abs=1e-13)
+    assert result['final_magnetization']==reference['final_magnetization'] and result['work']==reference['work']
+
+
+def test_receiver_frequency_phase_resets_for_each_window():
+    base=parameters();blocks=base['sequence']['blocks'];blocks[2]['adc']['sample_count']=1
+    blocks.append(dict(id='second-adc',start_s=.00021,adc=dict(delay_s=0.,dwell_s=.00001,sample_count=1)))
+    shifted=copy.deepcopy(base)
+    for block in shifted['sequence']['blocks']:
+        if block.get('adc'): block['adc']['frequency_offset_hz']=25000.
+    reference=run_waveform_bloch(base); result=run_waveform_bloch(shifted)
+    for original,observed in zip(reference['samples'],result['samples']):
+        expected=complex(original['real'],original['imag'])*np.exp(-1j*np.pi/4)
+        assert complex(observed['real'],observed['imag'])==pytest.approx(expected,abs=1e-13)
+
+
 def test_signal_target_reports_success_failure_and_invalid_index():
     plan=parameters();plan['target']=dict(sample_index=0,metric='magnitude',operator='ge',value=.4)
     result=run_waveform_bloch(plan)
@@ -128,7 +158,7 @@ def test_scientific_record_api_and_full_replay(tmp_path,monkeypatch):
     plan=dict(context=dict(study_id='waveform-demo',research_question='How do RF and readout evolve synthetic tissue?',
                            target_rationale='Verify complex point ADC against declared waveform.'),
               execution=dict(type='waveform_bloch',parameters=parameters()))
-    plan['execution']['parameters']['sequence']['blocks'][2]['adc']['phase_offset_rad']=.7
+    plan['execution']['parameters']['sequence']['blocks'][2]['adc'].update(phase_offset_rad=.7,frequency_offset_hz=25000.)
     client=TestClient(app);response=client.post('/research/records',json=plan)
     assert response.status_code==200,response.text
     body=response.json();record=body['record'];payload=json.loads(record['payload_json'])
