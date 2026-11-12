@@ -104,7 +104,7 @@ describe("Wave C SequenceIR event editors", () => {
     }));
     await renderCockpit();
     fireEvent.click(screen.getByTestId("event-adc_gate-0"));
-    expect(screen.getByTestId("adc-event-chip")).toHaveTextContent("ADC · 10.0 ms · 4.0 ms");
+    expect(screen.getByTestId("adc-event-chip")).toHaveTextContent("ADC -- 10.0 ms -- 4.0 ms");
     expect(screen.queryByRole("button", { name: "Apply" })).toBeNull();
     expect(screen.queryByTestId("pulse-event-editor")).toBeNull();
     expect(screen.queryByTestId("gradient-event-editor")).toBeNull();

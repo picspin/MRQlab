@@ -72,7 +72,7 @@ export default function ContrastStudyPage() {
         <details><summary>完整基线计划与来源</summary><label>基线科学计划<textarea aria-label="对比剂基线计划" value={draft} rows={16} spellCheck={false} onChange={event => { cancel(); setDraft(event.target.value); setResponse(null); setChanges({}); }} /></label></details>
         <div className={styles.actions}><button disabled={busy || !draft} onClick={() => void perform(baseline)}>运行并保存基线</button></div>
         {pair && <><h2>基于当前父记录修改</h2><p>这些控件与 Agent 使用同一个类型化修改契约。提交后重新计算全部输出，不直接修改图像或信号数组；最多连续修改三代。</p>
-          {pair.controls.map(c => <label key={controlKey(c)}>{LABELS[c.field] ?? c.field}{c.tissue_id ? ` · ${c.tissue_id}` : ""} ({c.unit})
+          {pair.controls.map(c => <label key={controlKey(c)}>{LABELS[c.field] ?? c.field}{c.tissue_id ? `  --  ${c.tissue_id}` : ""} ({c.unit})
             {c.kind === "category" ? <select aria-label={LABELS[c.field] ?? c.field} value={changes[controlKey(c)] ?? String(c.value)} onChange={event => { cancel(); setChanges(previous => ({ ...previous, [controlKey(c)]: event.target.value })); }}>{c.choices.map(choice => <option key={choice} value={choice}>{choice}</option>)}</select> : <input aria-label={`${LABELS[c.field] ?? c.field}${c.tissue_id ? ` ${c.tissue_id}` : ""}`} type="number" step="any" min={c.min} max={c.max} value={changes[controlKey(c)] ?? String(c.value)} onChange={event => { cancel(); setChanges(previous => ({ ...previous, [controlKey(c)]: event.target.value })); }} />}
           </label>)}
           <div className={styles.actions}><button disabled={busy || !changed} onClick={() => void perform(apply)}>重算父记录并应用修改</button></div>

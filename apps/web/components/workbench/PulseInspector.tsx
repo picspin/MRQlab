@@ -115,17 +115,17 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
         )}
       </header>
 
-      <div style={{ display: "flex", gap: "10px", padding: "8px", fontSize: "11px", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "10px", padding: "8px", fontSize: "12px", flexWrap: "wrap" }}>
         <label>Duration (ms) <input data-testid="pulse-duration" type="number" step="0.1" value={duration} onChange={(e) => setDuration(Number(e.target.value))} /></label>
         <label>TBW <input data-testid="pulse-tbw" type="number" step="0.1" value={tbw} onChange={(e) => setTbw(Number(e.target.value))} /></label>
         <label>Flip angle (°) <input data-testid="pulse-fa" type="number" step="1" value={flipAngle} onChange={(e) => setFlipAngle(Number(e.target.value))} /></label>
         <label>Phase (°) <input data-testid="pulse-phase" type="number" step="1" value={phase} onChange={(e) => setPhase(Number(e.target.value))} /></label>
       </div>
-      <div data-testid="editor-seed-note" style={{ color: "#8ea1a8", fontSize: "10px", padding: "0 8px 6px" }}>
-        {overlayTiming ? "duration/TBW/phase from overlay" : "duration/TBW/phase = editor seed · not SequenceIR"}
+      <div data-testid="editor-seed-note" style={{ color: "var(--text-muted)", fontSize: "12px", padding: "0 8px 6px" }}>
+        {overlayTiming ? "duration/TBW/phase from overlay" : "duration/TBW/phase = editor seed  --  not SequenceIR"}
       </div>
-      {pending && <div data-testid="pulse-inspect-pending" style={{ color: "#8ea1a8", fontSize: "10px", padding: "0 8px" }}>inspecting…</div>}
-      {error && <div role="alert" data-testid="pulse-inspect-error" style={{ color: "#fb7185", padding: "8px" }}>{error}</div>}
+      {pending && <div data-testid="pulse-inspect-pending" style={{ color: "var(--text-muted)", fontSize: "12px", padding: "0 8px" }}>inspecting…</div>}
+      {error && <div role="alert" data-testid="pulse-inspect-error" style={{ color: "var(--red-11)", padding: "8px" }}>{error}</div>}
       {eventEditor && <button
         data-testid="event-apply"
         disabled={!pulse || pending || applying || !onApply}
@@ -147,8 +147,8 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
         <div className="chart-panel waveform-panel">
           <label>B1(t) Envelope (RF Waveform)</label>
           <svg viewBox={`0 0 ${w} ${h}`} className="inspector-svg" data-testid="pulse-b1-svg">
-            <line x1="0" y1={h / 2} x2={w} y2={h / 2} stroke="#3b4f68" strokeDasharray="2" />
-            {wavePoints && <polyline points={wavePoints} fill="none" stroke="#59e0e6" strokeWidth="2" />}
+            <line x1="0" y1={h / 2} x2={w} y2={h / 2} stroke="var(--border)" strokeDasharray="2" />
+            {wavePoints && <polyline points={wavePoints} fill="none" stroke="var(--blue-11)" strokeWidth="2" />}
           </svg>
           <div className="axis-legend">
             <span>-{((pulse?.duration_ms ?? 2.5) / 2).toFixed(1)} ms</span>
@@ -160,8 +160,8 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
         <div className="chart-panel freq-panel">
           <label>Frequency Response |Mxy(f)|</label>
           <svg viewBox={`0 0 ${w} ${h}`} className="inspector-svg">
-            <line x1="0" y1={h - 10} x2={w} y2={h - 10} stroke="#3b4f68" strokeDasharray="2" />
-            {freqPoints && <polyline points={freqPoints} fill="none" stroke="#ffc45b" strokeWidth="2" />}
+            <line x1="0" y1={h - 10} x2={w} y2={h - 10} stroke="var(--border)" strokeDasharray="2" />
+            {freqPoints && <polyline points={freqPoints} fill="none" stroke="var(--amber-11)" strokeWidth="2" />}
           </svg>
           <div className="axis-legend">
             <span>{pulse ? pulse.freq_axis_khz[0].toFixed(1) : "—"} kHz</span>
@@ -173,10 +173,10 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
         <div className="chart-panel slice-panel">
           <label>Slice Profile Mxy(z) &amp; Thickness</label>
           <svg viewBox={`0 0 ${w} ${h}`} className="inspector-svg">
-            <line x1="0" y1={h - 10} x2={w} y2={h - 10} stroke="#3b4f68" strokeDasharray="2" />
-            <line x1={w / 2 - w / 6} y1="0" x2={w / 2 - w / 6} y2={h} stroke="#e65a5a" strokeDasharray="3" />
-            <line x1={w / 2 + w / 6} y1="0" x2={w / 2 + w / 6} y2={h} stroke="#e65a5a" strokeDasharray="3" />
-            {slicePoints && <polyline points={slicePoints} fill="none" stroke="#8ae65a" strokeWidth="2" />}
+            <line x1="0" y1={h - 10} x2={w} y2={h - 10} stroke="var(--border)" strokeDasharray="2" />
+            <line x1={w / 2 - w / 6} y1="0" x2={w / 2 - w / 6} y2={h} stroke="var(--red-11)" strokeDasharray="3" />
+            <line x1={w / 2 + w / 6} y1="0" x2={w / 2 + w / 6} y2={h} stroke="var(--red-11)" strokeDasharray="3" />
+            {slicePoints && <polyline points={slicePoints} fill="none" stroke="var(--green-11)" strokeWidth="2" />}
           </svg>
           <div className="axis-legend">
             <span>{pulse ? pulse.spatial_axis_mm[0].toFixed(1) : "—"} mm</span>

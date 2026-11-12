@@ -21,15 +21,15 @@ export function SequenceLego({ blocks, selectedId, physicalUnits, onPlace, onMov
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
-  return <section data-testid="sequence-lego" style={{ padding: 8, borderBottom: "1px solid #34464d" }}>
-    <div style={{ fontSize: 10, color: "#8ea1a8", marginBottom: 6 }}>{physicalUnits ? "PHYSICAL G · mT/m · click to place · 0.1 ms grid" : "TEACHING BLOCKS · click to place · 0.1 ms grid"}</div>
+  return <section data-testid="sequence-lego" style={{ padding: 8, borderBottom: ".5px solid var(--border)" }}>
+    <div style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 6 }}>{physicalUnits ? "PHYSICAL G  --  mT/m  --  click to place  --  0.1 ms grid" : "TEACHING BLOCKS  --  click to place  --  0.1 ms grid"}</div>
     <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
       {CATALOG.map((item) => <button key={item.kind} data-testid={`catalog-${item.kind}`} draggable
         onDragStart={(event) => { event.dataTransfer.setData("text/plain", item.kind); event.dataTransfer.effectAllowed = "copy"; }}
         onClick={() => onPlace(item.kind)} title={`Place on ${item.channel}`}>{item.label}</button>)}
     </div>
     {blocks.map((block) => <div key={block.id} data-testid={`block-${block.id}`} onClick={() => onSelect(block.id)}
-      style={{ marginTop: 6, padding: 4, border: selectedId === block.id ? "1px solid var(--cyan)" : "1px solid #34464d" }}>
+      style={{ marginTop: 6, padding: 4, border: selectedId === block.id ? "1px solid var(--cyan)" : "1px solid var(--border)" }}>
       <b>{block.kind}</b>{" @ "}
       <input aria-label={`time ${block.id}`} type="number" min="0" step="0.1" value={block.t0_s * 1000}
         onClick={(event) => event.stopPropagation()}

@@ -17,10 +17,10 @@ const LABELS: Record<ChannelName, string> = {
 
 const COLORS: Record<string, string> = {
   rf_amp: "var(--cyan)",
-  gx: "#3bf48d",
-  gy: "#f59e0b",
-  gz: "#c084fc",
-  adc_gate: "#fb7185",
+  gx: "var(--green-11)",
+  gy: "var(--amber-11)",
+  gz: "var(--blue-11)",
+  adc_gate: "var(--red-11)",
 };
 
 const BLOCK_KINDS = new Set<SequenceBlockKind>(["excite_sinc", "refocus_sinc", "trap_gx", "trap_gy", "trap_gz", "adc_gate"]);
@@ -77,9 +77,9 @@ export function SequenceIRTimeline({
     <div data-testid="sequence-ir-timeline" style={{ width: "100%", height: "100%" }}>
       <div
         data-testid="timeline-duration"
-        style={{ fontSize: "10px", color: "#8ea1a8", fontFamily: "monospace", marginBottom: "4px" }}
+        style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "monospace", marginBottom: "4px" }}
       >
-        {durationMs.toFixed(1)} ms · {sequence.name} · {sequence.metadata?.gradient_units === "mt_m" ? "Gx/Gy/Gz mT/m" : "SequenceIR 5-ch"}
+        {durationMs.toFixed(1)} ms  --  {sequence.name}  --  {sequence.metadata?.gradient_units === "mt_m" ? "Gx/Gy/Gz mT/m" : "SequenceIR 5-ch"}
       </div>
       <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", height: `${height + 8}px` }}>
         {TEACHING_CHANNELS.map((name, row) => {
@@ -92,10 +92,10 @@ export function SequenceIRTimeline({
               onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; }}
               onDrop={(event) => dropOnRow(name, event)}>
               <rect x="0" y={y0 - 16} width={width} height={rowH} fill="transparent" />
-              <text x="4" y={y0 + 4} fill="#8ea1a8" fontSize="9" fontFamily="monospace">
+              <text x="4" y={y0 + 4} fill="var(--text-muted)" fontSize="9" fontFamily="monospace">
                 {LABELS[name]}
               </text>
-              <line x1="48" y1={y0} x2={width - 8} y2={y0} stroke="#25373f" />
+              <line x1="48" y1={y0} x2={width - 8} y2={y0} stroke="var(--border)" />
               {events.map((ev, i) => {
                 const eventKey = `${name}-${i}`;
                 const selected = selectedEventKey === eventKey;
@@ -118,7 +118,7 @@ export function SequenceIRTimeline({
                     height={name === "adc_gate" ? 16 : omitZeroHold ? 16 : Math.max(2, h)}
                     fill={COLORS[name] ?? "var(--cyan)"}
                     opacity={omitZeroHold ? 0 : selected ? 1 : 0.9}
-                    stroke={selected ? "#fff" : "none"}
+                    stroke={selected ? "var(--text)" : "none"}
                     strokeWidth={selected ? 2 : 0}
                     style={{ cursor: "pointer" }}
                     onClick={() => onSelectEvent?.(name, ev.time, ev.value, i)}

@@ -85,13 +85,13 @@ export function KSpaceReconLens() {
 
   return (
     <div data-testid="kspace-recon-lens" style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
-      <div style={{ display: "flex", gap: "10px", alignItems: "center", fontSize: "11px", color: "var(--cyan)", fontFamily: "monospace", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "10px", alignItems: "center", fontSize: "12px", color: "var(--cyan)", fontFamily: "monospace", flexWrap: "wrap" }}>
         <b>K-SPACE / RECON</b>
         <select
           data-testid="trajectory-type-select"
           value={trajectoryType}
           onChange={(e) => setTrajectoryType(e.target.value as TrajectoryType)}
-          style={{ background: "#111", color: "var(--cyan)", border: "1px solid #33434a", fontSize: "11px" }}
+          style={{ background: "var(--gray-1)", color: "var(--cyan)", border: ".5px solid var(--border)", fontSize: "12px" }}
         >
           <option value="cartesian">Cartesian</option>
           <option value="radial">Radial</option>
@@ -116,7 +116,7 @@ export function KSpaceReconLens() {
               data-testid="kspace-fill-order"
               value={fillOrder}
               onChange={(e) => setFillOrder(e.target.value as FillOrder)}
-              style={{ background: "#111", color: "var(--cyan)", border: "1px solid #33434a", fontSize: "11px" }}
+              style={{ background: "var(--gray-1)", color: "var(--cyan)", border: ".5px solid var(--border)", fontSize: "12px" }}
             >
               <option value="sequential_ky">sequential ky</option>
               <option value="centric_ky">centre → edge</option>
@@ -142,7 +142,7 @@ export function KSpaceReconLens() {
         )}
         {demo && <span data-testid="kspace-nrmse">NRMSE {demo.nrmse.toFixed(3)}</span>}
         {demo?.honesty && (
-          <span data-testid="kspace-honesty" style={{ color: demo.declared_approximate ? "#f59e0b" : "#8ea1a8" }}>
+          <span data-testid="kspace-honesty" style={{ color: demo.declared_approximate ? "var(--amber-11)" : "var(--text-muted)" }}>
             {demo.honesty}
           </span>
         )}
@@ -150,26 +150,26 @@ export function KSpaceReconLens() {
       </div>
 
       {error && (
-        <div data-testid="kspace-backend-wait" style={{ fontSize: "11px", color: "#f59e0b", fontFamily: "monospace" }}>
-          awaiting backend recon payload · {error}
+        <div data-testid="kspace-backend-wait" style={{ fontSize: "12px", color: "var(--amber-11)", fontFamily: "monospace" }}>
+          awaiting backend recon payload  --  {error}
         </div>
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", minHeight: "200px" }}>
-        <div style={{ background: "#030608", border: "1px solid #22323a", borderRadius: "4px", padding: "6px" }}>
-          <div style={{ fontSize: "10px", color: "#8ea1a8", marginBottom: "4px" }}>TRAJECTORY (kx, ky)</div>
+        <div style={{ background: "var(--surface-sunken)", border: ".5px solid var(--border)", borderRadius: "4px", padding: "6px" }}>
+          <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>TRAJECTORY (kx, ky)</div>
           <svg viewBox="0 0 200 200" style={{ width: "100%", height: "180px" }} data-testid="kspace-trajectory-svg">
-            <rect x="5" y="5" width="190" height="190" fill="none" stroke="#1f2d33" />
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#1f2d33" />
+            <rect x="5" y="5" width="190" height="190" fill="none" stroke="var(--border)" />
+            <circle cx="100" cy="100" r="90" fill="none" stroke="var(--border)" />
             {trajPath && <path d={trajPath} fill="none" stroke="var(--cyan)" strokeWidth="0.8" opacity="0.85" />}
           </svg>
         </div>
-        <div style={{ background: "#030608", border: "1px solid #22323a", borderRadius: "4px", padding: "6px" }}>
-          <div style={{ fontSize: "10px", color: "#8ea1a8", marginBottom: "4px" }}>PHANTOM (backend)</div>
+        <div style={{ background: "var(--surface-sunken)", border: ".5px solid var(--border)", borderRadius: "4px", padding: "6px" }}>
+          <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>PHANTOM (backend)</div>
           <canvas ref={phantomRef} data-testid="kspace-phantom-canvas" style={{ width: "100%", height: "180px", imageRendering: "pixelated" }} />
         </div>
-        <div style={{ background: "#030608", border: "1px solid #22323a", borderRadius: "4px", padding: "6px" }}>
-          <div style={{ fontSize: "10px", color: "#8ea1a8", marginBottom: "4px" }}>RECON (backend)</div>
+        <div style={{ background: "var(--surface-sunken)", border: ".5px solid var(--border)", borderRadius: "4px", padding: "6px" }}>
+          <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>RECON (backend)</div>
           <canvas ref={reconRef} data-testid="kspace-recon-canvas" style={{ width: "100%", height: "180px", imageRendering: "pixelated" }} />
         </div>
       </div>

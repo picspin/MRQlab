@@ -31,7 +31,7 @@ export default function Home() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-end",
-          borderBottom: "2px solid #38444a",
+          borderBottom: ".5px solid var(--border)",
           paddingBottom: "18px",
           marginBottom: "24px",
           flexWrap: "wrap",
@@ -41,7 +41,7 @@ export default function Home() {
         <div>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: "12px",
               color: "var(--amber)",
               textTransform: "uppercase",
               letterSpacing: "1.5px",
@@ -52,8 +52,8 @@ export default function Home() {
           </span>
           <h1
             style={{
-              fontSize: "1.8rem",
-              color: "#ffffff",
+              fontSize: "20px",
+              color: "var(--text)",
               margin: "4px 0 0 0",
               fontWeight: 900,
               letterSpacing: "1px",
@@ -61,7 +61,7 @@ export default function Home() {
           >
             Clinical Intent ➔ Physics Execution
           </h1>
-          <p style={{ color: "#8da1aa", margin: "6px 0 0 0", fontSize: "0.9rem" }}>
+          <p style={{ color: "var(--text-muted)", margin: "6px 0 0 0", fontSize: "14px" }}>
             Select a verified clinical pathology case to launch the Retromorphic Workbench instrument.
           </p>
         </div>
@@ -74,12 +74,12 @@ export default function Home() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
-              backgroundColor: "#101618",
-              border: "1px solid #3d4a50",
+              backgroundColor: "var(--surface)",
+              border: ".5px solid var(--border)",
               borderRadius: "6px",
               padding: "8px 14px",
-              color: "#fff",
-              fontSize: "0.85rem",
+              color: "var(--text)",
+              fontSize: "12px",
               minWidth: "260px",
               outline: "none",
             }}
@@ -88,13 +88,13 @@ export default function Home() {
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             style={{
-              backgroundColor: "#182023",
-              border: "1px solid #4a5a62",
+              backgroundColor: "var(--surface)",
+              border: ".5px solid var(--border)",
               borderRadius: "6px",
               padding: "8px 12px",
               color: "var(--cyan)",
               fontWeight: 700,
-              fontSize: "0.85rem",
+              fontSize: "12px",
               cursor: "pointer",
             }}
           >
@@ -113,15 +113,15 @@ export default function Home() {
           <article
             key={item.id}
             style={{
-              background: "linear-gradient(170deg, #2a3236 0%, #181d1f 100%)",
-              border: "2px solid #435157",
-              borderRadius: "10px",
+              background: "linear-gradient(170deg, var(--surface) 0%, var(--surface) 100%)",
+              border: ".5px solid var(--border)",
+              borderRadius: "4px",
               padding: "20px",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              boxShadow: "inset 1px 1px 0 #5b6e76, 0 6px 16px rgba(0,0,0,0.5)",
-              transition: "transform 0.2s, border-color 0.2s",
+              boxShadow: "none",
+              transition: "color 250ms ease-out, background-color 250ms ease-out, border-color 250ms ease-out",
             }}
           >
             <div>
@@ -135,7 +135,7 @@ export default function Home() {
               >
                 <span
                   style={{
-                    fontSize: "0.75rem",
+                    fontSize: "12px",
                     color: "var(--amber)",
                     fontWeight: 800,
                     textTransform: "uppercase",
@@ -146,7 +146,7 @@ export default function Home() {
                 </span>
                 <span
                   style={{
-                    fontSize: "0.7rem",
+                    fontSize: "12px",
                     padding: "2px 8px",
                     borderRadius: "4px",
                     fontFamily: "monospace",
@@ -163,47 +163,47 @@ export default function Home() {
                         : item.difficulty === "Intermediate"
                         ? "var(--amber)"
                         : "var(--orange-neon)",
-                    border: "1px solid #334247",
+                    border: ".5px solid var(--border)",
                   }}
                 >
                   {item.difficulty}
                 </span>
               </div>
 
-              <h2 style={{ fontSize: "1.2rem", color: "#ffffff", margin: "0 0 10px 0", fontWeight: 800 }}>
+              <h2 style={{ fontSize: "16px", color: "var(--text)", margin: "0 0 10px 0", fontWeight: 800 }}>
                 {item.id === "dark-blood-tse" ? "Dark Blood" : item.title}
               </h2>
 
               <div
                 style={{
-                  backgroundColor: "#0f1416",
-                  borderLeft: "3px solid var(--cyan)",
+                  backgroundColor: "var(--surface-sunken)",
+                  borderLeft: ".5px solid var(--border)",
                   padding: "8px 12px",
                   borderRadius: "0 4px 4px 0",
                   marginBottom: "12px",
-                  fontSize: "0.85rem",
-                  color: "#d1dde2",
+                  fontSize: "12px",
+                  color: "var(--text)",
                   lineHeight: 1.4,
                 }}
               >
                 <b>Clinical Question:</b> {item.clinicalQuestion}
               </div>
 
-              <div style={{ fontSize: "0.8rem", color: "#8da1aa", marginBottom: "16px", lineHeight: 1.4 }}>
-                <span style={{ color: "#adbcc4", fontWeight: 700 }}>Key Physics:</span> {item.keyPhysics}
+              <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "16px", lineHeight: 1.4 }}>
+                <span style={{ color: "var(--text-muted)", fontWeight: 700 }}>Key Physics:</span> {item.keyPhysics}
               </div>
             </div>
 
             <div
               style={{
-                borderTop: "1px solid #2e3a3f",
+                borderTop: ".5px solid var(--border)",
                 paddingTop: "14px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
             >
-              <div style={{ fontSize: "0.75rem", fontFamily: "monospace", color: "var(--amber)" }}>
+              <div style={{ fontSize: "12px", fontFamily: "monospace", color: "var(--amber)" }}>
                 ⚡ {item.sequence}
               </div>
               {item.executable && item.recipeId ? (
@@ -211,15 +211,15 @@ export default function Home() {
                   href={`/workbench?recipe=${item.recipeId}`}
                   data-testid={`launch-${item.id}`}
                   style={{
-                    background: "linear-gradient(180deg, #323d42 0%, #1f272a 100%)",
-                    border: "1px solid #4f636b",
+                    background: "linear-gradient(180deg, var(--surface-raised) 0%, var(--surface) 100%)",
+                    border: ".5px solid var(--border)",
                     color: "var(--cyan)",
                     textDecoration: "none",
-                    fontSize: "0.8rem",
+                    fontSize: "12px",
                     fontWeight: 800,
                     padding: "8px 16px",
                     borderRadius: "4px",
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                    boxShadow: "none",
                     letterSpacing: "0.5px",
                   }}
                 >
@@ -230,11 +230,11 @@ export default function Home() {
                   data-testid={`badge-${item.id}`}
                   title="No engine / recipe in v0.1 — not a fake Launch"
                   style={{
-                    fontSize: "0.72rem",
+                    fontSize: "12px",
                     fontWeight: 800,
                     letterSpacing: "0.4px",
-                    color: "#8da1aa",
-                    border: "1px solid #3d4a50",
+                    color: "var(--text-muted)",
+                    border: ".5px solid var(--border)",
                     padding: "8px 12px",
                     borderRadius: "4px",
                     textTransform: "uppercase",

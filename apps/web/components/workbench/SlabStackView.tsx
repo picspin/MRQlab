@@ -32,9 +32,9 @@ export function SlabStackView({
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "stretch",
-          background: "#030608",
-          border: "1px solid #1e2c33",
-          borderRadius: "3px",
+          background: "var(--surface-sunken)",
+          border: ".5px solid var(--border)",
+          borderRadius: "4px",
           padding: "8px 10px",
           minHeight: 0,
           overflow: "hidden",
@@ -43,7 +43,7 @@ export function SlabStackView({
         {Array.from({ length: n }).map((_, i) => {
           const isEven = i % 2 === 1;
           const isCur = cursorIndex === i;
-          const color = isInterleaved ? (isEven ? "var(--amber)" : "var(--cyan)") : "#38bdf8";
+          const color = isInterleaved ? (isEven ? "var(--amber)" : "var(--cyan)") : "var(--blue-11)";
           return (
             <React.Fragment key={i}>
               <button
@@ -57,7 +57,7 @@ export function SlabStackView({
                   height: `${Math.max(4, sliceThickMm * scale)}px`,
                   backgroundColor: color,
                   opacity: isCur ? 1 : 0.45,
-                  border: isCur ? "1px solid #fff" : "1px solid transparent",
+                  border: isCur ? "1px solid var(--text)" : "1px solid transparent",
                   borderRadius: "2px",
                   cursor: "pointer",
                   padding: 0,
@@ -75,10 +75,10 @@ export function SlabStackView({
           );
         })}
       </div>
-      <div style={{ fontSize: "10px", color: "#8ea1a8", display: "flex", justifyContent: "space-between", fontFamily: "monospace" }}>
+      <div style={{ fontSize: "12px", color: "var(--text-muted)", display: "flex", justifyContent: "space-between", fontFamily: "monospace" }}>
         <span data-testid="slab-extent">{extentMm.toFixed(1)}mm</span>
         <span>
-          Slice #{cursorIndex + 1} / {n} · {sliceThickMm}mm / gap {sliceGapMm}mm
+          Slice #{cursorIndex + 1} / {n}  --  {sliceThickMm}mm / gap {sliceGapMm}mm
         </span>
       </div>
     </div>

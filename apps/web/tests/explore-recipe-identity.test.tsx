@@ -177,7 +177,7 @@ describe("Wave A remainder: Explore ↔ recipe identity", () => {
     expect(screen.getByTestId("spectrum-clinical-honesty")).toBeVisible();
     expect(screen.getByTestId("spectrum-clinical-honesty")).toHaveTextContent(/no acquisition plane/i);
     expect(screen.queryByText("CLINICAL CONTRAST")).toBeNull();
-    expect(screen.getByTestId("display-header-title")).toHaveTextContent("SPECTRUM VIEWPORT · SINGLE VOXEL · Z(Δ)");
+    expect(screen.getByTestId("display-header-title")).toHaveTextContent("SPECTRUM VIEWPORT -- SINGLE VOXEL -- Z(Δ)");
     expect(screen.getByTestId("display-header-title")).not.toHaveTextContent("CLINICAL QUAD VIEWPORT");
     expect(screen.getByTestId("display-header-title")).not.toHaveTextContent("AXIAL");
     expect(screen.getByTestId("control-bank-mode")).toHaveTextContent("Saturation & Offset");

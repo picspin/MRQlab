@@ -85,7 +85,7 @@ export default function ScientificRecordsPage() {
         <p>共 {listing.total} 条；列表仅为索引，打开后才检查完整记录。</p>
         {!listing.records.length && <p>尚无匹配记录。可在研究台或测量研究完成计算后保存，也可导入已有记录。</p>}
         <ol className={styles.recordList}>{listing.records.map(item => <li key={item.record_sha256}><button disabled={busy} aria-pressed={record?.record_sha256 === item.record_sha256} onClick={() => void perform(signal => open(item.record_sha256, signal))}>
-          <strong>{item.summary.study_id}</strong><span>{item.summary.kind} · {item.summary.mode}</span><span>{item.summary.research_question}</span><small>历史目标报告：{item.summary.model_reported_passed ? "通过" : "未通过"}；{record?.record_sha256 === item.record_sha256 && replayed ? "当前会话已重算一致" : "尚未重算"}</small>
+          <strong>{item.summary.study_id}</strong><span>{item.summary.kind}  --  {item.summary.mode}</span><span>{item.summary.research_question}</span><small>历史目标报告：{item.summary.model_reported_passed ? "通过" : "未通过"}；{record?.record_sha256 === item.record_sha256 && replayed ? "当前会话已重算一致" : "尚未重算"}</small>
         </button></li>)}</ol>
         <div className={styles.actions}><button disabled={busy || listing.offset === 0} onClick={() => void perform(signal => refresh(signal, Math.max(0, listing.offset - 20)))}>上一页</button><button disabled={busy || listing.offset + listing.limit >= listing.total} onClick={() => void perform(signal => refresh(signal, listing.offset + 20))}>下一页</button></div>
         <label>导入完整实验记录<input type="file" accept="application/json,.json" disabled={busy} onChange={e => void importFile(e.target.files?.[0])} /></label>

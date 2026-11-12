@@ -34,8 +34,8 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
             onClick={() => setShowAiModal(true)}
             className="nav-item"
             style={{
-              background: "linear-gradient(180deg, #2e2614 0%, #1a150a 100%)",
-              border: "1px solid #785a1a",
+              background: "linear-gradient(180deg, var(--amber-3) 0%, var(--amber-3) 100%)",
+              border: ".5px solid var(--amber-11)",
               color: "var(--amber)",
               cursor: "pointer",
             }}
@@ -89,17 +89,17 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
         >
           <div
             style={{
-              backgroundColor: "#13181a",
-              border: "2px solid #5a6e77",
-              borderRadius: "10px",
+              backgroundColor: "var(--surface)",
+              border: ".5px solid var(--border)",
+              borderRadius: "4px",
               padding: "24px",
               maxWidth: "520px",
               width: "100%",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(255, 184, 52, 0.2)",
+              boxShadow: "none",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <h3 style={{ margin: 0, color: "var(--amber)", fontSize: "1.2rem", fontWeight: 800 }}>
+              <h3 style={{ margin: 0, color: "var(--amber)", fontSize: "16px", fontWeight: 800 }}>
                 🤖 AI LAB vs 🧪 LABS (Taxonomy)
               </h3>
               <button
@@ -107,8 +107,8 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                 style={{
                   background: "transparent",
                   border: "none",
-                  color: "#8da1aa",
-                  fontSize: "1.2rem",
+                  color: "var(--text-muted)",
+                  fontSize: "16px",
                   cursor: "pointer",
                 }}
               >
@@ -116,22 +116,22 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
               </button>
             </div>
 
-            <div style={{ fontSize: "0.85rem", color: "#d1dde2", lineHeight: 1.6, display: "flex", flexDirection: "column", gap: "12px" }}>
-              <div style={{ background: "#0c1012", padding: "12px", borderRadius: "6px", borderLeft: "3px solid var(--cyan)" }}>
+            <div style={{ fontSize: "12px", color: "var(--text)", lineHeight: 1.6, display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div style={{ background: "var(--surface-sunken)", padding: "12px", borderRadius: "6px", borderLeft: ".5px solid var(--border)" }}>
                 <b style={{ color: "var(--cyan)" }}>🧪 LABS (Teaching Sandboxes)</b>:
-                <div style={{ color: "#9eb0b9", marginTop: "4px" }}>
+                <div style={{ color: "var(--text-muted)", marginTop: "4px" }}>
                   面向物理教学与特定序列的交互实验室（如 <b>TSE Signal Lab</b>、<b>Linked Lens Editor</b>、<b>Bloch Isochromats</b>）。
                 </div>
               </div>
 
-              <div style={{ background: "#0c1012", padding: "12px", borderRadius: "6px", borderLeft: "3px solid var(--amber)" }}>
+              <div style={{ background: "var(--surface-sunken)", padding: "12px", borderRadius: "6px", borderLeft: "3px solid var(--amber)" }}>
                 <b style={{ color: "var(--amber)" }}>✨ AI LAB (Autonomous Agent Co-Pilot)</b>:
-                <div style={{ color: "#9eb0b9", marginTop: "4px" }}>
+                <div style={{ color: "var(--text-muted)", marginTop: "4px" }}>
                   面向自然语言驱动的自主 MRI 专家 Agent。接收临床医生目标（如 <i>"帮我优化脑部扫描以避开植入物 SAR 限制"</i>），通过 MCP tool schemas 自主生成 ExperimentGraph 并调用内核优化器。
                 </div>
               </div>
 
-              <div style={{ fontSize: "0.75rem", color: "#6b828c", fontFamily: "monospace" }}>
+              <div style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "monospace" }}>
                 * AI Lab Runtime 规划在 Wave H / v0.5+ 中接入 Agent 调度内核。
               </div>
             </div>
@@ -141,12 +141,12 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                 onClick={() => setShowAiModal(false)}
                 style={{
                   backgroundColor: "var(--amber)",
-                  color: "#0a0d0e",
+                  color: "var(--surface-sunken)",
                   border: "none",
                   borderRadius: "4px",
                   padding: "8px 18px",
                   fontWeight: 800,
-                  fontSize: "0.8rem",
+                  fontSize: "12px",
                   cursor: "pointer",
                 }}
               >
@@ -159,7 +159,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
 
       {/* Footer */}
       <footer className="disclaimer">
-        <span>EDUCATIONAL MRI SIMULATOR · NOT FOR CLINICAL USE · RETROMORPHIC WORKBENCH</span>
+        <span>EDUCATIONAL MRI SIMULATOR  --  NOT FOR CLINICAL USE  --  RETROMORPHIC WORKBENCH</span>
       </footer>
     </main>
   );

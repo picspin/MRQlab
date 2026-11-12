@@ -2,7 +2,7 @@ import React from "react";
 import type { ResearchRun } from "../../lib/research";
 import styles from "../../app/research/research.module.css";
 
-const COLORS = ["#4fe3eb", "#ffb834", "#c7a9ef", "#f08e9a"];
+const COLORS = ["var(--blue-11)", "var(--amber-9)", "var(--blue-11)", "var(--red-11)"];
 const TARGET_LABELS: Record<string, string> = {
   target_state_error: "Density / periodic-state target", target_min_signal_fraction: "Retained signal fraction minimum",
   target_memory_refinement_error: "Memory trace refinement target", target_kernel_error: "Integrated memory-kernel target",
@@ -92,7 +92,7 @@ export default function Measurements({ view, validationLabel = "目标验证" }:
       <svg viewBox="0 0 680 265" role="img" aria-label={`${y_label} versus ${x_label}`}>
         <title>{y_label}</title>
         {[0, .25, .5, .75, 1].map(t => <g key={t}>
-          <line x1={52} x2={642} y1={216 - 190*t} y2={216 - 190*t} stroke="#334b55" />
+          <line x1={52} x2={642} y1={216 - 190*t} y2={216 - 190*t} stroke="var(--border)" />
           <text x={44} y={220 - 190*t} textAnchor="end">{format(ymin+(ymax-ymin)*t)}</text>
         </g>)}
         {curves.map((curve, index) => <g key={curve.label}>
