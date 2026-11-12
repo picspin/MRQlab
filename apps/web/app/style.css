@@ -27,6 +27,7 @@
   --red-3: #4c1820;
   --red-9: #e5484d;
   --red-11: #ff6369;
+  --violet-11: #baa7ff;
 
   /* Compatibility aliases used by existing scientific widgets. */
   --amber: var(--amber-9);

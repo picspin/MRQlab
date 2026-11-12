@@ -2,7 +2,7 @@ import React from "react";
 import type { ResearchRun } from "../../lib/research";
 import styles from "../../app/research/research.module.css";
 
-const COLORS = ["var(--blue-11)", "var(--amber-9)", "var(--blue-11)", "var(--red-11)"];
+export const COLORS = ["var(--blue-11)", "var(--amber-9)", "var(--violet-11)", "var(--red-11)"];
 const TARGET_LABELS: Record<string, string> = {
   target_state_error: "Density / periodic-state target", target_min_signal_fraction: "Retained signal fraction minimum",
   target_memory_refinement_error: "Memory trace refinement target", target_kernel_error: "Integrated memory-kernel target",

@@ -15,11 +15,11 @@ const LABELS: Record<ChannelName, string> = {
   nco_phase: "NCO φ",
 };
 
-const COLORS: Record<string, string> = {
+export const COLORS: Record<string, string> = {
   rf_amp: "var(--cyan)",
   gx: "var(--green-11)",
   gy: "var(--amber-11)",
-  gz: "var(--blue-11)",
+  gz: "var(--violet-11)",
   adc_gate: "var(--red-11)",
 };
 
