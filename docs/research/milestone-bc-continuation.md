@@ -17,9 +17,10 @@ Gradient waveforms are treated as sample-and-hold, with implicit zero when a
 channel has no waveform. Discrete nominal slew is checked between successive
 samples, at adjacent block joins, and entering/leaving idle periods. The
 previous sample's raster is the interval at an adjacent join; entering a
-waveform after a shorter idle gap uses that shorter interval. A sequence start
-is compared with a zero sample one waveform raster earlier. Decimal timing is
-used to avoid rejecting exactly adjacent intervals due to floating-point sums;
+waveform after a shorter idle gap uses that shorter interval, including the
+idle interval from sequence start to an initially delayed waveform. A waveform
+that starts at t=0 is compared with a zero sample one waveform raster earlier.
+Decimal timing is used to avoid rejecting exactly adjacent intervals due to floating-point sums;
 RF/ADC guard boundaries use the same timing convention. Sequence models reject
 non-finite timings, offsets, and samples. The declared profile's threshold,
 including an exactly equal limit, is tested; an over-limit boundary fails.

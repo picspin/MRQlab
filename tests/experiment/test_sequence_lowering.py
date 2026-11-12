@@ -186,7 +186,16 @@ def test_lowering_rejects_cross_block_slew_even_when_internal_slew_passes():
         lower_sequence(sequence, RESEARCH_3T)
 
 
-def test_idle_gradient_gap_requires_a_valid_return_to_zero():
+def test_initial_gradient_entry_uses_idle_time_from_sequence_start():
+    # The channel is zero from t=0 until the first block starts at 10 us.
+    # Its 4 mT/m first sample therefore enters over 10 us (400 T/m/s), not
+    # the waveform's 20 us raster (200 T/m/s).
+    sequence = _gradient_sequence(_gx("initial", 10e-6, (4, 0), 20e-6))
+    with pytest.raises(ValueError, match="boundary slew.*start of initial"):
+        lower_sequence(sequence, RESEARCH_3T)
+
+
+def test_terminal_gradient_requires_a_valid_return_to_zero():
     sequence = _gradient_sequence(_gx("first", 0, (0, 1, 2, 3)), _gx("second", 50e-6, (0, 1, 0)))
     with pytest.raises(ValueError, match="boundary slew.*end of first"):
         lower_sequence(sequence, RESEARCH_3T)

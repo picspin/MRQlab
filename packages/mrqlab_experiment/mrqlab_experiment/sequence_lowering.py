@@ -76,8 +76,14 @@ def _validate_gradient_boundaries(blocks, profile: ScannerProfile) -> None:
                 check(axis, f"{previous[4]} -> {block_id}", previous[3].samples_mt_m[-1],
                       waveform.samples_mt_m[0], previous[2])
             else:
-                gap = start - previous[1] if previous is not None else raster
-                check(axis, f"start of {block_id}", 0.0, waveform.samples_mt_m[0], min(raster, gap))
+                # A later waveform enters over its idle gap; the first waveform
+                # on an axis enters over the idle time from the sequence start
+                # (t=0), not over its own raster. A block starting at t=0 has no
+                # idle time and is checked over its raster (zero one raster
+                # earlier), matching the nonzero-initial-jump check.
+                gap = start - previous[1] if previous is not None else start
+                check(axis, f"start of {block_id}", 0.0, waveform.samples_mt_m[0],
+                      min(raster, gap) if gap > 0 else raster)
             following = waveforms[index + 1] if index + 1 < len(waveforms) else None
             if following is None or following[0] > end:
                 check(axis, f"end of {block_id}", waveform.samples_mt_m[-1], 0.0, raster)
