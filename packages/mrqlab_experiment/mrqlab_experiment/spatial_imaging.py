@@ -33,7 +33,8 @@ def run_spatial_imaging(chain, labels, *, encoding='cartesian', order='sequentia
 
     labels assigns each voxel to one of two known tissue classes. Provenance
     stores all replay inputs plus hashes of measured Fourier samples. Budgets
-    count complex samples and direct-DFT multiply terms, not scanner time/SAR.
+    count complex samples, reconstruction FFT butterflies (Cartesian) and
+    direct-DFT multiply terms (non-Cartesian), not scanner time/SAR.
     CEST reports Z(-3.5)-Z(+3.5); ADC units are mm²/s.
     """
     recipes = dict(cartesian_2d='brain_t1_3d_tse', partition_3d='brain_t1_3d_tse',
@@ -61,7 +62,14 @@ def run_spatial_imaging(chain, labels, *, encoding='cartesian', order='sequentia
         raise ValueError('invalid encoding order/acceleration')
     frames = 7 if chain == 'cest' else 2 if chain == 'adc' else 1
     count = (labels.size if encoding == 'cartesian' else spokes*points*(labels.shape[0] if labels.ndim == 3 else 1))*frames
-    work = 0 if reconstruction == 'nufft_cgls' else count*(labels.shape[-1]*labels.shape[-2] if encoding != 'cartesian' else 1)
+    # Cartesian reconstruction is an FFT per frame (about n*log2 n complex
+    # butterflies), so its work must exceed the raw sample count; otherwise
+    # estimated_work collapses to estimated_samples and max_work cannot bound
+    # the reconstruction. Non-Cartesian charges direct-DFT multiply terms.
+    fft_terms = int(labels.size*sum(int(np.ceil(np.log2(max(2, d)))) for d in labels.shape))
+    work = (0 if reconstruction == 'nufft_cgls'
+            else frames*fft_terms if encoding == 'cartesian'
+            else count*labels.shape[-1]*labels.shape[-2])
     if count > max_samples or work > max_work:
         raise ValueError('infeasible acquisition budget')
     threshold = quality_threshold if quality_threshold is not None else (1e-6 if reconstruction in {'cgls', 'nufft_cgls'} else 0.4 if encoding != 'cartesian' else 1e-10)

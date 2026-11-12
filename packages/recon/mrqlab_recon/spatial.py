@@ -60,7 +60,8 @@ def radial_coordinates(shape, spokes, points):
     spec = TrajectorySpec(trajectory_type='radial', matrix_size=n,
                           num_spokes_or_interleaves=spokes, points_per_arm=points)
     trajectory = generate_trajectory(spec)
-    # cycles/pixel; exclude positive Nyquist endpoint symmetry issues.
+    # cycles/pixel, spanning both Nyquist endpoints (-0.5 .. +0.5); the
+    # reconstructor wraps the +0.5 corner to grid index 0 (periodic k-space).
     xy = np.column_stack([trajectory['kx'], trajectory['ky']]) * .5
     return xy
 
@@ -93,12 +94,14 @@ def radial_reconstruct(xy, samples, shape):
     density = np.maximum(np.linalg.norm(xy, axis=1), 1/(2*n))
     grid = np.zeros((nz, n, n), complex); weights = np.zeros((n, n))
     for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1)):
-        x = base[:, 0]+dx; y = base[:, 1]+dy
+        # k-space is periodic: the +0.5 Nyquist corner maps to index n and is
+        # wrapped to index 0 rather than dropped, so the endpoint sample is kept
+        # with full weight instead of silently discarded.
+        x = (base[:, 0]+dx) % n; y = (base[:, 1]+dy) % n
         w = density*(fraction[:, 0] if dx else 1-fraction[:, 0])*(fraction[:, 1] if dy else 1-fraction[:, 1])
-        valid = (x >= 0) & (x < n) & (y >= 0) & (y < n)
-        np.add.at(weights, (y[valid], x[valid]), w[valid])
+        np.add.at(weights, (y, x), w)
         for z in range(nz):
-            np.add.at(grid[z], (y[valid], x[valid]), samples[z, valid]*w[valid])
+            np.add.at(grid[z], (y, x), samples[z]*w)
     mask = weights > 0
     grid[:, mask] /= weights[mask]
     # Local density-normalized interpolation, not a NUFFT or iterative inversion.

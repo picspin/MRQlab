@@ -84,3 +84,31 @@ def test_cartesian_undersampling_reports_failed_quality():
     indices, samples = cartesian_acquire(_make_nema_like_phantom(24), acceleration=3)
     result = cartesian_reconstruct(indices, samples, (24, 24))
     assert not image_quality(_make_nema_like_phantom(24), result, .1)['passed']
+
+
+def test_radial_positive_nyquist_endpoint_is_kept_not_dropped():
+    # k-space is periodic: a sample at the +0.5 Nyquist corner maps to grid
+    # index n and must wrap to index 0. Before the wrap fix the interpolation
+    # corner fell outside [0, n) and was silently discarded, so an
+    # endpoint-only input reconstructed to an all-zero image.
+    n = 16
+    endpoint_only = radial_reconstruct(np.array([[.5, 0.]]), np.array([[1 + 0j]]), (n, n))
+    assert np.abs(endpoint_only).max() > 0
+    # The endpoint must actually change the image, not vanish.
+    without_endpoint = radial_reconstruct(np.array([[0., 0.]]), np.array([[1 + 0j]]), (n, n))
+    assert not np.allclose(endpoint_only, without_endpoint)
+
+
+def test_cartesian_work_exceeds_sample_count_and_bounds_reconstruction():
+    # Cartesian reconstruction is an FFT per frame, so estimated_work must not
+    # collapse to estimated_samples and max_work must be able to reject a budget
+    # below the reconstruction cost.
+    result = run_spatial_imaging('cartesian_2d', labels())
+    provenance = result['provenance']
+    assert provenance['estimated_work'] > provenance['estimated_samples']
+    with pytest.raises(ValueError):
+        run_spatial_imaging('cartesian_2d', labels(), max_work=provenance['estimated_work'] - 1)
+    # The non-Cartesian direct-DFT work model is unchanged by the Cartesian fix.
+    radial = run_spatial_imaging('noncartesian', labels(), encoding='radial')
+    n = labels().shape[-1]
+    assert radial['provenance']['estimated_work'] == radial['provenance']['estimated_samples']*n*n
