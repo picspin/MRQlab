@@ -62,11 +62,19 @@ def run_spatial_imaging(chain, labels, *, encoding='cartesian', order='sequentia
         raise ValueError('invalid encoding order/acceleration')
     frames = 7 if chain == 'cest' else 2 if chain == 'adc' else 1
     count = (labels.size if encoding == 'cartesian' else spokes*points*(labels.shape[0] if labels.ndim == 3 else 1))*frames
-    # Cartesian reconstruction is an FFT per frame (about n*log2 n complex
-    # butterflies), so its work must exceed the raw sample count; otherwise
-    # estimated_work collapses to estimated_samples and max_work cannot bound
-    # the reconstruction. Non-Cartesian charges direct-DFT multiply terms.
-    fft_terms = int(labels.size*sum(int(np.ceil(np.log2(max(2, d)))) for d in labels.shape))
+    # Cartesian reconstruction is an FFT per frame. For a non-power-of-two
+    # axis, charge the two next-power-of-two transforms of a Bluestein
+    # convolution, whose length is at least 2*n-1. This deliberately
+    # pessimistic bound keeps max_work a reconstruction budget rather than an
+    # optimistic n*log2(n) estimate. Non-Cartesian charges direct-DFT terms.
+    fft_terms = 0
+    for dimension in labels.shape:
+        other_axes = labels.size//dimension
+        if dimension & (dimension-1) == 0:
+            fft_terms += other_axes*dimension*int(np.log2(dimension))
+        else:
+            convolution_length = 1 << int(np.ceil(np.log2(2*dimension-1)))
+            fft_terms += other_axes*2*convolution_length*int(np.log2(convolution_length))
     work = (0 if reconstruction == 'nufft_cgls'
             else frames*fft_terms if encoding == 'cartesian'
             else count*labels.shape[-1]*labels.shape[-2])

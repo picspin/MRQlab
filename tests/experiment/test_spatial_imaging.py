@@ -112,3 +112,14 @@ def test_cartesian_work_exceeds_sample_count_and_bounds_reconstruction():
     radial = run_spatial_imaging('noncartesian', labels(), encoding='radial')
     n = labels().shape[-1]
     assert radial['provenance']['estimated_work'] == radial['provenance']['estimated_samples']*n*n
+
+
+def test_cartesian_work_pessimistically_bounds_prime_length_bluestein_fft():
+    # PocketFFT may use two length-1024 transforms for a length-509 axis.
+    # The former 10180 n*log2(n) estimate admitted this grid; it is below the
+    # conservative 41978-operation charge and must now fail before simulation.
+    prime_axis_labels = np.zeros((2, 509), int)
+    with pytest.raises(ValueError, match='infeasible acquisition budget'):
+        run_spatial_imaging('cartesian_2d', prime_axis_labels, max_work=10180)
+    result = run_spatial_imaging('cartesian_2d', prime_axis_labels, max_work=41978)
+    assert result['provenance']['estimated_work'] == 41978
