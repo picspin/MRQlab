@@ -15,9 +15,10 @@ The strict original image NRMSE target **1e-6** is retained, and its failure is
 asserted. Exploratory .15/.05 comparison thresholds from the handoff are not
 promoted to evidence of high-precision recovery.
 
-The missing table cell was measured from the current source and independently
-confirmed using the historical handoff checkout, with its own explicit PYTHONPATH
-and verified source path, on the same label phantom and acquisition: 3D 32×32 gridding NRMSE **0.5425621821984188**.
+The missing table cell was measured on the historical handoff checkout, with its
+own explicit PYTHONPATH and verified source path, on the same label phantom and
+acquisition: 3D 32×32 gridding NRMSE **0.5425621821984188**. The current checkout
+yields **0.5425557035** after the radial +0.5 Nyquist endpoint-wrap fix in `663ae68`.
 Reproduce with:
 
 ```python

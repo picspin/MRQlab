@@ -174,7 +174,9 @@ no push, PR, merge, B/C unlock or submission content was introduced.
 change or NUFFT implementation. Independent historical revalidation passed
 **568 Python / 82 frontend**. Four tests were carried forward as `34e871e`
 with strict original image targets, and the missing 3D 32×32 gridding NRMSE
-**0.5425621821984188** was reproduced in both historical and current checkouts.
+**0.5425621821984188** was reproduced in the historical checkout. The current
+checkout yields **0.5425557035** after the radial +0.5 Nyquist endpoint-wrap
+fix in `663ae68`.
 The handoff's 16×16 3D stop typo is explicitly resolved as `data_residual`,
 `converged=true`. Both `.pi/` and `HANDOFF-TO-CODEX.md` remain untracked and intact.
 [Integration evidence](handoff-noncartesian-integration.md) separates that exact-DFT

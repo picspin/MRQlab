@@ -54,8 +54,12 @@ correction. CGLS tolerance 1e-12, maximum 1500 iterations, work budget 10 billio
 
 | Encoding | Gridding image NRMSE | CGLS image NRMSE | CGLS iterations | Measured relative data residual | Combined work |
 |---|---:|---:|---:|---:|---:|
-| Radial 2D | 0.4203077153 | 4.9218e-10 | 956 | 9.6615e-13 | 753,988,096 |
-| Stack of stars 3D | 0.4180542001 | 2.5672e-10 | 989 | 8.4874e-13 | 2,342,175,744 |
+| Radial 2D | 0.4202937668 | 4.9218e-10 | 956 | 9.6615e-13 | 753,988,096 |
+| Stack of stars 3D | 0.4180439705 | 2.5672e-10 | 989 | 8.4874e-13 | 2,342,175,744 |
+
+Gridding NRMSE is from the current checkout; the radial +0.5 Nyquist
+endpoint-wrap fix in `663ae68` shifted these slightly from the earlier
+published values (2D 0.4203077153, 3D 0.4180542001). CGLS columns are unchanged.
 
 Allocation estimates: 25,395,200 and 25,853,952 bytes. Platform-dependent rounding
 may change iteration count; tests use explicit tolerances instead of requiring
@@ -96,11 +100,13 @@ strict; none of the 32×32 CGLS cases below establishes that target.
 
 | Encoding | Gridding image NRMSE | CGLS image NRMSE | CGLS iterations | Stop | Data residual | Combined work |
 |---|---:|---:|---:|---|---:|---:|
-| Radial 2D 32×32 | 0.5456350016 | 0.00891436989 | 1500 | max_iterations | 8.5340e-7 | 4,731,031,552 |
-| Stack of stars 3D 32×32 | **0.5425621821984188** | 0.01049566741 | 1055 | max_work | 1.8914e-6 | 9,993,191,424 |
+| Radial 2D 32×32 | 0.5456270138 | 0.00891436989 | 1500 | max_iterations | 8.5340e-7 | 4,731,031,552 |
+| Stack of stars 3D 32×32 | **0.5425557035** | 0.01049566741 | 1055 | max_work | 1.8914e-6 | 9,993,191,424 |
 
-The missing gridding cell was reproduced in both the original handoff and the
-current checkout; [commands, source boundaries and corrections](handoff-noncartesian-integration.md)
+The missing gridding cell was reproduced in the original handoff at the pre-fix
+value **0.5425621821984188**; the current checkout yields **0.5425557035** after
+the radial +0.5 Nyquist endpoint-wrap fix in `663ae68`.
+[Commands, source boundaries and corrections](handoff-noncartesian-integration.md)
 are recorded separately. CGLS columns reproduce the handoff measurements. The
 16×16 3D stop is `data_residual` / `converged=true`, following the handoff footnote.
 The exact-DFT reference remains unregularized with no gain fit or calibration.

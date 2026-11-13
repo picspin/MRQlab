@@ -93,8 +93,11 @@ def test_radial_positive_nyquist_endpoint_is_kept_not_dropped():
     # endpoint-only input reconstructed to an all-zero image.
     n = 16
     endpoint_only = radial_reconstruct(np.array([[.5, 0.]]), np.array([[1 + 0j]]), (n, n))
-    assert np.abs(endpoint_only).max() > 0
-    # The endpoint must actually change the image, not vanish.
+    # The wrapped +0.5 Nyquist corner is a k=0 delta, so it reconstructs to the
+    # uniform 1/n**2 image rather than being dropped (pre-fix: all-zero image).
+    assert np.allclose(np.abs(endpoint_only), 1/n**2)
+    # Distinctness sanity check (not the regression assertion): the endpoint
+    # must actually change the image versus a k=0 sample.
     without_endpoint = radial_reconstruct(np.array([[0., 0.]]), np.array([[1 + 0j]]), (n, n))
     assert not np.allclose(endpoint_only, without_endpoint)
 
