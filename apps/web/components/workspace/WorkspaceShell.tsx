@@ -78,7 +78,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.8)",
+            backgroundColor: "var(--scrim)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

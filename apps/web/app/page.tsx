@@ -153,10 +153,10 @@ export default function Home() {
                     fontWeight: 700,
                     backgroundColor:
                       item.difficulty === "Fundamental"
-                        ? "rgba(59, 244, 141, 0.15)"
+                        ? "var(--difficulty-fundamental)"
                         : item.difficulty === "Intermediate"
-                        ? "rgba(255, 184, 52, 0.15)"
-                        : "rgba(255, 126, 51, 0.15)",
+                        ? "var(--difficulty-intermediate)"
+                        : "var(--difficulty-advanced)",
                     color:
                       item.difficulty === "Fundamental"
                         ? "var(--green-neon)"

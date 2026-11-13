@@ -54,6 +54,12 @@
   --radius-sm: 4px;
   --radius-md: 6px;
   --transition: 250ms ease-out;
+  /* Difficulty chips, modal scrim, and the computed EPG heatmap tint. */
+  --difficulty-fundamental: rgba(59, 244, 141, 0.15);
+  --difficulty-intermediate: rgba(255, 184, 52, 0.15);
+  --difficulty-advanced: rgba(255, 126, 51, 0.15);
+  --scrim: rgba(0, 0, 0, 0.8);
+  --epg-cell-rgb: 89, 224, 230;
 }
 
 * { box-sizing: border-box; }
@@ -62,7 +68,7 @@ body {
   min-height: 100vh;
   background: var(--gray-1);
   color: var(--text);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -125,13 +131,11 @@ main { min-height: 100vh; display: flex; flex-direction: column; }
 .bay-header, .bank-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: .5px solid var(--border); }
 .bay-header h3, .bank-header h3 { margin: 0; color: var(--text); font-size: 14px; font-weight: 600; }
 .recipe-tag, .sub-mode { padding: 2px 6px; color: var(--amber-11); font-size: 12px; background: var(--amber-3); border-radius: var(--radius-sm); }
-.lens-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 16px; }
-.lens-btn, .echo-chip, .execute-btn { cursor: pointer; border: .5px solid var(--border); background: var(--gray-3); color: var(--text-muted); transition: color var(--transition), background-color var(--transition), border-color var(--transition); }
-.lens-btn { min-height: 36px; padding: 7px; font-size: 12px; text-align: center; }
-.lens-btn:hover, .echo-chip:hover { color: var(--text); background: var(--gray-4); }
-.lens-btn.active, .echo-chip.active { color: var(--blue-11); border-color: var(--blue-9); background: var(--blue-3); }
-.bay-details, .metrics-box, .linked-scope-rail, .control-group { padding: 12px; background: var(--surface-sunken); border: .5px solid var(--border); border-radius: var(--radius-md); }
-.bay-details h4, .linked-scope-rail label { display: block; margin: 0 0 8px; color: var(--text-muted); font-size: 12px; font-weight: 600; }
+.echo-chip, .execute-btn { cursor: pointer; border: .5px solid var(--border); background: var(--gray-3); color: var(--text-muted); transition: color var(--transition), background-color var(--transition), border-color var(--transition); }
+.echo-chip:hover { color: var(--text); background: var(--gray-4); }
+.echo-chip.active { color: var(--blue-11); border-color: var(--blue-9); background: var(--blue-3); }
+.metrics-box, .linked-scope-rail, .control-group { padding: 12px; background: var(--surface-sunken); border: .5px solid var(--border); border-radius: var(--radius-md); }
+.linked-scope-rail label { display: block; margin: 0 0 8px; color: var(--text-muted); font-size: 12px; font-weight: 600; }
 .tissue-row { display: flex; flex-direction: column; gap: 3px; padding: 8px 0; border-bottom: .5px solid var(--border); }
 .tissue-row:last-child { border-bottom: 0; }
 .tissue-row.target, .tissue-row.reference { border-left: 0; }
@@ -147,8 +151,6 @@ main { min-height: 100vh; display: flex; flex-direction: column; }
 .cursor-readout { display: flex; gap: 12px; color: var(--amber-11); }
 .display-screen { position: relative; display: flex; flex: 1; align-items: center; justify-content: center; padding: 18px; background: var(--gray-1); }
 .display-screen.clinical-screen { align-items: stretch; justify-content: stretch; min-height: 0; overflow: hidden; }
-.waveform-svg { width: 100%; height: 240px; }
-.screen-caption { margin-top: 10px; color: var(--text-muted); font-size: 12px; }
 .linked-scope-rail { margin-top: 14px; }
 .echo-chips-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .echo-chip { padding: 5px 8px; font-size: 12px; }
@@ -158,12 +160,10 @@ main { min-height: 100vh; display: flex; flex-direction: column; }
 .slider-row { display: flex; align-items: center; gap: 12px; }
 .slider-row input[type=range] { flex: 1; accent-color: var(--blue-9); cursor: pointer; }
 .value-badge { min-width: 60px; padding: 3px 8px; border: .5px solid var(--border); color: var(--text); font-family: ui-monospace, monospace; font-size: 14px; text-align: center; }
-.bound-warn { display: block; margin-top: 6px; color: var(--red-11); font-size: 12px; }
 .execute-btn { width: 100%; padding: 10px 12px; color: var(--gray-1); background: var(--amber-9); border-color: var(--amber-9); font-size: 14px; font-weight: 600; }
 .execute-btn:hover { background: var(--amber-11); }
 .status-rail { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface); border: .5px solid var(--border); border-radius: var(--radius-md); color: var(--text-muted); font-size: 12px; }
 .state-badge { color: var(--green-11); font-weight: 600; }.cost-tier { color: var(--blue-11); }.system-info { color: var(--text-muted); }
-.explore-container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 24px; }.explore-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }.explore-card { display: flex; flex-direction: column; justify-content: space-between; padding: 18px; background: var(--surface); border: .5px solid var(--border); border-radius: var(--radius-md); }.explore-card h2 { margin-top: 0; color: var(--text); font-size: 16px; }.explore-card p { color: var(--text-muted); font-size: 14px; }.explore-card a { display: inline-block; padding: 8px 12px; color: var(--blue-11); border: .5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; text-align: center; text-decoration: none; }.explore-card a:hover { color: var(--blue-12); background: var(--blue-3); }
 
 @media (max-width: 1100px) { .retromorphic-cockpit { display: flex; flex-direction: column; } }
 @media (max-width: 800px) { .top-nav { align-items: flex-start; flex-wrap: wrap; gap: 10px; padding: 10px 16px; }.nav-routes { flex-wrap: wrap; }.nav-profile { width: 100%; justify-content: space-between; }.retromorphic-cockpit { padding: 16px; } }

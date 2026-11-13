@@ -202,7 +202,7 @@ export function PulseInspector({ flipAngleDeg, sliceThicknessMm = 5.0, durationM
                     key={cIdx}
                     className="matrix-cell"
                     style={{
-                      backgroundColor: `rgba(89, 224, 230, ${Math.min(1, Math.abs(val)).toFixed(2)})`,
+                      backgroundColor: `rgba(var(--epg-cell-rgb), ${Math.min(1, Math.abs(val)).toFixed(2)})`,
                     }}
                   >
                     {val.toFixed(2)}
