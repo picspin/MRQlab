@@ -101,7 +101,7 @@ strict; none of the 32×32 CGLS cases below establishes that target.
 | Encoding | Gridding image NRMSE | CGLS image NRMSE | CGLS iterations | Stop | Data residual | Combined work |
 |---|---:|---:|---:|---|---:|---:|
 | Radial 2D 32×32 | 0.5456270138 | 0.00891436989 | 1500 | max_iterations | 8.5340e-7 | 4,731,031,552 |
-| Stack of stars 3D 32×32 | **0.5425557035** | 0.01049566741 | 1055 | max_work | 1.8914e-6 | 9,993,191,424 |
+| Stack of stars 3D 32×32 | **0.5425557035** | 0.01049566741 | 1055 | max_work | 1.8914e-6 | 9,997,910,016 |
 
 The missing gridding cell was reproduced in the original handoff at the pre-fix
 value **0.5425621821984188**; the current checkout yields **0.5425557035** after
