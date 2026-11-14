@@ -57,11 +57,17 @@ function parseColor(input: string): string | null {
     const alpha = parts.length >= 4 ? (parts[3].endsWith("%") ? parseFloat(parts[3]) / 100 : parseFloat(parts[3])) : 1;
     if (!Number.isFinite(alpha)) return null;
     if (functional[1].startsWith("rgb")) {
-      const channels = parts.slice(0, 3).map((part) => part.endsWith("%") ? Math.round(scale(part) * 255) : Math.round(parseFloat(part)));
+      const channels = parts.slice(0, 3).map((part) => clamp(Math.round(part.endsWith("%") ? scale(part) * 255 : parseFloat(part)), 0, 255));
       if (!channels.every(Number.isFinite)) return null;
       return `rgba(${channels[0]}, ${channels[1]}, ${channels[2]}, ${clamp(alpha, 0, 1)})`;
     }
-    const [hue, saturation, lightness] = [parseFloat(parts[0]), scale(parts[1]), scale(parts[2])];
+    // Hue may carry a unit: deg (default), turn, rad, grad, or a bare percent
+    // (100% == 360deg). CSS folds it modulo 360; only then does hslToRgb see degrees.
+    const huePart = parts[0];
+    const hueUnits: Record<string, number> = { turn: 360, rad: 180 / Math.PI, grad: 360 / 400, deg: 1 };
+    const unitMatch = /^(-?[\d.]+)(turn|rad|grad|deg|%)?$/.exec(huePart);
+    const hue = unitMatch ? parseFloat(unitMatch[1]) * (unitMatch[2] === "%" ? 3.6 : hueUnits[unitMatch[2] ?? "deg"] ?? 1) : NaN;
+    const [saturation, lightness] = [scale(parts[1]), scale(parts[2])];
     if (![hue, saturation, lightness].every(Number.isFinite)) return null;
     const [r, g, b] = hslToRgb(hue, clamp(saturation, 0, 1), clamp(lightness, 0, 1));
     return `rgba(${r}, ${g}, ${b}, ${clamp(alpha, 0, 1)})`;
@@ -83,6 +89,19 @@ it("normalizes equivalent CSS color notations to one value", () => {
   expect(resolveColor("#ff0000")).toBe(resolveColor("rgb(255,0,0)"));
   expect(resolveColor("#f00")).toBe(resolveColor("rgb(255, 0, 0)"));
   expect(resolveColor("rgba(255,0,0,0.5)")).toBe(resolveColor("rgb(255 0 0 / 50%)"));
+});
+
+it("clamps out-of-range channels and parses hue units like CSS", () => {
+  // CSS clamps rgb() channels to [0,255] at parsed-value time, so rgb(300,0,0)
+  // renders identically to #ff0000; an unclamped parse would hide that collision.
+  expect(resolveColor("rgb(300,0,0)")).toBe(resolveColor("#ff0000"));
+  expect(resolveColor("rgb(-40,0,0)")).toBe(resolveColor("#000000"));
+  // A hue given in turn/rad/grad/percent must fold to degrees, not parse as a
+  // bare number: 0.5turn is cyan, not red.
+  expect(resolveColor("hsl(0.5turn, 100%, 50%)")).toBe(resolveColor("#00ffff"));
+  expect(resolveColor("hsl(3.14159265rad, 100%, 50%)")).toBe(resolveColor("#00ffff"));
+  expect(resolveColor("hsl(200grad, 100%, 50%)")).toBe(resolveColor("#00ffff"));
+  expect(resolveColor("hsl(50%, 100%, 50%)")).toBe(resolveColor("#00ffff"));
 });
 
 it("measurement curve palette resolves to four pairwise-distinct colors", () => {
