@@ -153,6 +153,14 @@ def test_tissue_roles_enforce_role_agreement():
         )
 
 
+def test_tissue_prior_rejects_booleans_for_physical_numbers():
+    for field in ("t1", "t2", "t2_star", "proton_density", "flow_velocity_mps", "exchange_rate_hz", "pool_fraction", "diffusion_adc_mm2_s", "chemical_shift_ppm"):
+        with pytest.raises(ValidationError, match="numeric, not boolean"):
+            TissuePrior(**{field: True})
+    with pytest.raises(ValidationError, match="numeric, not boolean"):
+        TissuePrior.model_validate_json('{"t1":true}')
+
+
 def test_numeric_values_are_finite_and_units_are_explicit():
     with pytest.raises(ValidationError, match="finite"):
         AcquisitionConstraint(

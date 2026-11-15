@@ -61,7 +61,13 @@ def psf_metrics(modulation):
 
 
 def direct_inverse_dft_work(shape):
-    """Complex multiply-term proxy for echo_reference_image on this grid."""
+    """Monotone budget proxy for echo_reference_image on this grid.
+
+    This is deliberately an arbitrary work unit shared with the surrounding
+    readout budget, not a bound on real floating-point operations: it charges
+    two complex-transform passes per axis and remains shape-sensitive without
+    claiming to account for complex exponentiation or hardware-specific cost.
+    """
     shape = tuple(shape)
     return int(2*int(np.prod(shape))*sum(shape))
 
@@ -178,8 +184,8 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
     function (phase/off-resonance imaging is outside this model).
 
     Work is charged against `max_work` for the mask transforms, the reconstruction,
-    the PSFs, the echo-reference direct inverse DFT (`direct_inverse_dft_work`, which
-    dominates on large grids) and the EPG budget. Including the reference cost lowers
+    the PSFs, the echo-reference direct inverse DFT's shape-sensitive budget proxy
+    (`direct_inverse_dft_work`) and the EPG budget. Including the reference cost lowers
     the largest accepted grid under the default `max_work=1e8` to about 281x281 in 2D
     and 58^3 in 3D; larger grids are rejected with 'infeasible readout budget' rather
     than allocated. Pass a larger `max_work` to run them.

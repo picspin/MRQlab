@@ -41,9 +41,8 @@ class CpuExecutionProvider:
         return JobHandle(id=job.id, provider_id=self.descriptor.id, plan_fingerprint=plan.fingerprint, status=job.status, artifact_id=job.artifact_id, error=job.error)
 
     def _run(self, job_id, plan):
-        if self.store.get_job(job_id).status == "cancelled":
+        if not self.store.claim_queued(job_id):
             return
-        self.store.transition(job_id, "running")
         try:
             graph = ExperimentGraph.model_validate(dict(plan.experiment_snapshot))
             result = build_result_graph(run_experiment(graph))
@@ -89,9 +88,8 @@ class GpuExecutionProvider(CpuExecutionProvider):
         return CapabilitySet(features=frozenset({"gpu.batch", "jobs", "cancel", "artifacts"}))
 
     def _run(self, job_id, plan):
-        if self.store.get_job(job_id).status == "cancelled":
+        if not self.store.claim_queued(job_id):
             return
-        self.store.transition(job_id, "running")
         try:
             result = self.backend.execute(plan)
             content = result.model_dump_json().encode()

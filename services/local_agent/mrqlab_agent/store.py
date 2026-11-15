@@ -55,6 +55,22 @@ class JobStore:
             except KeyError:
                 raise KeyError(f"unknown job {job_id}") from None
 
+    def claim_queued(self, job_id: str) -> bool:
+        """Atomically claim a queued job for execution.
+
+        A cancellation may race with the worker starting. Claiming under the
+        store lock makes the winner explicit: only a still-queued job enters
+        ``running``; a cancelled or terminal job is left untouched.
+        """
+        with self._lock:
+            current = self.get_job(job_id)
+            if current.status != "queued":
+                return False
+            updated = current.model_copy(update={"status": "running"})
+            self._jobs[job_id] = updated
+            self.append(job_id, "running")
+            return True
+
     def transition(self, job_id: str, status: str, *, artifact_id=None, error=None) -> JobRecord:
         with self._lock:
             current = self.get_job(job_id)
