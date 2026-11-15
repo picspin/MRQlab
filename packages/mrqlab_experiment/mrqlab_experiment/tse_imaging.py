@@ -220,8 +220,8 @@ def run_tse_imaging(labels, *, echoes=4, order='centric', echo_spacing_s=.008,
         echoes=echoes,echo_spacing_s=echo_spacing_s,tr_s=tr_s,t2_s=t2_s,
         refocusing_angle=refocusing_angle,refocusing_end_angle=refocusing_end_angle,
         max_work=max_work-spatial_work-reference_work,experiment=experiment,allow_contrast_exposure=True)
-    if spatial_work+reference_work+physical_work > max_work:
-        raise ReadoutWorkError('combined EPG and spatial work exceeds budget',physical_work)
+    # EPG work is bounded against the remainder passed to prepare_tse_echo_train,
+    # so no redundant post-return combined-work check is needed here.
     if trains*tr_s+max(preparation_s) > max_duration_s:
         raise ReadoutWorkError('prepared readout exceeds duration budget',physical_work)
     weights = np.array(weights)
