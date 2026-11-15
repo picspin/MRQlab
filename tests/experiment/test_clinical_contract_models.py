@@ -177,3 +177,15 @@ def test_parameter_state_rejects_unknown_units(unit):
 def test_acquisition_constraint_rejects_incompatible_units(metric, unit):
     with pytest.raises(ValidationError, match="unit"):
         AcquisitionConstraint(id="bad", metric=metric, operator="le", value=1, unit=unit, severity="hard")
+
+
+@pytest.mark.parametrize("bad", ["NaN", "Infinity", "-Infinity"])
+def test_clinical_contract_rejects_nonfinite_numeric_strings(bad):
+    from mrqlab_experiment.clinical import ContrastMetric, ScannerProfile
+    from mrqlab_experiment.clinical_catalog import RESEARCH_3T
+
+    with pytest.raises(ValueError):
+        ContrastMetric(id="x", target_tissue_id="a", reference_tissue_id="b",
+                       metric="signal_ratio", direction="target", target_value=bad, weight=1)
+    with pytest.raises(ValueError):
+        ScannerProfile.model_validate({**RESEARCH_3T.model_dump(), "b0_t": bad})

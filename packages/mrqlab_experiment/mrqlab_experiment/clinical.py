@@ -25,7 +25,7 @@ ParameterStateKind = Literal[
 
 
 class FrozenModel(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
 
     @field_validator("*", mode="before")
     @classmethod
