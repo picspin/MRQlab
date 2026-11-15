@@ -29,9 +29,20 @@ function hslToRgb(hue: number, saturation: number, lightness: number): [number, 
     if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
     return p;
   };
-  // +1e-9 keeps a ramp value that is an exact .5 (e.g. 127.5 at hue 270) from
-  // falling one ulp short and rounding down to 127 where CSS rounds up to 128.
-  return [channel(h + 1 / 3), channel(h), channel(h - 1 / 3)].map((c) => Math.round(c * 255 + 1e-9)) as [number, number, number];
+  // +1e-12 keeps a ramp value that is an exact .5 (e.g. 127.5 at hue 270, whose
+  // double lands ~1.1e-13 short) from rounding down where CSS rounds up, while
+  // staying far below the 0.5 tie so a hue just under a tie still rounds down.
+  return [channel(h + 1 / 3), channel(h), channel(h - 1 / 3)].map((c) => Math.round(c * 255 + 1e-12)) as [number, number, number];
+}
+const NUMBER_SOURCE = "[+-]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][+-]?\\d+)?";
+const NUMBER = new RegExp(`^(${NUMBER_SOURCE})(%?)$`);
+const HUE = new RegExp(`^(${NUMBER_SOURCE})(turn|rad|grad|deg|%)?$`);
+// Parse a CSS number token with an optional percent sign, or null if the token
+// is malformed (e.g. "1.5.5"); a malformed token must not be truncated to a
+// plausible value, matching how CSS drops the whole declaration.
+function numeric(part: string): { value: number; percent: boolean } | null {
+  const match = NUMBER.exec(part);
+  return match ? { value: parseFloat(match[1]), percent: match[2] === "%" } : null;
 }
 function parseColor(input: string): string | null {
   const value = input.trim().toLowerCase();
@@ -55,24 +66,37 @@ function parseColor(input: string): string | null {
   if (functional) {
     const parts = functional[2].split(/[,\s/]+/).filter(Boolean);
     if (parts.length < 3) return null;
-    // A unit-less number is a percentage for hsl s/l; for rgb the channel is
-    // either a 0-255 number or a percentage.
-    const percent = (part: string) => parseFloat(part) / 100;
-    const alpha = parts.length >= 4 ? (parts[3].endsWith("%") ? parseFloat(parts[3]) / 100 : parseFloat(parts[3])) : 1;
+    // Every argument goes through the same number grammar, so a malformed token
+    // (e.g. "1.5.5") drops the whole declaration instead of being truncated to a
+    // plausible value by parseFloat. A unit-less s/l is a percentage in CSS.
+    let alpha = 1;
+    if (parts.length >= 4) {
+      const token = numeric(parts[3]);
+      if (!token) return null;
+      alpha = token.percent ? token.value / 100 : token.value;
+    }
     if (!Number.isFinite(alpha)) return null;
     if (functional[1].startsWith("rgb")) {
-      const channels = parts.slice(0, 3).map((part) => clamp(Math.round(part.endsWith("%") ? percent(part) * 255 : parseFloat(part)), 0, 255));
-      if (!channels.every(Number.isFinite)) return null;
+      const channels: number[] = [];
+      for (const part of parts.slice(0, 3)) {
+        const token = numeric(part);
+        if (!token) return null;
+        // A rgb channel is either a 0-255 number or a percentage of 255.
+        channels.push(clamp(Math.round(token.percent ? (token.value / 100) * 255 : token.value), 0, 255));
+      }
       return `rgba(${channels[0]}, ${channels[1]}, ${channels[2]}, ${clamp(alpha, 0, 1)})`;
     }
     // Hue may carry a unit: deg (default), turn, rad, grad, or a bare percent
     // (100% == 360deg). CSS folds it modulo 360; only then does hslToRgb see
     // degrees. The number grammar allows a sign, decimals, and an exponent.
     const hueUnits: Record<string, number> = { turn: 360, rad: 180 / Math.PI, grad: 360 / 400, deg: 1 };
-    const unitMatch = /^([+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)(turn|rad|grad|deg|%)?$/.exec(parts[0]);
+    const unitMatch = HUE.exec(parts[0]);
     if (!unitMatch) return null;
     const hue = parseFloat(unitMatch[1]) * (unitMatch[2] === "%" ? 3.6 : hueUnits[unitMatch[2] ?? "deg"]);
-    const [saturation, lightness] = [percent(parts[1]), percent(parts[2])];
+    const saturationToken = numeric(parts[1]);
+    const lightnessToken = numeric(parts[2]);
+    if (!saturationToken || !lightnessToken) return null;
+    const [saturation, lightness] = [saturationToken.value / 100, lightnessToken.value / 100];
     if (![hue, saturation, lightness].every(Number.isFinite)) return null;
     const [r, g, b] = hslToRgb(hue, clamp(saturation, 0, 1), clamp(lightness, 0, 1));
     return `rgba(${r}, ${g}, ${b}, ${clamp(alpha, 0, 1)})`;
@@ -124,6 +148,21 @@ it("treats bare hsl saturation/lightness as percentages and rounds like CSS", ()
   // 270deg is exactly 127.5 in the red ramp; CSS rounds it up to 128, and the
   // float ramp must not fall one ulp short.
   expect(resolveColor("hsl(270, 100%, 50%)")).toBe(resolveColor("#8000ff"));
+  // Pin the tie-rounding on a second, independent .5 boundary.
+  expect(resolveColor("hsl(210, 100%, 50%)")).toBe(resolveColor("#0080ff"));
+});
+
+it("does not round a hue just below a .5 tie up, as CSS does not", () => {
+  // 269.9999999999 deg is strictly below the 127.5 tie, so CSS rounds the red
+  // channel down to 127 (#7f00ff); an over-wide epsilon would push it to 128.
+  expect(resolveColor("hsl(269.9999999999, 100%, 50%)")).toBe(resolveColor("#7f00ff"));
+});
+
+it("rejects malformed hsl saturation/lightness like it rejects a malformed hue", () => {
+  // A malformed s/l must not be silently truncated into a valid color; CSS
+  // drops the whole declaration. Fall through to the raw string, not a color.
+  expect(resolveColor("hsl(0, 1.5.5, 50)")).toBe("hsl(0, 1.5.5, 50)");
+  expect(resolveColor("hsl(0, 50, 5e.5)")).toBe("hsl(0, 50, 5e.5)");
 });
 
 it("measurement curve palette resolves to four pairwise-distinct colors", () => {
