@@ -71,7 +71,7 @@ def test_failed_readout_reports_epg_work_actually_consumed():
     with pytest.raises(ReadoutWorkError) as caught:
         run_tse_imaging(phantom(), echoes=8, max_work=80000)
     assert caught.value.estimated_work > 80000
-    assert str(caught.value)=='combined EPG work exceeds budget'
+    assert str(caught.value)=='EPG work exceeds available readout budget'
     # A design error rejected before any EPG run consumes no work and stays a
     # plain ValueError, so callers cannot charge budget for a rejected request.
     with pytest.raises(ValueError) as early:
@@ -98,7 +98,6 @@ def test_generic_simulation_failure_reports_prior_tissue_work(monkeypatch):
     'did not converge' path) after the first tissue already ran; the error must
     still carry that spent work instead of reporting zero.
     """
-    from mrqlab_experiment.family_recipes import build_family_recipe
     from mrqlab_experiment.tse_imaging import ReadoutWorkError
     import mrqlab_experiment.tse_imaging as tse
     spent={'work':0}; original=tse.run_experiment; calls={'n':0}
@@ -111,6 +110,33 @@ def test_generic_simulation_failure_reports_prior_tissue_work(monkeypatch):
         run_tse_imaging(phantom(), echoes=8)
     assert str(caught.value)=='TSE steady preparation did not converge'
     assert caught.value.estimated_work==spent['work']>0
+
+
+def test_first_tissue_final_backend_failure_reports_its_consumed_work(monkeypatch):
+    """The first tissue's post-warmup backend failure is never reported as free."""
+    from mrqlab_experiment.family_execution import FamilyWorkError
+    from mrqlab_experiment.tse_imaging import ReadoutWorkError
+    import mrqlab_experiment.family_execution as family_execution
+
+    original = family_execution.run_backend
+    calls = {"count": 0, "final_operations": None}
+
+    def fail_final_train(backend, operations, collect):
+        calls["count"] += 1
+        # The first TSE tissue has two warm-up calls followed by its final
+        # scheduled train. Raise only after the warm-up has consumed work.
+        if calls["count"] == 3:
+            calls["final_operations"] = len(operations)
+            raise ValueError("final backend failure")
+        return original(backend, operations, collect)
+
+    monkeypatch.setattr(family_execution, "run_backend", fail_final_train)
+    with pytest.raises(ReadoutWorkError, match="final backend failure") as caught:
+        run_tse_imaging(phantom(), echoes=8)
+
+    assert isinstance(caught.value.__cause__, FamilyWorkError)
+    assert calls["final_operations"] is not None
+    assert caught.value.estimated_work > 0
 
 
 def test_nonconvergence_charges_its_warmup_trains(monkeypatch):

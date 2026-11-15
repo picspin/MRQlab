@@ -34,6 +34,34 @@ class FrozenModel(BaseModel):
             raise ValueError("numeric values must be finite")
         return value
 
+    @model_validator(mode="before")
+    @classmethod
+    def reject_booleans_for_numeric_fields(cls, data):
+        """Reject JSON true/false before Pydantic can coerce it to 1.0/0.0."""
+        if not isinstance(data, dict):
+            return data
+        for name, field in cls.model_fields.items():
+            if name in data and _numeric_annotation(field.annotation) and _contains_boolean(data[name]):
+                raise ValueError(f"{name} must be numeric, not boolean")
+        return data
+
+
+def _numeric_annotation(annotation) -> bool:
+    """Recognize the scalar numeric types used by the clinical contracts."""
+    from types import UnionType
+    from typing import get_args, get_origin, Union
+
+    if annotation in (float, int):
+        return True
+    origin = get_origin(annotation)
+    if origin in (Union, UnionType):
+        return any(_numeric_annotation(member) for member in get_args(annotation) if member is not type(None))
+    return False
+
+
+def _contains_boolean(value) -> bool:
+    return isinstance(value, bool)
+
 
 class ClinicalQuestion(FrozenModel):
     anatomy: NonEmpty

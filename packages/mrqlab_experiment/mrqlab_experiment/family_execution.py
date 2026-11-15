@@ -167,7 +167,16 @@ def simulate_family(sequence, phantom, scanner, options):
             raise ValueError('PRESS voxel contains no sample spins')
         backend=SpectralBackend(replace(phantom,isochromats=spins),scanner)
         assumptions=[m['localization'],'independent Lorentzian singlets; no exchange or J coupling']
-    trace=run_backend(backend,schedule(sequence,options),False)
+    # The final train runs after TSE preparation. If the backend reports a
+    # post-execution failure, charge the already-run warm-up plus the planned
+    # train rather than losing the first tissue's work at the readout boundary.
+    operations = schedule(sequence, options)
+    try:
+        trace = run_backend(backend, operations, False)
+    except Exception as exc:
+        raise FamilyWorkError(
+            str(exc), (warm_ops + plan.operator_count) * width
+        ) from exc
     signal=trace.signal
     if family=='PRESS':
         signal=signal*sum(pool.fraction for pool in phantom.pools)

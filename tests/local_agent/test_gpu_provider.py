@@ -1,11 +1,44 @@
 import pytest
 from mrqlab_experiment import build_protocol_experiment, build_result_graph, plan_experiment, run_experiment
 from mrqlab_experiment.models import ExperimentGraph
-from mrqlab_agent.providers import GpuExecutionProvider, ProviderRegistry
+from mrqlab_agent.providers import CpuExecutionProvider, GpuExecutionProvider, ProviderRegistry
 from mrqlab_agent.store import JobStore
+from mrqlab_agent.models import JobRecord
 from mrqlab_agent.main import app, providers as app_providers, local_security, verify_lease
 from mrqlab_agent.models import LeaseClaims, LeaseDecision
 from fastapi.testclient import TestClient
+
+
+@pytest.mark.parametrize("provider_factory", [
+    lambda store: CpuExecutionProvider(store, max_workers=0),
+    lambda store: GpuExecutionProvider(store, backend=object(), max_workers=0),
+])
+def test_cancelled_job_is_never_claimed_by_cpu_or_gpu_worker(provider_factory):
+    """Cancellation winning before a worker starts leaves no untracked execution."""
+    store = JobStore()
+    provider = provider_factory(store)
+    job = JobRecord(id="cancelled-before-worker", provider_id=provider.descriptor.id, plan_fingerprint="claim-race", status="queued")
+    store.create(job)
+    provider.cancel(job.id)
+
+    provider._run(job.id, plan=object())
+
+    assert store.get_job(job.id).status == "cancelled"
+    assert [event.kind for event in store.events(job.id)] == ["queued", "cancelled"]
+
+
+def test_claim_queued_is_atomic_against_cancel():
+    """Only one of the queued->running claim or queued->cancelled transition wins."""
+    store = JobStore()
+    job = JobRecord(id="atomic-claim", provider_id="test", plan_fingerprint="atomic", status="queued")
+    store.create(job)
+
+    assert store.claim_queued(job.id)
+    # Cancellation after a successful claim is a tracked running-job transition;
+    # cancellation before the claim instead makes claim_queued return False.
+    store.transition(job.id, "cancelled")
+    assert not store.claim_queued(job.id)
+    assert store.get_job(job.id).status == "cancelled"
 
 
 def test_gpu_provider_fails_closed_until_an_optional_provider_is_registered():
