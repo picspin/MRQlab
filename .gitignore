@@ -229,3 +229,7 @@ __marimo__/
 # and registered auxiliary worktrees. Git owns worktree metadata in .git/worktrees;
 # never stage their contents here.
 /.mrqlab/
+
+# Review JSON reports (run output). Audit trail = the human-readable conclusion + PR comments.
+# region = review scope string; check freshness with scripts/check_review_fresh.py before citing.
+reviews/
