@@ -140,6 +140,15 @@ def test_lease_software_claim_is_required_so_an_unbounded_lease_fails_closed():
         LeaseClaims.model_validate(claims)
 
 
+def test_lease_software_claim_must_declare_at_least_one_bound():
+    # An empty window `software={}` is the same 'verifies active with no window'
+    # outcome as an omitted claim, reached through an empty object; it must fail
+    # closed too, not merely be documented.
+    claims = _claims(software={})
+    with pytest.raises(ValidationError, match="at least one"):
+        LeaseClaims.model_validate(claims)
+
+
 def test_lease_software_claim_rejects_unknown_signed_keys():
     # Only the keys the verifier enforces may appear; an unenforced signed key
     # must not be silently accepted.

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, model_validator
 
 
 class AgentModel(BaseModel):
@@ -66,11 +66,19 @@ class LeaseSoftware(AgentModel):
     signed-but-unenforced key from being silently accepted. Strict scalar members
     keep JSON ``true``/``false`` from coercing into a numeric bound (``bool`` is
     an ``int`` subtype) and keep a quoted number such as ``"2"`` from passing as
-    a version bound.
+    a version bound. At least one bound is required: an empty window would be the
+    same "active with no window" outcome as an omitted claim, reached through an
+    empty object, so it fails closed too.
     """
 
     min_version: StrictStr | None = None
     max_major: StrictInt | None = None
+
+    @model_validator(mode="after")
+    def requires_a_bound(self):
+        if self.min_version is None and self.max_major is None:
+            raise ValueError("software claim must declare at least one bound")
+        return self
 
 
 class LeaseClaims(AgentModel):

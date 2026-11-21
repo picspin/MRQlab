@@ -80,7 +80,9 @@ def configure_lease_verifier(environment: Mapping[str, str] | None = None) -> Le
     env = os.environ if environment is None else environment
     try:
         verifier = load_lease_verifier(env)
-    except ValueError as exc:
+    except (ValueError, TypeError) as exc:
+        # TypeError covers a caller-supplied Mapping whose key blob is not a str
+        # (json.loads raises it); the boot path must never raise either way.
         logger.warning(
             "lease gate unconfigured: %s; lease-protected routes will answer 503 "
             "until %s are set correctly",

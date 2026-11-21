@@ -30,10 +30,12 @@ accepted as `active` or `offline_grace`:
 - `max_major` — an upper cap on the runtime major version. A runtime whose major
   exceeds the cap is rejected. The boundary itself is allowed.
 
-`RUNTIME_VERSION` is the local runtime's compatibility version, distinct from the
-product version, and is derived from the package's single source of truth
-(`mrqlab_agent.__version__`) so the enforced axis cannot drift from the shipped
-runtime. `LeaseVerifier` takes an explicit `runtime_version` so tests and future
+`RUNTIME_VERSION` is the local runtime's compatibility version, derived from the
+agent package's own `__version__` (`mrqlab_agent.__version__`) so the enforced axis
+has one definition inside the agent and cannot drift from the code that reads it.
+It is deliberately independent of the distribution version in `pyproject.toml`
+(`0.1.0`), which tracks the shipped bundle rather than the lease-compatibility
+axis. `LeaseVerifier` takes an explicit `runtime_version` so tests and future
 runtimes can override it.
 
 The `software` claim is a required, typed sub-model (`LeaseSoftware`) whose only
@@ -77,10 +79,23 @@ returns `None` only when *no* variable is set and raises `ValueError` on a parti
 or malformed configuration. `configure_lease_verifier` is the boot-time wrapper the
 gateway uses: it never raises, logs a WARNING naming the exact problem, and leaves
 the gate unconfigured. A misprovisioned box therefore starts instead of dying at
-import. Unconfigured is **not** open — the lease-protected routes still answer
-`503`, so a partially provisioned deployment blocks requests rather than serving
-them without a lease. Neither function fabricates a trusted key or a device
-identity.
+import. Unconfigured is **not** open — the lease-gated routes still answer `503`,
+so a partially provisioned deployment blocks requests rather than serving them
+without a lease. Neither function fabricates a trusted key or a device identity.
+
+**Lease gating scope.** Only `POST /jobs` and `POST /jobs/{id}/cancel` depend on
+`verify_lease`; the read routes (`GET /jobs/{id}`, `/jobs/{id}/events`,
+`/artifacts/{id}`, `/v1/capabilities`) depend only on `require_local_security`
+(loopback + pairing + CSRF) and answer 200 whether or not the lease gate is
+configured. This matches the base gateway, which never lease-gated reads.
+
+The `software` claim must declare **at least one** bound: `software={}` is
+rejected as malformed, so the only way to have no compatibility window is to have
+no verifier at all. The implemented schema and the time-window-before-software
+ordering supersede the older snippet in
+`docs/superpowers/plans/2026-09-27-protocol-platform.md` (which shows
+`software: dict[str, str | int]` and a pre-enforcement `verify`); that plan is not
+the current schema authority.
 
 ## Verification
 
@@ -107,5 +122,5 @@ in this backend-only stage, so the frontend suite was not run.
 
 Full source-bound Python suite
 (`PYTHONPATH=packages/sequence-ir:packages/physics:packages/recon:packages/mrqlab_experiment:services/api:services/local_agent`,
-`pytest -q -p no:cacheprovider`): **1214 passed, 15 skipped**, one
+`pytest -q -p no:cacheprovider`): **1217 passed, 15 skipped**, one
 Starlette/httpx deprecation warning.
