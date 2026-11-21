@@ -1,15 +1,17 @@
 """Environment-driven lease configuration for the local gateway.
 
 The shipped agent has no baked-in keys or device identity: a deployment supplies
-them through the environment, and an unconfigured or partially configured process
-stays *unconfigured* rather than open. ``load_lease_verifier`` is the single
-place that turns those variables into a ``LeaseVerifier``; it never fabricates a
-trusted key or a device identity, so a missing value fails closed.
+them through the environment. ``load_lease_verifier`` is the strict single place
+that turns those variables into a ``LeaseVerifier`` and raises on a partial or
+malformed configuration; ``configure_lease_verifier`` is the boot-time wrapper
+the gateway uses, which never raises — it logs loudly and leaves the gate
+unconfigured, so a misprovisioned box still starts.
 """
 from __future__ import annotations
 
 import base64
 import json
+import logging
 import os
 from collections.abc import Mapping
 
@@ -24,6 +26,8 @@ DEVICE_PUBLIC_KEY_HASH_ENV = "MRQLAB_DEVICE_PUBLIC_KEY_HASH"
 FINGERPRINT_HASH_ENV = "MRQLAB_FINGERPRINT_HASH"
 
 _REQUIRED = (TRUSTED_KEYS_ENV, DEVICE_ID_ENV, DEVICE_PUBLIC_KEY_HASH_ENV, FINGERPRINT_HASH_ENV)
+
+logger = logging.getLogger(__name__)
 
 
 def _decode_public_key(value: str) -> Ed25519PublicKey:
@@ -63,3 +67,31 @@ def load_lease_verifier(environment: Mapping[str, str] | None = None) -> LeaseVe
         fingerprint_hash=env[FINGERPRINT_HASH_ENV],
     )
     return LeaseVerifier(trusted, device)
+
+
+def configure_lease_verifier(environment: Mapping[str, str] | None = None) -> LeaseVerifier | None:
+    """Boot-time wrapper: never raise, leave the gate unconfigured and log loudly.
+
+    A misprovisioned deployment must still start; the lease-protected routes then
+    answer 503 (unchanged) rather than the process dying at import. Every
+    unconfigured path — no variables at all, or a partial/malformed set — logs a
+    warning naming the exact problem, so the operator can see why the gate is off.
+    """
+    env = os.environ if environment is None else environment
+    try:
+        verifier = load_lease_verifier(env)
+    except ValueError as exc:
+        logger.warning(
+            "lease gate unconfigured: %s; lease-protected routes will answer 503 "
+            "until %s are set correctly",
+            exc,
+            ", ".join(_REQUIRED),
+        )
+        return None
+    if verifier is None:
+        logger.warning(
+            "lease gate unconfigured: none of %s is set; lease-protected routes "
+            "will answer 503",
+            ", ".join(_REQUIRED),
+        )
+    return verifier

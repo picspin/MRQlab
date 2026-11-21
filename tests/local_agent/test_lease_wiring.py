@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import os
 import subprocess
 import sys
@@ -14,6 +15,7 @@ from mrqlab_agent.config import (
     DEVICE_PUBLIC_KEY_HASH_ENV,
     FINGERPRINT_HASH_ENV,
     TRUSTED_KEYS_ENV,
+    configure_lease_verifier,
     load_lease_verifier,
 )
 from mrqlab_agent.license import LeaseVerifier
@@ -68,12 +70,54 @@ def test_unconfigured_environment_yields_no_verifier():
     assert load_lease_verifier({}) is None
 
 
-def test_partial_configuration_fails_closed_instead_of_silently_unconfigured():
+def test_partial_configuration_raises_from_the_strict_loader():
+    # The strict loader stays strict so the misconfiguration is testable and
+    # cannot pass silently; the gateway wrapper (below) is what swallows it.
     key = Ed25519PrivateKey.generate()
     env = _environment(key)
     del env[FINGERPRINT_HASH_ENV]
     with pytest.raises(ValueError, match="incomplete lease configuration"):
         load_lease_verifier(env)
+
+
+def test_configure_wrapper_starts_unconfigured_with_a_loud_log_on_partial_config(caplog):
+    # The gateway must boot, not raise: a partial config yields no verifier and
+    # logs the unconfigured state at WARNING so the operator can see it.
+    key = Ed25519PrivateKey.generate()
+    env = _environment(key)
+    del env[FINGERPRINT_HASH_ENV]
+    with caplog.at_level(logging.WARNING, logger="mrqlab_agent.config"):
+        assert configure_lease_verifier(env) is None
+    assert any("unconfigured" in record.message.lower() for record in caplog.records)
+    assert any(record.levelno >= logging.WARNING for record in caplog.records)
+
+
+def test_configure_wrapper_is_quiet_when_fully_configured(caplog):
+    key = Ed25519PrivateKey.generate()
+    with caplog.at_level(logging.WARNING, logger="mrqlab_agent.config"):
+        verifier = configure_lease_verifier(_environment(key))
+    assert isinstance(verifier, LeaseVerifier)
+    assert not caplog.records
+
+
+def test_configure_wrapper_logs_when_no_lease_variables_are_set(caplog):
+    with caplog.at_level(logging.WARNING, logger="mrqlab_agent.config"):
+        assert configure_lease_verifier({}) is None
+    assert any("unconfigured" in record.message.lower() for record in caplog.records)
+
+
+def test_partial_configuration_still_blocks_lease_routes_without_crashing(monkeypatch):
+    # Starting unconfigured is fail-closed for requests: the lease-protected
+    # route still returns 503 rather than running open.
+    monkeypatch.setattr(agent_main, "lease_verifier", None)
+    client = TestClient(app)
+    graph = build_protocol_experiment("brain_lesion_t2_tse")
+    response = client.post(
+        "/jobs",
+        json={"provider_id": "local_cpu_numpy", "experiment": graph.model_dump(mode="json")},
+        headers=HEADERS,
+    )
+    assert response.status_code == 503
 
 
 def test_malformed_trusted_keys_fail_closed():
@@ -160,3 +204,21 @@ def test_app_wires_the_verifier_from_the_process_environment():
         [sys.executable, "-c", script], env=clean, capture_output=True, text=True, check=True
     )
     assert json.loads(result.stdout.strip()) == {"configured": False}
+
+
+def test_app_boots_unconfigured_under_a_partial_config_instead_of_crashing():
+    # A partially provisioned box must start (exit 0) with the gate unconfigured
+    # and a loud warning, not die at import.
+    key = Ed25519PrivateKey.generate()
+    script = (
+        "import json, mrqlab_agent.main as m; "
+        "print(json.dumps({'configured': m.lease_verifier is not None}))"
+    )
+    env = {**os.environ, **_environment(key)}
+    del env[FINGERPRINT_HASH_ENV]
+    result = subprocess.run(
+        [sys.executable, "-c", script], env=env, capture_output=True, text=True
+    )
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout.strip()) == {"configured": False}
+    assert "unconfigured" in result.stderr.lower()

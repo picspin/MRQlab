@@ -3,7 +3,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, 
 
 from mrqlab_experiment import plan_experiment
 
-from .config import load_lease_verifier
+from .config import configure_lease_verifier
 from .license import LeaseVerifier, require_entitlement
 from .models import CapabilityResponse, JobSubmitRequest
 from .providers import CpuExecutionProvider, ProviderRegistry
@@ -15,10 +15,10 @@ store = JobStore()
 cpu_provider = CpuExecutionProvider(store)
 providers = ProviderRegistry((cpu_provider,))
 local_security = LocalSecurity(frozenset({"https://app.mrqlab.local", "http://127.0.0.1:3000"}))
-# Configured from the process environment at import: a provisioned deployment
-# enforces leases with no code change, and an unprovisioned process stays
-# unconfigured (503) rather than open.
-lease_verifier: LeaseVerifier | None = load_lease_verifier()
+# Configured from the process environment at import. A misprovisioned or
+# unprovisioned deployment still starts: the gate stays unconfigured (lease
+# routes answer 503) and the reason is logged loudly rather than crashing.
+lease_verifier: LeaseVerifier | None = configure_lease_verifier()
 
 
 def require_local_security(request: Request, response: Response):
