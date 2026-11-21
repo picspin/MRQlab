@@ -3,9 +3,10 @@ import json
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from pydantic import ValidationError
 
 from mrqlab_agent.license import LeaseVerifier, TrustedClock, build_registration_request, require_entitlement
-from mrqlab_agent.models import DeviceIdentity
+from mrqlab_agent.models import DeviceIdentity, LeaseClaims
 
 
 def _b64(value: bytes) -> str:
@@ -122,21 +123,62 @@ def test_lease_software_claim_fails_closed_on_malformed_values(software):
 
 @pytest.mark.parametrize("software", [{"max_major": True}, {"max_major": "2"}])
 def test_lease_software_claim_rejects_non_strict_version_bounds(software):
-    # A boolean or string bound must be rejected at claim parsing rather than
-    # coercing (bool is an int subtype) into a numeric version window.
+    # A boolean bound (bool is an int subtype) and a quoted-number bound are
+    # both rejected at claim parsing by the strict sub-model, so neither can
+    # coerce into a numeric version window.
+    claims = _claims(software={"min_version": "1.0.0", **software})
+    with pytest.raises(ValidationError):
+        LeaseClaims.model_validate(claims)
+
+
+def test_lease_software_claim_is_required_so_an_unbounded_lease_fails_closed():
+    # `software` is signed control-plane data. Omitting it must fail claim
+    # validation rather than verify active with no compatibility window.
+    claims = _claims()
+    del claims["software"]
+    with pytest.raises(ValidationError):
+        LeaseClaims.model_validate(claims)
+
+
+def test_lease_software_claim_rejects_unknown_signed_keys():
+    # Only the keys the verifier enforces may appear; an unenforced signed key
+    # must not be silently accepted.
+    claims = _claims(software={"min_version": "1.0.0", "exact_version": "9.9.9"})
+    with pytest.raises(ValidationError):
+        LeaseClaims.model_validate(claims)
+
+
+def test_lease_software_version_claim_rejects_non_ascii_digits():
+    # '١' (Arabic-Indic one) satisfies str.isdigit(); a signed version claim
+    # must be ASCII decimal digits or fail closed.
     private = Ed25519PrivateKey.generate()
-    with pytest.raises(ValueError):
-        _software_verifier(private, "1.0.0", {"min_version": "1.0.0", **software})
+    with pytest.raises(ValueError, match="malformed lease software claim"):
+        _software_verifier(private, "1.0.0", {"min_version": "١.0.0"})
 
 
-def test_lease_software_claim_absent_leaves_the_runtime_unconstrained():
+def test_limits_reject_boolean_values_for_numeric_limits():
+    # bool is an int subtype; a signed `true` must not become the concurrency
+    # limit 1.
+    claims = _claims(limits={"max_concurrent_jobs": True})
+    with pytest.raises(ValidationError, match="limits"):
+        LeaseClaims.model_validate(claims)
+
+
+def test_runtime_version_tracks_the_package_single_source_of_truth():
+    # The enforced compatibility axis must not drift from the shipped package:
+    # RUNTIME_VERSION derives from mrqlab_agent.__version__.
+    import mrqlab_agent
+    from mrqlab_agent.license import RUNTIME_VERSION
+
+    assert RUNTIME_VERSION == mrqlab_agent.__version__
+
+
+def test_expired_incompatible_lease_reports_the_time_window_not_the_software_window():
+    # The time window is the validity gate; an expired lease must report
+    # expiry, not a software incompatibility, so the denial reason is accurate.
     private = Ed25519PrivateKey.generate()
     device = DeviceIdentity(device_id="device-1", device_public_key_hash="pkh", fingerprint_hash="fph")
     verifier = LeaseVerifier({"test-key": private.public_key()}, device, runtime_version="1.0.0")
-    claims = _claims()
-    del claims["software"]
-    # Backwards compatibility: a lease with no software claim stays valid, as
-    # the existing entitlement/expiry tests rely on.
-    assert verifier.verify(_token(private, claims), wall_time=1500, monotonic_time=10).state == "active"
-    # A permissive window is likewise accepted.
-    assert _software_verifier(private, "1.0.0", {"min_version": "0.1", "max_major": 9}).state == "active"
+    claims = _claims(expires_at=2000, offline_grace_until=2300, software={"min_version": "99.0.0"})
+    with pytest.raises(ValueError, match="expired beyond offline grace"):
+        verifier.verify(_token(private, claims), wall_time=2400, monotonic_time=20)

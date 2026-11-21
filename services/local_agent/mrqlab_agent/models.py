@@ -59,6 +59,20 @@ class DeviceRegistrationRequest(AgentModel):
     fingerprint_hash: str
 
 
+class LeaseSoftware(AgentModel):
+    """Signed runtime-compatibility window a lease is valid against.
+
+    Only the keys the verifier enforces are declared; ``extra="forbid"`` stops a
+    signed-but-unenforced key from being silently accepted. Strict scalar members
+    keep JSON ``true``/``false`` from coercing into a numeric bound (``bool`` is
+    an ``int`` subtype) and keep a quoted number such as ``"2"`` from passing as
+    a version bound.
+    """
+
+    min_version: StrictStr | None = None
+    max_major: StrictInt | None = None
+
+
 class LeaseClaims(AgentModel):
     iss: str
     aud: str
@@ -73,11 +87,11 @@ class LeaseClaims(AgentModel):
     offline_grace_until: float
     product: str
     features: frozenset[str]
-    limits: dict[str, int]
-    # The signed runtime-compatibility claim. Strict scalar types keep JSON
-    # true/false from coercing to a numeric version bound (bool is an int
-    # subtype); an absent claim means the issuer imposes no software window.
-    software: dict[str, StrictStr | StrictInt] = Field(default_factory=dict)
+    limits: dict[str, StrictInt]
+    # Required: a signed lease always carries its compatibility window, so an
+    # omitted claim fails closed as malformed rather than verifying active with
+    # no window. StrictInt limits stop a signed `true` becoming the limit 1.
+    software: LeaseSoftware
     key_id: str
 
 

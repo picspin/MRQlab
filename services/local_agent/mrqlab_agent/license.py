@@ -5,17 +5,18 @@ import hashlib
 import json
 from threading import RLock
 
-from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 from .models import DeviceIdentity, DeviceRegistrationRequest, LeaseClaims, LeaseDecision
+from . import __version__
 
 # Lease-compatibility version of the local runtime, distinct from the product
-# version. A signed lease may constrain the runtime it is valid against via its
-# `software` claim; that claim is checked here so a lease issued for an
-# incompatible runtime fails closed instead of running under an unknown build.
-RUNTIME_VERSION = "1.0.0"
+# version. It is derived from the package's single ``__version__`` source so the
+# enforced window cannot drift from the shipped runtime; a signed lease may
+# constrain the runtime it is valid against via its `software` claim, checked
+# here so a lease issued for an incompatible runtime fails closed.
+RUNTIME_VERSION = __version__
 
 
 def _decode(value: str) -> bytes:
@@ -24,11 +25,16 @@ def _decode(value: str) -> bytes:
 
 
 def _version_tuple(value) -> tuple[int, ...]:
-    """Parse a dotted numeric version ("1", "1.0", "1.0.0") or fail closed."""
+    """Parse a dotted ASCII-numeric version ("1", "1.0", "1.0.0") or fail closed.
+
+    ``str.isdigit`` also accepts non-ASCII decimal digits (for example '١'), so
+    an explicit ASCII check is used; otherwise a signed claim could name a
+    version the runtime never compares against in ASCII terms.
+    """
     if not isinstance(value, str) or not value:
         raise ValueError("malformed software version claim")
     parts = value.split(".")
-    if any(not part.isdigit() for part in parts):
+    if any(not part.isascii() or not part.isdigit() for part in parts):
         raise ValueError("malformed software version claim")
     return tuple(int(part) for part in parts)
 
@@ -114,15 +120,19 @@ class LeaseVerifier:
             raise ValueError("lease public-key binding does not match this device")
         if claims.fingerprint_hash != self.device.fingerprint_hash:
             raise ValueError("lease hardware fingerprint does not match this device")
-        self._verify_software_compatibility(claims)
+        # The time window is the validity gate, so evaluate it before the
+        # compatibility window: an expired lease must report expiry, not a
+        # software mismatch, so the denial reason names the actual cause.
         now = self.clock.now(wall_time=wall_time, monotonic_time=monotonic_time)
         if now < claims.not_before:
             raise ValueError("lease is not yet valid")
-        if now <= claims.expires_at:
-            return LeaseDecision(state="active", claims=claims)
-        if now <= claims.offline_grace_until:
+        if now > claims.expires_at:
+            if now > claims.offline_grace_until:
+                raise ValueError("lease expired beyond offline grace")
+            self._verify_software_compatibility(claims)
             return LeaseDecision(state="offline_grace", claims=claims)
-        raise ValueError("lease expired beyond offline grace")
+        self._verify_software_compatibility(claims)
+        return LeaseDecision(state="active", claims=claims)
 
     def _verify_software_compatibility(self, claims: LeaseClaims) -> None:
         """Enforce the lease's declared runtime-compatibility window.
@@ -133,27 +143,23 @@ class LeaseVerifier:
         window fails closed rather than executing under an unknown build.
         """
         software = claims.software
-        minimum = software.get("min_version")
-        if minimum is not None:
+        if software.min_version is not None:
             try:
-                too_old = not _version_at_least(self.runtime_version, minimum)
+                too_old = not _version_at_least(self.runtime_version, software.min_version)
             except ValueError as exc:
                 raise ValueError("malformed lease software claim") from exc
             if too_old:
                 raise ValueError(
-                    f"local runtime {self.runtime_version} is older than the lease minimum {minimum}"
+                    f"local runtime {self.runtime_version} is older than the lease minimum {software.min_version}"
                 )
-        maximum_major = software.get("max_major")
-        if maximum_major is not None:
-            if not isinstance(maximum_major, int) or isinstance(maximum_major, bool):
-                raise ValueError("malformed lease software claim")
+        if software.max_major is not None:
             try:
                 runtime_major = _version_tuple(self.runtime_version)[0]
             except ValueError as exc:
                 raise ValueError("malformed local runtime version") from exc
-            if runtime_major > maximum_major:
+            if runtime_major > software.max_major:
                 raise ValueError(
-                    f"local runtime major {runtime_major} exceeds the lease maximum {maximum_major}"
+                    f"local runtime major {runtime_major} exceeds the lease maximum {software.max_major}"
                 )
 
 
