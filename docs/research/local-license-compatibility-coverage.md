@@ -56,12 +56,27 @@ change `POST /experiments/run` (Tier 1 stays synchronous) or add running-job
 preemption. No physics operator imports licensing code; the check remains at the
 execution gateway.
 
-**The verifier is not yet constructed in the shipped app.** `main.py` declares
-`lease_verifier: LeaseVerifier | None = None` and never assigns it, so the
-gateway currently returns HTTP 503 before any lease is verified and the enforced
-window is dormant outside tests. Wiring a configured verifier into the local
-agent is separate work; this stage only makes the claim enforced when a verifier
-is present.
+**The verifier is now wired into the gateway.** `main.py` constructs
+`lease_verifier` at import from the process environment via
+`mrqlab_agent.config.load_lease_verifier`, so a provisioned deployment enforces
+the lease with no code change and `POST /jobs` / `POST /jobs/{id}/cancel` verify
+a real signed lease. The verifier's own decision logic is unchanged; only its
+construction is added.
+
+Configuration is read from four environment variables:
+
+| Variable | Meaning |
+|---|---|
+| `MRQLAB_LEASE_TRUSTED_KEYS` | JSON object `{kid: base64url Ed25519 public key}` |
+| `MRQLAB_DEVICE_ID` | this device's id, bound by the lease |
+| `MRQLAB_DEVICE_PUBLIC_KEY_HASH` | this device's public-key hash |
+| `MRQLAB_FINGERPRINT_HASH` | this device's hardware fingerprint hash |
+
+The loader fails closed: it returns `None` (the gateway's existing 503) only when
+*no* variable is set, and raises on a partial or malformed configuration rather
+than silently falling back to the unconfigured state, so a deployment that meant
+to enforce leases cannot run open by accident. It never fabricates a trusted key
+or a device identity.
 
 ## Verification
 
@@ -73,10 +88,17 @@ strings, non-strict (boolean/string) bounds, an unknown signed key, a required
 expiry-before-compatibility ordering, and that `RUNTIME_VERSION` tracks
 `mrqlab_agent.__version__`.
 
+`tests/local_agent/test_lease_wiring.py` covers the wiring: an unconfigured
+environment yields no verifier, a partial or malformed configuration raises
+rather than opening, a configured verifier accepts a lease bound to its device
+and rejects an unknown key id, a bad signature, and a wrong-device lease, the
+gateway returns 503 when unconfigured and 202/401 (never 503) when configured,
+and a fresh process imports the app with the verifier built from its environment.
+
 These are local results, not CI or scanner validation. No frontend file changed
 in this backend-only stage, so the frontend suite was not run.
 
 Full source-bound Python suite
 (`PYTHONPATH=packages/sequence-ir:packages/physics:packages/recon:packages/mrqlab_experiment:services/api:services/local_agent`,
-`pytest -q -p no:cacheprovider`): **1202 passed, 15 skipped**, one
+`pytest -q -p no:cacheprovider`): **1209 passed, 15 skipped**, one
 Starlette/httpx deprecation warning.
