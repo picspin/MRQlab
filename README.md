@@ -30,6 +30,28 @@ The product center is an experiment (`ExperimentGraph`), compiled through three 
 | `packages/recon` | Cartesian FFT adapter and NUFFT seam |
 | `docs` | Spec, plan, ADRs, architecture, and roadmap |
 
+## Workspace layout
+
+The tracked repository is the product source and documentation. Local orchestration
+state is deliberately separated under an ignored `.mrqlab/` directory:
+
+| Path | Purpose |
+|---|---|
+| `.mrqlab/control/` | Local goal mirrors, task prompts, and session logs; not product source and never committed. |
+| `.mrqlab/worktrees/` | Registered auxiliary Git worktrees; Git tracks their locations through `.git/worktrees/`, not through files in this checkout. |
+
+The main checkout remains the only place for commits to the current project
+branch. Do not copy source files out of auxiliary worktrees or stage anything
+under `.mrqlab/`. Submission-only worktrees remain separate and `docs/ismrm/`
+remains excluded from the project.
+
+The project goal is a research-use MRI pulse-design and optimization platform
+with two linked review surfaces: a human-readable MR image/parameter-map layer
+and an agent-readable complete signal-vector/typed-inference layer. Both must
+remain provenance-pinned, replayable, bounded, and explicit about unavailable
+quantities. The platform is not scanner control, clinical certification,
+diagnostic decision support, or a claim of clinical readiness.
+
 ## Canonical API
 
 - `POST /experiments/validate` and `POST /experiments/run` are the canonical experiment endpoints. They accept an `ExperimentGraph` and return a `ResultGraph`.

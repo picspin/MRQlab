@@ -1,5 +1,34 @@
 # Roadmap
 
+## Current project alignment (2026-11-07)
+
+MRQLab is a research-use MRI pulse-design and optimization platform, not a
+scanner console or clinical decision system. The durable end-to-end objective is:
+
+`lab measurement → calibrated/declared biophysical state → sequence design → signal and image simulation → bounded parameter optimization → explicit target/constraint validation → provenance-pinned replay`.
+
+Two review surfaces are first-class and linked by typed scientific records:
+
+- **Human-readable:** reconstructed MR images, parameter/proportion displays,
+  assumptions, constraints and failed targets for expert review.
+- **Agent-readable:** complete retained acquisition signal vectors, linked
+  image/vector provenance, bounded identifiable tissue/structure proportions and
+  typed modality proxies. These deterministic outputs are inputs for later LLM
+  tooling; they are not evidence that an LLM inferred a diagnosis.
+
+Any physics, calibration, tissue mapping, scanner profile or clinical target
+outside its stated evidence/validity domain remains unavailable or unsupported.
+Hard acquisition/safety constraints do not become tradeable score penalties.
+No project output is a scanner export, scanner validation, diagnosis or clinical
+quality certification.
+
+Milestone A retains its locked protocol contract. Milestone B supplies bounded
+operation-level sequence editing/lowering and replay; Milestone C supplies
+bounded local execution and agent-readable inference. Their implementation status
+must be reported from verified branch/record anchors rather than inferred from
+this roadmap. Cross-modality calibration, actual GPU execution, scanner-specific
+export and clinical/phantom validation remain separate evidence gates.
+
 ## v0.1 — now
 
 - v0.1: SE timeline ↔ Bloch ↔ signal ↔ image.
