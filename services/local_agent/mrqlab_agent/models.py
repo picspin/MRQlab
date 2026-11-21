@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 
 
 class AgentModel(BaseModel):
@@ -74,7 +74,10 @@ class LeaseClaims(AgentModel):
     product: str
     features: frozenset[str]
     limits: dict[str, int]
-    software: dict[str, str | int]
+    # The signed runtime-compatibility claim. Strict scalar types keep JSON
+    # true/false from coercing to a numeric version bound (bool is an int
+    # subtype); an absent claim means the issuer imposes no software window.
+    software: dict[str, StrictStr | StrictInt] = Field(default_factory=dict)
     key_id: str
 
 
