@@ -14,8 +14,13 @@ def _b64(value: bytes) -> str:
 
 
 def _token(key, claims, kid="test-key"):
+    return _token_with_payload(key, json.dumps(claims, separators=(",", ":")), kid)
+
+
+def _token_with_payload(key, payload_json: str, kid="test-key"):
+    """Sign raw JSON too, so parser-only spellings such as ``1e999`` are tested."""
     header = _b64(json.dumps({"alg": "EdDSA", "kid": kid}, separators=(",", ":")).encode())
-    payload = _b64(json.dumps(claims, separators=(",", ":")).encode())
+    payload = _b64(payload_json.encode())
     signature = _b64(key.sign(f"{header}.{payload}".encode()))
     return f"{header}.{payload}.{signature}"
 
@@ -171,6 +176,60 @@ def test_limits_reject_boolean_values_for_numeric_limits():
     claims = _claims(limits={"max_concurrent_jobs": True})
     with pytest.raises(ValidationError, match="limits"):
         LeaseClaims.model_validate(claims)
+
+
+@pytest.mark.parametrize("field", ("issued_at", "not_before", "expires_at", "offline_grace_until"))
+@pytest.mark.parametrize("value", (True, False, "1000"))
+def test_lease_timestamps_reject_boolean_and_coerced_values(field, value):
+    # R3 applies to signed lease time boundaries too: bool is an int subtype, so
+    # lax float validation would silently turn true into 1.0. Quoted numbers are
+    # likewise not signed JSON numbers and must fail closed.
+    with pytest.raises(ValidationError, match=field):
+        LeaseClaims.model_validate(_claims(**{field: value}))
+
+
+@pytest.mark.parametrize("value", (float("nan"), float("inf"), float("-inf")))
+def test_lease_timestamps_reject_non_finite_values(value):
+    # A NaN expiry defeats `now > expires_at` (always false), and infinite
+    # expiries can keep a signed lease active forever. The model must reject all
+    # non-finite values before verifier time-window comparisons run.
+    with pytest.raises(ValidationError, match="expires_at"):
+        LeaseClaims.model_validate(_claims(expires_at=value))
+
+
+@pytest.mark.parametrize("raw", ("NaN", "Infinity", "-Infinity", "1e999"))
+def test_signed_raw_json_non_finite_timestamp_fails_closed(raw):
+    private = Ed25519PrivateKey.generate()
+    device = DeviceIdentity(device_id="device-1", device_public_key_hash="pkh", fingerprint_hash="fph")
+    verifier = LeaseVerifier({"test-key": private.public_key()}, device)
+    payload = json.dumps(_claims(), separators=(",", ":")).replace('"expires_at":2000', f'"expires_at":{raw}')
+    with pytest.raises(ValueError, match="malformed lease claims"):
+        verifier.verify(_token_with_payload(private, payload), wall_time=10**10, monotonic_time=10)
+
+
+@pytest.mark.parametrize(
+    "updates",
+    (
+        {"issued_at": 1001, "not_before": 1000},
+        {"not_before": 2001, "expires_at": 2000},
+        {"expires_at": 2301, "offline_grace_until": 2300},
+    ),
+)
+def test_lease_timestamps_must_form_a_chronological_window(updates):
+    with pytest.raises(ValidationError, match="lease window"):
+        LeaseClaims.model_validate(_claims(**updates))
+
+
+def test_non_string_token_key_id_fails_closed_as_a_lease_error():
+    # A JSON array/object is unhashable. It must map to a normal malformed-lease
+    # denial rather than escaping the trusted-key lookup as TypeError (HTTP 500
+    # at the gateway).
+    private = Ed25519PrivateKey.generate()
+    device = DeviceIdentity(device_id="device-1", device_public_key_hash="pkh", fingerprint_hash="fph")
+    verifier = LeaseVerifier({"test-key": private.public_key()}, device)
+    token = _token(private, _claims(), kid=[])
+    with pytest.raises(ValueError, match="untrusted lease key id"):
+        verifier.verify(token, wall_time=1500, monotonic_time=10)
 
 
 def test_runtime_version_tracks_the_package_single_source_of_truth():

@@ -1,11 +1,19 @@
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr, model_validator
 
 
 class AgentModel(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+# A signed lease timestamp: a real (finite) number, never a bool and never a
+# quoted string. Plain ``float`` would coerce JSON ``true`` to ``1.0`` (``bool``
+# is an ``int`` subtype — rule R3) and accept ``NaN``/``Infinity``/``1e999``
+# (``inf``), any of which defeats the time-window comparison below (``now > NaN``
+# is always ``False``, so such a lease would never expire).
+LeaseTimestamp = Annotated[StrictFloat, Field(allow_inf_nan=False)]
 
 
 class JobRecord(AgentModel):
@@ -35,7 +43,7 @@ class CapabilityResponse(AgentModel):
     runtime: Literal["local"] = "local"
     features: dict[str, bool]
     workers: tuple[dict[str, str], ...]
-    license: dict[str, str | bool | None]
+    license: dict[str, str | bool]
 
 
 from mrqlab_experiment.models import ExperimentGraph
@@ -89,10 +97,10 @@ class LeaseClaims(AgentModel):
     device_id: str
     device_public_key_hash: str
     fingerprint_hash: str
-    issued_at: float
-    not_before: float
-    expires_at: float
-    offline_grace_until: float
+    issued_at: LeaseTimestamp
+    not_before: LeaseTimestamp
+    expires_at: LeaseTimestamp
+    offline_grace_until: LeaseTimestamp
     product: str
     features: frozenset[str]
     limits: dict[str, StrictInt]
@@ -101,6 +109,18 @@ class LeaseClaims(AgentModel):
     # no window. StrictInt limits stop a signed `true` becoming the limit 1.
     software: LeaseSoftware
     key_id: str
+
+    @model_validator(mode="after")
+    def window_is_chronological(self):
+        # A signed lease whose window is out of order is malformed, not merely
+        # unusual: accepting it would let a future ``not_before`` or an
+        # ``offline_grace_until`` before ``expires_at`` widen the validity gate
+        # in a way the issuer cannot have intended.
+        if not self.issued_at <= self.not_before <= self.expires_at <= self.offline_grace_until:
+            raise ValueError(
+                "lease window must satisfy issued_at <= not_before <= expires_at <= offline_grace_until"
+            )
+        return self
 
 
 class LeaseDecision(AgentModel):

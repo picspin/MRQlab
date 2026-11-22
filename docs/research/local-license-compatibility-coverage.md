@@ -35,7 +35,9 @@ agent package's own `__version__` (`mrqlab_agent.__version__`) so the enforced a
 has one definition inside the agent and cannot drift from the code that reads it.
 It is deliberately independent of the distribution version in `pyproject.toml`
 (`0.1.0`), which tracks the shipped bundle rather than the lease-compatibility
-axis. `LeaseVerifier` takes an explicit `runtime_version` so tests and future
+axis. **Issuers must sign `software.min_version` / `software.max_major` against
+this agent compatibility value (currently `1.0.0`), not the project distribution
+version.** `LeaseVerifier` takes an explicit `runtime_version` so tests and future
 runtimes can override it.
 
 The `software` claim is a required, typed sub-model (`LeaseSoftware`) whose only
@@ -55,15 +57,19 @@ This is compatibility gating, not a production license service. It does not
 implement key rotation, revocation, a hosted issuance endpoint, persistent
 device registration, or the device proof-of-possession renewal flow. It does not
 change `POST /experiments/run` (Tier 1 stays synchronous) or add running-job
-preemption. No physics operator imports licensing code; the check remains at the
-execution gateway.
+preemption. **Expiry applies at job-submit and job-cancel request boundaries:**
+a job already claimed by a worker is allowed to finish, and an expired lease also
+cannot authorize a later cancel request. That is the accepted Tier 2 semantics,
+not a promise of mid-flight revocation. No physics operator imports licensing
+code; the check remains at the execution gateway.
 
 **The verifier is now wired into the gateway.** `main.py` constructs
 `lease_verifier` at import from the process environment via
 `mrqlab_agent.config.configure_lease_verifier`, so a provisioned deployment
 enforces the lease with no code change and `POST /jobs` / `POST /jobs/{id}/cancel`
-verify a real signed lease. The verifier's own decision logic is unchanged; only
-its construction is added.
+verify a real signed lease. The gateway integration leaves the intended decision
+order intact; the accompanying hardening rejects malformed timestamp/key-id
+inputs before they can reach that decision logic.
 
 Configuration is read from four environment variables:
 
@@ -126,5 +132,5 @@ in this backend-only stage, so the frontend suite was not run.
 
 Full source-bound Python suite
 (`PYTHONPATH=packages/sequence-ir:packages/physics:packages/recon:packages/mrqlab_experiment:services/api:services/local_agent`,
-`pytest -q -p no:cacheprovider`): **1217 passed, 15 skipped**, one
+`pytest -q -p no:cacheprovider`): **1260 passed, 15 skipped**, one
 Starlette/httpx deprecation warning.

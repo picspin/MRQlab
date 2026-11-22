@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Shadow walk-through of the lease gate.
 
-A read-only end-to-end shadow of the change: boot the real gateway and assert the
-*observable* HTTP behaviour against an independently stated expectation matrix,
-rather than trusting the unit tests (which share helpers with the code). Nothing
-is written and no server is left running.
+An in-process end-to-end shadow of the change: boot the real gateway and assert
+the *observable* HTTP behaviour against an independently stated expectation
+matrix, rather than trusting unit tests that share helpers with the code. The
+valid-lease cell deliberately submits one real CPU job, so it writes a job record
+and, when its worker runs, an artifact **to the process-local in-memory store**;
+that state dies with this process. No server process is left running and no
+filesystem or external service is written.
 
 Expectation matrix (the contract the change claims):
 
@@ -81,7 +84,7 @@ def main() -> int:
     graph = build_protocol_experiment("brain_lesion_t2_tse")
     body = {"provider_id": "local_cpu_numpy", "experiment": graph.model_dump(mode="json")}
     client = TestClient(app)
-    rows: list[tuple[str, int, int, bool]] = []
+    rows: list[tuple[str, int, int]] = []
 
     def post_jobs(headers, decision=None):
         prev = agent_main.lease_verifier
@@ -93,25 +96,25 @@ def main() -> int:
 
     # Configured gate: valid lease reaches work (202), bad tokens are 401.
     configured = load_lease_verifier(_environment(key))
-    rows.append(("configured + valid lease", post_jobs({**HEADERS, "authorization": f"Lease {_token(key, _claims())}"}, configured).status_code, 202, True))
-    rows.append(("configured + missing lease", post_jobs(HEADERS, configured).status_code, 401, True))
-    rows.append(("configured + malformed lease", post_jobs({**HEADERS, "authorization": "Lease nonsense"}, configured).status_code, 401, True))
-    rows.append(("configured + forged lease", post_jobs({**HEADERS, "authorization": f"Lease {_token(other, _claims())}"}, configured).status_code, 401, True))
+    rows.append(("configured + valid lease", post_jobs({**HEADERS, "authorization": f"Lease {_token(key, _claims())}"}, configured).status_code, 202))
+    rows.append(("configured + missing lease", post_jobs(HEADERS, configured).status_code, 401))
+    rows.append(("configured + malformed lease", post_jobs({**HEADERS, "authorization": "Lease nonsense"}, configured).status_code, 401))
+    rows.append(("configured + forged lease", post_jobs({**HEADERS, "authorization": f"Lease {_token(other, _claims())}"}, configured).status_code, 401))
     # Unconfigured gate: fail closed with 503.
-    rows.append(("unconfigured + valid lease", post_jobs({**HEADERS, "authorization": f"Lease {_token(key, _claims())}"}, None).status_code, 503, True))
+    rows.append(("unconfigured + valid lease", post_jobs({**HEADERS, "authorization": f"Lease {_token(key, _claims())}"}, None).status_code, 503))
     # Reads are not lease-gated: 200 whether configured or not.
     prev = agent_main.lease_verifier
     try:
         agent_main.lease_verifier = None
-        rows.append(("unconfigured read /v1/capabilities", client.get("/v1/capabilities", headers=HEADERS).status_code, 200, True))
+        rows.append(("unconfigured read /v1/capabilities", client.get("/v1/capabilities", headers=HEADERS).status_code, 200))
         agent_main.lease_verifier = configured
-        rows.append(("configured read /v1/capabilities", client.get("/v1/capabilities", headers=HEADERS).status_code, 200, True))
+        rows.append(("configured read /v1/capabilities", client.get("/v1/capabilities", headers=HEADERS).status_code, 200))
     finally:
         agent_main.lease_verifier = prev
 
     ok = True
     print(f"{'cell':<38} {'got':>4} {'want':>5}  result")
-    for name, got, want, _ in rows:
+    for name, got, want in rows:
         good = got == want
         ok = ok and good
         print(f"{name:<38} {got:>4} {want:>5}  {'PASS' if good else 'FAIL'}")

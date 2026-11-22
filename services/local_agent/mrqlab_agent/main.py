@@ -36,9 +36,9 @@ def verify_lease(authorization: str = Header(default="")):
             wall_time=time.time(), monotonic_time=time.monotonic(),
         )
         return decision
-    except PermissionError as exc:
-        raise HTTPException(403, str(exc)) from exc
     except ValueError as exc:
+        # LeaseVerifier normalizes malformed/untrusted claims and signatures to
+        # ValueError; feature entitlement is checked separately by each route.
         raise HTTPException(401, str(exc)) from exc
 
 
@@ -128,5 +128,8 @@ def capabilities():
     return CapabilityResponse(
         features={feature: True for provider in (cpu_provider,) for feature in provider.capabilities().features},
         workers=tuple({"id": item.id, "device": item.device, "status": "ready"} for item in descriptors),
-        license={"state": "configured" if lease_verifier is not None else "unconfigured", "offline": False, "expires_at": None},
+        # This unauthenticated discovery endpoint reports gateway configuration,
+        # not a caller's lease. It has no verified lease from which an expiry
+        # could be derived, so do not advertise a permanently-null expires_at.
+        license={"state": "configured" if lease_verifier is not None else "unconfigured", "offline": False},
     )

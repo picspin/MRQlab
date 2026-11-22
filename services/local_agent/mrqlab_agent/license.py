@@ -98,6 +98,12 @@ class LeaseVerifier:
         if header.get("alg") != "EdDSA":
             raise ValueError("lease algorithm must be EdDSA")
         kid = header.get("kid")
+        # `kid` comes from the untrusted header: a JSON array/object is
+        # unhashable and would raise TypeError on the dict lookup below, which
+        # the gateway does not map to 401. Reject a non-string key id as a
+        # malformed lease instead.
+        if not isinstance(kid, str):
+            raise ValueError(f"untrusted lease key id {kid!r}")
         try:
             key = self.trusted_keys[kid]
         except KeyError:

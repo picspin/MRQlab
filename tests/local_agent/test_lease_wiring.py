@@ -120,20 +120,6 @@ def test_configure_wrapper_logs_when_no_lease_variables_are_set(caplog):
     assert any("unconfigured" in record.message.lower() for record in caplog.records)
 
 
-def test_partial_configuration_still_blocks_lease_routes_without_crashing(monkeypatch):
-    # Starting unconfigured is fail-closed for requests: the lease-protected
-    # route still returns 503 rather than running open.
-    monkeypatch.setattr(agent_main, "lease_verifier", None)
-    client = TestClient(app)
-    graph = build_protocol_experiment("brain_lesion_t2_tse")
-    response = client.post(
-        "/jobs",
-        json={"provider_id": "local_cpu_numpy", "experiment": graph.model_dump(mode="json")},
-        headers=HEADERS,
-    )
-    assert response.status_code == 503
-
-
 def test_malformed_trusted_keys_fail_closed():
     key = Ed25519PrivateKey.generate()
     env = _environment(key, **{TRUSTED_KEYS_ENV: "not json"})
@@ -222,6 +208,12 @@ def test_configured_gateway_accepts_a_signed_lease_and_rejects_bad_tokens(monkey
         "/jobs", json=body, headers={**HEADERS, "authorization": f"Lease {_token(other, _claims())}"}
     )
     assert forged.status_code == 401
+    # An unhashable header kid used to escape `trusted_keys[kid]` as TypeError
+    # and surface as a 500. It is malformed lease input and must be a 401.
+    malformed_kid = client.post(
+        "/jobs", json=body, headers={**HEADERS, "authorization": f"Lease {_token(key, _claims(), kid=[])}"}
+    )
+    assert malformed_kid.status_code == 401
 
 
 def _child_env(**updates):

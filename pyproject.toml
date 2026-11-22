@@ -14,7 +14,11 @@ where = ["packages/sequence-ir", "packages/physics", "packages/recon", "packages
 include = ["mrqlab_sequence*", "mrqlab_physics*", "mrqlab_recon*", "mrqlab_experiment*", "mrqlab_api*", "mrqlab_agent*"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "httpx>=0.27"]
+# `hypothesis` powers the lease property/differential tests and `packaging` is
+# their independent version-order oracle; both are declared explicitly so a
+# clean `pip install -e '.[dev]'` can collect tests/local_agent. Without them the
+# modules import a package that is not in the dependency set at all.
+dev = ["pytest>=8", "httpx>=0.27", "hypothesis==6.170.17", "packaging>=23"]
 noncartesian = ["finufft==2.5.0"]
 
 [tool.pytest.ini_options]

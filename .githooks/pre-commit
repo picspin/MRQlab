@@ -3,9 +3,16 @@
 #
 # Enable once per clone:  git config core.hooksPath .githooks
 #
-# It is intentionally fast and deterministic: it runs only the checks the
-# staged diff actually triggers (via tools/validation/diff_checklist.py), so an
-# unrelated change is not slowed down. Set MRQLAB_SKIP_PRECOMMIT=1 to bypass.
+# It runs the checks that the staged diff actually triggers (via
+# tools/validation/diff_checklist.py --run): an unrelated change is not slowed
+# down, and a change to a validation surface executes that surface's checks
+# before the commit is allowed. Set MRQLAB_SKIP_PRECOMMIT=1 to bypass.
+#
+# Cost note: a lease-surface change runs tests/local_agent (including the
+# Hypothesis property/differential tests, max_examples 400/500) plus the shadow
+# walk-through; a physics/experiment change runs that surface's pytest. This is
+# intentional — the gate is what makes the checks real — and the escape hatch
+# above exists for the cases where it is not wanted.
 #
 # End-to-end smoke: tests/local_agent/test_precommit_hook.py drives this script
 # against a throwaway repository and asserts both the block and the pass paths.
@@ -45,15 +52,10 @@ export PYTHONPATH="packages/sequence-ir:packages/physics:packages/recon:packages
 staged=$(git diff --cached --name-only)
 [ -z "$staged" ] && exit 0
 
-# 1. Which validation surfaces does the staged diff touch?
-echo "pre-commit: diff-triggered validation checklist"
-"$PY" tools/validation/diff_checklist.py --staged --check || exit 1
-
-# 2. If a lease/licensing surface changed, run its focused suite + shadow walk.
-if echo "$staged" | grep -q '^services/local_agent/mrqlab_agent/'; then
-    echo "pre-commit: lease surface -> focused tests + shadow walk-through"
-    "$PY" -m pytest tests/local_agent -q -p no:cacheprovider || exit 1
-    "$PY" tools/validation/shadow_walkthrough.py || exit 1
-fi
+# Classify the staged diff, verify each triggered surface's guard tests exist,
+# and execute its checks. One command so the header comment above is literally
+# what happens: a triggered surface is both checked and run.
+echo "pre-commit: diff-triggered validation (existence gate + execute the triggered checks)"
+"$PY" tools/validation/diff_checklist.py --staged --check --run
 
 echo "pre-commit: OK"

@@ -5,8 +5,9 @@
 permits, so a regression that only shows up on an unsampled version (a large
 component, a short form like "1", a many-component form) is still caught.
 
-Hypothesis is a dev dependency (see `pyproject.toml`
-`[project.optional-dependencies].dev`).
+Hypothesis is an explicitly pinned dev dependency (see `pyproject.toml`
+`[project.optional-dependencies].dev`), so clean development environments can
+collect this module rather than relying on an accidental global install.
 """
 import base64
 import json

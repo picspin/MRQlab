@@ -3,10 +3,12 @@
 This is the *e2e* of the validation framework: it copies the repository's
 `.githooks/pre-commit` and `tools/validation/` into a throwaway git repo, makes a
 staged change that removes a required lease test file, and asserts the hook
-blocks the commit; then restores the file and asserts the hook passes.
+blocks the commit; then stages a lease-surface change with real passing focused
+checks and asserts the hook passes.
 
-It exercises the real script through real git, so a broken hook wiring (wrong
-path, missing exec bit, swallowed exit code) fails here rather than in review.
+It exercises the real script through real git, so broken hook wiring (wrong
+path, missing exec bit, swallowed exit code) and a mismatch between a declared
+and executable diff-triggered check fail here rather than in review.
 """
 import os
 import shutil
@@ -18,6 +20,30 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 REQUIRED_TEST = "tests/local_agent/test_lease_window_properties.py"
+
+# Keep the throwaway smoke repository independent of the source tree. Its hook
+# must be able to execute every lease-surface check that the real hook declares:
+# a minimal importable local agent plus short, real pytest tests and a shadow
+# script with the same success contract are enough to exercise the wiring.
+_SMOKE_AGENT_INIT = '__version__ = "1.0.0"\n'
+_SMOKE_LICENSE = """\
+def _version_at_least(candidate: str, minimum: str) -> bool:
+    def parse(value: str) -> tuple[int, ...]:
+        return tuple(int(part) for part in value.split("."))
+    left, right = parse(candidate), parse(minimum)
+    width = max(len(left), len(right))
+    return left + (0,) * (width - len(left)) >= right + (0,) * (width - len(right))
+"""
+_SMOKE_TEST = """\
+from mrqlab_agent.license import _version_at_least
+
+
+def test_smoke_lease_validation_executes():
+    assert _version_at_least("1.0.0", "1.0")
+"""
+_SMOKE_SHADOW = """\
+print("shadow walk-through: PASS")
+"""
 
 # git exports GIT_DIR / GIT_INDEX_FILE / GIT_WORK_TREE etc. to a running hook.
 # This module itself runs *inside* the pre-commit hook (the hook invokes pytest),
@@ -35,25 +61,34 @@ def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
 
 
 def _seed_repo(repo: Path) -> None:
-    """A minimal repo carrying the hook, the tooling, and the surface files."""
+    """Seed a minimal repo whose real lease checks can all pass.
+
+    The production hook runs ``pytest tests/local_agent`` and the shadow script
+    for lease changes. Comment-only placeholder files make pytest exit 5, which
+    would test only the checklist prefix rather than the hook's pass path.
+    """
     (repo / ".githooks").mkdir(parents=True)
     shutil.copy2(ROOT / ".githooks/pre-commit", repo / ".githooks/pre-commit")
     (repo / ".githooks/pre-commit").chmod(0o755)
     shutil.copytree(ROOT / "tools/validation", repo / "tools/validation")
-    # The checklist requires these test files to exist for the lease surface.
+    agent = repo / "services/local_agent/mrqlab_agent"
+    agent.mkdir(parents=True, exist_ok=True)
+    (agent / "__init__.py").write_text(_SMOKE_AGENT_INIT)
+    (agent / "license.py").write_text(_SMOKE_LICENSE)
+    # Every required guard-test path holds a genuine passing test. They may share
+    # the same intentionally tiny assertion: this fixture tests hook execution,
+    # not the product suite's behavioural coverage.
     for rel in (
         "tests/local_agent/test_license.py",
         "tests/local_agent/test_lease_wiring.py",
         "tests/local_agent/test_lease_window_properties.py",
         "tests/local_agent/test_lease_window_differential.py",
+        "tests/local_agent/test_precommit_hook.py",
     ):
         dest = repo / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text("# placeholder for the smoke repo\n")
-    # A file on the lease surface so the diff triggers that checklist entry.
-    agent = repo / "services/local_agent/mrqlab_agent"
-    agent.mkdir(parents=True, exist_ok=True)
-    (agent / "license.py").write_text("# placeholder\n")
+        dest.write_text(_SMOKE_TEST)
+    (repo / "tools/validation/shadow_walkthrough.py").write_text(_SMOKE_SHADOW)
     _git(repo, "init", "-q")
     _git(repo, "config", "user.email", "smoke@example.com")
     _git(repo, "config", "user.name", "smoke")
@@ -63,7 +98,13 @@ def _seed_repo(repo: Path) -> None:
 
 
 def _run_hook(repo: Path, env_extra: dict | None = None) -> subprocess.CompletedProcess:
-    env = _clean_env({"MRQLAB_PYTHON": sys.executable, **(env_extra or {})})
+    # The fixture's packages live under services/local_agent, as they do in the
+    # product checkout. The hook prepends that path to any existing PYTHONPATH.
+    env = _clean_env({
+        "MRQLAB_PYTHON": sys.executable,
+        "PYTHONPATH": str(repo / "services/local_agent"),
+        **(env_extra or {}),
+    })
     return subprocess.run(
         [str(repo / ".githooks/pre-commit")], cwd=repo, capture_output=True, text=True, env=env,
     )
@@ -88,14 +129,17 @@ def test_hook_blocks_a_lease_change_that_drops_a_required_test(smoke_repo):
 
 
 def test_hook_passes_when_the_surface_is_intact(smoke_repo):
-    (smoke_repo / "services/local_agent/mrqlab_agent/license.py").write_text("# changed\n")
+    # Change real lease code while every declared guard test, focused pytest, and
+    # shadow walk-through are runnable. This is the actual pass path, not merely
+    # a check that the checklist prefix printed before a later failure.
+    (smoke_repo / "services/local_agent/mrqlab_agent/license.py").write_text(_SMOKE_LICENSE + "\n# changed\n")
     _git(smoke_repo, "add", "-A")
     result = _run_hook(smoke_repo, {"MRQLAB_SKIP_PRECOMMIT": "0"})
-    # The checklist passes (all required tests present); the focused pytest of the
-    # placeholder tests may fail, so assert only that the checklist stage ran and
-    # reported OK rather than asserting the whole hook's exit code.
-    assert "diff-triggered validation checklist" in result.stdout
-    assert "CHECK FAILED" not in result.stdout
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "diff-triggered validation" in result.stdout
+    assert "all triggered checks passed" in result.stdout
+    assert "shadow walk-through: PASS" in result.stdout
+    assert "pre-commit: OK" in result.stdout
 
 
 def test_hook_is_bypassed_by_the_escape_hatch(smoke_repo):
