@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# MRQlab pre-commit gate.
+#
+# Enable once per clone:  git config core.hooksPath .githooks
+#
+# It is intentionally fast and deterministic: it runs only the checks the
+# staged diff actually triggers (via tools/validation/diff_checklist.py), so an
+# unrelated change is not slowed down. Set MRQLAB_SKIP_PRECOMMIT=1 to bypass.
+#
+# End-to-end smoke: tests/local_agent/test_precommit_hook.py drives this script
+# against a throwaway repository and asserts both the block and the pass paths.
+set -euo pipefail
+
+if [ "${MRQLAB_SKIP_PRECOMMIT:-0}" = "1" ]; then
+    echo "pre-commit: skipped (MRQLAB_SKIP_PRECOMMIT=1)"
+    exit 0
+fi
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+PY="${MRQLAB_PYTHON:-$ROOT/.venv/bin/python}"
+[ -x "$PY" ] || PY="$(command -v python3)"
+
+# Packages must resolve from this worktree, not the venv's editable checkout.
+export PYTHONPATH="packages/sequence-ir:packages/physics:packages/recon:packages/mrqlab_experiment:services/api:services/local_agent${PYTHONPATH:+:$PYTHONPATH}"
+
+staged=$(git diff --cached --name-only)
+[ -z "$staged" ] && exit 0
+
+# 1. Which validation surfaces does the staged diff touch?
+echo "pre-commit: diff-triggered validation checklist"
+"$PY" tools/validation/diff_checklist.py --staged --check || exit 1
+
+# 2. If a lease/licensing surface changed, run its focused suite + shadow walk.
+if echo "$staged" | grep -q '^services/local_agent/mrqlab_agent/'; then
+    echo "pre-commit: lease surface -> focused tests + shadow walk-through"
+    "$PY" -m pytest tests/local_agent -q -p no:cacheprovider || exit 1
+    "$PY" tools/validation/shadow_walkthrough.py || exit 1
+fi
+
+echo "pre-commit: OK"
