@@ -1,5 +1,30 @@
 # Platform goal: verified anchors and remaining requirements
 
+## Milestone A continuation (2026-11-22)
+
+The user approved abdominal and heart additions to the two existing catalog
+entries and selected three audit areas for continued implementation. The new
+`abdomen_liver_relaxation_gre` and `heart_myocardium_blood_gre` bind authored
+tissue priors and named objectives to existing GRE execution and provenance.
+They are static relaxation teaching examples. Despite their legacy preset IDs,
+they do not calculate Dixon water/fat separation, fat fraction, cardiac cine,
+motion, inflow, ventricular function, or measured clinical targets. Their
+empty constraint and robustness lists do not claim those checks have been run.
+
+Clinical search now records the RF-energy and repetition-duration proxy limits
+alongside every search and rejects refocusing-angle edits on GRE, where they
+would not change the RF sequence. The original two catalog recipes are checked
+against a frozen `337cd8a` serialized baseline. A validated linked Cartesian
+image can also be transformed back to its original acquisition-order complex
+signal samples; semantic editing remains the existing bounded TSE adapter.
+
+These are bounded advances in the selected clinical-to-simulation, constrained
+optimization, and linked image/signal areas, not closure of those broad audit
+requirements. General target translation and measured priors, full scan-time
+and physical safety constraints, cross-modality optimization and paired-control
+adapters, and clinician/agent usability evidence remain open. No scanner or
+clinical validation is claimed. Older two-entry statements below are historical.
+
 **2026-11-11 status update:** The user authorized continuing Milestones B/C.
 Earlier parked-status statements below are historical. Both remain incomplete;
 see [B/C continuation](milestone-bc-continuation.md) for the current scope.

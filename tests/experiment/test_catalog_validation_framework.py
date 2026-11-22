@@ -28,7 +28,7 @@ def test_catalog_contract_generated_roundtrip_and_duplicate_rejection(seed):
     rng.shuffle(data["tissue_priors"]["tissues"])
     parsed = ClinicalProtocolRecipe.model_validate(data)
     assert ClinicalProtocolRecipe.model_validate_json(parsed.model_dump_json()) == parsed
-    field = rng.choice(("robustness", "constraints"))
-    data[field].append(dict(data[field][0]))
+    targets = data["tissue_priors"]["targets"]
+    targets.append(dict(targets[0]))
     with pytest.raises(ValidationError, match="unique"):
         ClinicalProtocolRecipe.model_validate(data)

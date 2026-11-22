@@ -20,7 +20,7 @@ from mrqlab_experiment.objectives import ObjectiveFunction, evaluate_objective
 from mrqlab_physics.kernel.units import GAMMA_BAR_HZ_T
 
 
-PROTOCOLS = ("brain_lesion_t2_tse", "knee_cartilage_meniscus_pd_t2_tse")
+PROTOCOLS = ("brain_lesion_t2_tse", "knee_cartilage_meniscus_pd_t2_tse", "abdomen_liver_relaxation_gre", "heart_myocardium_blood_gre")
 LEGACY = ("dark_blood_vessel_wall_tse", "cardiac_cine_gre", "abdomen_dixon_gre", "angio_tof_gre", "spin-echo")
 
 
@@ -169,6 +169,27 @@ def test_search_fails_closed_for_infeasible_budget():
     result = search_clinical_parameters(research_graph(PROTOCOLS[0]), [{"te": .02}], max_rf_energy_relative=.01, max_repetition_duration_s=.01)
     assert result.best is None
     assert all(not p.feasible for p in (result.baseline, *result.candidates))
+
+
+def test_search_record_retains_constraint_limits_for_replay():
+    result = search_clinical_parameters(research_graph(PROTOCOLS[0]), [{"te": .02}], max_rf_energy_relative=4, max_repetition_duration_s=2.5)
+    saved = json.loads(result.model_dump_json())
+    assert saved["max_rf_energy_relative"] == 4
+    assert saved["max_repetition_duration_s"] == 2.5
+    for point in (saved["baseline"], *saved["candidates"]):
+        assert point["feasible"] == (point["rf_energy_relative"] <= 4 and point["repetition_duration_s"] <= 2.5)
+
+
+@pytest.mark.parametrize("energy,duration", [(True, 2.), (2., False)])
+def test_search_rejects_boolean_constraint_limits(energy, duration):
+    with pytest.raises(ValueError, match="finite and positive"):
+        search_clinical_parameters(research_graph(PROTOCOLS[0]), [{"te": .02}], max_rf_energy_relative=energy, max_repetition_duration_s=duration)
+
+
+@pytest.mark.parametrize("recipe,parameter", [("abdomen_dixon_gre", "refocusing_flip_angle"), ("cardiac_cine_gre", "refocusing_flip_angle")])
+def test_search_rejects_controls_not_used_by_template(recipe, parameter):
+    with pytest.raises(ValueError, match="unsupported search parameter"):
+        search_clinical_parameters(research_graph(recipe), [{parameter: 120}], max_rf_energy_relative=20, max_repetition_duration_s=4)
 
 
 @pytest.mark.parametrize("patch", ({"te": float("nan")}, {"te": True}, {"te_ms": 20}, {"te": 100}))

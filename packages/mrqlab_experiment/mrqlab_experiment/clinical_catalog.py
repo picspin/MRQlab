@@ -260,7 +260,50 @@ KNEE_CARTILAGE_MENISCUS_PD_T2_TSE = ClinicalProtocolRecipe(
 )
 
 
-_RECIPES = (BRAIN_LESION_T2_TSE, KNEE_CARTILAGE_MENISCUS_PD_T2_TSE)
+ABDOMEN_LIVER_RELAXATION_GRE = ClinicalProtocolRecipe(
+    id="abdomen_liver_relaxation_gre", version="1.0.0", vertical="abdomen_liver_relaxation_gre",
+    question=ClinicalQuestion(
+        anatomy="abdomen", research_question="Compare authored focal fatty-liver and liver relaxation signals in a static GRE teaching model",
+        target_finding="authored focal fatty-liver tissue contrast",
+        contrast_mechanism="single-echo GRE relaxation proxy; no Dixon water-fat separation or fat fraction",
+    ),
+    tissue_priors=TissuePriorSet(
+        id="abdomen-liver-gre-priors", version="1.0.0",
+        tissues=(
+            TissuePrior(id="focal_fatty_liver", label="Focal fatty liver", role="target", t1=.45, t2=.065, proton_density=.85),
+            TissuePrior(id="liver", label="Liver", role="reference", t1=.8, t2=.045, proton_density=.7),
+            TissuePrior(id="spleen", label="Spleen", role="background", t1=1.1, t2=.08, proton_density=.85),
+            TissuePrior(id="fat", label="Fat", role="background", t1=.26, t2=.07, proton_density=.9),
+        ),
+        targets=(Target(tissue_id="focal_fatty_liver", rationale="authored relaxation target"),),
+        references=(Reference(tissue_id="liver", rationale="authored liver reference"),),
+        confounders=(Confounder(tissue_id="spleen", rationale="adjacent tissue"), Confounder(tissue_id="fat", rationale="fat signal")),
+    ),
+    objective=ObjectiveVector(terms=(ContrastMetric(id="focal-vs-liver", target_tissue_id="focal_fatty_liver", reference_tissue_id="liver", metric="absolute_signal_difference", direction="maximize", weight=1),)),
+    robustness=(), constraints=(), scanner_profile=RESEARCH_3T, experiment_recipe_id="abdomen_dixon_gre",
+)
+
+HEART_MYOCARDIUM_BLOOD_GRE = ClinicalProtocolRecipe(
+    id="heart_myocardium_blood_gre", version="1.0.0", vertical="heart_myocardium_blood_gre",
+    question=ClinicalQuestion(
+        anatomy="heart", research_question="Compare authored myocardium and blood relaxation signals in a static GRE teaching model",
+        target_finding="myocardium-to-blood signal contrast",
+        contrast_mechanism="single-echo GRE relaxation proxy; no cardiac motion, cine or inflow model",
+    ),
+    tissue_priors=TissuePriorSet(
+        id="heart-myocardium-gre-priors", version="1.0.0",
+        tissues=(
+            TissuePrior(id="myocardium", label="Myocardium", role="target", t1=1.2, t2=.05, proton_density=.85),
+            TissuePrior(id="blood", label="Blood pool", role="reference", t1=1.6, t2=.22, proton_density=1),
+        ),
+        targets=(Target(tissue_id="myocardium", rationale="authored myocardium target"),),
+        references=(Reference(tissue_id="blood", rationale="authored blood reference"),),
+    ),
+    objective=ObjectiveVector(terms=(ContrastMetric(id="myocardium-vs-blood", target_tissue_id="myocardium", reference_tissue_id="blood", metric="absolute_signal_difference", direction="maximize", weight=1),)),
+    robustness=(), constraints=(), scanner_profile=RESEARCH_3T, experiment_recipe_id="cardiac_cine_gre",
+)
+
+_RECIPES = (BRAIN_LESION_T2_TSE, KNEE_CARTILAGE_MENISCUS_PD_T2_TSE, ABDOMEN_LIVER_RELAXATION_GRE, HEART_MYOCARDIUM_BLOOD_GRE)
 _BY_ID = {recipe.id: recipe for recipe in _RECIPES}
 
 

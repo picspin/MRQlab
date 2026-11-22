@@ -43,6 +43,8 @@ class ClinicalSearchResult(BaseModel):
     objective: dict
     baseline_parameters: dict[str, float | int]
     parameter_units: dict[str, str]
+    max_rf_energy_relative: float
+    max_repetition_duration_s: float
     selection: str = "minimum clinical vector loss among feasible simulated candidates"
 
 
@@ -72,9 +74,11 @@ def search_clinical_parameters(
     if any(term.target_tissue_id not in ids or term.reference_tissue_id not in ids for term in graph.objective.clinical_vector.terms):
         raise ValueError("objective references unknown tissue")
     for limit in (max_rf_energy_relative, max_repetition_duration_s):
-        if not math.isfinite(limit) or limit <= 0:
+        if isinstance(limit, bool) or not isinstance(limit, (int, float)) or not math.isfinite(limit) or limit <= 0:
             raise ValueError("search limits must be finite and positive")
     allowed = {"te": "s", "tr": "s", "flip_angle": "deg", "refocusing_flip_angle": "deg"}
+    if graph.sequence.template.upper() == "GRE":
+        del allowed["refocusing_flip_angle"]
     started = perf_counter()
 
     def evaluate(parameters):
@@ -114,4 +118,6 @@ def search_clinical_parameters(
         objective=graph.objective.clinical_vector.model_dump(mode="json"),
         baseline_parameters=dict(graph.sequence.params),
         parameter_units={k: allowed[k] for p in points for k in p.parameters},
+        max_rf_energy_relative=max_rf_energy_relative,
+        max_repetition_duration_s=max_repetition_duration_s,
     )

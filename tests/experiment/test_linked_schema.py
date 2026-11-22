@@ -42,6 +42,18 @@ def test_schema_is_not_tse_specific_and_retains_complex_data(pair):
     assert checked['complex_sample_count']==15 and checked['max_absolute_transform_error']<2e-15
 
 
+def test_forward_image_to_signal_preserves_original_acquisition_order(pair):
+    from mrqlab_experiment.linked_readout import signal_from_linked_image
+    before=deepcopy(pair)
+    values=signal_from_linked_image(pair)
+    np.testing.assert_allclose(values['real'],pair['signal_vector']['values']['real'],atol=2e-14)
+    np.testing.assert_allclose(values['imag'],pair['signal_vector']['values']['imag'],atol=2e-14)
+    assert pair==before
+    pair['image']['values']['real'][0] += 1
+    with pytest.raises(ValueError,match='hash mismatch'):
+        signal_from_linked_image(pair)
+
+
 @pytest.mark.parametrize('damage',[
     'axes','shape','layout','units','labels','unbound_label','duplicate_tissue','missing_state',
     'empty_origin','source','runtime','transform','ambiguous_transform','duplicate_control','unbound_control','unbounded_control','bool_values','bool_times','bool_indices','bool_labels','category_current','numeric_origin','blank_unit',

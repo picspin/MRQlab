@@ -226,7 +226,7 @@ class ScannerProfile(FrozenModel):
 class ClinicalProtocolRecipe(FrozenModel):
     id: NonEmpty
     version: NonEmpty
-    vertical: Literal["brain_lesion_t2_tse", "knee_cartilage_meniscus_pd_t2_tse", "brain_t1_3d_tse", "vessel_wall_ssfp_darkblood", "brain_epse_dwi", "cest_multi_pool_z_spectrum", "brain_press_mrs"]
+    vertical: Literal["brain_lesion_t2_tse", "knee_cartilage_meniscus_pd_t2_tse", "abdomen_liver_relaxation_gre", "heart_myocardium_blood_gre", "brain_t1_3d_tse", "vessel_wall_ssfp_darkblood", "brain_epse_dwi", "cest_multi_pool_z_spectrum", "brain_press_mrs"]
     question: ClinicalQuestion
     tissue_priors: TissuePriorSet
     objective: ObjectiveVector
