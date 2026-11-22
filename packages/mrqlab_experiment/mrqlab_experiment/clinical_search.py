@@ -78,6 +78,8 @@ def search_clinical_parameters(
             raise ValueError("search limits must be finite and positive")
     allowed = {"te": "s", "tr": "s", "flip_angle": "deg", "refocusing_flip_angle": "deg"}
     if graph.sequence.template.upper() == "GRE":
+        if "refocusing_flip_angle" in graph.sequence.params:
+            raise ValueError("GRE baseline does not support refocusing_flip_angle")
         del allowed["refocusing_flip_angle"]
     started = perf_counter()
 

@@ -20,10 +20,11 @@ def test_existing_catalog_matches_frozen_337cd8a_baseline():
         assert current[recipe_id] == old_recipe
 
 
+@pytest.mark.parametrize("recipe_id", ["brain_lesion_t2_tse", "knee_cartilage_meniscus_pd_t2_tse", "abdomen_liver_relaxation_gre", "heart_myocardium_blood_gre"])
 @pytest.mark.parametrize("seed", range(30))
-def test_catalog_contract_generated_roundtrip_and_duplicate_rejection(seed):
+def test_catalog_contract_generated_roundtrip_and_duplicate_rejection(seed, recipe_id):
     rng = random.Random(seed)
-    recipe = rng.choice(list_protocol_recipes())
+    recipe = next(recipe for recipe in list_protocol_recipes() if recipe.id == recipe_id)
     data = recipe.model_dump(mode="json")
     rng.shuffle(data["tissue_priors"]["tissues"])
     parsed = ClinicalProtocolRecipe.model_validate(data)

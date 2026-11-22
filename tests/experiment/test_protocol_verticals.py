@@ -59,6 +59,7 @@ def test_new_gre_verticals_run_with_named_tissues_and_replay(recipe_id, target, 
 @pytest.mark.parametrize("recipe_id", ["abdomen_liver_relaxation_gre", "heart_myocardium_blood_gre"])
 def test_new_protocol_name_and_bandwidth_match_research_scope(recipe_id):
     from mrqlab_experiment import plan_experiment
+    from mrqlab_experiment.models import PhysiologyModel
 
     graph = build_protocol_experiment(recipe_id)
     plan = plan_experiment(graph)
@@ -69,6 +70,29 @@ def test_new_protocol_name_and_bandwidth_match_research_scope(recipe_id):
     assert graph.scanner_model.adc_bandwidth_hz == default.value
     assert "dixon" not in graph.name.lower()
     assert "cine" not in graph.name.lower()
+    assert graph.id == f"recipe:{recipe_id}"
+    assert plan.experiment_id == graph.id
+    assert plan.experiment_snapshot["id"] == graph.id
+    assert graph.physiology == PhysiologyModel()
+    assert PhysiologyModel.model_validate(plan.experiment_snapshot["physiology"]) == PhysiologyModel()
+    expected_source = {"abdomen_liver_relaxation_gre": "abdomen_dixon_gre", "heart_myocardium_blood_gre": "cardiac_cine_gre"}[recipe_id]
+    assert graph.clinical_recipe.experiment_recipe_id == expected_source
+    assert plan.experiment_snapshot["clinical_recipe"]["experiment_recipe_id"] == expected_source
+
+
+@pytest.mark.parametrize("recipe_id", ["abdomen_liver_relaxation_gre", "heart_myocardium_blood_gre"])
+def test_identity_and_physiology_cleanup_preserve_static_gre_signal(recipe_id):
+    import numpy as np
+    from mrqlab_experiment import build_clinical_recipe, run_experiment
+
+    graph = build_protocol_experiment(recipe_id)
+    previous = graph.model_copy(deep=True)
+    source = build_clinical_recipe(graph.clinical_recipe.experiment_recipe_id)
+    previous.id = source.id
+    previous.physiology = source.physiology.model_copy(deep=True)
+    actual, old = run_experiment(graph), run_experiment(previous)
+    np.testing.assert_allclose(actual.sim_result.signal, old.sim_result.signal, rtol=0, atol=1e-14)
+    assert actual.plan.fingerprint != old.plan.fingerprint
 
 
 def test_protocol_recipe_extends_existing_experiment_recipe():

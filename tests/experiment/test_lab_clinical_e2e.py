@@ -192,6 +192,16 @@ def test_search_rejects_controls_not_used_by_template(recipe, parameter):
         search_clinical_parameters(research_graph(recipe), [{parameter: 120}], max_rf_energy_relative=20, max_repetition_duration_s=4)
 
 
+@pytest.mark.parametrize("recipe", ["abdomen_liver_relaxation_gre", "heart_myocardium_blood_gre"])
+def test_search_rejects_gre_refocusing_parameter_in_baseline(recipe):
+    graph = research_graph(recipe)
+    graph.sequence.params["refocusing_flip_angle"] = 120
+    original = graph.model_dump(mode="json")
+    with pytest.raises(ValueError, match="GRE baseline.*refocusing_flip_angle"):
+        search_clinical_parameters(graph, [{"te": .004}], max_rf_energy_relative=20, max_repetition_duration_s=4)
+    assert graph.model_dump(mode="json") == original
+
+
 @pytest.mark.parametrize("patch", ({"te": float("nan")}, {"te": True}, {"te_ms": 20}, {"te": 100}))
 def test_search_rejects_invalid_units_or_parameters(patch):
     with pytest.raises(ValueError):

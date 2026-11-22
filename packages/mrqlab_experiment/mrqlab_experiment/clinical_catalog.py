@@ -319,7 +319,7 @@ def get_protocol_recipe(recipe_id: str) -> ClinicalProtocolRecipe:
 
 
 def build_protocol_experiment(recipe_id: str):
-    from .models import TissueModel
+    from .models import PhysiologyModel, TissueModel
     from .presets import build_clinical_recipe
 
     recipe = get_protocol_recipe(recipe_id)
@@ -330,6 +330,8 @@ def build_protocol_experiment(recipe_id: str):
     }
     if recipe_id in names:
         graph.name = names[recipe_id]
+        graph.id = f"recipe:{recipe_id}"
+        graph.physiology = PhysiologyModel()
     from .objectives import ObjectiveFunction
     graph.objective = ObjectiveFunction(kind="clinical_vector", clinical_vector=recipe.objective)
     graph.readout = graph.readout.model_copy(update={"products": (*graph.readout.products, "tissue_contrast", "objective_score")})

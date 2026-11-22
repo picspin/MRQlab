@@ -6,14 +6,21 @@ The user approved abdominal and heart additions to the two existing catalog
 entries and selected three audit areas for continued implementation. The new
 `abdomen_liver_relaxation_gre` and `heart_myocardium_blood_gre` bind authored
 tissue priors and named objectives to existing GRE execution and provenance.
-They are static relaxation teaching examples. Despite their legacy preset IDs,
-they do not calculate Dixon water/fat separation, fat fraction, cardiac cine,
+They are static relaxation teaching examples. Their `experiment_recipe_id`
+values identify the legacy preset used as an execution starting point, not
+the mechanism simulated; the protocol graph uses its own ID and neutral default
+physiology. They do not calculate Dixon water/fat separation, fat fraction, cardiac cine,
 motion, inflow, ventricular function, or measured clinical targets. Their
 empty constraint and robustness lists do not claim those checks have been run.
+The heart example's blood T1 of 1.6 s is inherited from an authored 1.5 T
+preset and has not been recalibrated for the 3 T profile.
 
 Clinical search now records the RF-energy and repetition-duration proxy limits
 alongside every search and rejects refocusing-angle edits on GRE, where they
-would not change the RF sequence. The original two catalog recipes are checked
+would not change the RF sequence, including a refocusing angle already present
+in the GRE baseline. The two limits are required fields in `ClinicalSearchResult`;
+older serialized results lacking them cannot be parsed as this model and must be
+rerun to recover the actual selection limits. The original two catalog recipes are checked
 against a frozen `337cd8a` serialized baseline. A validated linked Cartesian
 image can also be transformed back to its original acquisition-order complex
 signal samples; semantic editing remains the existing bounded TSE adapter.
@@ -24,6 +31,11 @@ requirements. General target translation and measured priors, full scan-time
 and physical safety constraints, cross-modality optimization and paired-control
 adapters, and clinician/agent usability evidence remain open. No scanner or
 clinical validation is claimed. Older two-entry statements below are historical.
+
+The A-line commit `337cd8a` is a direct descendant of the stacked PR base
+`ec3355f` and is included in this branch. Its finite-number change appears in
+the diff from that base because it is part of the branch, not a second copy of
+the same commit; the frozen catalog fixture was exported from that commit.
 
 **2026-11-11 status update:** The user authorized continuing Milestones B/C.
 Earlier parked-status statements below are historical. Both remain incomplete;
