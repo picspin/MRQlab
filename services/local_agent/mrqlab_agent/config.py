@@ -56,7 +56,12 @@ def load_lease_verifier(environment: Mapping[str, str] | None = None) -> LeaseVe
         raise ValueError(f"incomplete lease configuration: missing {', '.join(missing)}")
     try:
         keys = json.loads(env[TRUSTED_KEYS_ENV])
-    except json.JSONDecodeError as exc:
+    except (json.JSONDecodeError, RecursionError) as exc:
+        # A pathologically nested JSON document exhausts the parser stack and
+        # raises RecursionError (a RuntimeError, not a ValueError). Normalize it
+        # here so the strict loader's contract — malformed config raises
+        # ValueError — holds, and the boot wrapper catches it instead of the
+        # process dying at import.
         raise ValueError("trusted lease keys must be a JSON object") from exc
     if not isinstance(keys, dict) or not keys:
         raise ValueError("trusted lease keys must be a non-empty JSON object")

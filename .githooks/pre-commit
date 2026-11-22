@@ -19,8 +19,25 @@ fi
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
-PY="${MRQLAB_PYTHON:-$ROOT/.venv/bin/python}"
-[ -x "$PY" ] || PY="$(command -v python3)"
+# Resolve an interpreter that actually has the project's dependencies. In a git
+# worktree `$ROOT/.venv` does not exist (the venv lives in the main checkout), so
+# fall back to the main worktree's venv before the bare system python.
+MAIN_ROOT="$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')"
+resolve_py() {
+    for candidate in \
+        "${MRQLAB_PYTHON:-}" \
+        "$ROOT/.venv/bin/python" \
+        "${MAIN_ROOT:+$MAIN_ROOT/.venv/bin/python}"; do
+        [ -n "$candidate" ] && [ -x "$candidate" ] && { echo "$candidate"; return 0; }
+    done
+    command -v python3
+}
+PY="$(resolve_py)"
+# A gate that cannot run its checks must block, not pass: require pytest here.
+if ! "$PY" -c "import pytest" >/dev/null 2>&1; then
+    echo "pre-commit: no interpreter with pytest (tried MRQLAB_PYTHON, \$ROOT/.venv, ${MAIN_ROOT:-main}/.venv); set MRQLAB_PYTHON" >&2
+    exit 1
+fi
 
 # Packages must resolve from this worktree, not the venv's editable checkout.
 export PYTHONPATH="packages/sequence-ir:packages/physics:packages/recon:packages/mrqlab_experiment:services/api:services/local_agent${PYTHONPATH:+:$PYTHONPATH}"

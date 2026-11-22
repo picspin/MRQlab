@@ -76,12 +76,16 @@ Configuration is read from four environment variables:
 
 Startup is deliberately non-fatal. `load_lease_verifier` is the strict loader: it
 returns `None` only when *no* variable is set and raises `ValueError` on a partial
-or malformed configuration. `configure_lease_verifier` is the boot-time wrapper the
-gateway uses: it never raises, logs a WARNING naming the exact problem, and leaves
-the gate unconfigured. A misprovisioned box therefore starts instead of dying at
-import. Unconfigured is **not** open — the lease-gated routes still answer `503`,
-so a partially provisioned deployment blocks requests rather than serving them
-without a lease. Neither function fabricates a trusted key or a device identity.
+or malformed configuration. A pathologically nested trusted-keys document makes
+`json.loads` exhaust the parser stack and raise `RecursionError` (a `RuntimeError`,
+not a `ValueError`); the loader normalizes that to `ValueError` so its contract
+holds and the boot wrapper still absorbs it. `configure_lease_verifier` is the
+boot-time wrapper the gateway uses: it never raises (it catches `ValueError` and
+`TypeError`), logs a WARNING naming the exact problem, and leaves the gate
+unconfigured. A misprovisioned box therefore starts instead of dying at import.
+Unconfigured is **not** open — the lease-gated routes still answer `503`, so a
+partially provisioned deployment blocks requests rather than serving them without
+a lease. Neither function fabricates a trusted key or a device identity.
 
 **Lease gating scope.** Only `POST /jobs` and `POST /jobs/{id}/cancel` depend on
 `verify_lease`; the read routes (`GET /jobs/{id}`, `/jobs/{id}/events`,

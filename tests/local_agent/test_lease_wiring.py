@@ -144,6 +144,22 @@ def test_malformed_trusted_keys_fail_closed():
         load_lease_verifier(env)
 
 
+def test_deeply_nested_trusted_keys_fail_closed_without_crashing(caplog):
+    # A pathologically nested JSON document makes json.loads raise RecursionError
+    # (a RuntimeError, not a ValueError). The strict loader must normalize it to
+    # ValueError, and the boot wrapper must absorb it — the process must not die
+    # at import. 60k nesting is below CPython's parser limit on this build, so use
+    # a depth that is reliably over it.
+    key = Ed25519PrivateKey.generate()
+    deep = '{"a":' * 200_000 + "1" + "}" * 200_000
+    env = _environment(key, **{TRUSTED_KEYS_ENV: deep})
+    with pytest.raises(ValueError, match="JSON object"):
+        load_lease_verifier(env)
+    with caplog.at_level(logging.WARNING, logger="mrqlab_agent.config"):
+        assert configure_lease_verifier(env) is None
+    assert any("unconfigured" in record.message.lower() for record in caplog.records)
+
+
 def test_configured_verifier_accepts_a_lease_bound_to_its_device():
     key = Ed25519PrivateKey.generate()
     verifier = load_lease_verifier(_environment(key))

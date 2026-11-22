@@ -19,9 +19,19 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 REQUIRED_TEST = "tests/local_agent/test_lease_window_properties.py"
 
+# git exports GIT_DIR / GIT_INDEX_FILE / GIT_WORK_TREE etc. to a running hook.
+# This module itself runs *inside* the pre-commit hook (the hook invokes pytest),
+# so those variables point at the OUTER repository and would make the nested git
+# commands below operate on it instead of the throwaway repo — corrupting the
+# real checkout's config. Scrub every GIT_* var so the smoke repo is hermetic.
+def _clean_env(extra: dict | None = None) -> dict:
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env.update(extra or {})
+    return env
+
 
 def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", *args], cwd=repo, capture_output=True, text=True)
+    return subprocess.run(["git", *args], cwd=repo, capture_output=True, text=True, env=_clean_env())
 
 
 def _seed_repo(repo: Path) -> None:
@@ -53,7 +63,7 @@ def _seed_repo(repo: Path) -> None:
 
 
 def _run_hook(repo: Path, env_extra: dict | None = None) -> subprocess.CompletedProcess:
-    env = {**os.environ, "MRQLAB_PYTHON": sys.executable, **(env_extra or {})}
+    env = _clean_env({"MRQLAB_PYTHON": sys.executable, **(env_extra or {})})
     return subprocess.run(
         [str(repo / ".githooks/pre-commit")], cwd=repo, capture_output=True, text=True, env=env,
     )
@@ -94,3 +104,48 @@ def test_hook_is_bypassed_by_the_escape_hatch(smoke_repo):
     result = _run_hook(smoke_repo, {"MRQLAB_SKIP_PRECOMMIT": "1"})
     assert result.returncode == 0
     assert "skipped" in result.stdout
+
+
+def test_hook_fails_closed_when_no_interpreter_has_pytest(smoke_repo, tmp_path):
+    # A gate that cannot run its checks must block, not silently pass. Point the
+    # interpreter override at a python without pytest and assert the hook refuses.
+    (smoke_repo / "services/local_agent/mrqlab_agent/license.py").write_text("# changed\n")
+    _git(smoke_repo, "add", "-A")
+    fake = tmp_path / "fakepy"
+    fake.write_text("#!/bin/sh\nexit 1\n")  # `-c "import pytest"` fails -> not usable
+    fake.chmod(0o755)
+    result = _run_hook(smoke_repo, {"MRQLAB_PYTHON": str(fake)})
+    assert result.returncode != 0
+    assert "no interpreter with pytest" in result.stderr
+
+
+def test_smoke_repo_never_writes_to_the_outer_repository(tmp_path, monkeypatch):
+    """Guard against the incident where the smoke test corrupted the real config.
+
+    The hook runs pytest, so this module executes with git's GIT_DIR /
+    GIT_INDEX_FILE pointing at the OUTER repo. If the nested git calls inherit
+    those, `git init` / `git config` inside the throwaway repo silently rewrite
+    the outer repository's config (this once flipped core.bare and injected a
+    [user] section). Assert the outer config is byte-identical after a run.
+    """
+    outer_git = subprocess.run(
+        ["git", "rev-parse", "--absolute-git-dir"], cwd=ROOT, capture_output=True, text=True,
+        env=_clean_env(),
+    ).stdout.strip()
+    if not outer_git:
+        pytest.skip("not inside a git repository")
+    outer_config = Path(outer_git) / "config"
+    before = outer_config.read_bytes() if outer_config.is_file() else b""
+
+    # Simulate the in-hook condition: point GIT_DIR/GIT_INDEX_FILE at the outer
+    # repo, then seed and drive a smoke repo exactly as the other tests do.
+    monkeypatch.setenv("GIT_DIR", outer_git)
+    repo = tmp_path / "smoke"
+    repo.mkdir()
+    _seed_repo(repo)
+    (repo / "services/local_agent/mrqlab_agent/license.py").write_text("# changed\n")
+    _git(repo, "add", "-A")
+    _run_hook(repo)
+
+    after = outer_config.read_bytes() if outer_config.is_file() else b""
+    assert after == before, "the smoke test mutated the outer repository's config"
