@@ -86,6 +86,10 @@ class TissuePriorSet(FrozenModel):
 
     @model_validator(mode="after")
     def validate_roles(self):
+        for name in ("targets", "references", "confounders"):
+            ids = [item.tissue_id for item in getattr(self, name)]
+            if len(ids) != len(set(ids)):
+                raise ValueError(f"{name} tissue ids must be unique")
         tissue_by_id: dict[str, TissuePrior] = {}
         for tissue in self.tissues:
             if tissue.id in tissue_by_id:
@@ -211,6 +215,13 @@ class ScannerProfile(FrozenModel):
     adc_dead_time_s: float = Field(ge=0)
     defaults: tuple[ParameterState, ...] = ()
 
+    @model_validator(mode="after")
+    def unique_default_names(self):
+        names = [item.name for item in self.defaults]
+        if len(names) != len(set(names)):
+            raise ValueError("scanner default names must be unique")
+        return self
+
 
 class ClinicalProtocolRecipe(FrozenModel):
     id: NonEmpty
@@ -227,6 +238,10 @@ class ClinicalProtocolRecipe(FrozenModel):
 
     @model_validator(mode="after")
     def objective_references_priors(self):
+        for name in ("robustness", "constraints"):
+            ids = [item.id for item in getattr(self, name)]
+            if len(ids) != len(set(ids)):
+                raise ValueError(f"{name} ids must be unique")
         known = {tissue.id for tissue in self.tissue_priors.tissues}
         for term in self.objective.terms:
             if term.target_tissue_id not in known or term.reference_tissue_id not in known:
