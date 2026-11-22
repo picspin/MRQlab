@@ -324,6 +324,12 @@ def build_protocol_experiment(recipe_id: str):
 
     recipe = get_protocol_recipe(recipe_id)
     graph = build_clinical_recipe(recipe.experiment_recipe_id).model_copy(deep=True)
+    names = {
+        "abdomen_liver_relaxation_gre": "Abdominal liver relaxation GRE (research)",
+        "heart_myocardium_blood_gre": "Heart myocardium/blood relaxation GRE (research)",
+    }
+    if recipe_id in names:
+        graph.name = names[recipe_id]
     from .objectives import ObjectiveFunction
     graph.objective = ObjectiveFunction(kind="clinical_vector", clinical_vector=recipe.objective)
     graph.readout = graph.readout.model_copy(update={"products": (*graph.readout.products, "tissue_contrast", "objective_score")})
@@ -331,11 +337,13 @@ def build_protocol_experiment(recipe_id: str):
     graph.tissue = tuple(
         TissueModel.model_validate(item.model_dump()) for item in recipe.tissue_priors.tissues
     )
+    scanner_defaults = {item.name: item.value for item in recipe.scanner_profile.defaults if item.state == "scanner_default"}
     graph.scanner_model = graph.scanner_model.model_copy(
         update={
             "b0_t": recipe.scanner_profile.b0_t,
             "max_gradient_mt_m": recipe.scanner_profile.max_gradient_mt_m,
             "max_slew_rate_t_m_s": recipe.scanner_profile.max_slew_rate_t_m_s,
+            **({"adc_bandwidth_hz": scanner_defaults["adc_bandwidth_hz"]} if "adc_bandwidth_hz" in scanner_defaults else {}),
         }
     )
     return graph

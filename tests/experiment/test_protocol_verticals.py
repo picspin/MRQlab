@@ -56,6 +56,21 @@ def test_new_gre_verticals_run_with_named_tissues_and_replay(recipe_id, target, 
     assert observations["objective_score"].data is not None
 
 
+@pytest.mark.parametrize("recipe_id", ["abdomen_liver_relaxation_gre", "heart_myocardium_blood_gre"])
+def test_new_protocol_name_and_bandwidth_match_research_scope(recipe_id):
+    from mrqlab_experiment import plan_experiment
+
+    graph = build_protocol_experiment(recipe_id)
+    plan = plan_experiment(graph)
+    bandwidth = next(p for p in plan.parameters if p.name == "adc_bandwidth_hz")
+    default = next(p for p in graph.clinical_recipe.scanner_profile.defaults if p.name == "adc_bandwidth_hz")
+    assert bandwidth.value == default.value
+    assert bandwidth.source == "ExperimentGraph.effective_scanner"
+    assert graph.scanner_model.adc_bandwidth_hz == default.value
+    assert "dixon" not in graph.name.lower()
+    assert "cine" not in graph.name.lower()
+
+
 def test_protocol_recipe_extends_existing_experiment_recipe():
     graph = build_protocol_experiment("brain_lesion_t2_tse")
     assert graph.id == "recipe:brain_t2_tse"
