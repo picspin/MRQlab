@@ -1,5 +1,19 @@
 # Platform goal: verified anchors and remaining requirements
 
+## Milestone A constraint-check continuation (2026-11-25)
+
+Clinical search now offers an opt-in recipe-constraint check. For ideal TSE it
+compares the compiled echo spacing with authored bounds; all other recipe
+constraint measurements are explicitly unavailable. A failing or unavailable
+hard constraint excludes a candidate; soft outcomes are reported without
+excluding it. The default remains the existing RF-energy and repetition-duration
+proxy selection, and its result records that recipe checks were not enforced.
+The abdomen and heart recipes currently declare no constraints, so enabling the
+check for them does not establish clinical or hardware feasibility. Scan time,
+resolution, SAR, scanner safety, robustness scenarios, and broader multiobjective
+optimization remain unvalidated and incomplete. This does not establish scanner
+or clinical validation.
+
 ## Milestone A continuation (2026-11-22)
 
 The user approved abdominal and heart additions to the two existing catalog

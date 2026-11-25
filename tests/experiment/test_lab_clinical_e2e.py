@@ -14,7 +14,7 @@ from mrqlab_experiment import (
     build_protocol_experiment, build_clinical_recipe, build_preset,
     build_result_graph, run_experiment, compile_sequence, plan_experiment,
 )
-from mrqlab_experiment.clinical import ContrastMetric, ObjectiveVector
+from mrqlab_experiment.clinical import AcquisitionConstraint, ContrastMetric, ObjectiveVector
 from mrqlab_experiment.clinical_search import search_clinical_parameters
 from mrqlab_experiment.objectives import ObjectiveFunction, evaluate_objective
 from mrqlab_physics.kernel.units import GAMMA_BAR_HZ_T
@@ -169,6 +169,67 @@ def test_search_fails_closed_for_infeasible_budget():
     result = search_clinical_parameters(research_graph(PROTOCOLS[0]), [{"te": .02}], max_rf_energy_relative=.01, max_repetition_duration_s=.01)
     assert result.best is None
     assert all(not p.feasible for p in (result.baseline, *result.candidates))
+
+
+def test_opt_in_protocol_constraints_filter_and_explain_candidates():
+    graph = research_graph(PROTOCOLS[0])
+    constraint = AcquisitionConstraint(id="spacing", metric="echo_spacing_s", operator="le", value=.015, unit="s", severity="hard")
+    graph.clinical_recipe = graph.clinical_recipe.model_copy(update={"constraints": (constraint,)})
+    result = search_clinical_parameters(graph, [{"te": .014}, {"te": .02}], max_rf_energy_relative=20, max_repetition_duration_s=4, enforce_recipe_constraints=True)
+    assert result.recipe_constraints_enforced is True
+    assert [(p.constraint_assessments[0].status, p.constraint_assessments[0].observed_value, p.feasible) for p in result.candidates] == [("pass", .014, True), ("fail", .02, False)]
+    assert result.best.feasible
+    assert result.candidates[1].constraint_assessments[0].unit == "s"
+    assert result.candidates[1].constraint_assessments[0].id == "spacing"
+
+
+@pytest.mark.parametrize("severity,expected", [("hard", False), ("soft", True)])
+def test_unmeasured_protocol_constraints_are_visible_and_hard_fail_closed(severity, expected):
+    graph = research_graph(PROTOCOLS[2])
+    constraint = AcquisitionConstraint(id="scan", metric="scan_time_s", operator="le", value=300, unit="s", severity=severity)
+    graph.clinical_recipe = graph.clinical_recipe.model_copy(update={"constraints": (constraint,)})
+    result = search_clinical_parameters(graph, [{"te": .004}], max_rf_energy_relative=20, max_repetition_duration_s=4, enforce_recipe_constraints=True)
+    point = result.candidates[0]
+    assert point.constraint_assessments[0].status == "unavailable"
+    assert point.constraint_assessments[0].observed_value is None
+    assert point.feasible is expected
+    assert (result.best is not None) is expected
+
+
+def test_protocol_constraint_check_is_opt_in_and_requires_a_recipe():
+    graph = research_graph(PROTOCOLS[0])
+    old = search_clinical_parameters(graph, [{"te": .02}], max_rf_energy_relative=20, max_repetition_duration_s=4)
+    assert old.recipe_constraints_enforced is False
+    assert old.baseline.constraint_assessments == ()
+    graph.clinical_recipe = None
+    with pytest.raises(ValueError, match="clinical recipe"):
+        search_clinical_parameters(graph, [{"te": .02}], max_rf_energy_relative=20, max_repetition_duration_s=4, enforce_recipe_constraints=True)
+
+
+@pytest.mark.parametrize("operator,limit,expected", [("le", .01, True), ("le", .009, False), ("ge", .01, True), ("ge", .011, False), ("eq", .01, True), ("eq", .011, False)])
+def test_echo_spacing_constraint_boundary_operators(operator, limit, expected):
+    graph = research_graph(PROTOCOLS[0])
+    constraint = AcquisitionConstraint(id="spacing", metric="echo_spacing_s", operator=operator, value=limit, unit="s", severity="hard")
+    graph.clinical_recipe = graph.clinical_recipe.model_copy(update={"constraints": (constraint,)})
+    result = search_clinical_parameters(graph, [{"te": .01}], max_rf_energy_relative=20, max_repetition_duration_s=4, enforce_recipe_constraints=True)
+    point = result.candidates[0]
+    assert point.feasible is expected
+    assert (point.constraint_assessments[0].status == "pass") is expected
+    encoded = json.loads(result.model_dump_json())
+    assert encoded["candidates"][0]["constraint_assessments"][0]["limit"] == limit
+
+
+@pytest.mark.parametrize("recipe", PROTOCOLS[2:])
+def test_empty_protocol_constraint_check_preserves_search_results(recipe):
+    graph = research_graph(recipe)
+    before = graph.model_dump(mode="json")
+    kwargs = dict(max_rf_energy_relative=20, max_repetition_duration_s=4)
+    legacy = search_clinical_parameters(graph, [{"te": .004}, {"te": .006}], **kwargs)
+    checked = search_clinical_parameters(graph, [{"te": .004}, {"te": .006}], **kwargs, enforce_recipe_constraints=True)
+    assert [(p.feasible, p.objective_loss, p.plan_fingerprint) for p in legacy.candidates] == [(p.feasible, p.objective_loss, p.plan_fingerprint) for p in checked.candidates]
+    assert checked.best.parameters == legacy.best.parameters
+    assert all(p.constraint_assessments == () for p in checked.candidates)
+    assert graph.model_dump(mode="json") == before
 
 
 def test_search_record_retains_constraint_limits_for_replay():
