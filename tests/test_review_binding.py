@@ -91,13 +91,13 @@ def _run_wrapper(repo, bindir, stdin_path, *args, fake_mode="write"):
     env["FAKE_STDIN"] = str(stdin_path)
     env["FAKE_MODE"] = fake_mode
     return subprocess.run(
-        ["bash", str(WRAPPER), *args], cwd=repo, env=env, capture_output=True, text=True
+        ["bash", str(WRAPPER), *args], cwd=repo, env=env, capture_output=True, text=True, check=False
     )
 
 
 def _fresh(repo, report):
     return subprocess.run(
-        ["python3", str(FRESH_CHECK), str(report)], cwd=repo, capture_output=True, text=True
+        ["python3", str(FRESH_CHECK), str(report)], cwd=repo, capture_output=True, text=True, check=False
     )
 
 
@@ -250,6 +250,6 @@ def test_wrapper_rejects_finding_null_field(tmp_path, fake_claude):
 def test_reviews_dir_is_gitignored():
     r = subprocess.run(
         ["git", "check-ignore", "-q", "reviews/review-x.json"],
-        cwd=REPO_ROOT, capture_output=True,
+        cwd=REPO_ROOT, capture_output=True, check=False,
     )
     assert r.returncode == 0, "reviews/ must be ignored as run output"

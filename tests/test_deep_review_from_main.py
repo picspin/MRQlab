@@ -83,7 +83,7 @@ def _run_script(repo, bindir, stdin_path, *args, fake_mode="write"):
     env["FAKE_STDIN"] = str(stdin_path)
     env["FAKE_MODE"] = fake_mode
     return subprocess.run(
-        ["bash", str(SCRIPT), *args], cwd=repo, env=env, capture_output=True, text=True
+        ["bash", str(SCRIPT), *args], cwd=repo, env=env, capture_output=True, text=True, check=False
     )
 
 
