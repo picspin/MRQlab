@@ -418,7 +418,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
         {isSpectrumExperiment && (
           <div data-testid="spectrum-experiment-identity" style={{ marginBottom: "10px", padding: "8px", background: "var(--surface-sunken)", border: ".5px solid var(--amber)", borderRadius: "4px" }}>
             <div style={{ fontSize: "12px", color: "var(--amber)", fontWeight: 800, letterSpacing: "0.08em" }}>SPECTRUM EXPERIMENT</div>
-            <div style={{ fontSize: "13px", color: "var(--text)", fontWeight: 700, marginTop: "2px" }}>
+            <div style={{ fontSize: "14px", color: "var(--text)", fontWeight: 700, marginTop: "2px" }}>
               {`${currentScenario.id === "cest_amine" ? "Amine" : "Amide"} CEST ${cestMode === "pulsed" ? "pulsed Z-spectrum" : cestMode === "cw" ? "CW Z-spectrum" : "Z-spectrum"}`}
             </div>
             <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px", lineHeight: 1.4 }}>
@@ -583,7 +583,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                     fontWeight: 700,
                     backgroundColor: isEditMode ? "var(--amber)" : "var(--surface)",
                     color: isEditMode ? "var(--surface-sunken)" : "var(--cyan)",
-                    border: `1px solid ${isEditMode ? "var(--amber)" : "var(--border)"}`,
+                    border: `.5px solid ${isEditMode ? "var(--amber)" : "var(--border)"}`,
                     borderRadius: "4px",
                     cursor: "pointer",
                   }}
@@ -806,7 +806,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
               /* CLINICAL QUAD MPR & MIP RAYCAST */
               <div data-testid="clinical-quad-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "10px", width: "100%", height: "100%", minHeight: 0, overflow: "hidden" }}>
                 {/* Quad 1: AXIAL */}
-                <div style={{ backgroundColor: "var(--surface-sunken)", border: `1px solid ${activeScanPlane === 'AXIAL' ? 'var(--cyan)' : 'var(--border)'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+                <div style={{ backgroundColor: "var(--surface-sunken)", border: `.5px solid ${activeScanPlane === 'AXIAL' ? 'var(--cyan)' : 'var(--border)'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>
                     <b>1. AXIAL VIEW</b>
                     <span>{activeScanPlane === 'AXIAL' ? '● PRIMARY SCAN' : 'MPR DERIVED'}</span>
@@ -817,7 +817,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 </div>
 
                 {/* Quad 2: SAGITTAL */}
-                <div style={{ backgroundColor: "var(--surface-sunken)", border: `1px solid ${activeScanPlane === 'SAGITTAL' ? 'var(--cyan)' : 'var(--border)'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+                <div style={{ backgroundColor: "var(--surface-sunken)", border: `.5px solid ${activeScanPlane === 'SAGITTAL' ? 'var(--cyan)' : 'var(--border)'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>
                     <b>2. SAGITTAL VIEW</b>
                     <span>{activeScanPlane === 'SAGITTAL' ? '● PRIMARY SCAN' : 'MPR DERIVED'}</span>
@@ -828,7 +828,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                 </div>
 
                 {/* Quad 3: CORONAL */}
-                <div style={{ backgroundColor: "var(--surface-sunken)", border: `1px solid ${activeScanPlane === 'CORONAL' ? 'var(--cyan)' : 'var(--border)'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
+                <div style={{ backgroundColor: "var(--surface-sunken)", border: `.5px solid ${activeScanPlane === 'CORONAL' ? 'var(--cyan)' : 'var(--border)'}`, borderRadius: "4px", padding: "8px", display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>
                     <b>3. CORONAL VIEW</b>
                     <span>{activeScanPlane === 'CORONAL' ? '● PRIMARY SCAN' : 'MPR DERIVED'}</span>
@@ -965,13 +965,13 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                         const x = 35 + index * 470 / Math.max(1, values.length - 1);
                         return <line key={index} x1={x} y1="95" x2={x} y2={95 - value * 70 / peak} stroke="var(--cyan)" strokeWidth="2" />;
                       })}
-                      <text x="35" y="180" fill="var(--text-muted)" fontSize="9">x (m)  --  off_hz from backend RUN</text>
+                      <text x="35" y="180" fill="var(--text-muted)" fontSize="12">x (m)  --  off_hz from backend RUN</text>
                     </svg>
                   </div> : configurations ? <div data-testid="epg-pathways" style={{ width: "100%", height: "260px" }}>
                     <div style={{ font: "12px monospace", color: "var(--text-muted)" }}>Backend configurations  --  rows F+ / F− / Z  --  columns echo snapshots</div>
                     <svg viewBox="0 0 520 190" style={{ width: "100%", height: "100%" }}>
                       {(["F+", "F−", "Z"] as const).map((label, row) => <g key={label}>
-                        <text x="8" y={42 + row * 55} fill="var(--text-muted)" fontSize="11">{label}</text>
+                        <text x="8" y={42 + row * 55} fill="var(--text-muted)" fontSize="12">{label}</text>
                         <line x1="35" y1={38 + row * 55} x2="505" y2={38 + row * 55} stroke="var(--border)" />
                         {(Array.isArray(configurations.data) ? configurations.data : []).map((snapshot: unknown, echo: number) => {
                           const states = Array.isArray(snapshot) && Array.isArray(snapshot[row]) ? snapshot[row] as number[] : [];
@@ -993,7 +993,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                           const points = values.map((value, index) => `${20 + index * 290 / Math.max(1, values.length - 1)},${75 - value * 55}`).join(" ");
                           return <polyline key={key} points={points} fill="none" stroke={key === "mz" ? "var(--amber)" : "var(--cyan)"} strokeWidth="2" />;
                         })}
-                        <text x="22" y="145" fill="var(--text-muted)" fontSize="9">z (m)  --  backend RUN  --  Mz amber / Mxy cyan</text>
+                        <text x="22" y="145" fill="var(--text-muted)" fontSize="12">z (m)  --  backend RUN  --  Mz amber / Mxy cyan</text>
                       </svg>
                     ) : <div data-testid="slice-profile-awaiting" style={{ color: "var(--text-muted)", fontFamily: "monospace" }}>awaiting slice_profile from RUN</div>}
                     <svg viewBox="0 0 220 220" width="220" height="220" aria-label="Mx horizontal and Mz vertical orthographic projection">
@@ -1002,7 +1002,7 @@ export function WorkbenchCockpit({ initialRecipeId }: { initialRecipeId?: string
                       <line x1="110" y1="14" x2="110" y2="206" stroke="var(--border)" />
                       <line x1="110" y1="110" x2={110 + (runVector?.[0] ?? 0) * 82} y2={110 - (runVector?.[2] ?? 1) * 82} transform={runVector ? undefined : `rotate(${faDeg} 110 110)`} stroke="var(--amber)" strokeWidth="4" />
                       <circle cx="110" cy="110" r="4" fill="var(--cyan)" />
-                      <text x="172" y="104" fill="var(--text-muted)" fontSize="9">Mx</text><text x="115" y="24" fill="var(--text-muted)" fontSize="9">Mz</text>
+                      <text x="172" y="104" fill="var(--text-muted)" fontSize="12">Mx</text><text x="115" y="24" fill="var(--text-muted)" fontSize="12">Mz</text>
                     </svg>
                     <div style={{ font: "12px monospace", color: "var(--text-muted)" }}>orthographic projection: Mx → x, Mz → y</div>
                     {!runVector && <div data-testid="bloch-seed-label" style={{ color: "var(--amber)", font: "12px monospace" }}>editor seed  --  FA slider, not RUN magnetization</div>}

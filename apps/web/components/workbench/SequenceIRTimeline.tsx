@@ -92,7 +92,7 @@ export function SequenceIRTimeline({
               onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; }}
               onDrop={(event) => dropOnRow(name, event)}>
               <rect x="0" y={y0 - 16} width={width} height={rowH} fill="transparent" />
-              <text x="4" y={y0 + 4} fill="var(--text-muted)" fontSize="9" fontFamily="monospace">
+              <text x="4" y={y0 + 4} fill="var(--text-muted)" fontSize="12" fontFamily="monospace">
                 {LABELS[name]}
               </text>
               <line x1="48" y1={y0} x2={width - 8} y2={y0} stroke="var(--border)" />

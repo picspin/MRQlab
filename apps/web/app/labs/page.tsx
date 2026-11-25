@@ -6,7 +6,7 @@ export default function LabsPage() {
       id: "signal-lab",
       title: "TSE Signal Lab & Teaching Chain",
       category: "Physics & Sequence",
-      desc: "Deep-dive into TSE refocusing flip angle, EPG coherence states, echo trains, and relative SAR thermal deposition.",
+      desc: "Explore TSE refocusing flip angle, EPG coherence states, echo trains, and relative RF power absorption (SAR).",
       link: "/signal-lab",
       badge: "Interactive",
       icon: "⚡"

@@ -57,7 +57,7 @@ export function SlabStackView({
                   height: `${Math.max(4, sliceThickMm * scale)}px`,
                   backgroundColor: color,
                   opacity: isCur ? 1 : 0.45,
-                  border: isCur ? "1px solid var(--text)" : "1px solid transparent",
+                  border: isCur ? ".5px solid var(--text)" : ".5px solid transparent",
                   borderRadius: "2px",
                   cursor: "pointer",
                   padding: 0,

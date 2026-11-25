@@ -251,7 +251,7 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
               return (
                 <g>
                   <line x1={sarX} y1="10" x2={sarX} y2="150" stroke="var(--red-11)" strokeDasharray="4 2" strokeWidth="2" />
-                  <text x={sarX + 6} y="28" fill="var(--red-11)" fontSize="10" fontWeight="bold">
+                  <text x={sarX + 6} y="28" fill="var(--red-11)" fontSize="12" fontWeight="bold">
                     SAR Limit
                   </text>
                 </g>
@@ -281,7 +281,7 @@ export const OptimizeLensView: React.FC<OptimizeLensViewProps> = ({
                       x={Math.min(410, x + 10)}
                       y={y - 8}
                       fill="var(--cyan)"
-                      fontSize="11"
+                      fontSize="12"
                       fontWeight="bold"
                       fontFamily="monospace"
                     >
