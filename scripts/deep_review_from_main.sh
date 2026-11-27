@@ -113,6 +113,9 @@ with open(sys.argv[1], "w") as f:
     json.dump(d, f, ensure_ascii=False, indent=2)
 PYEOF
 then
+  # A rejected report must not stay on disk: check_review_fresh.py would otherwise
+  # accept it on sha + stale alone and let a failed review be cited.
+  rm -f "$out_file"
   echo "ERROR: ${out_file} validation failed (not JSON / review_sha mismatch / findings malformed)" >&2
   exit 1
 fi

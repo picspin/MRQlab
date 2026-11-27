@@ -173,6 +173,52 @@ def test_non_object_json_is_stale_without_traceback(tmp_path):
     assert "Traceback" not in r.stderr
 
 
+def _invalid_report(repo, head, findings):
+    report = repo / "reviews" / f"review-{head}.json"
+    report.parent.mkdir(exist_ok=True)
+    report.write_text(json.dumps({"review_sha": head, "findings": findings, "stale": False}))
+    return report
+
+
+def test_findings_not_a_list_is_stale(tmp_path):
+    # M1: a valid-JSON, sha-matching report with a malformed structure must not read FRESH.
+    repo = _make_scratch(tmp_path)
+    report = _invalid_report(repo, _head(repo), 1)
+    r = _fresh(repo, report)
+    assert r.returncode != 0
+    assert "STALE" in r.stdout
+
+
+def test_finding_missing_field_is_stale(tmp_path):
+    repo = _make_scratch(tmp_path)
+    head = _head(repo)
+    report = _invalid_report(repo, head, [{"severity": "major", "file": "src/x.py", "line": 12}])
+    r = _fresh(repo, report)
+    assert r.returncode != 0
+    assert "STALE" in r.stdout
+
+
+def test_finding_null_field_is_stale(tmp_path):
+    repo = _make_scratch(tmp_path)
+    head = _head(repo)
+    report = _invalid_report(
+        repo,
+        head,
+        [{"severity": "major", "file": "src/x.py", "line": 12, "evidence": None, "suggestion": "s"}],
+    )
+    r = _fresh(repo, report)
+    assert r.returncode != 0
+    assert "STALE" in r.stdout
+
+
+def test_finding_non_object_is_stale(tmp_path):
+    repo = _make_scratch(tmp_path)
+    report = _invalid_report(repo, _head(repo), ["not an object"])
+    r = _fresh(repo, report)
+    assert r.returncode != 0
+    assert "STALE" in r.stdout
+
+
 # --- wrapper output (write side) --------------------------------------------
 
 
@@ -245,6 +291,20 @@ def test_wrapper_rejects_finding_null_field(tmp_path, fake_claude):
 
     assert r.returncode != 0
     assert "validation failed" in r.stderr
+
+
+def test_wrapper_removes_report_rejected_by_validation(tmp_path, fake_claude):
+    # M1: a report the wrapper rejects must not survive on disk for the reader to cite.
+    repo = _make_scratch(tmp_path)
+    _add_work_branch(repo)
+    head = _head(repo)
+    bindir, stdin_path = fake_claude
+
+    r = _run_wrapper(repo, bindir, stdin_path, "work", fake_mode="missingfield")
+
+    assert r.returncode != 0
+    report = repo / "reviews" / f"review-{head}.json"
+    assert not report.exists(), "a rejected report must not be left for check_review_fresh.py"
 
 
 def test_reviews_dir_is_gitignored():
