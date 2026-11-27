@@ -52,6 +52,12 @@ export PYTHONPATH="packages/sequence-ir:packages/physics:packages/recon:packages
 staged=$(git diff --cached --name-only)
 [ -z "$staged" ] && exit 0
 
+# The A-line checklist also checks staged whitespace. Base-only repositories
+# need not have it; where present, both independent gates must pass.
+if [ -f scripts/check_staged.py ]; then
+    "$PY" scripts/check_staged.py
+fi
+
 # Classify the staged diff, verify each triggered surface's guard tests exist,
 # and execute its checks. One command so the header comment above is literally
 # what happens: a triggered surface is both checked and run.

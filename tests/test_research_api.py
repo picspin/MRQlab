@@ -58,7 +58,7 @@ def test_echo_weight_model_failure_is_visible_and_catalog_stays_locked():
     assert 'scanner' not in data['replay_request']['parameters']
     # The product catalog does not acquire these research-only chains.
     catalog=client.get('/protocol-recipes').json()
-    assert len(catalog['recipes'])==2
+    assert len(catalog['recipes'])==4
 
 
 def test_live_source_edit_is_rejected_until_server_restart(monkeypatch):
@@ -226,7 +226,7 @@ def test_flow_epi_runs_actual_gradients_images_and_exact_replay():
     assert r['provenance']['waveform']['delta_encoding_m1_t_s2_m']>0
     assert r['executions'][0]['tissues']['blood']['samples'][0]['value'][1] is not None
     assert client.post('/research/run',json=data['replay_request']).json()['result_hash']==data['result_hash']
-    assert len(client.get('/protocol-recipes').json()['recipes'])==2
+    assert len(client.get('/protocol-recipes').json()['recipes'])==4
 
 
 def test_flow_epi_partial_readout_and_missing_pair_remain_unmeasured():

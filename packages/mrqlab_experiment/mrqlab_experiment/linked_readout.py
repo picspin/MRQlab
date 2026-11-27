@@ -23,6 +23,20 @@ def complex_values(data):
     return dict(real=a.real.tolist(), imag=a.imag.tolist())
 
 
+def signal_from_linked_image(pair):
+    """Recover complete Cartesian samples in their original acquisition order.
+
+    This Fourier relation is not a new physical simulation or an image edit.
+    """
+    verify_linked_readout(pair)
+    image = pair['image']
+    values = image['values']
+    data = (np.asarray(values['real']) + 1j * np.asarray(values['imag'])).reshape(image['shape'])
+    grid = np.fft.fftshift(np.fft.fftn(np.fft.ifftshift(data)))
+    indices = np.asarray(pair['signal_vector']['grid_indices'])
+    return complex_values(grid[tuple(indices.T)])
+
+
 class Strict(BaseModel):
     model_config = ConfigDict(extra='forbid', strict=True, allow_inf_nan=False)
 

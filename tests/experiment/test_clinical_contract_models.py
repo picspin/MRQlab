@@ -177,3 +177,42 @@ def test_parameter_state_rejects_unknown_units(unit):
 def test_acquisition_constraint_rejects_incompatible_units(metric, unit):
     with pytest.raises(ValidationError, match="unit"):
         AcquisitionConstraint(id="bad", metric=metric, operator="le", value=1, unit=unit, severity="hard")
+
+
+@pytest.mark.parametrize("bad", ["NaN", "Infinity", "-Infinity"])
+def test_clinical_contract_rejects_nonfinite_numeric_strings(bad):
+    from mrqlab_experiment.clinical import ContrastMetric, ScannerProfile
+    from mrqlab_experiment.clinical_catalog import RESEARCH_3T
+
+    with pytest.raises(ValueError):
+        ContrastMetric(id="x", target_tissue_id="a", reference_tissue_id="b",
+                       metric="signal_ratio", direction="target", target_value=bad, weight=1)
+    with pytest.raises(ValueError):
+        ScannerProfile.model_validate({**RESEARCH_3T.model_dump(), "b0_t": bad})
+
+
+@pytest.mark.parametrize("field", ["targets", "references", "confounders"])
+def test_duplicate_tissue_role_references_are_rejected(field):
+    data = _priors().model_dump()
+    data[field] = (*data[field], dict(data[field][0]))
+    with pytest.raises(ValidationError, match="unique"):
+        TissuePriorSet.model_validate(data)
+
+
+@pytest.mark.parametrize("field", ["robustness", "constraints"])
+def test_duplicate_recipe_item_ids_are_rejected(field):
+    from mrqlab_experiment.clinical_catalog import BRAIN_LESION_T2_TSE
+
+    data = BRAIN_LESION_T2_TSE.model_dump()
+    data[field] = (*data[field], dict(data[field][0]))
+    with pytest.raises(ValidationError, match="unique"):
+        ClinicalProtocolRecipe.model_validate(data)
+
+
+def test_duplicate_scanner_default_names_are_rejected():
+    from mrqlab_experiment.clinical_catalog import RESEARCH_3T
+
+    data = RESEARCH_3T.model_dump()
+    data["defaults"] = (*data["defaults"], dict(data["defaults"][0]))
+    with pytest.raises(ValidationError, match="unique"):
+        ScannerProfile.model_validate(data)

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import math
 from time import perf_counter
-from typing import Iterable
+from typing import Iterable, Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -16,6 +16,19 @@ from .clinical import ParameterState
 from .kernel import run_experiment
 from .models import ExperimentGraph, TemplateRef
 from .observations import build_result_graph
+
+
+class ConstraintAssessment(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    id: str
+    metric: str
+    operator: str
+    limit: float
+    unit: str
+    severity: Literal["hard", "soft"]
+    status: Literal["pass", "fail", "unavailable"]
+    observed_value: float | None
+    source: str
 
 
 class SearchPoint(BaseModel):
@@ -30,6 +43,7 @@ class SearchPoint(BaseModel):
     experiment_hash: str
     resolved_parameters: tuple[ParameterState, ...]
     feasible: bool
+    constraint_assessments: tuple[ConstraintAssessment, ...] = ()
     gradient_check: str = "unavailable: teaching gradient amplitudes have no physical units"
     safety_scope: str = "teaching RF energy and timing proxies; not hardware safety certification"
 
@@ -43,6 +57,9 @@ class ClinicalSearchResult(BaseModel):
     objective: dict
     baseline_parameters: dict[str, float | int]
     parameter_units: dict[str, str]
+    max_rf_energy_relative: float
+    max_repetition_duration_s: float
+    recipe_constraints_enforced: bool = False
     selection: str = "minimum clinical vector loss among feasible simulated candidates"
 
 
@@ -52,15 +69,23 @@ def search_clinical_parameters(
     *,
     max_rf_energy_relative: float,
     max_repetition_duration_s: float,
+    enforce_recipe_constraints: bool = False,
 ) -> ClinicalSearchResult:
     """Run baseline and each candidate; retain scores, timing and provenance.
 
     Inputs use seconds and degrees, just as TemplateRef does. No fallback to the
     closed-form optimizer is allowed. No feasible candidate yields best=None.
     The caller's graph is never mutated; the selected point can be replayed.
+    Recipe constraints are opt-in: only ideal TSE echo spacing is measured;
+    unsupported hard constraints exclude candidates and soft constraints are
+    reported without affecting selection. This is not scanner safety review.
     """
     if not isinstance(graph.sequence, TemplateRef) or graph.sequence.template.upper() not in {"SE", "GRE", "TSE"}:
         raise ValueError("search requires an existing SE/GRE/TSE template")
+    if type(enforce_recipe_constraints) is not bool:
+        raise ValueError("enforce_recipe_constraints must be a boolean")
+    if enforce_recipe_constraints and graph.clinical_recipe is None:
+        raise ValueError("protocol constraint checks require a clinical recipe")
     if graph.objective is None or graph.objective.kind != "clinical_vector" or graph.objective.clinical_vector is None or not graph.objective.clinical_vector.terms:
         raise ValueError("search requires a nonempty clinical objective vector")
     tissues = graph.tissue if isinstance(graph.tissue, tuple) else ((graph.tissue,) if graph.tissue else ())
@@ -72,9 +97,13 @@ def search_clinical_parameters(
     if any(term.target_tissue_id not in ids or term.reference_tissue_id not in ids for term in graph.objective.clinical_vector.terms):
         raise ValueError("objective references unknown tissue")
     for limit in (max_rf_energy_relative, max_repetition_duration_s):
-        if not math.isfinite(limit) or limit <= 0:
+        if isinstance(limit, bool) or not isinstance(limit, (int, float)) or not math.isfinite(limit) or limit <= 0:
             raise ValueError("search limits must be finite and positive")
     allowed = {"te": "s", "tr": "s", "flip_angle": "deg", "refocusing_flip_angle": "deg"}
+    if graph.sequence.template.upper() == "GRE":
+        if "refocusing_flip_angle" in graph.sequence.params:
+            raise ValueError("GRE baseline does not support refocusing_flip_angle")
+        del allowed["refocusing_flip_angle"]
     started = perf_counter()
 
     def evaluate(parameters):
@@ -92,6 +121,25 @@ def search_clinical_parameters(
         energy = sum((float(e.value) / 180.0) ** 2 for ch in run.sequence.channels if ch.name == "rf_amp" for e in ch.events)
         if not math.isfinite(loss):
             raise ValueError("non-finite clinical objective")
+        assessments = []
+        if enforce_recipe_constraints:
+            for constraint in candidate.clinical_recipe.constraints:
+                value = None
+                source = "unavailable: no supported measurement for this constraint"
+                if constraint.metric == "echo_spacing_s" and candidate.sequence.template.upper() == "TSE":
+                    value = float(run.sequence.metadata["te"])
+                    source = "compiled ideal TSE echo spacing; not scanner validation"
+                if value is None:
+                    status = "unavailable"
+                else:
+                    passed = {"le": value <= constraint.value, "ge": value >= constraint.value, "eq": value == constraint.value}[constraint.operator]
+                    status = "pass" if passed else "fail"
+                assessments.append(ConstraintAssessment(
+                    id=constraint.id, metric=constraint.metric, operator=constraint.operator,
+                    limit=constraint.value, unit=constraint.unit, severity=constraint.severity,
+                    status=status, observed_value=value, source=source,
+                ))
+        hard_ok = all(item.status == "pass" for item in assessments if item.severity == "hard")
         return SearchPoint(
             parameters=dict(parameters), objective_loss=loss,
             repetition_duration_s=run.sequence.duration, rf_energy_relative=energy,
@@ -99,7 +147,8 @@ def search_clinical_parameters(
             engine=run.plan.engine,
             experiment_hash=observations["objective_score"].provenance.experiment_hash,
             resolved_parameters=run.plan.parameters,
-            feasible=energy <= max_rf_energy_relative and run.sequence.duration <= max_repetition_duration_s,
+            feasible=energy <= max_rf_energy_relative and run.sequence.duration <= max_repetition_duration_s and hard_ok,
+            constraint_assessments=tuple(assessments),
         )
 
     baseline = evaluate({})
@@ -114,4 +163,7 @@ def search_clinical_parameters(
         objective=graph.objective.clinical_vector.model_dump(mode="json"),
         baseline_parameters=dict(graph.sequence.params),
         parameter_units={k: allowed[k] for p in points for k in p.parameters},
+        max_rf_energy_relative=max_rf_energy_relative,
+        max_repetition_duration_s=max_repetition_duration_s,
+        recipe_constraints_enforced=enforce_recipe_constraints,
     )
