@@ -3,6 +3,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, 
 
 from mrqlab_experiment import plan_experiment
 
+from .config import configure_lease_verifier
 from .license import LeaseVerifier, require_entitlement
 from .models import CapabilityResponse, JobSubmitRequest
 from .providers import CpuExecutionProvider, ProviderRegistry
@@ -14,7 +15,10 @@ store = JobStore()
 cpu_provider = CpuExecutionProvider(store)
 providers = ProviderRegistry((cpu_provider,))
 local_security = LocalSecurity(frozenset({"https://app.mrqlab.local", "http://127.0.0.1:3000"}))
-lease_verifier: LeaseVerifier | None = None
+# Configured from the process environment at import. A misprovisioned or
+# unprovisioned deployment still starts: the gate stays unconfigured (lease
+# routes answer 503) and the reason is logged loudly rather than crashing.
+lease_verifier: LeaseVerifier | None = configure_lease_verifier()
 
 
 def require_local_security(request: Request, response: Response):
@@ -32,9 +36,9 @@ def verify_lease(authorization: str = Header(default="")):
             wall_time=time.time(), monotonic_time=time.monotonic(),
         )
         return decision
-    except PermissionError as exc:
-        raise HTTPException(403, str(exc)) from exc
     except ValueError as exc:
+        # LeaseVerifier normalizes malformed/untrusted claims and signatures to
+        # ValueError; feature entitlement is checked separately by each route.
         raise HTTPException(401, str(exc)) from exc
 
 
@@ -124,5 +128,8 @@ def capabilities():
     return CapabilityResponse(
         features={feature: True for provider in (cpu_provider,) for feature in provider.capabilities().features},
         workers=tuple({"id": item.id, "device": item.device, "status": "ready"} for item in descriptors),
-        license={"state": "configured" if lease_verifier is not None else "unconfigured", "offline": False, "expires_at": None},
+        # This unauthenticated discovery endpoint reports gateway configuration,
+        # not a caller's lease. It has no verified lease from which an expiry
+        # could be derived, so do not advertise a permanently-null expires_at.
+        license={"state": "configured" if lease_verifier is not None else "unconfigured", "offline": False},
     )

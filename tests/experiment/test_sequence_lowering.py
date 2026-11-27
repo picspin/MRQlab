@@ -135,3 +135,106 @@ def test_lowering_rejects_adc_overlapping_post_quantization_rf_guard():
     ))
     with pytest.raises(ValueError, match="ADC acquisition overlaps with RF pulse, dead time, or ringdown"):
         lower_sequence(logical, RESEARCH_3T)
+
+
+@pytest.mark.parametrize("channel", ["rf", "gx", "adc"])
+def test_lowering_rejects_same_channel_overlap_after_quantization(channel):
+    rf = RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6)
+    gradient = GradientWaveform(axis="gx", samples_mt_m=(0, 1), raster_s=10e-6)
+    adc = AdcWindow(delay_s=0, dwell_s=1e-6, sample_count=2)
+    content = {"rf": {"rf": rf}, "gx": {"gradients": (gradient,)}, "adc": {"adc": adc}}[channel]
+    # Distinct logical times quantize to the same hardware raster start.
+    logical = LogicalSequenceIR(id="collision", duration_s=.01, blocks=(
+        LogicalBlock(id="a", start_s=0, **content),
+        LogicalBlock(id="b", start_s=0.4e-6, **content),
+    ))
+    with pytest.raises(ValueError, match=f"overlapping {channel} channel"):
+        lower_sequence(logical, RESEARCH_3T)
+
+
+def test_lowering_allows_parallel_distinct_gradient_axes_and_adjacent_blocks():
+    gx = GradientWaveform(axis="gx", samples_mt_m=(0, 1), raster_s=10e-6)
+    gy = GradientWaveform(axis="gy", samples_mt_m=(0, 1), raster_s=10e-6)
+    logical = LogicalSequenceIR(id="parallel", duration_s=.01, blocks=(
+        LogicalBlock(id="x1", start_s=0, gradients=(gx,)),
+        LogicalBlock(id="y", start_s=0, gradients=(gy,)),
+        LogicalBlock(id="x2", start_s=20e-6, gradients=(gx,)),
+    ))
+    assert len(lower_sequence(logical, RESEARCH_3T).blocks) == 3
+
+
+def _gradient_sequence(*blocks):
+    return LogicalSequenceIR(id="gradient-boundaries", duration_s=.01, blocks=blocks)
+
+
+def _gx(block_id, start, samples, raster=10e-6):
+    return LogicalBlock(id=block_id, start_s=start, gradients=(
+        GradientWaveform(axis="gx", samples_mt_m=samples, raster_s=raster),
+    ))
+
+
+def test_lowering_rejects_nonzero_initial_and_terminal_gradient_jumps():
+    with pytest.raises(ValueError, match="boundary slew.*start of first"):
+        lower_sequence(_gradient_sequence(_gx("first", 0, (3, 2, 1, 0))), RESEARCH_3T)
+    with pytest.raises(ValueError, match="boundary slew.*end of last"):
+        lower_sequence(_gradient_sequence(_gx("last", 0, (0, 1, 2, 3))), RESEARCH_3T)
+
+
+def test_lowering_rejects_cross_block_slew_even_when_internal_slew_passes():
+    sequence = _gradient_sequence(_gx("first", 0, (0, 1, 2, 3)), _gx("second", 40e-6, (-.1, 0)))
+    with pytest.raises(ValueError, match="boundary slew.*first -> second"):
+        lower_sequence(sequence, RESEARCH_3T)
+
+
+def test_initial_gradient_entry_uses_idle_time_from_sequence_start():
+    # The channel is zero from t=0 until the first block starts at 10 us.
+    # Its 4 mT/m first sample therefore enters over 10 us (400 T/m/s), not
+    # the waveform's 20 us raster (200 T/m/s).
+    sequence = _gradient_sequence(_gx("initial", 10e-6, (4, 0), 20e-6))
+    with pytest.raises(ValueError, match="boundary slew.*start of initial"):
+        lower_sequence(sequence, RESEARCH_3T)
+
+
+def test_terminal_gradient_requires_a_valid_return_to_zero():
+    sequence = _gradient_sequence(_gx("first", 0, (0, 1, 2, 3)), _gx("second", 50e-6, (0, 1, 0)))
+    with pytest.raises(ValueError, match="boundary slew.*end of first"):
+        lower_sequence(sequence, RESEARCH_3T)
+
+
+def test_short_idle_gap_limits_next_waveform_entry_slew():
+    sequence = _gradient_sequence(_gx("first", 0, (0, 0)), _gx("second", 30e-6, (3, 0), 50e-6))
+    with pytest.raises(ValueError, match="boundary slew.*start of second"):
+        lower_sequence(sequence, RESEARCH_3T)
+
+
+def test_adjacent_mixed_rasters_accept_exact_nominal_slew_limit():
+    # The previous waveform supplies the interval between its last sample and
+    # the next block's first: 4 mT/m in 20 us = exactly 200 T/m/s.
+    sequence = _gradient_sequence(_gx("first", 0, (0, 3), 20e-6), _gx("second", 40e-6, (-1, 0)))
+    assert len(lower_sequence(sequence, RESEARCH_3T).blocks) == 2
+
+
+def test_adjacent_decimal_raster_boundaries_do_not_falsely_overlap():
+    sequence = _gradient_sequence(_gx("first", 0, (0, 1, 0)), _gx("second", 30e-6, (0, 1, 0)))
+    assert len(lower_sequence(sequence, RESEARCH_3T).blocks) == 2
+
+
+def test_adc_can_start_exactly_at_rf_guard_end():
+    rf = RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6)
+    adc = AdcWindow(delay_s=0, dwell_s=1e-6, sample_count=2)
+    # 2 us RF + 100 us dead time + 30 us ringdown = 132 us.
+    logical = LogicalSequenceIR(id="rf-boundary", duration_s=.01, blocks=(
+        LogicalBlock(id="rf", start_s=0, rf=rf),
+        LogicalBlock(id="adc", start_s=132e-6, adc=adc),
+    ))
+    assert len(lower_sequence(logical, RESEARCH_3T).blocks) == 2
+
+
+@pytest.mark.parametrize("value", [float("inf"), float("-inf"), float("nan")])
+def test_sequence_models_reject_nonfinite_timing_and_offsets(value):
+    with pytest.raises(ValueError):
+        RfWaveform(samples_ut=(1, 1), phase_rad=(0, 0), raster_s=1e-6, carrier_offset_hz=value)
+    with pytest.raises(ValueError):
+        AdcWindow(delay_s=0, dwell_s=1e-6, sample_count=2, phase_offset_rad=value)
+    with pytest.raises(ValueError):
+        LogicalSequenceIR(id="bad-duration", duration_s=value, blocks=())

@@ -16,6 +16,7 @@ import re
 import sqlite3
 import tempfile
 import time
+from itertools import product
 from typing import Annotated, Literal
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import Response
@@ -28,6 +29,11 @@ from mrqlab_experiment.calibrated_radial import CalibratedRadialStudy, run_calib
 from mrqlab_experiment.flow_study import FlowStudy,VelocityDataset,run_flow_study
 from mrqlab_experiment.tse_control import apply_tse_edits
 from mrqlab_experiment.sequence_operations import OperationSequence, apply_operation_edits, run_operation_sequence
+from mrqlab_experiment.waveform_bloch import WaveformBlochPlan, run_waveform_bloch
+from mrqlab_experiment.waveform_search import WaveformSearch, search_waveform_bloch
+from mrqlab_experiment.waveform_cartesian import CartesianWaveformPlan, apply_waveform_cartesian_edits, run_waveform_cartesian, waveform_cartesian_controls
+from mrqlab_experiment.waveform_image_search import WaveformImageSearch, candidate_parameters as image_candidate_parameters, search_waveform_image
+from mrqlab_experiment.measured_waveform_image import MeasuredWaveformStudy, build_measured_waveform_example, lab_t2_binding, run_measured_waveform_study
 from mrqlab_experiment.linked_readout import LinkedEdit, verify_linked_readout
 from mrqlab_experiment.agentic_inference import infer_tissue_modalities, verify_agentic_inference
 from .research import (
@@ -101,8 +107,32 @@ class OperationSequencePlan(Strict):
     parameters: OperationSequence
 
 
+class WaveformPlan(Strict):
+    type: Literal['waveform_bloch']='waveform_bloch'
+    parameters: WaveformBlochPlan
+
+
+class WaveformSearchPlan(Strict):
+    type: Literal['waveform_search']='waveform_search'
+    parameters: WaveformSearch
+
+
+class WaveformCartesianPlan(Strict):
+    type: Literal['waveform_cartesian']='waveform_cartesian'
+    parameters: CartesianWaveformPlan
+
+
+class WaveformImageSearchPlan(Strict):
+    type: Literal['waveform_image_search']='waveform_image_search'
+    parameters: WaveformImageSearch
+
+
 class EditedOperationsPlan(LinkedParentEdits):
     type: Literal['edited_operations']='edited_operations'
+
+
+class EditedWaveformCartesianPlan(LinkedParentEdits):
+    type: Literal['edited_waveform_cartesian']='edited_waveform_cartesian'
 
 
 class CalibratedRadialPlan(Strict):
@@ -112,9 +142,16 @@ class CalibratedRadialPlan(Strict):
     study: CalibratedRadialStudy=Field(default_factory=CalibratedRadialStudy)
 
 
+class MeasuredWaveformPlan(Strict):
+    type: Literal['measured_waveform_image']='measured_waveform_image'
+    parent_record_sha256: str=Field(pattern=r'^[a-f0-9]{64}$')
+    parent_record: dict | None=None
+    study: MeasuredWaveformStudy
+
+
 class ScientificPlan(Strict):
     context: StudyContext
-    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan | OperationSequencePlan | EditedOperationsPlan,Field(discriminator='type')]
+    execution: Annotated[RunPlan | SearchPlan | MeasuredPlan | MeasuredFlowPlan | EditedTSEPlan | CalibratedRadialPlan | AgenticInferencePlan | OperationSequencePlan | EditedOperationsPlan | WaveformPlan | WaveformSearchPlan | WaveformCartesianPlan | EditedWaveformCartesianPlan | WaveformImageSearchPlan | MeasuredWaveformPlan,Field(discriminator='type')]
     expected_execution_hash: str | None=Field(default=None,pattern=r'^[a-f0-9]{64}$')
 
 
@@ -172,7 +209,64 @@ def _validate_run(run, source):
     # This is the original API hash convention, applied to the lossless payload.
     actual=sha256(json.dumps(run['result'],sort_keys=True,allow_nan=False).encode()).hexdigest()
     if run.get('result_hash')!=actual: raise ValueError('nested research result hash mismatch')
-    if run.get('kind') in {'tse','sequence_operations'} and 'linked_readout' in run['result']:
+    if run.get('kind')=='waveform_cartesian':
+        result=run['result'];pair=result.get('linked_readout')
+        if pair is None: raise ValueError('waveform Cartesian result requires the linked image/signal pair')
+        image=result['image'];samples=result['waveform']['samples'];signal=pair['signal_vector']
+        expected_curves=[dict(label='ADC real',x=[s['time_s'] for s in samples],y=[s['real'] for s in samples]),
+                         dict(label='ADC imaginary',x=[s['time_s'] for s in samples],y=[s['imag'] for s in samples])]
+        if (image['shape']!=pair['image']['shape'] or
+                image['real']!=pair['image']['values']['real'] or image['imag']!=pair['image']['values']['imag'] or
+                len(image['magnitude'])!=len(image['real']) or
+                any(not math.isclose(m,abs(complex(re,im)),rel_tol=1e-12,abs_tol=1e-12)
+                    for m,re,im in zip(image['magnitude'],image['real'],image['imag'])) or
+                [s['real'] for s in samples]!=signal['values']['real'] or
+                [s['imag'] for s in samples]!=signal['values']['imag'] or
+                [s['time_s'] for s in samples]!=signal['sample_times_s'] or
+                result['encoding']['grid_indices']!=signal['grid_indices'] or
+                run['view']['images'][0]['values']!=image['magnitude'] or
+                run['view']['curves']!=expected_curves or
+                run['view']['validation']!=result['validation']):
+            raise ValueError('waveform Cartesian image, signal and preview differ from the linked pair')
+        plan=CartesianWaveformPlan.model_validate(result['provenance']['replay'])
+        tissue_states={t.id:t.model_dump(mode='json') for t in plan.waveform.tissues}
+        refs=pair['provenance']['source_refs']
+        if (pair['provenance']['adapter']!='waveform-cartesian-point-adc-1' or
+                pair['controls']!=waveform_cartesian_controls(plan) or
+                {r['tissue_id'] for r in refs}!=set(tissue_states) or
+                any(fingerprint(r['state'])!=fingerprint(tissue_states[r['tissue_id']]) for r in refs)):
+            raise ValueError('waveform Cartesian controls or tissue source states differ from retained input')
+        validation=result['validation'];image_target=validation['image_target'];point_target=plan.waveform.target
+        if plan.image_target is None:
+            if image_target is not None: raise ValueError('unexpected image target result')
+            image_pass=False
+        else:
+            if image_target is None or image_target['target']!=plan.image_target.model_dump(mode='json'):
+                raise ValueError('image target differs from retained input')
+            ids=[t.id for t in plan.waveform.tissues];labels=[v for row in plan.waveform.labels for v in row]
+            ti=ids.index(plan.image_target.target_tissue_id);ri=ids.index(plan.image_target.reference_tissue_id)
+            tv=[m for m,label in zip(image['magnitude'],labels) if label==ti]
+            rv=[m for m,label in zip(image['magnitude'],labels) if label==ri]
+            measured=math.fsum(tv)/len(tv)-math.fsum(rv)/len(rv)
+            if not math.isclose(image_target['measured'],measured,rel_tol=1e-12,abs_tol=1e-12):
+                raise ValueError('image target measurement differs from reconstructed pixels')
+            image_pass=image_target['measured']>=plan.image_target.value if plan.image_target.operator=='ge' else image_target['measured']<=plan.image_target.value
+            if image_target['passed']!=image_pass: raise ValueError('image target pass status differs')
+        signal_validation=result['waveform']['validation']
+        if point_target is None:
+            if validation['signal_target'] is not None: raise ValueError('unexpected signal target result')
+            signal_pass=True
+        else:
+            if validation['signal_target']!=signal_validation or signal_validation['target']!=point_target.model_dump(mode='json'):
+                raise ValueError('signal target differs from retained input')
+            sample=samples[point_target.sample_index]
+            measured=abs(complex(sample['real'],sample['imag'])) if point_target.metric=='magnitude' else sample[point_target.metric]
+            if not math.isclose(signal_validation['measured'],measured,rel_tol=1e-12,abs_tol=1e-12):
+                raise ValueError('signal target measurement differs from ADC sample')
+            signal_pass=signal_validation['measured']>=point_target.value if point_target.operator=='ge' else signal_validation['measured']<=point_target.value
+            if signal_validation['passed']!=signal_pass: raise ValueError('signal target pass status differs')
+        if validation['passed']!=bool(image_pass and signal_pass): raise ValueError('combined waveform target status differs')
+    if run.get('kind') in {'tse','sequence_operations','waveform_cartesian'} and 'linked_readout' in run['result']:
         pair=run['result']['linked_readout'];verify_linked_readout(pair)
         if pair['provenance']['inputs_sha256']!=fingerprint(run['replay_request']['parameters']):
             raise ValueError('linked input pin differs from retained computation')
@@ -212,22 +306,30 @@ def _agentic_view(inference):
 def _edit_parent(execution):
     parent=execution['parent_record']
     if not isinstance(parent,dict) or parent.get('record_sha256')!=execution['parent_record_sha256']: raise ValueError('edit parent record identity mismatch')
-    operation_mode=execution['type']=='edited_operations'
-    edit_mode='edited_operations' if operation_mode else 'edited_tse'
+    edit_mode=execution['type'] if execution['type'] in {'edited_operations','edited_waveform_cartesian'} else 'edited_tse'
+    edit_modes={'edited_tse','edited_operations','edited_waveform_cartesian'}
     cursor=parent;depth=1
-    while _loads(cursor['request_json'])['execution']['type'] in {'edited_tse','edited_operations'}:
+    while _loads(cursor['request_json'])['execution']['type'] in edit_modes:
         if _loads(cursor['request_json'])['execution']['type']!=edit_mode:
             raise ValueError('edit parent adapter lineage differs; mixed edit chains are unsupported')
         depth+=1
-        if depth>3: raise ValueError('at most three '+('operation' if operation_mode else 'TSE')+' edit generations are supported; no unbounded parent replay')
+        if depth>3:
+            name={'edited_operations':'operation','edited_tse':'TSE','edited_waveform_cartesian':'waveform Cartesian'}[edit_mode]
+            raise ValueError('at most three '+name+' edit generations are supported; no unbounded parent replay')
         cursor=_loads(cursor['request_json'])['execution']['parent_record']
     verify_scientific_record(parent)
     payload=_loads(parent['payload_json'])
     if parent['summary']['mode']==edit_mode: run=payload['run']
-    elif operation_mode and parent['summary']['mode']=='operation_sequence': run=payload
-    elif not operation_mode and parent['summary']['mode']=='run' and parent['summary']['kind']=='tse': run=payload
-    else: raise ValueError('semantic edits require a matching operation sequence parent' if operation_mode else 'semantic edits require a TSE run or edited TSE parent')
-    if run['kind']!=('sequence_operations' if operation_mode else 'tse'):
+    elif edit_mode=='edited_operations' and parent['summary']['mode']=='operation_sequence': run=payload
+    elif edit_mode=='edited_waveform_cartesian' and parent['summary']['mode']=='waveform_cartesian': run=payload
+    elif edit_mode=='edited_tse' and parent['summary']['mode']=='run' and parent['summary']['kind']=='tse': run=payload
+    else:
+        messages={'edited_operations':'semantic edits require a matching operation sequence parent',
+                  'edited_tse':'semantic edits require a TSE run or edited TSE parent',
+                  'edited_waveform_cartesian':'semantic edits require a waveform Cartesian parent'}
+        raise ValueError(messages[edit_mode])
+    expected_kind={'edited_operations':'sequence_operations','edited_waveform_cartesian':'waveform_cartesian','edited_tse':'tse'}[edit_mode]
+    if run['kind']!=expected_kind:
         raise ValueError('edit parent adapter kind differs')
     if 'linked_readout' not in run['result']: raise ValueError('parent lacks complete linked image/signal data')
     return parent,run
@@ -235,7 +337,7 @@ def _edit_parent(execution):
 
 def _run_origins(run):
     origins={'authored_model_inputs'}
-    if run.get('kind')=='sequence_operations': origins.add('synthetic')
+    if run.get('kind') in {'sequence_operations','waveform_bloch','waveform_cartesian'}: origins.add('synthetic')
     if run.get('kind')=='tse':
         for physical in run['result']['provenance']['physical']:
             for binding in physical.get('contrast_relaxation_bindings',[]): origins.add(binding['exposure']['origin'])
@@ -254,6 +356,87 @@ def _operation_run(parameters, source):
     return run
 
 
+def _waveform_run(parameters, source):
+    result=run_waveform_bloch(parameters)
+    samples=result['samples'];times=[s['time_s'] for s in samples]
+    view=dict(images=[],curves=[dict(label='ADC real',x=times,y=[s['real'] for s in samples]),
+                               dict(label='ADC imaginary',x=times,y=[s['imag'] for s in samples])],
+              x_label='Time (s)',y_label='Signal (a.u.)',
+              metrics={'ADC samples':float(len(samples)), 'Voxel steps':float(result['work']['voxel_steps'])},
+              validation=result['validation'])
+    run=dict(kind='waveform_bloch',result=result,view=view,source_hash=source,
+             replay_request=dict(kind='waveform_bloch',parameters=result['provenance']['replay'],expected_source_hash=source))
+    run['result_hash']=sha256(json.dumps(result,sort_keys=True,allow_nan=False).encode()).hexdigest()
+    return run
+
+
+def _waveform_search_run(parameters, source):
+    result=search_waveform_bloch(parameters)
+    selected=result['selected_index'];curves=[]
+    if selected is not None:
+        scenario=result['candidates'][selected]['scenarios'][0]
+        samples=scenario['refined']['samples']
+        times=[s['time_s'] for s in samples]
+        curves=[dict(label='ADC real · '+scenario['id'],x=times,y=[s['real'] for s in samples]),
+                dict(label='ADC imaginary · '+scenario['id'],x=times,y=[s['imag'] for s in samples])]
+    view=dict(images=[],curves=curves,x_label='Time (s)',y_label='Signal (a.u.)',
+              metrics={'Candidates':float(len(result['candidates'])), 'Voxel steps':float(result['work']['total_voxel_steps'])},
+              validation=result['validation'])
+    run=dict(kind='waveform_search',result=result,view=view,source_hash=source,
+             replay_request=dict(kind='waveform_search',parameters=result['provenance']['replay'],expected_source_hash=source))
+    run['result_hash']=sha256(json.dumps(result,sort_keys=True,allow_nan=False).encode()).hexdigest()
+    return run
+
+
+def _waveform_cartesian_view(result):
+    image=result['image'];samples=result['waveform']['samples'];times=[s['time_s'] for s in samples]
+    return dict(images=[dict(label='Sequential ADC reconstruction magnitude',width=image['shape'][1],height=image['shape'][0],values=image['magnitude'])],
+              curves=[dict(label='ADC real',x=times,y=[s['real'] for s in samples]),
+                      dict(label='ADC imaginary',x=times,y=[s['imag'] for s in samples])],
+              x_label='Time (s)',y_label='Signal (a.u.)',
+              metrics={'ADC samples':float(len(samples)), 'Cartesian trajectory error (cycles/m)':result['encoding']['max_error_cycles_m']},
+              validation=result['validation'])
+
+
+def _waveform_cartesian_run(parameters, source):
+    result=run_waveform_cartesian(parameters)
+    view=_waveform_cartesian_view(result)
+    run=dict(kind='waveform_cartesian',result=result,view=view,source_hash=source,
+             replay_request=dict(kind='waveform_cartesian',parameters=result['provenance']['replay'],expected_source_hash=source))
+    run['result_hash']=sha256(json.dumps(result,sort_keys=True,allow_nan=False).encode()).hexdigest()
+    return run
+
+
+def _waveform_image_search_run(parameters, source):
+    result=search_waveform_image(parameters);selected=result['selected_index'];images=[];curves=[]
+    if selected is not None:
+        scenario=result['candidates'][selected]['scenarios'][0];chosen=scenario['refined']
+        image=chosen['image'];samples=chosen['waveform']['samples'];times=[s['time_s'] for s in samples]
+        images=[dict(label='Selected reconstruction · '+scenario['id'],width=image['shape'][1],height=image['shape'][0],values=image['magnitude'])]
+        curves=[dict(label='ADC real · '+scenario['id'],x=times,y=[s['real'] for s in samples]),
+                dict(label='ADC imaginary · '+scenario['id'],x=times,y=[s['imag'] for s in samples])]
+    view=dict(images=images,curves=curves,x_label='Time (s)',y_label='Signal (a.u.)',
+              metrics={'Candidates':float(len(result['candidates'])),'Voxel steps':float(result['work']['total_voxel_steps'])},
+              validation=result['validation'])
+    run=dict(kind='waveform_image_search',result=result,view=view,source_hash=source,
+             replay_request=dict(kind='waveform_image_search',parameters=result['provenance']['replay'],expected_source_hash=source))
+    run['result_hash']=sha256(json.dumps(result,sort_keys=True,allow_nan=False).encode()).hexdigest()
+    return run
+
+
+def _measured_waveform_view(derived):
+    selected=derived['selected_index'];images=[];curves=[]
+    if selected is not None:
+        scenario=derived['stress_runs'][0]['result']['candidates'][selected]['scenarios'][0]
+        chosen=scenario['refined'];image=chosen['image'];samples=chosen['waveform']['samples'];times=[s['time_s'] for s in samples]
+        images=[dict(label='Nominal T2 reconstruction · '+scenario['id'],width=image['shape'][1],height=image['shape'][0],values=image['magnitude'])]
+        curves=[dict(label='ADC real · '+scenario['id'],x=times,y=[s['real'] for s in samples]),
+                dict(label='ADC imaginary · '+scenario['id'],x=times,y=[s['imag'] for s in samples])]
+    return dict(images=images,curves=curves,x_label='Time (s)',y_label='Signal (a.u.)',
+                metrics={'Candidates':float(len(derived['candidates'])),'Voxel steps':float(derived['work']['total_voxel_steps'])},
+                validation=derived['validation'])
+
+
 
 def _parent_measurement(execution):
     parent=execution.get('parent_record')
@@ -267,16 +450,191 @@ def _parent_measurement(execution):
     verify_scientific_record(parent)
     return parent,_loads(parent['payload_json'])['record']
 
+def _validate_image_search(result, parameters, source):
+    """Check retained candidate inputs, linked data, metrics and selection basis."""
+    search=WaveformImageSearch.model_validate(parameters);total=0
+    if len(result['candidates'])!=len(search.scales): raise ValueError('image search candidate count differs')
+    for index,(candidate,scale) in enumerate(zip(result['candidates'],search.scales)):
+        if candidate['index']!=index or candidate['scale']!=scale: raise ValueError('image search candidate identity differs')
+        if not candidate['executable']:
+            if candidate['eligible'] or candidate['scenarios'] or candidate['estimated_work']!=0 or not candidate['reasons']:
+                raise ValueError('invalid image search candidate state')
+            continue
+        if [s['id'] for s in candidate['scenarios']]!=[s.id for s in search.scenarios]:
+            raise ValueError('image search scenario order differs')
+        block=next(b for b in search.base.waveform.sequence.blocks if b.id==search.rf_block_id)
+        energy=float(sum((v*scale)**2 for v in block.rf.samples_ut)*block.rf.raster_s)
+        if candidate['rf_energy_proxy_ut2_s']!=energy: raise ValueError('image search RF energy differs')
+        work=0;reasons=[]
+        for scenario,declared in zip(candidate['scenarios'],search.scenarios):
+            for key,refined in [('coarse',False),('refined',True)]:
+                run_result=scenario[key];expected=image_candidate_parameters(search,scale,declared,refined)
+                if fingerprint(run_result['provenance']['replay'])!=fingerprint(expected):
+                    raise ValueError('image search scenario inputs differ from declared grid')
+                synthetic=dict(kind='waveform_cartesian',result=run_result,view=_waveform_cartesian_view(run_result),source_hash=source,
+                    replay_request=dict(parameters=expected,expected_source_hash=source),
+                    result_hash=sha256(json.dumps(run_result,sort_keys=True,allow_nan=False).encode()).hexdigest())
+                _validate_run(synthetic,source)
+            coarse,fine=scenario['coarse'],scenario['refined']
+            cw=coarse['waveform']['work']['voxel_steps'];fw=fine['waveform']['work']['voxel_steps']
+            if fw!=2*cw: raise ValueError('image search refinement work differs')
+            work+=cw+fw
+            a=coarse['waveform']['samples'];b=fine['waveform']['samples']
+            if len(a)!=len(b): raise ValueError('image search refinement sample count differs')
+            signal_error=max(abs(complex(x['real']-y['real'],x['imag']-y['imag'])) for x,y in zip(a,b))
+            ai=coarse['image'];bi=fine['image']
+            image_error=max(abs(complex(ar-br,am-bm)) for ar,am,br,bm in zip(ai['real'],ai['imag'],bi['real'],bi['imag']))
+            refined=signal_error<=search.signal_refinement_tolerance and image_error<=search.image_refinement_tolerance
+            target=coarse['validation']['passed'] and fine['validation']['passed']
+            if (scenario['max_signal_difference']!=signal_error or scenario['max_image_difference']!=image_error or
+                    scenario['refinement_passed']!=refined or scenario['target_passed']!=target):
+                raise ValueError('image search refinement or target status differs')
+            if not refined: reasons.append(f'{scenario["id"]}: signal or image refinement tolerance failed')
+            if not target: reasons.append(f'{scenario["id"]}: declared image or signal target failed')
+        if candidate['estimated_work']!=work or candidate['reasons']!=reasons or candidate['eligible']!=(not bool(reasons)):
+            raise ValueError('image search candidate work or eligibility differs')
+        total+=work
+    if result['work']['total_voxel_steps']!=total or result['work']['max_total_work']!=search.max_total_work or total>search.max_total_work:
+        raise ValueError('image search total work differs')
+
+
+def _validate_measured_waveform(execution,payload,source):
+    parent,legacy=_parent_measurement(execution);spec=MeasuredWaveformStudy.model_validate(execution['study'])
+    result=payload['derivation'];lab=legacy['result'];parent_spec=LabStudy.model_validate(_loads(legacy['request_json']))
+    if parent_spec.budget.max_total_work>spec.max_parent_work: raise ValueError('parent lab work reservation exceeds limit')
+    if payload['parent_record_sha256']!=parent['record_sha256'] or result['parent_record_sha256']!=legacy['record_sha256'] or result['parent_result_sha256']!=legacy['result_sha256']:
+        raise ValueError('measured waveform parent identity differs')
+    if fingerprint(result['provenance']['replay'])!=fingerprint(execution['study']): raise ValueError('measured waveform request differs')
+    fits={f['tissue_id']:f for f in lab['calibration']};ids=[t.id for t in spec.search.base.waveform.tissues]
+    if len(ids)!=2 or set(ids)!=set(parent_spec.tissue_order) or set(ids)!=set(fits): raise ValueError('measured waveform tissue binding differs')
+    valid=lab['validation']['calibration_and_holdout_passed'];status=result['parent_revalidation']
+    within_parent_work=lab['provenance']['estimated_work']<=spec.max_parent_work
+    if (status['passed'] is not True or status['calibration_and_holdout_passed']!=valid or
+        status['parent_search_complete']!=lab['validation']['complete_budgeted_search'] or
+        status['reserved_work']!=parent_spec.budget.max_total_work or status['estimated_work']!=lab['provenance']['estimated_work'] or
+        status['within_max_parent_work']!=within_parent_work):
+        raise ValueError('measured waveform parent status differs')
+    dataset=parent_spec.dataset
+    if result['measurement']!=dict(origin=dataset.origin,source_ref=dataset.source_ref,raw_file_sha256=dataset.raw_file_sha256,
+                                   dataset_sha256=lab['provenance']['dataset_sha256']):
+        raise ValueError('measured waveform dataset origin or fingerprint differs')
+    bindings=[];stresses=[];preflights=[];reasons=[];total=0
+    if valid and within_parent_work:
+        bindings=[dict(tissue_id=t,parameter='t2_s',value=fits[t]['t2_s'],unit='s',standard_uncertainty_s=fits[t]['t2_std_s'],
+                       stress_interval_s=fits[t]['t2_interval_s'],parent_calibration_sha256=fingerprint(fits[t])) for t in ids]
+        stresses=[dict(id='nominal',t2_s=[fits[t]['t2_s'] for t in ids])]
+        stresses += [dict(id=f'corner_{i}',t2_s=list(corner)) for i,corner in enumerate(product(*(fits[t]['t2_interval_s'] for t in ids)))]
+        for stress in stresses:
+            search=spec.search.model_dump(mode='json')
+            for tissue,value in zip(search['base']['waveform']['tissues'],stress['t2_s']): tissue['t2_s']=value
+            try:
+                estimate=search_waveform_image(search,_preflight_only=True)
+                preflights.append(dict(id=stress['id'],search=search,work=estimate['total_voxel_steps'],error=None));total+=estimate['total_voxel_steps']
+            except ValueError as exc:
+                preflights.append(dict(id=stress['id'],search=search,work=0,error=str(exc)));reasons.append(f"{stress['id']}: {exc}")
+        if total>spec.search.max_total_work:
+            reasons.append(f'complete uncertainty-grid work {total} exceeds shared max_total_work {spec.search.max_total_work}')
+    elif not valid: reasons.append('parent calibration or independent holdout failed; no calibrated waveform candidate executed')
+    else: reasons.append('parent lab revalidation exceeded max_parent_work; no waveform candidate executed')
+    if fingerprint(result['bindings'])!=fingerprint(bindings) or fingerprint(result['stress_scenarios'])!=fingerprint(stresses) or fingerprint(result['preflights'])!=fingerprint(preflights):
+        raise ValueError('measured waveform calibrated bindings or uncertainty preflight differ')
+    complete=bool(valid and within_parent_work and not reasons);runs=result['stress_runs']
+    if complete:
+        if len(runs)!=len(preflights): raise ValueError('incomplete measured waveform stress grid')
+        for entry,preflight in zip(runs,preflights):
+            if entry['id']!=preflight['id'] or fingerprint(entry['search'])!=fingerprint(preflight['search']) or fingerprint(entry['result']['provenance']['replay'])!=fingerprint(entry['search']):
+                raise ValueError('measured waveform stress input differs')
+            _validate_image_search(entry['result'],entry['search'],source)
+            if entry['result']['work']['total_voxel_steps']!=preflight['work']: raise ValueError('measured waveform stress work differs')
+            used={t['id']:t['t2_s'] for t in entry['search']['base']['waveform']['tissues']}
+            for candidate in entry['result']['candidates']:
+                for scenario in candidate['scenarios']:
+                    for key in ('coarse','refined'):
+                        provenance=scenario[key]['linked_readout']['provenance']
+                        if provenance['origin']!='mixed: authored synthetic model and lab-derived T2':
+                            raise ValueError('measured waveform pair origin differs')
+                        for ref in provenance['source_refs']:
+                            identity=ref['tissue_id']
+                            expected=lab_t2_binding(legacy,dataset,fits[identity],entry['id'],used[identity])
+                            if (ref['origin']!='mixed' or ref['source_ref']!='authored:tissue:'+identity or
+                                    fingerprint(ref.get('t2_binding'))!=fingerprint(expected) or
+                                    ref.get('other_parameters_origin')!='authored synthetic priors; no lab receiver gain transferred'):
+                                raise ValueError('measured waveform pair T2 binding differs')
+    elif runs: raise ValueError('incomplete measured waveform grid cannot contain computed candidates')
+    candidates=[]
+    for index,scale in enumerate(spec.search.scales):
+        item=dict(index=index,scale=scale,executed=complete,eligible=False,reasons=[])
+        if complete:
+            points=[r['result']['candidates'][index] for r in runs]
+            item['executed']=all(p['executable'] for p in points)
+            item['stress_outcomes']=[dict(id=r['id'],executable=p['executable'],eligible=p['eligible'],reasons=p['reasons']) for r,p in zip(runs,points)]
+            item['eligible']=all(p['eligible'] for p in points)
+            energies=[p['rf_energy_proxy_ut2_s'] for p in points if p['executable']]
+            if energies:
+                if any(e!=energies[0] for e in energies): raise ValueError('RF energy differs across T2 stress scenarios')
+                item['rf_energy_proxy_ut2_s']=energies[0]
+            if not item['eligible']: item['reasons'].append('one or more T2/B0/B1 or refinement scenarios failed')
+        else: item['stress_outcomes']=[];item['reasons']=list(reasons)
+        candidates.append(item)
+    if fingerprint(result['candidates'])!=fingerprint(candidates): raise ValueError('measured waveform candidate outcomes differ')
+    eligible=[p for p in candidates if p['eligible']];best=min(eligible,key=lambda p:(p['rf_energy_proxy_ut2_s'],p['index'])) if eligible else None
+    selected=best['index'] if best else None
+    if result['selected_index']!=selected or result['validation']!=dict(passed=best is not None,calibration_and_holdout_passed=valid,complete_grid=complete,reasons=reasons):
+        raise ValueError('measured waveform selection or validation differs')
+    if result['work']!=dict(total_voxel_steps=total if complete else 0,preflight_voxel_steps=total,max_total_voxel_steps=spec.search.max_total_work,max_parent_work=spec.max_parent_work):
+        raise ValueError('measured waveform work ledger differs')
+    if payload['view']!=_measured_waveform_view(result): raise ValueError('measured waveform preview differs')
+    return parent,result
+
+
 def _summary(request,payload,source):
     execution=request['execution']; mode=execution['type']
-    if mode in {'run','operation_sequence'}:
-        if (execution.get('kind') if mode=='run' else 'sequence_operations')!=payload.get('kind'): raise ValueError('execution kind differs from payload')
+    if mode in {'waveform_search','waveform_image_search'}:
+        if payload.get('kind')!=mode: raise ValueError('waveform search kind differs')
         _validate_run(payload,source)
+        result=payload['result'];inputs=fingerprint(execution['parameters'])
+        if (fingerprint(payload['replay_request']['parameters'])!=inputs or
+                fingerprint(result['provenance']['replay'])!=inputs):
+            raise ValueError('waveform search request and retained replay inputs differ')
+        if mode=='waveform_image_search': _validate_image_search(result,execution['parameters'],source)
+        candidates=result['candidates'];scales=execution['parameters']['scales']
+        if len(candidates)!=len(scales) or any(p['index']!=i or p['scale']!=scales[i] for i,p in enumerate(candidates)):
+            raise ValueError('waveform search candidates differ from declared grid')
+        eligible=[p for p in candidates if p['eligible']]
+        best=min(eligible,key=lambda p:(p['rf_energy_proxy_ut2_s'],p['index'])) if eligible else None
+        selected=best['index'] if best is not None else None
+        if result['selected_index']!=selected or result['validation']['passed']!=(best is not None):
+            raise ValueError('waveform search selection differs from eligible candidates')
+        if mode=='waveform_image_search':
+            view=payload['view']
+            if selected is None:
+                if view['images'] or view['curves']: raise ValueError('failed image search must not expose a fallback preview')
+            else:
+                scenario=best['scenarios'][0];chosen=scenario['refined'];image=chosen['image'];samples=chosen['waveform']['samples']
+                times=[s['time_s'] for s in samples]
+                images=[dict(label='Selected reconstruction · '+scenario['id'],width=image['shape'][1],height=image['shape'][0],values=image['magnitude'])]
+                curves=[dict(label='ADC real · '+scenario['id'],x=times,y=[s['real'] for s in samples]),
+                        dict(label='ADC imaginary · '+scenario['id'],x=times,y=[s['imag'] for s in samples])]
+                if view['images']!=images or view['curves']!=curves: raise ValueError('image search preview differs from selected scenario')
+            if view['validation']!=result['validation']: raise ValueError('image search preview validation differs')
+        points=[dict(index=p['index'],parameters={'rf_scale':p['scale']},executable=p['executable'],
+                     model_reported_passed=p['eligible'],reasons=p['reasons']) for p in candidates]
+        reported=best is not None;kind=payload['kind'];execution_hash=payload['result_hash']
+        origins=['authored_model_inputs','synthetic']
+    elif mode in {'run','operation_sequence','waveform_bloch','waveform_cartesian'}:
+        expected_kind=execution.get('kind') if mode=='run' else 'sequence_operations' if mode=='operation_sequence' else mode
+        if expected_kind!=payload.get('kind'): raise ValueError('execution kind differs from payload')
+        _validate_run(payload,source)
+        if mode in {'waveform_bloch','waveform_cartesian'}:
+            inputs=fingerprint(execution['parameters'])
+            if (fingerprint(payload['replay_request']['parameters'])!=inputs or
+                    fingerprint(payload['result']['provenance']['replay'])!=inputs):
+                raise ValueError('waveform request and retained replay inputs differ')
         points=[dict(index=0,input_parameters_sha256=fingerprint(payload['replay_request']['parameters']),executable=True,
             model_reported_passed=payload['view']['validation']['passed'],validation=payload['view']['validation'])]
         kind=payload['kind'];selected=0;reported=points[0]['model_reported_passed']
         execution_hash=payload['result_hash'];origins=_run_origins(payload)
-    elif mode in {'edited_tse','edited_operations'}:
+    elif mode in {'edited_tse','edited_operations','edited_waveform_cartesian'}:
         parent,original=_edit_parent(execution);run=payload['run'];_validate_run(run,source)
         if payload['parent_record_sha256']!=parent['record_sha256'] or parent['api_source_hash']!=source: raise ValueError('edited linked parent/source differs')
         if run['kind']!=original['kind']: raise ValueError('edited run adapter kind differs from parent')
@@ -303,6 +661,15 @@ def _summary(request,payload,source):
         reported=selected is not None and points[selected]['model_reported_passed']
         kind=payload['kind'];execution_hash=payload['search_hash']
         origins=sorted({'authored_model_inputs'}|{origin for p in payload['candidates'] if p['feasible'] for origin in _run_origins(p['run'])})
+    elif mode=='measured_waveform_image':
+        parent,r=_validate_measured_waveform(execution,payload,source)
+        if parent['api_source_hash']!=source: raise ValueError('measured waveform parent API source differs')
+        _validate_view(payload['view'])
+        selected=r['selected_index'];reported=r['validation']['passed'];kind=mode
+        points=[dict(index=p['index'],parameters={'rf_scale':p['scale']},executable=p['executed'],
+                     model_reported_passed=p['eligible'],reasons=p['reasons']) for p in r['candidates']]
+        origins=[r['measurement']['origin'],'authored_model_inputs','synthetic']
+        origins=sorted(set(origins));execution_hash=fingerprint(r)
     elif mode=='measured_tse':
         legacy=payload['record'];verify_study_record(legacy)
         if payload['view'] is not None: _validate_view(payload['view'])
@@ -351,8 +718,8 @@ def _summary(request,payload,source):
         mode=mode,kind=kind,selected_index=selected,model_reported_passed=bool(reported),
         candidate_count=len(points),candidates=points,execution_hash=execution_hash,input_origins=origins,
         background_references_applied=False,scope=SCOPE)
-    if mode in {'calibrated_radial_tse','edited_tse','edited_operations','agentic_inference'}: summary['parent_record_sha256']=execution['parent_record_sha256']
-    if mode in {'edited_tse','edited_operations'}: summary['applied_edits_sha256']=fingerprint(execution['updates'])
+    if mode in {'calibrated_radial_tse','measured_waveform_image','edited_tse','edited_operations','edited_waveform_cartesian','agentic_inference'}: summary['parent_record_sha256']=execution['parent_record_sha256']
+    if mode in {'edited_tse','edited_operations','edited_waveform_cartesian'}: summary['applied_edits_sha256']=fingerprint(execution['updates'])
     if mode=='agentic_inference':
         summary['inference_sha256']=fingerprint(payload['inference'])
         summary['parent_pair_sha256']=payload['parent_pair_sha256']
@@ -363,9 +730,9 @@ def _summary(request,payload,source):
 def _stages(request,request_hash,payload_hash,summary,environment):
     values=[('question',fingerprint(request['context'])),('design_and_inputs',request_hash),
             ('source_and_runtime',fingerprint(environment)),('computed_execution',payload_hash),('reported_validation',fingerprint(summary))]
-    if request['execution']['type']=='calibrated_radial_tse':
+    if request['execution']['type'] in {'calibrated_radial_tse','measured_waveform_image'}:
         values.insert(1,('parent_measurement_record',request['execution']['parent_record_sha256']))
-    if request['execution']['type'] in {'edited_tse','edited_operations'}:
+    if request['execution']['type'] in {'edited_tse','edited_operations','edited_waveform_cartesian'}:
         values[1:1]=[('parent_image_signal_record',request['execution']['parent_record_sha256']),('typed_parameter_edits',summary['applied_edits_sha256'])]
     if request['execution']['type']=='agentic_inference':
         values[1:1]=[('parent_image_signal_record',request['execution']['parent_record_sha256']),
@@ -383,7 +750,7 @@ def _stages(request,request_hash,payload_hash,summary,environment):
 
 def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
     plan=ScientificPlan.model_validate(plan).model_copy(deep=True)
-    if isinstance(plan.execution,(CalibratedRadialPlan,LinkedParentEdits,AgenticInferencePlan)) and plan.execution.parent_record is None:
+    if isinstance(plan.execution,(CalibratedRadialPlan,MeasuredWaveformPlan,LinkedParentEdits,AgenticInferencePlan)) and plan.execution.parent_record is None:
         plan.execution.parent_record=(store or ScientificStore()).get(plan.execution.parent_record_sha256)
     sources=_checked_sources();api_source=checked_source_hash();runtime=runtime_manifest()
     request=plan.model_dump(mode='json');request_json=_dump(request)
@@ -392,9 +759,11 @@ def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
         parent,original=_edit_parent(request['execution'])
         replay_scientific_record(parent)  # never derive from an uncomputed imported result
         operation_mode=isinstance(execution,EditedOperationsPlan)
-        apply_edits=apply_operation_edits if operation_mode else apply_tse_edits
+        waveform_mode=isinstance(execution,EditedWaveformCartesianPlan)
+        apply_edits=apply_operation_edits if operation_mode else apply_waveform_cartesian_edits if waveform_mode else apply_tse_edits
         parameters=apply_edits(original['replay_request']['parameters'],execution.updates,pair=original['result']['linked_readout'])
-        run=_operation_run(parameters,api_source) if operation_mode else execute(RunRequest(kind='tse',parameters=parameters,expected_source_hash=api_source),api_source)
+        run=(_operation_run(parameters,api_source) if operation_mode else _waveform_cartesian_run(parameters,api_source) if waveform_mode
+             else execute(RunRequest(kind='tse',parameters=parameters,expected_source_hash=api_source),api_source))
         payload=dict(parent_record_sha256=parent['record_sha256'],updates=[u.model_dump(mode='json') for u in execution.updates],parent_computationally_replayed=True,
             parameters_before_sha256=fingerprint(original['replay_request']['parameters']),parameters_after_sha256=fingerprint(run['replay_request']['parameters']),run=run)
     elif isinstance(execution,AgenticInferencePlan):
@@ -406,6 +775,20 @@ def create_scientific_record(plan: ScientificPlan | dict, *, store=None):
             parent_pair_sha256=pair['pair_sha256'],inference=inference,view=_agentic_view(inference))
     elif isinstance(execution,OperationSequencePlan):
         payload=_operation_run(execution.parameters,api_source)
+    elif isinstance(execution,WaveformPlan):
+        payload=_waveform_run(execution.parameters,api_source)
+    elif isinstance(execution,WaveformSearchPlan):
+        payload=_waveform_search_run(execution.parameters,api_source)
+    elif isinstance(execution,WaveformCartesianPlan):
+        payload=_waveform_cartesian_run(execution.parameters,api_source)
+    elif isinstance(execution,WaveformImageSearchPlan):
+        payload=_waveform_image_search_run(execution.parameters,api_source)
+    elif isinstance(execution,MeasuredWaveformPlan):
+        parent,legacy=_parent_measurement(request['execution'])
+        if parent['sources']!=sources or parent['api_source_hash']!=api_source or parent['runtime']!=runtime:
+            raise ValueError('measured waveform parent source/runtime differs')
+        derived=run_measured_waveform_study(legacy,execution.study)
+        payload=dict(parent_record_sha256=parent['record_sha256'],derivation=derived,view=_measured_waveform_view(derived))
     elif isinstance(execution,CalibratedRadialPlan):
         parent,legacy=_parent_measurement(request['execution'])
         derived=run_calibrated_radial_study(legacy,execution.study)
@@ -466,12 +849,30 @@ def verify_scientific_record(record):
         request=_loads(record['request_json']);payload=_loads(record['payload_json'])
         StudyContext.model_validate(request['context'])
         mode=request['execution']['type']
-        runs=([payload] if mode in {'run','operation_sequence'} else [payload['run']] if mode in {'edited_tse','edited_operations'} else
+        runs=([payload] if mode in {'run','operation_sequence','waveform_bloch','waveform_search','waveform_cartesian','waveform_image_search'} else [payload['run']] if mode in {'edited_tse','edited_operations','edited_waveform_cartesian'} else
               [p['run'] for p in payload['candidates'] if p['feasible']] if mode=='search' else [])
         for run in runs:
             pair=run.get('result',{}).get('linked_readout')
             if pair and (pair['provenance']['source_sha256']!=record['sources']['sha256'] or pair['provenance']['runtime']!=record['runtime']):
                 raise ValueError('linked source/runtime pin differs from scientific record')
+        if mode=='waveform_image_search':
+            for candidate in payload['result']['candidates']:
+                for scenario in candidate['scenarios']:
+                    for key in ('coarse','refined'):
+                        pair=scenario[key]['linked_readout'];verify_linked_readout(pair)
+                        if pair['provenance']['source_sha256']!=record['sources']['sha256'] or pair['provenance']['runtime']!=record['runtime']:
+                            raise ValueError('image search linked source/runtime pin differs from scientific record')
+        if mode=='measured_waveform_image':
+            parent,_=_parent_measurement(request['execution'])
+            if parent['sources']!=record['sources'] or parent['api_source_hash']!=record['api_source_hash'] or parent['runtime']!=record['runtime']:
+                raise ValueError('measured waveform parent source/runtime differs from child')
+            for stress in payload['derivation']['stress_runs']:
+                for candidate in stress['result']['candidates']:
+                    for scenario in candidate['scenarios']:
+                        for key in ('coarse','refined'):
+                            pair=scenario[key]['linked_readout'];verify_linked_readout(pair)
+                            if pair['provenance']['source_sha256']!=record['sources']['sha256'] or pair['provenance']['runtime']!=record['runtime']:
+                                raise ValueError('measured waveform linked source/runtime differs from child')
         summary=_summary(request,payload,record['api_source_hash'])
         if fingerprint(summary)!=fingerprint(record['summary']): raise ValueError('record summary differs from computed payload')
         if request.get('expected_execution_hash') and request['expected_execution_hash']!=summary['execution_hash']:
@@ -517,10 +918,10 @@ class ScientificStore:
         verify_scientific_record(record);raw=_dump(record);size=len(raw.encode())
         if size>MAX_BYTES: raise ValueError('scientific record exceeds 128 MiB storage limit')
         identity=record['record_sha256']
-        if record['summary']['mode'] in {'edited_tse','edited_operations'}:
+        if record['summary']['mode'] in {'edited_tse','edited_operations','edited_waveform_cartesian'}:
             parent,_=_edit_parent(_loads(record['request_json'])['execution'])
             self.save(parent)
-        if record['summary']['mode']=='calibrated_radial_tse':
+        if record['summary']['mode'] in {'calibrated_radial_tse','measured_waveform_image'}:
             parent,_=_parent_measurement(_loads(record['request_json'])['execution'])
             self.save(parent)
         if record['summary']['mode']=='agentic_inference':
@@ -558,8 +959,8 @@ class ScientificStore:
 
 def _response(record):
     payload=_loads(record['payload_json']);mode=record['summary']['mode']
-    if mode in {'measured_tse','measured_flow','calibrated_radial_tse','agentic_inference','operation_sequence'}: view=payload['view']
-    elif mode in {'edited_tse','edited_operations'}: view=payload['run']['view']
+    if mode in {'measured_tse','measured_flow','calibrated_radial_tse','measured_waveform_image','agentic_inference','operation_sequence','waveform_bloch','waveform_search','waveform_cartesian','waveform_image_search'}: view=payload['view']
+    elif mode in {'edited_tse','edited_operations','edited_waveform_cartesian'}: view=payload['run']['view']
     elif mode=='run': view=payload['view']
     else:
         selected=payload['best'] or next((p for p in payload['candidates'] if p['feasible']),None)
@@ -594,6 +995,18 @@ def import_record(record: dict):
 
 @router.get('/{identity}')
 def get_record(identity: str): return _api(lambda:_response(ScientificStore().get(identity)),True)
+
+
+@router.get('/{identity}/waveform-example')
+def measured_waveform_example(identity: str):
+    def action():
+        parent=ScientificStore().get(identity)
+        _,legacy=_parent_measurement(dict(parent_record=parent,parent_record_sha256=identity))
+        study=LabStudy.model_validate(_loads(legacy['request_json']))
+        return dict(study=build_measured_waveform_example(study),
+                    parent=dict(tissue_ids=study.tissue_order,origin=study.dataset.origin,source_ref=study.dataset.source_ref),
+                    scope='synthetic 2x2 geometry, authored T1/PD and waveform; T2 is applied only after parent revalidation')
+    return _api(action,True)
 
 
 @router.post('/{identity}/replay')

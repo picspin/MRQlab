@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# MRQlab pre-commit gate.
+#
+# Enable once per clone:  git config core.hooksPath .githooks
+#
+# It runs the checks that the staged diff actually triggers (via
+# tools/validation/diff_checklist.py --run): an unrelated change is not slowed
+# down, and a change to a validation surface executes that surface's checks
+# before the commit is allowed. Set MRQLAB_SKIP_PRECOMMIT=1 to bypass.
+#
+# Cost note: a lease-surface change runs tests/local_agent (including the
+# Hypothesis property/differential tests, max_examples 400/500) plus the shadow
+# walk-through; a physics/experiment change runs that surface's pytest. This is
+# intentional — the gate is what makes the checks real — and the escape hatch
+# above exists for the cases where it is not wanted.
+#
+# End-to-end smoke: tests/local_agent/test_precommit_hook.py drives this script
+# against a throwaway repository and asserts both the block and the pass paths.
+set -euo pipefail
+
+if [ "${MRQLAB_SKIP_PRECOMMIT:-0}" = "1" ]; then
+    echo "pre-commit: skipped (MRQLAB_SKIP_PRECOMMIT=1)"
+    exit 0
+fi
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+# Resolve an interpreter that actually has the project's dependencies. In a git
+# worktree `$ROOT/.venv` does not exist (the venv lives in the main checkout), so
+# fall back to the main worktree's venv before the bare system python.
+MAIN_ROOT="$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')"
+resolve_py() {
+    for candidate in \
+        "${MRQLAB_PYTHON:-}" \
+        "$ROOT/.venv/bin/python" \
+        "${MAIN_ROOT:+$MAIN_ROOT/.venv/bin/python}"; do
+        [ -n "$candidate" ] && [ -x "$candidate" ] && { echo "$candidate"; return 0; }
+    done
+    command -v python3
+}
+PY="$(resolve_py)"
+# A gate that cannot run its checks must block, not pass: require pytest here.
+if ! "$PY" -c "import pytest" >/dev/null 2>&1; then
+    echo "pre-commit: no interpreter with pytest (tried MRQLAB_PYTHON, \$ROOT/.venv, ${MAIN_ROOT:-main}/.venv); set MRQLAB_PYTHON" >&2
+    exit 1
+fi
+
+# Packages must resolve from this worktree, not the venv's editable checkout.
+export PYTHONPATH="packages/sequence-ir:packages/physics:packages/recon:packages/mrqlab_experiment:services/api:services/local_agent${PYTHONPATH:+:$PYTHONPATH}"
+
+staged=$(git diff --cached --name-only)
+[ -z "$staged" ] && exit 0
+
+# Classify the staged diff, verify each triggered surface's guard tests exist,
+# and execute its checks. One command so the header comment above is literally
+# what happens: a triggered surface is both checked and run.
+echo "pre-commit: diff-triggered validation (existence gate + execute the triggered checks)"
+"$PY" tools/validation/diff_checklist.py --staged --check --run
+
+echo "pre-commit: OK"

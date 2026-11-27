@@ -412,6 +412,11 @@ export async function createScientificRecord(plan: import("./scientific-records"
   if (!response.ok) throw new Error(`实验记录保存失败 (${response.status}): ${await response.text()}`);
   return response.json();
 }
+export async function fetchMeasuredWaveformExample(parentId: string, signal?: AbortSignal): Promise<{ study: Record<string, unknown>; parent: { tissue_ids: string[]; origin: string; source_ref: string }; scope: string }> {
+  const response = await fetch(`${BASE}/research/records/${encodeURIComponent(parentId)}/waveform-example`, { signal });
+  if (!response.ok) throw new Error(`波形模板载入失败 (${response.status}): ${await response.text()}`);
+  return response.json();
+}
 export async function fetchFlowStudyExample(signal?: AbortSignal): Promise<import("./flow-study").FlowStudyInput> {
   const response = await fetch(`${BASE}/research/flow-study/example`, { signal });
   if (!response.ok) throw new Error(`流动示例载入失败 (${response.status})`);

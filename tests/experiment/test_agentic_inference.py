@@ -146,13 +146,19 @@ def same_t2_pair():
     return _weighted_pair(weights=weights,echoes=4,scope='same-T2 synthetic fixture')
 
 
+# Ground-truth per-tissue, per-echo amplitudes of the 3D fixture. Tissues 'a'
+# and 'b' share T2=.05 (so 'b' has a clean relative-decay reference against 'a'),
+# and 'c' decays with .09. The DC-bearing echo's absolute amplitudes must equal
+# these weights, so the test can assert the values rather than only the shape.
+THREE_D_TISSUES=['a','b','c']
+THREE_D_WEIGHTS={0:.20*np.exp(-np.arange(1,5)*.008/.05),1:.12*np.exp(-np.arange(1,5)*.008/.05),
+                 2:.30*np.exp(-np.arange(1,5)*.008/.09)}
+
+
 @pytest.fixture(scope='module')
 def three_d_pair():
-    tissues=['a','b','c']
     labels=(np.indices((4,4,4)).sum(axis=0)%3)
-    weights={0:.20*np.exp(-np.arange(1,5)*.008/.05),1:.12*np.exp(-np.arange(1,5)*.008/.05),
-             2:.30*np.exp(-np.arange(1,5)*.008/.09)}
-    return _weighted_pair_3d(weights=weights,shape=[4,4,4],labels=labels,tissues=tissues)
+    return _weighted_pair_3d(weights=THREE_D_WEIGHTS,shape=[4,4,4],labels=labels,tissues=THREE_D_TISSUES)
 
 
 @pytest.fixture(scope='module')
@@ -361,32 +367,47 @@ def test_three_d_label_grid_infers_the_same_identifiable_quantities(three_d_pair
         item=inference['proportions']['structure'][tissue]
         assert item['voxel_count']==int(np.count_nonzero(labels==index))
         assert item['voxel_fraction']==pytest.approx(item['voxel_count']/64,abs=1e-15)
-    # Exactly one echo carries the DC sample, and its absolute amplitudes are exact.
+    # Exactly one echo carries the DC sample, and its absolute amplitudes are
+    # exact: compare against the fixture's own per-echo weights, as the 2D
+    # test_absolute_amplitudes_are_identified_only_at_the_dc_echo does.
     bins=inference['ingestion']['echo_bins']
     absolute=[entry for entry in bins if entry['absolute_amplitude_identified']]
     assert len(absolute)==1 and absolute[0]['rank']==3 and absolute[0]['nullity']==0
     assert all(entry['rank']==2 and entry['nullity']==1 for entry in bins if not entry['absolute_amplitude_identified'])
     echo=str(absolute[0]['echo'])
     assert set(inference['proportions']['acquisition']['absolute_dc_echo'])=={echo}
+    for index,tissue in enumerate(THREE_D_TISSUES):
+        assert inference['proportions']['acquisition']['absolute_dc_echo'][echo][tissue]==pytest.approx(
+            float(THREE_D_WEIGHTS[index][int(echo)-1]),rel=1e-12,abs=1e-15)
     # Tissue 'b' is a clean same-T2 pair against 'a' (both 0.05 s), so its
     # relative contrast recovers that decay without being a per-tissue T2 map.
-    assert inference['proportions']['acquisition']['apparent_relative_contrast_decay_s']['b']==pytest.approx(.05,rel=1e-9)
-    assert inference['proportions']['acquisition']['apparent_relative_contrast_decay_s']['a'] is None
+    acquisition=inference['proportions']['acquisition']
+    assert acquisition['apparent_relative_contrast_decay_s']['b']==pytest.approx(.05,rel=1e-9)
+    assert acquisition['decay_fit_residual']['b']==pytest.approx(0.,abs=1e-12)
+    assert acquisition['apparent_relative_contrast_decay_s']['a'] is None
+    assert all(value<0 for value in acquisition['contrast_vs_reference']['b'])
     # Every modality is a full 64-value volume, not a pre-collapsed 2D plane.
     assert all(len(item['values'])==64 for item in inference['modalities'])
     assert verify_agentic_inference(inference)['integrity_passed']
 
 
 def test_three_d_view_takes_the_center_plane_not_a_collapsed_volume(three_d_pair):
-    """The bounded human preview must slice the 3D volume, not flatten it."""
+    """The bounded human preview must slice the 3D volume's center plane, and the
+    pixels must be exactly that plane — not merely a plane-sized array."""
     from mrqlab_api.scientific_records import _agentic_view, _validate_view
     inference=infer_tissue_modalities(three_d_pair)
     view=_agentic_view(inference)
     _validate_view(view)
-    shape=inference['source']['shape']
-    assert [image['width'] for image in view['images']]==[shape[2]]*len(view['images'])
-    assert [image['height'] for image in view['images']]==[shape[1]]*len(view['images'])
-    assert all(len(image['values'])==shape[1]*shape[2] for image in view['images'])
+    shape=inference['source']['shape'];plane=shape[1]*shape[2];start=(shape[0]//2)*plane
+    # Each preview image is the center plane of the matching modality, byte-for-byte.
+    modality_values={item['label']:item['values'] for item in inference['modalities']}
+    assert [image['label'] for image in view['images']]==list(modality_values)
+    for image in view['images']:
+        assert image['width']==shape[2] and image['height']==shape[1]
+        assert image['values']==modality_values[image['label']][start:start+plane]
+    # A collapsed (z-mean) or first-slice plane would differ from the center plane.
+    assert any(view['images'][i]['values']!=modality_values[label][:plane]
+               for i,label in enumerate(modality_values))
     assert [curve['label'] for curve in view['curves']]==['a','b','c']
     assert all(len(curve['x'])==len(curve['y'])==4 for curve in view['curves'])
 

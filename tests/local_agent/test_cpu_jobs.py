@@ -1,4 +1,6 @@
 import time
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 
 from mrqlab_experiment import build_protocol_experiment, plan_experiment
 from mrqlab_agent.providers import CpuExecutionProvider
@@ -36,3 +38,32 @@ def test_cancelled_queued_job_never_runs():
     handle = provider.submit(plan)
     provider.cancel(handle.id)
     assert store.get_job(handle.id).status == "cancelled"
+
+
+def test_worker_claim_and_cancel_are_atomic():
+    store = JobStore()
+    provider = CpuExecutionProvider(store, max_workers=0)
+    plan = plan_experiment(build_protocol_experiment("brain_lesion_t2_tse"))
+    job = provider.submit(plan)
+    gate = Barrier(2)
+
+    def start():
+        gate.wait()
+        return store.start_if_queued(job.id)
+
+    def cancel():
+        gate.wait()
+        try:
+            provider.cancel(job.id)
+            return "cancelled"
+        except ValueError as exc:
+            assert "not preemptible" in str(exc)
+            return "running"
+
+    with ThreadPoolExecutor(max_workers=2) as workers:
+        start_future = workers.submit(start)
+        cancel_future = workers.submit(cancel)
+        claimed, outcome = start_future.result(), cancel_future.result()
+    assert (claimed, outcome) in {(True, "running"), (False, "cancelled")}
+    assert [event.kind for event in store.events(job.id)] == ["queued", outcome]
+    provider.shutdown()
