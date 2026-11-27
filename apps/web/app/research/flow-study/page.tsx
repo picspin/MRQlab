@@ -72,7 +72,7 @@ export default function FlowStudyPage() {
   const result = useMemo(() => response ? (JSON.parse(response.record.payload_json) as { flow_study: FlowStudyResult }).flow_study : null, [response]);
   const fit = result?.calibration;
   return <div className={styles.workbench}>
-    <header className={styles.heading}><div><h1>速度测量到 DIR 设计验证</h1><p>速度 CSV · 条件压力校准 · 有限选层 RF · 因果门控 · 完整回放</p></div><Link href="/research" className={styles.scope}>脉冲设计研究台</Link></header>
+    <header className={styles.heading}><div><h1>速度测量到 DIR 设计验证</h1><p>速度 CSV  --  条件压力校准  --  有限选层 RF  --  因果门控  --  完整回放</p></div><Link href="/research" className={styles.scope}>脉冲设计研究台</Link></header>
     <p className={styles.boundary}>教学 / 研究仿真；不作为扫描仪验证或临床质量认证。B/C 保持 parked。</p>
     <div className={styles.instrument}>
       <section className={styles.design} aria-label="速度测量与设计输入">

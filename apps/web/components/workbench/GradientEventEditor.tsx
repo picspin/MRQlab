@@ -36,24 +36,24 @@ export function GradientEventEditor({ channel, initialAmplitude, initialDuration
   }, [amplitude, channel, duration, ramp]);
 
   return (
-    <section data-testid="gradient-event-editor" style={{ border: "1px solid #33434a", padding: "10px", marginTop: "8px" }}>
+    <section data-testid="gradient-event-editor" style={{ border: ".5px solid var(--border)", padding: "10px", marginTop: "8px" }}>
       <strong>{channel} GRADIENT VALIDATION</strong>
-      <div style={{ display: "flex", gap: "10px", marginTop: "8px", fontSize: "11px", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "10px", marginTop: "8px", fontSize: "12px", flexWrap: "wrap" }}>
         <label>Amplitude (mT/m) <input data-testid="grad-amp" type="number" step="0.1" value={amplitude} onChange={(e) => setAmplitude(Number(e.target.value))} /></label>
         <label>Duration (ms) <input data-testid="grad-duration" type="number" step="0.1" value={duration} onChange={(e) => setDuration(Number(e.target.value))} /></label>
         <label>Ramp (ms) <input data-testid="grad-ramp" type="number" step="0.1" value={ramp} onChange={(e) => setRamp(Number(e.target.value))} /></label>
       </div>
-      <div data-testid="editor-seed-note" style={{ color: "#8ea1a8", fontSize: "10px", marginTop: "6px" }}>
+      <div data-testid="editor-seed-note" style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "6px" }}>
         {overlayTiming
-          ? "SequenceIR amplitude is mT/m · duration/ramp from overlay"
+          ? "SequenceIR amplitude is mT/m  --  duration/ramp from overlay"
           : physicalUnits
-            ? "SequenceIR amplitude is mT/m · duration/ramp = editor seed · not SequenceIR unless loaded from overlay"
-            : "editor seed · not SequenceIR unless loaded from overlay · timeline normalized value is not mT/m"}
+            ? "SequenceIR amplitude is mT/m  --  duration/ramp = editor seed  --  not SequenceIR unless loaded from overlay"
+            : "editor seed  --  not SequenceIR unless loaded from overlay  --  timeline normalized value is not mT/m"}
       </div>
-      {pending && <div data-testid="gradient-validate-pending" style={{ color: "#8ea1a8", fontSize: "10px", marginTop: "4px" }}>validating…</div>}
-      {error && <div role="alert" data-testid="gradient-validate-error" style={{ color: "#fb7185" }}>{error}</div>}
+      {pending && <div data-testid="gradient-validate-pending" style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "4px" }}>validating…</div>}
+      {error && <div role="alert" data-testid="gradient-validate-error" style={{ color: "var(--red-11)" }}>{error}</div>}
       {result && <div data-testid="gradient-validation-result">
-        <b>{result.is_valid ? "VALID" : "INVALID"}</b> · actual slew: {result.actual_slew_rate}
+        <b>{result.is_valid ? "VALID" : "INVALID"}</b>  --  actual slew: {result.actual_slew_rate}
         <ul>{result.violations.map((violation) => <li key={violation}>{violation}</li>)}</ul>
       </div>}
       <button

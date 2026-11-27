@@ -49,8 +49,8 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
         flexDirection: "column",
         gap: "1.25rem",
         height: "100%",
-        color: "#d1dde2",
-        fontSize: "0.875rem",
+        color: "var(--text)",
+        fontSize: "12px",
         width: "100%",
       }}
     >
@@ -60,17 +60,17 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
           gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
           gap: "1rem",
-          backgroundColor: "#101618",
+          backgroundColor: "var(--surface)",
           padding: "0.875rem 1.25rem",
-          borderRadius: "8px",
-          border: "2px solid #2e3b40",
-          boxShadow: "inset 0 2px 6px rgba(0,0,0,0.6)",
+          borderRadius: "4px",
+          border: ".5px solid var(--border)",
+          boxShadow: "none",
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: "12px",
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               color: "var(--cyan)",
@@ -79,20 +79,20 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
           >
             PROTOCOL A: LIVE
           </span>
-          <span style={{ color: "#ffffff", fontSize: "0.95rem", fontWeight: 700 }} data-testid="compare-proto-a">
-            FA {currentFa}° · TE {currentTe}ms · 3T
+          <span style={{ color: "var(--text)", fontSize: "14px", fontWeight: 700 }} data-testid="compare-proto-a">
+            FA {currentFa}°  --  TE {currentTe}ms  --  3T
           </span>
         </div>
 
         <div
           style={{
-            fontSize: "0.85rem",
+            fontSize: "12px",
             fontWeight: 900,
-            color: "#6b828c",
+            color: "var(--text-muted)",
             padding: "0.3rem 0.6rem",
-            backgroundColor: "#070b0c",
+            backgroundColor: "var(--surface-sunken)",
             borderRadius: "4px",
-            border: "1px solid #243035",
+            border: ".5px solid var(--border)",
           }}
         >
           VS
@@ -101,7 +101,7 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
         <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", textAlign: "right" }}>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: "12px",
               textTransform: "uppercase",
               letterSpacing: "0.08em",
               color: "var(--amber)",
@@ -111,7 +111,7 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
             PROTOCOL B: CHALLENGER
           </span>
           <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", alignItems: "center" }}>
-            <label style={{ fontSize: "11px", color: "#8da1aa", fontFamily: "monospace" }}>
+            <label style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "monospace" }}>
               FA
               <input
                 data-testid="compare-fa-b"
@@ -124,15 +124,15 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
                 style={{
                   width: "64px",
                   marginLeft: "4px",
-                  background: "#0c1114",
+                  background: "var(--surface-sunken)",
                   color: "var(--amber)",
-                  border: "1px solid #3d4c53",
-                  borderRadius: "3px",
+                  border: ".5px solid var(--border)",
+                  borderRadius: "4px",
                   padding: "2px 4px",
                 }}
               />
             </label>
-            <label style={{ fontSize: "11px", color: "#8da1aa", fontFamily: "monospace" }}>
+            <label style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "monospace" }}>
               TE
               <input
                 data-testid="compare-te-b"
@@ -145,10 +145,10 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
                 style={{
                   width: "64px",
                   marginLeft: "4px",
-                  background: "#0c1114",
+                  background: "var(--surface-sunken)",
                   color: "var(--amber)",
-                  border: "1px solid #3d4c53",
-                  borderRadius: "3px",
+                  border: ".5px solid var(--border)",
+                  borderRadius: "4px",
                   padding: "2px 4px",
                 }}
               />
@@ -158,8 +158,8 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
       </div>
 
       {error && (
-        <div data-testid="compare-backend-wait" style={{ fontSize: "11px", color: "#f59e0b", fontFamily: "monospace" }}>
-          awaiting backend compare payload · {error}
+        <div data-testid="compare-backend-wait" style={{ fontSize: "12px", color: "var(--amber-11)", fontFamily: "monospace" }}>
+          awaiting backend compare payload  --  {error}
         </div>
       )}
 
@@ -169,10 +169,10 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
           flexDirection: "column",
           gap: "0.5rem",
           backgroundColor: "var(--bg-crt)",
-          border: "2px solid #273439",
-          borderRadius: "8px",
+          border: ".5px solid var(--border)",
+          borderRadius: "4px",
           padding: "1rem",
-          boxShadow: "inset 0 0 16px rgba(0,0,0,0.8)",
+          boxShadow: "none",
           position: "relative",
           backgroundImage:
             "linear-gradient(var(--graticule) 1px, transparent 1px), linear-gradient(90deg, var(--graticule) 1px, transparent 1px)",
@@ -182,16 +182,16 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: "12px",
               fontWeight: 800,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
-              color: "#8da1aa",
+              color: "var(--text-muted)",
             }}
           >
             ECHO TRAIN DECAY DYNAMICS (ETL=16)
           </span>
-          <span style={{ fontSize: "0.75rem", fontFamily: "monospace" }}>
+          <span style={{ fontSize: "12px", fontFamily: "monospace" }}>
             <span style={{ color: "var(--cyan)", fontWeight: "bold" }}>― Proto A</span>
             &nbsp;&nbsp;
             <span style={{ color: "var(--amber)", fontWeight: "bold" }}>― Proto B</span>
@@ -229,8 +229,8 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
           style={{
             display: "flex",
             justifyContent: "space-between",
-            fontSize: "0.75rem",
-            color: "#6b828c",
+            fontSize: "12px",
+            color: "var(--text-muted)",
             fontFamily: "monospace",
           }}
         >
@@ -244,25 +244,25 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.875rem" }} data-testid="compare-metrics">
           <div
             style={{
-              backgroundColor: "#101618",
-              border: "1px solid #2d3b40",
+              backgroundColor: "var(--surface)",
+              border: ".5px solid var(--border)",
               borderRadius: "6px",
               padding: "0.875rem",
             }}
           >
-            <div style={{ fontSize: "0.75rem", color: "#8da1aa", fontWeight: 700, marginBottom: "0.25rem" }}>
+            <div style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: 700, marginBottom: "0.25rem" }}>
               ΔSignal (Contrast)
             </div>
-            <div style={{ fontSize: "1.1rem", fontWeight: 900, fontFamily: "monospace", color: "#ffffff" }}>
+            <div style={{ fontSize: "16px", fontWeight: 900, fontFamily: "monospace", color: "var(--text)" }}>
               <span style={{ color: "var(--cyan)" }}>{protoA.contrast_diff.toFixed(3)}</span>
-              <span style={{ color: "#6b828c", fontSize: "0.85rem" }}> vs </span>
+              <span style={{ color: "var(--text-muted)", fontSize: "12px" }}> vs </span>
               <span style={{ color: "var(--amber)" }}>{protoB.contrast_diff.toFixed(3)}</span>
             </div>
             <div
               style={{
-                fontSize: "0.75rem",
+                fontSize: "12px",
                 marginTop: "0.35rem",
-                color: deltaContrastDiff >= 0 ? "var(--green-neon)" : "#ff7e33",
+                color: deltaContrastDiff >= 0 ? "var(--green-neon)" : "var(--amber-11)",
                 fontWeight: "bold",
               }}
             >
@@ -272,39 +272,39 @@ export const CompareLensView: React.FC<CompareLensViewProps> = ({ currentFa, cur
 
           <div
             style={{
-              backgroundColor: "#101618",
-              border: "1px solid #2d3b40",
+              backgroundColor: "var(--surface)",
+              border: ".5px solid var(--border)",
               borderRadius: "6px",
               padding: "0.875rem",
             }}
           >
-            <div style={{ fontSize: "0.75rem", color: "#8da1aa", fontWeight: 700, marginBottom: "0.25rem" }}>CNR Proxy</div>
-            <div style={{ fontSize: "1.1rem", fontWeight: 900, fontFamily: "monospace", color: "#ffffff" }}>
+            <div style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: 700, marginBottom: "0.25rem" }}>CNR Proxy</div>
+            <div style={{ fontSize: "16px", fontWeight: 900, fontFamily: "monospace", color: "var(--text)" }}>
               <span style={{ color: "var(--cyan)" }}>{protoA.cnr_proxy.toFixed(2)}</span>
-              <span style={{ color: "#6b828c", fontSize: "0.85rem" }}> vs </span>
+              <span style={{ color: "var(--text-muted)", fontSize: "12px" }}> vs </span>
               <span style={{ color: "var(--amber)" }}>{protoB.cnr_proxy.toFixed(2)}</span>
             </div>
           </div>
 
           <div
             style={{
-              backgroundColor: "#101618",
-              border: "1px solid #2d3b40",
+              backgroundColor: "var(--surface)",
+              border: ".5px solid var(--border)",
               borderRadius: "6px",
               padding: "0.875rem",
             }}
           >
-            <div style={{ fontSize: "0.75rem", color: "#8da1aa", fontWeight: 700, marginBottom: "0.25rem" }}>
+            <div style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: 700, marginBottom: "0.25rem" }}>
               Relative SAR Load
             </div>
-            <div style={{ fontSize: "1.1rem", fontWeight: 900, fontFamily: "monospace", color: "#ffffff" }}>
+            <div style={{ fontSize: "16px", fontWeight: 900, fontFamily: "monospace", color: "var(--text)" }}>
               <span style={{ color: "var(--cyan)" }}>{protoA.relative_sar.toFixed(1)}</span>
-              <span style={{ color: "#6b828c", fontSize: "0.85rem" }}> vs </span>
+              <span style={{ color: "var(--text-muted)", fontSize: "12px" }}> vs </span>
               <span style={{ color: "var(--amber)" }}>{protoB.relative_sar.toFixed(1)}</span>
             </div>
             <div
               style={{
-                fontSize: "0.75rem",
+                fontSize: "12px",
                 marginTop: "0.35rem",
                 color: sarDifference <= 0 ? "var(--green-neon)" : "var(--orange-neon)",
                 fontWeight: "bold",

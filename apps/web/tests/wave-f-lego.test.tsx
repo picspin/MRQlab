@@ -207,7 +207,7 @@ describe("Wave F Lego constructor", () => {
     await open();
     expect(screen.getByTestId("sequence-lego")).toHaveTextContent(/TEACHING BLOCKS/i);
     fireEvent.click(screen.getByTestId("catalog-trap_gx"));
-    await waitFor(() => expect(screen.getByTestId("sequence-lego")).toHaveTextContent(/PHYSICAL G · mT\/m/i));
+    await waitFor(() => expect(screen.getByTestId("sequence-lego")).toHaveTextContent(/PHYSICAL G -- mT\/m/i));
     expect(screen.getByTestId("sequence-lego")).not.toHaveTextContent(/TEACHING BLOCKS/i);
   });
 

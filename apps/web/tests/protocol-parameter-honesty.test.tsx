@@ -21,12 +21,12 @@ describe("protocol parameter honesty", () => {
       return json({ schema_version: "1.0", experiment_id: "x", observations: [] });
     }));
     render(<WorkspaceProvider><Harness /></WorkspaceProvider>);
-    expect(screen.getByTestId("clinical-acceleration-state")).toHaveTextContent("local only · not in execution plan");
+    expect(screen.getByTestId("clinical-acceleration-state")).toHaveTextContent("local only -- not in execution plan");
     fireEvent.click(screen.getByRole("button", { name: "Physics profile" }));
     fireEvent.click(screen.getByTestId("edit-mode-toggle"));
-    expect(screen.getByTestId("readout-width-state")).toHaveTextContent("local only · not in execution plan");
-    expect(screen.getByTestId("partial-fourier-state")).toHaveTextContent("local only · not in execution plan");
-    expect(screen.getByTestId("adc-bw-slider-seed")).toHaveTextContent("seed · not wired");
+    expect(screen.getByTestId("readout-width-state")).toHaveTextContent("local only -- not in execution plan");
+    expect(screen.getByTestId("partial-fourier-state")).toHaveTextContent("local only -- not in execution plan");
+    expect(screen.getByTestId("adc-bw-slider-seed")).toHaveTextContent("seed -- not wired");
     fireEvent.click(screen.getByTestId("run-experiment-btn"));
     await waitFor(() => expect(fetch).toHaveBeenCalled());
     for (const [url, init] of (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls) {
