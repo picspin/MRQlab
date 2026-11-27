@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# config isolation gate: a staged change under config/ or .claude/settings.json
+# requires an explicit [config-change] marker in the commit message.
+# Lives in commit-msg because $1 (the message file) only exists at that stage.
+set -euo pipefail
+
+# Merge commits are exempt: rejecting them would strand the repo mid-merge (see README).
+if [ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]; then
+  exit 0
+fi
+
+msg_file="$1"
+# --no-renames: default rename detection lists only the new path, so moving a file out of config/ would escape.
+# -z: NUL-separated, so core.quotePath cannot quote non-ASCII names past the match.
+staged_file="$(mktemp "${TMPDIR:-/tmp}/commit-msg-staged.XXXXXX")"
+trap 'rm -f "$staged_file"' EXIT
+git diff --cached --name-only --no-renames -z > "$staged_file"
+
+# Deletions count too, so no --diff-filter.
+if grep -aq -e '^config/' -e '^\.claude/settings\.json$' -z "$staged_file"; then
+  # Comment lines are stripped by git, so a marker inside one must not count.
+  if printf '%s\n' "$(grep -v '^#' "$msg_file" || true)" | grep -qF '[config-change]'; then
+    exit 0
+  fi
+  cat >&2 <<'EOF'
+ERROR: staged change touches config/ or .claude/settings.json but the commit message has no [config-change] marker. Commit rejected.
+To proceed: add [config-change] to the commit message and commit again.
+Note: the marker is an explicit declaration, not an exemption. Config changes still go through review.
+EOF
+  exit 1
+fi
